@@ -1,9 +1,10 @@
 # Phase 1 milestone and safety register
 
 Status: Phase 1 implemented; native and full Linux tests passed. The image security
-blocker is resolved by ADRs A17–A20. The publication repository is
-[JamesChan93/aca-2](https://github.com/JamesChan93/aca-2); its first hosted CI result
-is pending verification.
+blocker is resolved by ADRs A17–A20. The first hosted
+[GitHub Actions run passed](https://github.com/JamesChan93/aca-2/actions/runs/39068630968)
+for implementation commit `70bd4c0977b79f6c6517b5ea67f94dee8fa3442e` in
+[JamesChan93/aca-2](https://github.com/JamesChan93/aca-2).
 This file is the milestone review record. Passing local checks does
 not authorise the next phase or any real-money operation.
 
@@ -50,6 +51,7 @@ Observed locally on 17 October 2026:
 | Fresh amd64 runtime database lifecycle | Provisioning, packaged migration and restricted database checks passed under emulation |
 | Logical database transition | All original records restored into a separate Alpine volume with matching content hashes; original Debian volume retained |
 | Both runtime image scans, Trivy 0.76.0 | Passed: zero HIGH/CRITICAL findings, no exclusions or ignore-unfixed bypass |
+| Hosted GitHub Actions on ubuntu-24.04 amd64 | Passed: hash-locked install, static checks, all 76 Linux tests, dependency audits, package build, container smoke and both runtime image scans |
 
 The PostgreSQL build and verification tools were isolated under `/private/tmp`;
 the operating system's Python was not replaced. Native tests cover append-only triggers,
@@ -73,11 +75,13 @@ CI and verification now install the wheel, validating packaged migrations and av
 an unlocked helper. No dependency pin was substituted. Linux tests use a separate test
 stage/project and do not mount test/admin credentials into the ordinary app service.
 
-**Not executed locally:** hosted GitHub Actions and execution on native amd64 hardware.
-The full suite ran on native macOS, Linux arm64 and emulated Linux amd64; each run
-requires real PostgreSQL. No hosted CI run is claimed yet. The pipeline is prepared
-for the specified GitHub repository. G1 also includes later read-only connectivity
-requirements. No Phase 2 work or live execution follows automatically.
+The full suite ran on native macOS, Linux arm64, emulated Linux amd64 and the hosted
+ubuntu-24.04 amd64 runner; each run requires real PostgreSQL. The hosted run also
+passed dependency audits, package builds, container bootstrap/restart and both image
+scans. Its run URL, tested commit, complete test count and step conclusions are saved
+in [the hosted CI evidence](evidence/phase-1-hosted-ci.json). G1 also includes later
+read-only connectivity requirements. No Phase 2 work or live execution follows
+automatically.
 
 ## Incomplete safety requirements
 
@@ -104,5 +108,5 @@ the risk limits as enforced trading controls until the later implementation pass
 ## Next review boundary
 
 The next milestone is Phase 2 read-only Kraken connectivity. It must not implement
-order placement or use a trading key. Review this milestone's evidence and complete
-the hosted CI run first. No automatic progression to Phase 7/8 is authorised.
+order placement or use a trading key. Review this milestone's evidence before
+authorising that phase. No automatic progression to Phase 7/8 is authorised.

@@ -85,7 +85,7 @@ docker run --rm --cap-drop ALL --security-opt no-new-privileges \
 
 Export `aca-postgres:18.6` to a different archive and repeat for the database. Fetch
 fresh vulnerability data before release; dated results do not establish future
-advisory status. The first hosted GitHub Actions result is recorded in the milestone
-report when verified.
+advisory status. The first hosted GitHub Actions run also passed both runtime image
+scans; its tested commit and job conclusions are recorded in the milestone report.
 The local stack remains a Phase 1 development foundation without exchange access,
 live activation or production deployment.
