@@ -1,0 +1,59 @@
+{
+  "actual_replay_equal": true,
+  "code_sha256": "5357451912d4826db0ac6cf981cfd93442b3140a1ef28d824dadd02bcda8a0ac",
+  "holdout_opened": false,
+  "hosted_source_ci": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "id": 39073324375
+    },
+    {
+      "conclusion": "success",
+      "event": "pull_request",
+      "id": 39073355201
+    }
+  ],
+  "mypy_strict": true,
+  "numpy_licence_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+  "numpy_version": "2.5.4",
+  "primary_report_sha256": "daf9f70b51ada3d0f97f7cf29afc3024963d3915c29411941b16719c9030848e",
+  "promotion_qualified": 0,
+  "publication_secret_value_check": {
+    "files": 102,
+    "matches": 0
+  },
+  "remaining_gates": [
+    "G1_authenticated_account_evidence",
+    "G2_safety",
+    "G3_research",
+    "G4_paper_economics",
+    "G5_readiness",
+    "G6_live_activation"
+  ],
+  "replay_report_sha256": "f8fb4984f4de7645f7c01168a1b981e43ff81b437c2267e37082b4a835e6d83e",
+  "research_lock_audit": "zero known vulnerabilities",
+  "research_lock_sha256": "14a631e3c3a19b74cabe73330090f1bb5b4190691fb7774d864a5fb070c0b30b",
+  "ruff": true,
+  "schema_version": 1,
+  "source_commit": "09453f170e6ab2960626242612a6d1150f6c1a80",
+  "tests": {
+    "linux_amd64_musl_postgresql": {
+      "installed_wheel": "0.3.0",
+      "passed": 174,
+      "seconds": 55.61
+    },
+    "linux_arm64_musl_postgresql": {
+      "installed_wheel": "0.3.0",
+      "passed": 174,
+      "seconds": 21.39
+    },
+    "native_macos_arm64_postgresql": {
+      "installed_wheel": "0.3.0",
+      "passed": 174,
+      "seconds": 17.33
+    }
+  },
+  "unique_candidate_combinations": 20,
+  "wheel_sdist_build": true
+}

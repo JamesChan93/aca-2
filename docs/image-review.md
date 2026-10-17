@@ -103,3 +103,15 @@ evidence, not a guarantee about future advisories.
 The installed Python files were hashed and compared with the reviewed Phase 2 source
 commit. The opt-in collector has an egress bridge and only the runtime database secret;
 the default foundation/database remain internal. No container mounts an exchange key.
+
+## Phase 3 verification
+
+The 0.3.0 runtime continues the same reviewed Python/PostgreSQL base digests. NumPy
+is optional local/test functionality and is absent from the ordinary runtime image.
+Both final runtime scans pass HIGH/CRITICAL vulnerability and secret checks with no
+exclusions. Exact config digests, scan hashes, installed source fingerprint and
+container isolation are recorded in [Phase 3 runtime evidence](evidence/phase-3-runtime.json).
+OCI index digests can differ after rebuild attestations; scanned image config and
+rootfs diff IDs were checked against the running containers. A scanner cache process
+fault during concurrent scans was resolved by serial retries; it is not a clean
+scan result by itself.

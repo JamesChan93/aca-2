@@ -187,3 +187,43 @@ packaged migration, restricted runtime role, idempotent research publication,
 conflicts and restart persistence. Holdout and seeded replay tests exercise the full
 predeclared family on explicitly synthetic data. These tests do not claim G2
 execution safety, actual fee-currency accounting or exchange-side protection.
+
+## Local release verification — 17 October 2026
+
+The final source commit is `09453f170e6ab2960626242612a6d1150f6c1a80`. Its packaged
+source fingerprint is `5357451912d4826db0ac6cf981cfd93442b3140a1ef28d824dadd02bcda8a0ac`.
+Native macOS arm64 with PostgreSQL passed **174 tests in 17.33s** against the newly
+installed 0.3.0 wheel; non-root Linux arm64 musl passed **174 in 21.39s**. Formatting,
+Ruff, strict mypy, wheel/sdist builds, dependency consistency and the new research
+lock advisory audit passed. An actual-data replay produced identical trial outcomes
+under the same code/data/configuration; UUIDs differ as expected. The retained final
+report hash is `daf9f70b51ada3d0f97f7cf29afc3024963d3915c29411941b16719c9030848e`.
+
+The local runtime's installed Python sources exactly match that fingerprint. Both
+runtime image scans report zero HIGH/CRITICAL vulnerabilities and embedded secrets,
+with no finding exclusions. The scanner reports config digests while Docker reports
+OCI index digests; the scanned configuration and rootfs layers were compared to the
+running images. One concurrent scanner cache process failed; serial retries against
+the completed advisory cache passed. This was a scanner process fault, not a skipped
+check or an application safety result.
+
+A protected pre-migration database dump is retained locally. Migration, application
+and database recreation preserved the public-data/audit history and research
+records. Re-publication inserted zero artefacts/events. The app/database are healthy,
+non-root, read-only, capability-dropped, on the internal network without published
+ports. This local backup/smoke evidence is not a disaster-restore or RPO/RTO claim.
+Exact counts, identities, scan hashes and verification are in
+[phase-3-runtime.json](evidence/phase-3-runtime.json) and
+[phase-3-verification.json](evidence/phase-3-verification.json). The audited source
+and all candidate/fold outcomes are in
+[phase-3-dataset.json](evidence/phase-3-dataset.json) and
+[phase-3-research.json](evidence/phase-3-research.json). The committed research export
+keeps selected metrics; full metrics, daily curves and episodes remain in its
+hash-addressed local report and the append-only PostgreSQL registry.
+
+Hosted Linux amd64 musl passed **174 tests in 55.61s**. Both source-commit
+checks passed: [push 39073324375](https://github.com/JamesChan93/aca-2/actions/runs/39073324375)
+and [PR 39073355201](https://github.com/JamesChan93/aca-2/actions/runs/39073355201).
+This includes all three dependency audits, package builds, clean bootstrap/restart
+and both runtime image scans. Job/step evidence is in
+[phase-3-hosted-ci.json](evidence/phase-3-hosted-ci.json).
