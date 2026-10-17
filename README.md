@@ -1,8 +1,9 @@
-# ACA — paper-only foundation
+# ACA — public market data and paper-only foundation
 
-Phase 1 of the approved Kraken Spot platform plan. The current application provides
-configuration validation, PostgreSQL configuration/audit persistence, local health
-and metrics, and operational tooling. It cannot connect to an exchange or place an order.
+Phases 1–2 of the approved Kraken Spot platform plan. The application provides a
+paper-only foundation and opt-in, credential-free Kraken market capture for BTC/GBP
+and ETH/GBP. It validates books, records canonical trades and closed candles, and
+preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
 
 ## Start locally
 
@@ -34,6 +35,18 @@ Database and metrics ports are not published. For local HTTP inspection, use the
 inside the application container. `/health/ready` means **foundation readiness only**.
 `/health/trading` always returns 503; `aca_trading_ready` is always zero.
 
+Read [Phase 2 setup and evidence](docs/phase-2.md) to start a finite public capture:
+
+```sh
+docker compose --profile market-data run --rm --no-deps market-data aca market capture --duration 300
+docker compose exec app aca market status
+docker compose exec app aca market evidence --channel instrument_rules --limit 1
+```
+
+Default startup remains offline. The opt-in collector alone receives network egress.
+`/health/market` on that container reports public feed readiness. Stored evidence and
+public feed readiness never imply reconciled account state or trading permission.
+
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
 Local Docker functional checks and both runtime image scans pass. The full Linux
@@ -47,7 +60,7 @@ are errors. `ACA_CONFIG` selects a TOML file; `ACA_MODE=paper` is the sole mode 
 Risk policy v1 is immutable. The policy is configuration only: its trading enforcement
 is a later milestone and is **not implemented** here.
 
-No exchange connectivity, financial ledger, risk execution, strategy, simulator,
-reconciliation, tax engine, Discord sender or live activation exists in this milestone.
+No authenticated account access, financial ledger, risk execution, strategy, simulator,
+reconciliation, tax engine, Discord sender or live activation exists in this release.
 Subsequent milestones require review; live order-writer implementation and activation
 require separate explicit authorisation under the approved plan.

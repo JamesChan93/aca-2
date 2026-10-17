@@ -1,7 +1,7 @@
 name: aca-paper
 
 x-application: &application
-  image: aca-foundation:0.1.0
+  image: aca-foundation:0.2.0
   build:
     context: .
   user: "10001:10001"
@@ -91,7 +91,27 @@ services:
     restart: unless-stopped
     stop_grace_period: 15s
 
+  market-data:
+    <<: *application
+    profiles: [market-data]
+    command: [aca, market, capture, --duration, "0"]
+    networks: [private, public_data]
+    secrets: [runtime_password]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    stop_grace_period: 15s
+    healthcheck:
+      test: [CMD, aca, health, --url, "http://127.0.0.1:8000/health/market"]
+      interval: 5s
+      timeout: 4s
+      start_period: 120s
+      retries: 6
+
 networks:
+  public_data:
+    # Opt-in public-read collector only. Database and foundation have no egress.
   private:
     internal: true
 

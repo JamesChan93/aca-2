@@ -1,4 +1,4 @@
-name: Foundation checks
+name: Platform checks
 on:
   push:
   pull_request:
@@ -41,12 +41,14 @@ jobs:
           docker compose exec -T app python -c 'import os; assert os.geteuid() == 10001'
           docker compose exec -T app aca db check
           docker compose exec -T app aca capabilities
+          docker compose exec -T app aca market status
+          docker compose exec -T app aca market evidence --channel instrument_rules --limit 1
           docker compose restart app
           python scripts/container_smoke.py
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.1.0
+          image-ref: aca-foundation:0.2.0
           version: v0.76.0
           scanners: vuln,secret
           format: table

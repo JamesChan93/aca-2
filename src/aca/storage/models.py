@@ -1,7 +1,8 @@
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -37,3 +38,41 @@ class AuditEvent(Base):
     )
     detail: Mapped[dict[str, object]] = mapped_column(JSONB)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class MarketReceipt(Base):
+    __tablename__ = "market_receipts"
+    __table_args__ = (
+        CheckConstraint("schema_version = 1", name="market_receipt_schema_v1"),
+        CheckConstraint("octet_length(payload) <= 2000000", name="market_payload_bound"),
+        {"schema": "aca"},
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    schema_version: Mapped[int]
+    epoch: Mapped[UUID] = mapped_column(index=True)
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    channel: Mapped[str] = mapped_column(String(80))
+    valid: Mapped[bool]
+    reason: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[str] = mapped_column(Text)
+    normalized: Mapped[dict[str, object]] = mapped_column(JSONB)
+
+
+class PublicTradeRecord(Base):
+    __tablename__ = "public_trades"
+    __table_args__ = (
+        CheckConstraint("price > 0 AND quantity > 0", name="public_trade_positive"),
+        CheckConstraint("symbol IN ('BTC/GBP', 'ETH/GBP')", name="public_trade_allowlist"),
+        CheckConstraint("side IN ('buy', 'sell')", name="public_trade_side"),
+        {"schema": "aca"},
+    )
+    venue: Mapped[str] = mapped_column(String(40), primary_key=True)
+    symbol: Mapped[str] = mapped_column(String(40), primary_key=True)
+    trade_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    receipt_id: Mapped[UUID] = mapped_column(ForeignKey("aca.market_receipts.id"))
+    event_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    side: Mapped[str] = mapped_column(String(4))
+    price: Mapped[Decimal] = mapped_column(Numeric(38, 18))
+    quantity: Mapped[Decimal] = mapped_column(Numeric(38, 18))

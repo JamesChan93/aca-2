@@ -89,7 +89,7 @@ credential. App startup never creates schema or grants itself permissions.
 ## Dependency changes
 
 See requirements/README.md. Runtime, development and build locks are separate and
-contain hashes. Research and network/Discord dependencies are deliberately absent.
+contain hashes. HTTPX/websockets support public reads. Research and Discord dependencies remain absent.
 CI actions and base images have immutable references. Reverify references, release
 notes, licences and advisories before changing them. Native macOS test results do
 not substitute for Linux/container CI results.
