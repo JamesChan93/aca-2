@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-17T21:30:33.373406+00:00",
+  "containers": [
+    {
+      "name": "aca-paper-app-1",
+      "image_id": "sha256:138c2e706d7253138a9f9b0581f26ea32925465f592947f2fa8bd23d51f4dc83",
+      "user": "10001:10001",
+      "read_only_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "published_ports": false,
+      "networks": [
+        "aca-paper_private"
+      ],
+      "secret_mount_destinations": [
+        "/run/secrets/runtime_password"
+      ],
+      "memory_limit_bytes": 805306368,
+      "nano_cpus": 750000000
+    },
+    {
+      "name": "aca-paper-db-1",
+      "image_id": "sha256:472481e38a05091d7d836963b44303a64116c49ee7ba4c73db46830f62f24822",
+      "user": "postgres:postgres",
+      "read_only_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "published_ports": false,
+      "networks": [
+        "aca-paper_private"
+      ],
+      "secret_mount_destinations": [
+        "/run/secrets/admin_password"
+      ],
+      "memory_limit_bytes": 1073741824,
+      "nano_cpus": 750000000
+    },
+    {
+      "name": "aca-paper-market-data-run-c23d652059d0",
+      "image_id": "sha256:138c2e706d7253138a9f9b0581f26ea32925465f592947f2fa8bd23d51f4dc83",
+      "user": "10001:10001",
+      "read_only_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "published_ports": false,
+      "networks": [
+        "aca-paper_private",
+        "aca-paper_public_data"
+      ],
+      "secret_mount_destinations": [
+        "/run/secrets/runtime_password"
+      ],
+      "memory_limit_bytes": 805306368,
+      "nano_cpus": 750000000
+    }
+  ]
+}

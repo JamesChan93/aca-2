@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-17T21:28:35.331237+00:00",
+  "source_commit": "30887a07b082d6f9859c27e017e934eb1950506d",
+  "python_source_files": 36,
+  "installed_source_matches": true,
+  "source_tree_sha256": "d0824b2bd3948a4b0b06c3605257cdad44374ebba51d726ba3a26718e5400042",
+  "images": [
+    {
+      "name": "application",
+      "reference": "aca-foundation:0.2.0",
+      "image_id": "sha256:33600dd1d5a545666d044e559dcd76b0ee39b3c785d922549c41a80f6bb6c8ad",
+      "scanned_at": "2026-10-17T21:26:31.727888971Z",
+      "high_or_critical_vulnerabilities": 0,
+      "high_or_critical_secrets": 0,
+      "architecture": "arm64"
+    },
+    {
+      "name": "database",
+      "reference": "aca-postgres:18.6",
+      "image_id": "sha256:a47223f9b428635c5a92dbf83fa20955221c8760b48d1d87afc3d40012586ba4",
+      "scanned_at": "2026-10-17T21:26:59.520347303Z",
+      "high_or_critical_vulnerabilities": 0,
+      "high_or_critical_secrets": 0,
+      "architecture": "arm64"
+    }
+  ],
+  "scanner": "aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+  "ignore_unfixed": false
+}

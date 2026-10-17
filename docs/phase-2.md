@@ -133,3 +133,35 @@ recovery, tax reporting, notifications and live activation remain unimplemented.
 - [Recent trades](https://docs.kraken.com/api-reference/market-data/get-recent-trades)
 - [HTTPX 0.28.1](https://github.com/encode/httpx/tree/0.28.1)
 - [websockets client](https://websockets.readthedocs.io/en/stable/reference/asyncio/client.html)
+
+## Recorded release validation — 17 October 2026
+
+- Native macOS arm64 + PostgreSQL: **129 passed** (8.35s).
+- Non-root Linux arm64 musl test image + PostgreSQL: **129 passed** (8.85s).
+- Hosted Linux amd64 musl + PostgreSQL: **129 passed** (10.40s), with formatting,
+  lint, strict typing, both dependency audits, distributable build, clean bootstrap,
+  restart/persistence smoke and both image scans successful. The first source run is
+  [39070975258](https://github.com/JamesChan93/aca-2/actions/runs/39070975258);
+  machine-readable step results are in
+  [phase-2-hosted-ci.json](evidence/phase-2-hosted-ci.json).
+- The release image's installed Python sources exactly match commit `30887a0`.
+  The source hash and clean local image scans are in
+  [phase-2-images.json](evidence/phase-2-images.json). Dependency declarations/audits
+  are in [phase-2-dependencies.json](evidence/phase-2-dependencies.json).
+- Default app restart preserved audit history and remained unable to trade. The
+  collector alone had egress and only the runtime database secret. Inspection is in
+  [phase-2-containers.json](evidence/phase-2-containers.json).
+
+The credential-free public trial includes an intentional local egress interruption.
+Market health returned 503 while books were invalidated; restoring egress created a
+new epoch and returned to healthy status only after fresh snapshots. The trial and
+its exact frame/trade/fault counts are recorded in
+[phase-2-public-capture.json](evidence/phase-2-public-capture.json). The 300-second
+trial received 12,073 WebSocket frames, recorded zero checksum failures, deduplicated
+197 stream trades and inserted nine new stream trades. Its one fault/reconnect was
+the intentional network interruption. Active-loop observations exclude bootstrap and
+backoff; they are not an availability denominator.
+This controlled short trial is operational evidence, not a paper-promotion or
+research-performance result. Earlier diagnostic cursor/timestamp failures remain
+preserved locally; their corrections are documented above and covered by regression
+tests. No exchange order or account read was part of validation.

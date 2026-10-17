@@ -89,3 +89,17 @@ advisory status. The first hosted GitHub Actions run also passed both runtime im
 scans; its tested commit and job conclusions are recorded in the milestone report.
 The local stack remains a Phase 1 development foundation without exchange access,
 live activation or production deployment.
+
+## Phase 2 public-data release
+
+The Phase 2 application adds hash-locked HTTPX/websockets and their transitive runtime
+packages. A fresh scan of `aca-foundation:0.2.0` and `aca-postgres:18.6` on 17 October
+2026 found zero HIGH/CRITICAL vulnerabilities and zero HIGH/CRITICAL secret findings,
+with unfixed findings included. Exact IDs, scanner digest and source comparison are
+in [phase-2-images.json](evidence/phase-2-images.json). Both use the existing reviewed
+Alpine base digests; the runtime remains UID 10001 without installers. Scans are dated
+evidence, not a guarantee about future advisories.
+
+The installed Python files were hashed and compared with the reviewed Phase 2 source
+commit. The opt-in collector has an egress bridge and only the runtime database secret;
+the default foundation/database remain internal. No container mounts an exchange key.

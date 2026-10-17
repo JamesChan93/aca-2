@@ -33,5 +33,6 @@
     }
   ],
   "runtime_audit": "No known vulnerabilities found",
-  "development_audit": "No known vulnerabilities found"
+  "development_audit": "No known vulnerabilities found",
+  "observed_at": "2026-10-17T21:29:30.960409+00:00"
 }
