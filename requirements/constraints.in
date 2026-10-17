@@ -1,0 +1,5 @@
+# Match the tested install: the simple index did not serve 4.13.4 during verification.
+platformdirs==4.13.3
+# Build tools must be pinned and hashed too; pip-tools otherwise labels these unsafe.
+pip==26.2.1
+setuptools==84.0.0

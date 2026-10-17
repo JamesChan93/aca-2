@@ -1,0 +1,68 @@
+name: Foundation checks
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.14.8'
+      - name: Install hash-locked dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements/development.lock
+          python -m pip install --no-deps --no-build-isolation .
+          python -m pip check
+      - name: Static checks
+        run: |
+          ruff check src tests scripts
+          ruff format --check src tests scripts
+          mypy
+      - name: Real PostgreSQL integration and unit tests on Linux musl
+        run: python scripts/ci_database.py --linux
+      - name: Dependency audit
+        run: |
+          pip-audit --disable-pip --require-hashes -r requirements/runtime.lock
+          pip-audit --disable-pip --require-hashes -r requirements/development.lock
+      - name: Build and inspect distributable
+        run: python -m build --no-isolation
+      - name: Container build and paper-only smoke check
+        run: |
+          python scripts/bootstrap.py
+          docker compose exec -T app python -c 'import os; assert os.geteuid() == 10001'
+          docker compose exec -T app aca db check
+          docker compose exec -T app aca capabilities
+          docker compose restart app
+          python scripts/container_smoke.py
+      - name: Scan application image for high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        with:
+          image-ref: aca-foundation:0.1.0
+          version: v0.76.0
+          scanners: vuln,secret
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: false
+      - name: Scan database image for high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        with:
+          image-ref: aca-postgres:18.6
+          version: v0.76.0
+          scanners: vuln,secret
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: false
+      - name: Stop local services
+        if: always()
+        run: docker compose down

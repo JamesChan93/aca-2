@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-17T20:47:57.784958+00:00",
+  "scanner_image": "aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+  "scanners": [
+    "vuln",
+    "secret"
+  ],
+  "severities": [
+    "HIGH",
+    "CRITICAL"
+  ],
+  "ignore_unfixed": false,
+  "images": [
+    {
+      "name": "application-arm64",
+      "image_ref": "aca-foundation:0.1.0",
+      "image_id": "sha256:f3dd3097bd3848515f2fd89d65514b9585533bc34f38ab8e28a3ba2b9ff3fd94",
+      "architecture": "arm64",
+      "os": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "scanned_at": "2026-10-17T20:47:59.765505678Z",
+      "high_vulnerabilities": 0,
+      "critical_vulnerabilities": 0,
+      "high_or_critical_secrets": 0,
+      "exit_code": 0
+    },
+    {
+      "name": "database-arm64",
+      "image_ref": "aca-postgres:18.6",
+      "image_id": "sha256:472481e38a05091d7d836963b44303a64116c49ee7ba4c73db46830f62f24822",
+      "architecture": "arm64",
+      "os": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "scanned_at": "2026-10-17T20:48:03.013999221Z",
+      "high_vulnerabilities": 0,
+      "critical_vulnerabilities": 0,
+      "high_or_critical_secrets": 0,
+      "exit_code": 0
+    },
+    {
+      "name": "application-amd64",
+      "image_ref": "aca-foundation:verify-amd64",
+      "image_id": "sha256:4ed2a61873cbfd6fa42c3f485d25fa06fee45d8c187da8cbad7796fc6589253f",
+      "architecture": "amd64",
+      "os": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "scanned_at": "2026-10-17T20:48:04.381352014Z",
+      "high_vulnerabilities": 0,
+      "critical_vulnerabilities": 0,
+      "high_or_critical_secrets": 0,
+      "exit_code": 0
+    },
+    {
+      "name": "database-amd64",
+      "image_ref": "aca-postgres:verify-amd64",
+      "image_id": "sha256:e1b67f3b3285e4809190a619062a96582bf5d8d10f8389de04847637f801aa1d",
+      "architecture": "amd64",
+      "os": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "scanned_at": "2026-10-17T20:48:07.330263084Z",
+      "high_vulnerabilities": 0,
+      "critical_vulnerabilities": 0,
+      "high_or_critical_secrets": 0,
+      "exit_code": 0
+    }
+  ]
+}

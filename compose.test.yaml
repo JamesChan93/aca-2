@@ -1,0 +1,32 @@
+# Test-only loopback access. Never use this override for a deployed paper environment.
+services:
+  db:
+    networks: [private, test_access]
+    ports:
+      - "127.0.0.1:55432:5432"
+
+  linux_tests:
+    image: aca-foundation-tests:0.1.0
+    build:
+      context: .
+      target: test
+    profiles: [linux-tests]
+    network_mode: service:db
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=256m,mode=1777
+    secrets: [admin_password, runtime_password, migration_password]
+    mem_limit: 1g
+    pids_limit: 128
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Docker Desktop does not publish ports for a container attached only to an
+# internal network. This additional bridge belongs exclusively to test stacks.
+networks:
+  test_access:
+    internal: false
