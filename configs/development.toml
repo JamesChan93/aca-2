@@ -1,0 +1,32 @@
+schema_version = 1
+mode = "paper"
+environment = "development"
+base_currency = "GBP"
+instruments = ["BTC/GBP", "ETH/GBP"]
+log_level = "INFO"
+
+[database]
+host = "127.0.0.1"
+port = 5432
+name = "aca"
+runtime_password_file = ".secrets/runtime_password"
+migration_password_file = ".secrets/migration_password"
+
+[health]
+host = "127.0.0.1"
+port = 8000
+database_check_interval_seconds = 2
+
+[risk]
+version = "provisional-v1"
+soft_drawdown = "0.05"
+hard_drawdown = "0.10"
+daily_loss = "0.02"
+planned_risk_per_trade = "0.005"
+total_exposure = "0.30"
+asset_exposure = "0.15"
+aggregate_planned_risk = "0.01"
+max_positions = 2
+leverage = 0
+automatic_hard_halt_restart = false
+global_cancel_timer = false

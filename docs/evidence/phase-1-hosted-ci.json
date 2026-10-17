@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "repository": "JamesChan93/aca-2",
+  "run_id": 39068630968,
+  "run_url": "https://github.com/JamesChan93/aca-2/actions/runs/39068630968",
+  "workflow": "Foundation checks",
+  "event": "push",
+  "tested_commit": "70bd4c0977b79f6c6517b5ea67f94dee8fa3442e",
+  "branch": "phase1/paper-foundation",
+  "started_at": "2026-10-17T20:53:36Z",
+  "updated_at": "2026-10-17T20:56:19Z",
+  "conclusion": "success",
+  "pytest_passed": 76,
+  "jobs": [
+    {
+      "name": "verify",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install hash-locked dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Static checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Real PostgreSQL integration and unit tests on Linux musl",
+          "conclusion": "success"
+        },
+        {
+          "name": "Dependency audit",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build and inspect distributable",
+          "conclusion": "success"
+        },
+        {
+          "name": "Container build and paper-only smoke check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Scan application image for high and critical vulnerabilities",
+          "conclusion": "success"
+        },
+        {
+          "name": "Scan database image for high and critical vulnerabilities",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop local services",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Scan database image for high and critical vulnerabilities",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Scan application image for high and critical vulnerabilities",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

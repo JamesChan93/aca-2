@@ -1,0 +1,109 @@
+name: aca-paper
+
+x-application: &application
+  image: aca-foundation:0.1.0
+  build:
+    context: .
+  user: "10001:10001"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  networks: [private]
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=64m
+  pids_limit: 128
+  mem_limit: 768m
+  cpus: 0.75
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+
+services:
+  db:
+    image: aca-postgres:18.6
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    user: postgres:postgres
+    environment:
+      POSTGRES_USER: aca_admin
+      POSTGRES_DB: aca
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin_password
+      POSTGRES_INITDB_ARGS: --data-checksums --auth-host=scram-sha-256
+    command: [postgres, -c, shared_buffers=128MB, -c, max_connections=30, -c, timezone=UTC]
+    secrets: [admin_password]
+    volumes:
+      - postgres_alpine_data:/var/lib/postgresql
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m
+      - /var/run/postgresql:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [private]
+    restart: unless-stopped
+    mem_limit: 1g
+    cpus: 0.75
+    pids_limit: 128
+    shm_size: 128m
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, aca_admin, -d, aca]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  provision:
+    <<: *application
+    command: [aca, db, provision, --admin-password-file, /run/secrets/admin_password]
+    secrets: [admin_password, runtime_password, migration_password]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    healthcheck:
+      disable: true
+
+  migrate:
+    <<: *application
+    command: [aca, db, migrate]
+    secrets: [migration_password]
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+    restart: "no"
+    healthcheck:
+      disable: true
+
+  app:
+    <<: *application
+    command: [aca, serve]
+    secrets: [runtime_password]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    stop_grace_period: 15s
+
+networks:
+  private:
+    internal: true
+
+volumes:
+  # Retain the original Debian volume for rollback; never mount it into Alpine.
+  postgres_data:
+  postgres_alpine_data:
+
+secrets:
+  admin_password:
+    file: .secrets/admin_password
+  runtime_password:
+    file: .secrets/runtime_password
+  migration_password:
+    file: .secrets/migration_password
