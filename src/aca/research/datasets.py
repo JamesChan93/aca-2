@@ -1,0 +1,215 @@
+"""Audit headerless Kraken CSVs; unexplained gaps are never tradable bars."""
+
+import csv
+import io
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from decimal import ROUND_DOWN, Decimal, localcontext
+from pathlib import Path
+from typing import Literal
+
+from pydantic import Field, field_validator, model_validator
+
+from aca.domain.market import Candle, Symbol
+from aca.domain.values import FINANCIAL_CONTEXT, parse_decimal, utc_datetime
+from aca.operations.config import StrictModel
+from aca.research.artifacts import canonical, digest, file_hash, read_json, write_once
+
+
+def instant(value: object) -> datetime:
+    if not isinstance(value, str):
+        raise ValueError("expected ISO UTC timestamp")
+    return utc_datetime(datetime.fromisoformat(value))
+
+
+class SourceFile(StrictModel):
+    path: str
+    symbol: Symbol
+    interval_minutes: Literal[240, 1440]
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    coverage_start: str
+    coverage_end: str
+
+    @field_validator("coverage_start", "coverage_end")
+    @classmethod
+    def dates(cls, value: str) -> str:
+        return instant(value).isoformat()
+
+
+class SourceBundle(StrictModel):
+    schema_version: Literal[1] = 1
+    source_url: str = Field(pattern=r"^https://")
+    retrieved_at: str
+    usage_note: str = Field(min_length=1)
+    assurance: Literal["local_unverified", "range_members_crc", "full_archive_sha256"]
+    evidence: dict[str, object]
+    files: tuple[SourceFile, ...]
+
+    @field_validator("schema_version", mode="before")
+    @classmethod
+    def exact_schema(cls, value: object) -> object:
+        if type(value) is not int:
+            raise ValueError("schema version requires an integer")
+        return value
+
+    @field_validator("retrieved_at")
+    @classmethod
+    def date(cls, value: str) -> str:
+        return instant(value).isoformat()
+
+    @model_validator(mode="after")
+    def bounded(self) -> SourceBundle:
+        keys = [(item.symbol, item.interval_minutes) for item in self.files]
+        if not 1 <= len(keys) <= 16 or len(keys) != len(set(keys)):
+            raise ValueError("duplicate or excessive source files")
+        return self
+
+
+def source_bundle(path: Path) -> SourceBundle:
+    document = read_json(path)
+    files = document.get("files")
+    if isinstance(files, list):
+        document["files"] = tuple(files)
+    return SourceBundle.model_validate(document)
+
+
+def parse_csv(data: bytes, source: SourceFile, observed: datetime) -> tuple[Candle, ...]:
+    if len(data) > 32_000_000:
+        raise ValueError("CSV exceeds 32MB research budget")
+    bars: list[Candle] = []
+    start, end = instant(source.coverage_start), instant(source.coverage_end)
+    step = timedelta(minutes=source.interval_minutes)
+    if (
+        start >= end
+        or start.timestamp() % step.total_seconds()
+        or end.timestamp() % step.total_seconds()
+    ):
+        raise ValueError("unaligned or empty coverage")
+    for row in csv.reader(io.StringIO(data.decode("utf-8-sig"))):
+        if len(row) != 7 or not row[0].isdigit() or not row[6].isdigit():
+            raise ValueError("invalid headerless OHLCVT row")
+        at = datetime.fromtimestamp(int(row[0]), UTC)
+        if not start <= at < end or (bars and at <= bars[-1].start):
+            raise ValueError("out-of-order, duplicate or out-of-coverage candle")
+        with localcontext(FINANCIAL_CONTEXT):
+            volume = Decimal(row[5])
+            if not volume.is_finite() or not 0 < volume < Decimal("1e20"):
+                raise ValueError("invalid archive volume")
+            volume = parse_decimal(volume.quantize(Decimal("1e-18"), rounding=ROUND_DOWN))
+        if int(row[6]) <= 0 or volume <= 0:
+            raise ValueError("archive populated candles require trades and volume")
+        bars.append(
+            Candle(
+                venue="kraken",
+                symbol=source.symbol,
+                interval_minutes=source.interval_minutes,
+                start=at,
+                end=at + step,
+                open=parse_decimal(row[1]),
+                high=parse_decimal(row[2]),
+                low=parse_decimal(row[3]),
+                close=parse_decimal(row[4]),
+                volume=volume,
+                trade_count=int(row[6]),
+                complete=True,
+                quality=(),
+                source="audited_kraken_schema_csv",
+                observed_at=observed,
+            )
+        )
+    if not bars:
+        raise ValueError("empty source")
+    return tuple(bars)
+
+
+@dataclass(frozen=True)
+class Dataset:
+    fingerprint: str
+    manifest: dict[str, object]
+    series: dict[tuple[Symbol, int], tuple[Candle, ...]]
+
+
+def import_dataset(source_path: Path, root: Path) -> Path:
+    bundle = source_bundle(source_path)
+    observed = instant(bundle.retrieved_at)
+    reports: list[dict[str, object]] = []
+    for source in bundle.files:
+        path = (source_path.parent / source.path).resolve()
+        if not path.is_relative_to(source_path.parent.resolve()):
+            raise ValueError("source path must remain inside the bundle directory")
+        if path.stat().st_size > 32_000_000 or file_hash(path) != source.sha256:
+            raise ValueError("source hash or size mismatch")
+        data = path.read_bytes()
+        bars = parse_csv(data, source, observed)
+        gaps: list[dict[str, str]] = []
+        previous = instant(source.coverage_start)
+        for bar in bars:
+            if bar.start != previous:
+                gaps.append(
+                    {
+                        "start": previous.isoformat(),
+                        "end": bar.start.isoformat(),
+                        "classification": "unexplained",
+                    }
+                )
+            previous = bar.end
+        if previous != instant(source.coverage_end):
+            gaps.append(
+                {
+                    "start": previous.isoformat(),
+                    "end": source.coverage_end,
+                    "classification": "unexplained",
+                }
+            )
+        name = source.sha256 + ".csv"
+        write_once(root / "objects" / name, data)
+        reports.append(
+            {
+                "source": source.model_dump(mode="json"),
+                "object": name,
+                "rows": len(bars),
+                "first": bars[0].start.isoformat(),
+                "last_end": bars[-1].end.isoformat(),
+                "gaps": gaps,
+            }
+        )
+    manifest: dict[str, object] = {
+        "schema_version": 1,
+        "transform": "kraken-ohlcvt-audit-v1",
+        "source_bundle": bundle.model_dump(mode="json"),
+        "series": reports,
+        "missing_intervals": "unexplained_until_individually_reviewed",
+        "historical_metadata": "reconstructed_current_rules_not_point_in_time",
+        "historical_fees": "conservative_planning_bounds_not_account_history",
+        "volume_transform": "round_down_18_decimal_places_raw_bytes_retained",
+    }
+    data = canonical(manifest)
+    target = root / "datasets" / digest(data) / "manifest.json"
+    write_once(target, data)
+    return target
+
+
+def load_dataset(path: Path) -> Dataset:
+    manifest = read_json(path)
+    fingerprint = digest(canonical(manifest))
+    if path.parent.name != fingerprint:
+        raise ValueError("manifest content hash mismatch")
+    if manifest.get("transform") != "kraken-ohlcvt-audit-v1":
+        raise ValueError("unsupported dataset transform")
+    bundle = manifest["source_bundle"]
+    if not isinstance(bundle, dict) or not isinstance(bundle.get("retrieved_at"), str):
+        raise ValueError("missing provenance")
+    observed = instant(bundle["retrieved_at"])
+    series: dict[tuple[Symbol, int], tuple[Candle, ...]] = {}
+    records = manifest["series"]
+    if not isinstance(records, list):
+        raise ValueError("invalid series list")
+    for record in records:
+        source = SourceFile.model_validate(record["source"])
+        # Reconstruct the location from the hash, never a manifest-controlled path.
+        object_path = path.parents[2] / "objects" / (source.sha256 + ".csv")
+        if object_path.stat().st_size > 32_000_000 or file_hash(object_path) != source.sha256:
+            raise ValueError("dataset object hash mismatch")
+        bars = parse_csv(object_path.read_bytes(), source, observed)
+        series[(source.symbol, source.interval_minutes)] = bars
+    return Dataset(fingerprint, manifest, series)

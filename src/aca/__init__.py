@@ -1,3 +1,3 @@
 """Paper foundation and read-only public market capture; no exchange execution."""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

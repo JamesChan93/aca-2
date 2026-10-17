@@ -1,0 +1,264 @@
+{
+  "dataset_sha256": "b10e975a9f5dd2343ca55c35e4497f254ff58bd569bd39203d724ea5a7f0b50c",
+  "g3_passed": false,
+  "holdout_opened": false,
+  "schema_version": 1,
+  "series": [
+    {
+      "first": "2014-11-06T16:00:00+00:00",
+      "first_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2014-11-07T08:00:00+00:00",
+          "start": "2014-11-06T20:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2014-11-08T08:00:00+00:00",
+          "start": "2014-11-07T12:00:00+00:00"
+        }
+      ],
+      "gap_classification": "unexplained",
+      "gap_count": 1385,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "last_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2024-04-14T08:00:00+00:00",
+          "start": "2024-04-14T04:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2025-11-01T20:00:00+00:00",
+          "start": "2025-11-01T16:00:00+00:00"
+        }
+      ],
+      "rows": 22950,
+      "source": {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2014-11-06T16:00:00+00:00",
+        "interval_minutes": 240,
+        "path": "XBTGBP_240.csv",
+        "sha256": "5a80d241869d08fab78ef8274064ad15914ff71d27f5fe8a8ed446b6c7bcc972",
+        "symbol": "BTC/GBP"
+      }
+    },
+    {
+      "first": "2014-11-06T00:00:00+00:00",
+      "first_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2014-11-10T00:00:00+00:00",
+          "start": "2014-11-09T00:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2014-11-12T00:00:00+00:00",
+          "start": "2014-11-11T00:00:00+00:00"
+        }
+      ],
+      "gap_classification": "unexplained",
+      "gap_count": 51,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "last_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2018-01-13T00:00:00+00:00",
+          "start": "2018-01-12T00:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2018-06-24T00:00:00+00:00",
+          "start": "2018-06-23T00:00:00+00:00"
+        }
+      ],
+      "rows": 4257,
+      "source": {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2014-11-06T00:00:00+00:00",
+        "interval_minutes": 1440,
+        "path": "XBTGBP_1440.csv",
+        "sha256": "70062b3fcd0e3e63daad2022be0f8ff86444132823f82883da2b0f63ad75745a",
+        "symbol": "BTC/GBP"
+      }
+    },
+    {
+      "first": "2015-08-07T12:00:00+00:00",
+      "first_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2015-08-08T08:00:00+00:00",
+          "start": "2015-08-08T00:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2015-08-10T12:00:00+00:00",
+          "start": "2015-08-08T20:00:00+00:00"
+        }
+      ],
+      "gap_classification": "unexplained",
+      "gap_count": 1357,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "last_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2024-04-14T08:00:00+00:00",
+          "start": "2024-04-14T04:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2025-11-01T20:00:00+00:00",
+          "start": "2025-11-01T16:00:00+00:00"
+        }
+      ],
+      "rows": 21163,
+      "source": {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2015-08-07T12:00:00+00:00",
+        "interval_minutes": 240,
+        "path": "ETHGBP_240.csv",
+        "sha256": "ac285d0f3b5e5283c9200bbf8ddc529813a2464cee3587c0b42dcd60dd6966e3",
+        "symbol": "ETH/GBP"
+      }
+    },
+    {
+      "first": "2015-08-07T00:00:00+00:00",
+      "first_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2015-08-10T00:00:00+00:00",
+          "start": "2015-08-09T00:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2015-08-13T00:00:00+00:00",
+          "start": "2015-08-11T00:00:00+00:00"
+        }
+      ],
+      "gap_classification": "unexplained",
+      "gap_count": 40,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "last_gaps": [
+        {
+          "classification": "unexplained",
+          "end": "2018-07-16T00:00:00+00:00",
+          "start": "2018-07-15T00:00:00+00:00"
+        },
+        {
+          "classification": "unexplained",
+          "end": "2019-02-03T00:00:00+00:00",
+          "start": "2019-02-02T00:00:00+00:00"
+        }
+      ],
+      "rows": 3910,
+      "source": {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2015-08-07T00:00:00+00:00",
+        "interval_minutes": 1440,
+        "path": "ETHGBP_1440.csv",
+        "sha256": "85c31bbc071bfc6a65864b100e1b58533046a1fb2e7c9b43da392a3dcea6cfb7",
+        "symbol": "ETH/GBP"
+      }
+    }
+  ],
+  "source_bundle": {
+    "assurance": "range_members_crc",
+    "evidence": {
+      "archive_manifest_sha256": "2e3eef939692f2520847674dc2e69b00796f1c230429509cb8c12649458853bd",
+      "coverage_note": "CSV coverage is bounded by populated rows. Compare the retained archive manifest with the June download-page boundary before promotion.",
+      "coverage_requires_review": true,
+      "documentation_coverage_end": "2026-06-30",
+      "parts": [
+        {
+          "etag": "\"ca80893857c56a8cd44df4ee3caa398d-250\"",
+          "size": 2097152000,
+          "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part00"
+        },
+        {
+          "etag": "\"84d0ef1069baaf64411a32a43879d059-250\"",
+          "size": 2097152000,
+          "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part01"
+        },
+        {
+          "etag": "\"1be9935a090cacbfe3a4c815fa3ab77c-250\"",
+          "size": 2097152000,
+          "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part02"
+        },
+        {
+          "etag": "\"fee21d7ffc8850bda007640a0ea994c8-250\"",
+          "size": 2097152000,
+          "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part03"
+        },
+        {
+          "etag": "\"8891beec53b287dc88d555c5ef9103f2-139\"",
+          "size": 1157945626,
+          "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part04"
+        }
+      ],
+      "published_full_sha256": "bc273e9027470b07d790a7fa4df9bb43f0dfc527c20c6ecae48402e123e7b1c7",
+      "range_requests": 19,
+      "selected_members": {
+        "ETHGBP_1440.csv": {
+          "crc32": 607079728,
+          "size": 240855
+        },
+        "ETHGBP_240.csv": {
+          "crc32": 2593054463,
+          "size": 1269965
+        },
+        "MANIFEST.json": {
+          "crc32": 2198564440,
+          "size": 360
+        },
+        "XBTGBP_1440.csv": {
+          "crc32": 410259560,
+          "size": 267889
+        },
+        "XBTGBP_240.csv": {
+          "crc32": 3890339008,
+          "size": 1409250
+        }
+      },
+      "transferred_bytes": 2124706
+    },
+    "files": [
+      {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2014-11-06T16:00:00+00:00",
+        "interval_minutes": 240,
+        "path": "XBTGBP_240.csv",
+        "sha256": "5a80d241869d08fab78ef8274064ad15914ff71d27f5fe8a8ed446b6c7bcc972",
+        "symbol": "BTC/GBP"
+      },
+      {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2014-11-06T00:00:00+00:00",
+        "interval_minutes": 1440,
+        "path": "XBTGBP_1440.csv",
+        "sha256": "70062b3fcd0e3e63daad2022be0f8ff86444132823f82883da2b0f63ad75745a",
+        "symbol": "BTC/GBP"
+      },
+      {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2015-08-07T12:00:00+00:00",
+        "interval_minutes": 240,
+        "path": "ETHGBP_240.csv",
+        "sha256": "ac285d0f3b5e5283c9200bbf8ddc529813a2464cee3587c0b42dcd60dd6966e3",
+        "symbol": "ETH/GBP"
+      },
+      {
+        "coverage_end": "2026-10-01T00:00:00+00:00",
+        "coverage_start": "2015-08-07T00:00:00+00:00",
+        "interval_minutes": 1440,
+        "path": "ETHGBP_1440.csv",
+        "sha256": "85c31bbc071bfc6a65864b100e1b58533046a1fb2e7c9b43da392a3dcea6cfb7",
+        "symbol": "ETH/GBP"
+      }
+    ],
+    "retrieved_at": "2026-10-17T21:43:09.783383+00:00",
+    "schema_version": 1,
+    "source_url": "https://support.kraken.com/articles/360047124832-downloadable-historical-ohlcvt-open-high-low-close-volume-trades-data",
+    "usage_note": "Official free research download; preserve source attribution. No redistribution licence inferred. Review Kraken terms before redistribution."
+  },
+  "volume_transform": "round_down_18_decimal_places_raw_bytes_retained"
+}

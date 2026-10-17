@@ -20,6 +20,8 @@ from aca.observability.logging import configure_logging
 from aca.operations.config import ConfigurationError, Settings, load_settings
 from aca.operations.provision import provision_roles
 from aca.operations.secrets import SecretFileError
+from aca.research.cli import add_parser as add_research_parser
+from aca.research.cli import execute as research_command
 from aca.storage.database import FoundationStore, create_engine, verify_runtime
 from aca.storage.migrate import migrate
 
@@ -33,6 +35,7 @@ def _parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("capabilities")
     commands.add_parser("serve")
+    add_research_parser(commands)
     market = commands.add_parser("market").add_subparsers(dest="action", required=True)
     market.add_parser("status")
     evidence = market.add_parser("evidence")
@@ -129,7 +132,8 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 json.dumps(
                     {
-                        "phase": 2,
+                        "phase": 3,
+                        "local_research_available": True,
                         "public_market_capture_available": True,
                         "private_account_access_available": False,
                         "mode": "paper",
@@ -139,6 +143,8 @@ def main(argv: list[str] | None = None) -> int:
                     }
                 )
             )
+        elif args.command == "research":
+            return research_command(args, settings)
         elif args.command == "market":
             if args.action == "status":
                 asyncio.run(_database_command(settings, "market_status"))

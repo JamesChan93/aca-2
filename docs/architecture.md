@@ -1,15 +1,15 @@
 # Approved architecture and Phase 1 decisions
 
 Baseline: the user-approved specification of 17 October 2026. Its economic conclusion
-is **research and paper first; no live trading now**. This repository implements only
-the explicitly approved Phase 1 boundary.
+is **research and paper first; no live trading now**. Phases 1–2 are merged; the user authorised Phase 3 research. Each milestone retains
+its own recorded implementation and validation boundary.
 
 ## System boundary
 
 One Python modular monolith, PostgreSQL operational authority, GBP reporting, BTC/GBP
 and ETH/GBP initially. Domain and future strategy code cannot depend on venue symbols.
-Strategies, a simulator, reconciliation, financial journals and exchange adapters are
-not implemented as empty placeholders. They will arrive in independently tested milestones.
+Public Kraken adapters and historical research are implemented. Reconciliation,
+financial journals and paper/live execution remain later milestones.
 
 ```mermaid
 flowchart LR
@@ -21,8 +21,10 @@ flowchart LR
     Provision[Local role provisioning job] --> DB
 ```
 
-The application has no exchange transport, credential fields, Discord client, order
-submission method, trading command, activation flag or live Compose profile. The
+The default foundation service is offline. Only the opt-in public collector and
+local archive acquisition have public transports. There are no exchange credential
+fields, Discord client, order submission method, trading command, activation flag
+or live Compose profile. The
 Compose application network is internal and has no published ports. A health result
 cannot activate trading. The provisional policy is configuration, not a risk engine.
 
@@ -113,3 +115,45 @@ prune data. Startup, disconnects and unsafe data establish explicit gaps. Recent
 recovery never proves complete history. Local candles qualify only for closed intervals
 within healthy continuous capture segments; unexplained empty intervals remain absent.
 Long-term retention, archive ingestion and production disk management are later work.
+
+## A24 — bounded local research dependencies (Phase 3)
+
+Add only the planned NumPy 2.5.4 in a separate hash lock. Standard-library CSV,
+JSON, ZIP and hashlib handle this small four-series study. Pandas, SciPy, PyArrow
+and DuckDB add no required behaviour here and remain deferred; no substitution of
+an unverified version is implied. Statistical NumPy floats never feed executable
+quantities or financial postings. The runtime image excludes NumPy; CI's test
+image installs the research lock and verifies its CPython 3.14 musllinux wheel.
+
+## A25 — evidence levels and incomplete windows
+
+A bounded HTTP range reader selects four members from Kraken's concatenated ZIP
+parts, checks exact ranges and strong ETags, and lets zipfile verify member CRCs.
+This is explicitly weaker than verifying the published full-archive SHA-256. Support
+a complete locally reassembled archive for that check. Retain raw CSVs and the
+archive's manifest. Preserve a documentation/manifest coverage conflict as unresolved.
+Round only excess volume precision down to 18 places, record that transform and
+retain the exact original bytes; never silently round historical prices.
+
+Treat all missing intervals as unexplained until separately reviewed. Do not fill
+them or select a convenient contiguous start after seeing strategy results. Attempt
+every predeclared calendar fold; record affected folds as incomplete, and suppress
+selection inference from successful subsets. Current metadata/fees are explicitly
+reconstructed assumptions. No actual historical rule/fee proof is inferred.
+
+## A26 — research timing, cost and holdout boundary
+
+Use shared pure Decimal features, signals and sizing with no venue imports in
+strategies. The bar reference uses a full-bar signal lag, fresh signal evaluation,
+taker fees, adverse price rounding and participation caps. A stop trigger cannot
+fill until a subsequent observed open permits its limit. This is a conservative
+assumption set, not a calibrated paper exchange or a claim about intrabar paths.
+Two-second latency expires entry approvals; stress output must explain that effect.
+
+Freeze the complete 20-trial family before loading data for experiments. Ordinary
+runs reserve the last 12 months. A separate freeze binds report/dataset/code/cost
+hashes and a review reason; holdout opening is exclusive in the dataset's local
+artefact tree, and a crash does not reopen it. This is trusted local research
+coordination, not a security boundary against an operator deleting/copying files.
+Append-only PostgreSQL publication preserves events/artifacts independently. No
+research output, freeze or statistical/economic gate can activate execution.

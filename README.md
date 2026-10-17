@@ -1,6 +1,6 @@
-# ACA — public market data and paper-only foundation
+# ACA — reproducible Kraken research and paper-only foundation
 
-Phases 1–2 of the approved Kraken Spot platform plan. The application provides a
+Phases 1–3 of the approved Kraken Spot platform plan. The application provides a
 paper-only foundation and opt-in, credential-free Kraken market capture for BTC/GBP
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
@@ -47,6 +47,12 @@ Default startup remains offline. The opt-in collector alone receives network egr
 `/health/market` on that container reports public feed readiness. Stored evidence and
 public feed readiness never imply reconciled account state or trading permission.
 
+The [Phase 3 research workflow](docs/phase-3.md) adds audited historical CSVs,
+shared Decimal indicators/signals/sizing, conservative bar simulation and a trial
+registry. Research runs locally with the optional hash-locked NumPy environment.
+The final year stays reserved until an explicit candidate freeze and holdout command.
+No candidate has qualified for promotion.
+
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
 Local Docker functional checks and both runtime image scans pass. The full Linux
@@ -57,10 +63,10 @@ are recorded in the milestone report; see the [image security review](docs/image
 
 Only paper mode exists. Unknown `ACA_` environment variables and unknown TOML keys
 are errors. `ACA_CONFIG` selects a TOML file; `ACA_MODE=paper` is the sole mode override.
-Risk policy v1 is immutable. The policy is configuration only: its trading enforcement
-is a later milestone and is **not implemented** here.
+Risk policy v1 is immutable. Its limits constrain the historical reference simulator.
+Independent portfolio/execution guards and durable operational latches remain Phase 4.
 
-No authenticated account access, financial ledger, risk execution, strategy, simulator,
-reconciliation, tax engine, Discord sender or live activation exists in this release.
+No authenticated account access, financial ledger, execution risk guard, paper order
+lifecycle, reconciliation, tax engine, Discord sender or live activation exists.
 Subsequent milestones require review; live order-writer implementation and activation
 require separate explicit authorisation under the approved plan.

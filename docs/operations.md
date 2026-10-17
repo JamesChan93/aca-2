@@ -115,3 +115,18 @@ queries. The new `0002_public_market` migration adds append-only public receipts
 canonical trades; it does not alter financial history. Stop capture before upgrades.
 A Phase 1 binary rejects the new schema revision, so application rollback requires
 a compatible reviewed image rather than an automatic Alembic downgrade.
+
+## Phase 3 local research publication
+
+Back up the local database before moving from 0.2.0 to 0.3.0, then run the documented
+bootstrap to apply `0003_research`. This migration only adds append-only research
+artefact/event tables and runtime SELECT/INSERT grants; market/configuration/audit
+history remains intact. A downgrade is deliberately unsupported. Runtime images
+contain no NumPy; perform statistical work on the local research environment, then
+use the read-only bind-mount publication command in [Phase 3](phase-3.md).
+
+Retain all local run starts and failures, not just the latest report. Archive CSV
+objects/manifests/events/reports together. Publication records are append-only
+against ordinary roles, not tamper-proof against an administrator. There is no
+research-result path to live activation. Historical bar results do not establish
+operational risk enforcement, exchange protection behaviour or the paper/live gates.

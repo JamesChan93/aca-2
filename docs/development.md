@@ -15,6 +15,7 @@ For native development with a separately managed PostgreSQL:
 ```sh
 python3.14 -m venv .venv
 .venv/bin/python -m pip install --require-hashes -r requirements/development.lock
+.venv/bin/python -m pip install --require-hashes -r requirements/research.lock
 .venv/bin/python -m pip install --no-deps --no-build-isolation .
 .venv/bin/aca --config configs/development.toml config check
 ```
@@ -89,7 +90,7 @@ credential. App startup never creates schema or grants itself permissions.
 ## Dependency changes
 
 See requirements/README.md. Runtime, development and build locks are separate and
-contain hashes. HTTPX/websockets support public reads. Research and Discord dependencies remain absent.
+contain hashes. HTTPX/websockets support public reads. Optional NumPy research dependencies have a separate lock; Discord remains absent.
 CI actions and base images have immutable references. Reverify references, release
 notes, licences and advisories before changing them. Native macOS test results do
 not substitute for Linux/container CI results.
@@ -98,5 +99,4 @@ ADR A18 uses musl-based Alpine 3.24 for the application; ADR A19 uses Alpine for
 PostgreSQL. Direct Python package candidates are unchanged. The test image requires
 binary wheels for the development lock, and the runtime builder requires them for
 the runtime lock. An unavailable wheel fails the build; no silent source-build or
-dependency substitution is permitted. Deferred research packages need a separate
-compatibility review in their milestone.
+dependency substitution is permitted. Remaining deferred research packages need a separate compatibility review.
