@@ -3,7 +3,7 @@
   "decision": "NO_GO_pending_complete_data_holdout_and_all_later_gates",
   "declaration": {
     "bootstrap_samples": 10000,
-    "code_sha256": "5357451912d4826db0ac6cf981cfd93442b3140a1ef28d824dadd02bcda8a0ac",
+    "code_sha256": "e1faa0a2084eb1dbd4c74453a6b893fe93573056eef7d65808ff1dc08f0c09a4",
     "costs": {
       "implementation_allowance": "0.002",
       "latency_ms": 250,
@@ -137,7 +137,7 @@
   },
   "export_note": "All trial/fold outcomes and selected metrics. Full metrics, daily curves and episodes remain in the reproducible hash-addressed local artifact.",
   "full_local_artifact_bytes": 3549602,
-  "full_local_artifact_sha256": "daf9f70b51ada3d0f97f7cf29afc3024963d3915c29411941b16719c9030848e",
+  "full_local_artifact_sha256": "9409628ecc4c33d027dfae80d077731a64c5377b4f7268c46eab350a93b218bf",
   "holdout_opened": false,
   "kind": "research_report",
   "limitations": [
@@ -148,7 +148,7 @@
     "Paper execution, ledger, live risk guard and tax engine remain unimplemented."
   ],
   "promotion_allowed": false,
-  "run_id": "3b756159-051e-4636-bbcd-dd68b93f79ed",
+  "run_id": "4a35c2c6-c910-4d82-9780-6278ff9048bf",
   "runtime": {
     "aca": "0.3.0",
     "numpy": "2.5.4",

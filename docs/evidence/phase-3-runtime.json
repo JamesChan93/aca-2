@@ -1,13 +1,13 @@
 {
   "bootstrap": true,
-  "code_sha256": "5357451912d4826db0ac6cf981cfd93442b3140a1ef28d824dadd02bcda8a0ac",
+  "code_sha256": "e1faa0a2084eb1dbd4c74453a6b893fe93573056eef7d65808ff1dc08f0c09a4",
   "containers": [
     {
       "dropped_capabilities": [
         "ALL"
       ],
       "health": "healthy",
-      "image_id": "sha256:b149b96ba632b91f6b32be03335c6f239b3e6af1a5f6ca8ae1544d1bef297bac",
+      "image_id": "sha256:310356b709e6c58a4c1b3dd0fbfaa16584425cb78163f90b637708556c1aef3e",
       "name": "/aca-paper-app-1",
       "networks": [
         "aca-paper_private"
@@ -24,7 +24,7 @@
         "ALL"
       ],
       "health": "healthy",
-      "image_id": "sha256:e1828b372c63b85325523d4896284217277c540285e17271cbfd85b51d3337f4",
+      "image_id": "sha256:108fb7602db12d7fa0c1ab43a05c49c680a9c64cfc9f312c1a3e263465fcbe44",
       "name": "/aca-paper-db-1",
       "networks": [
         "aca-paper_private"
@@ -42,13 +42,13 @@
   "image_identity_note": "Docker reports OCI index digests for running images; Trivy reports config digests. Scanned configuration and rootfs diff IDs exactly match each running image. Local database container refreshed to the retained scanned image reference; persistent volume preserved.",
   "live_execution_available": false,
   "migration": "0003_research",
-  "observed_at": "2026-10-17T22:03:48.605770+00:00",
+  "observed_at": "2026-10-17T22:09:36.845586+00:00",
   "persisted_database_counts": {
-    "audit_events": 37,
+    "audit_events": 40,
     "market_receipts": 12262,
     "public_trades": 8014,
-    "research_artifacts": 310,
-    "research_events": 302,
+    "research_artifacts": 396,
+    "research_events": 386,
     "schema_revision": "0003_research"
   },
   "pre_migration_backup": "Protected local pg_dump retained outside version control; not a disaster-restore drill.",
@@ -61,11 +61,11 @@
   "scanner_note": "One concurrent shared-cache scan process faulted; serial retries with the completed advisory cache passed. No finding exclusions.",
   "scans": {
     "app": {
-      "config_digest": "sha256:13a5a0f2d7e9e7c3c2bfed98c3faf2f6f46b9c0ff6d979d765dcecf3da26d9fc",
-      "created_at": "2026-10-17T22:00:43.244703962Z",
+      "config_digest": "sha256:eb47b1107bc303f46903621d2f97621011f29f3e284f99f4e173520dc4cb311c",
+      "created_at": "2026-10-17T22:08:07.248660125Z",
       "embedded_secrets": 0,
       "high_critical_vulnerabilities": 0,
-      "report_sha256": "cb6bfb81dbcf6c77de35cb33a8dc974797a6ae5be34cda82015c77425cda50b4",
+      "report_sha256": "5242afd64781ad81749e085f2b76a5c24d2545da8535df9450ffb97dd73cff00",
       "running_rootfs_and_configuration_match": true
     },
     "db": {
@@ -78,5 +78,5 @@
     }
   },
   "schema_version": 1,
-  "source_commit": "09453f170e6ab2960626242612a6d1150f6c1a80"
+  "source_identity": "Exact installed Python fingerprint; final PR head supplies the Git association."
 }

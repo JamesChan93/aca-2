@@ -1,5 +1,7 @@
 {
-  "runs": [
+  "final_ci_checks": "https://github.com/JamesChan93/aca-2/pull/3/checks",
+  "note": "These passed for the initial source. The final interval regression and current release checks are linked separately.",
+  "previous_source_runs": [
     {
       "conclusion": "success",
       "event": "push",

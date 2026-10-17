@@ -1,5 +1,6 @@
 """Seeded uncertainty, undefined metrics and holdout workflow regressions."""
 
+import math
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -9,9 +10,9 @@ from test_research_core import bars, rules
 
 from aca.research.artifacts import canonical, digest, read_json
 from aca.research.datasets import import_dataset
-from aca.research.runner import freeze, holdout, run
+from aca.research.runner import _curves, freeze, holdout, run
 from aca.research.statistics import metrics, paired_bootstrap, xirr
-from aca.simulation.reference import simulate
+from aca.simulation.reference import CostModel, simulate
 
 
 def test_seeded_paired_blocks_and_family_adjustment() -> None:
@@ -51,6 +52,7 @@ def test_cash_metrics_undefined_and_xirr() -> None:
         start=data[0].start,
         end=data[-1].end,
     )
+
     report = metrics(result)
     assert report["twr"] == 0
     assert report["sharpe_zero_cash_yield"] is None
@@ -68,6 +70,22 @@ def test_cash_metrics_undefined_and_xirr() -> None:
         )
         is None
     )
+
+
+def test_four_hour_blend_annualisation_preserves_interval() -> None:
+    data = bars([100] * 220, interval=240)
+    other = tuple(bar.model_copy(update={"symbol": "ETH/GBP"}) for bar in data)
+    _, benchmarks = _curves(
+        data, rules(), "sma200", data[201].start, data[-1].end, CostModel(), other
+    )
+    blend = benchmarks["blend50_50"]
+    assert blend.interval_minutes == 240
+    result = metrics(blend)
+    duration_days = (data[-1].end - data[201].start).total_seconds() / 86400
+    twr = result["twr"]
+    annual = result["annualised_return"]
+    assert isinstance(twr, float) and isinstance(annual, float)
+    assert abs(annual - math.expm1(math.log1p(twr) * 365.25 / duration_days)) < 1e-12
 
 
 def continuous_dataset(tmp_path: Path) -> Path:

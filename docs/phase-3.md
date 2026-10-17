@@ -188,42 +188,46 @@ conflicts and restart persistence. Holdout and seeded replay tests exercise the 
 predeclared family on explicitly synthetic data. These tests do not claim G2
 execution safety, actual fee-currency accounting or exchange-side protection.
 
-## Local release verification — 17 October 2026
+## Release verification — 17 October 2026
 
-The final source commit is `09453f170e6ab2960626242612a6d1150f6c1a80`. Its packaged
-source fingerprint is `5357451912d4826db0ac6cf981cfd93442b3140a1ef28d824dadd02bcda8a0ac`.
-Native macOS arm64 with PostgreSQL passed **174 tests in 17.33s** against the newly
-installed 0.3.0 wheel; non-root Linux arm64 musl passed **174 in 21.39s**. Formatting,
-Ruff, strict mypy, wheel/sdist builds, dependency consistency and the new research
-lock advisory audit passed. An actual-data replay produced identical trial outcomes
-under the same code/data/configuration; UUIDs differ as expected. The retained final
-report hash is `daf9f70b51ada3d0f97f7cf29afc3024963d3915c29411941b16719c9030848e`.
+The final packaged Python source fingerprint is
+`e1faa0a2084eb1dbd4c74453a6b893fe93573056eef7d65808ff1dc08f0c09a4`.
+Native macOS arm64 with PostgreSQL passed **175 tests in 17.59s** against the installed
+0.3.0 wheel; non-root Linux arm64 musl passed **175 in 22.14s**. Formatting, Ruff,
+strict mypy, wheel/sdist builds, dependency consistency and the research lock audit
+passed. Actual-data replay produced identical trial outcomes under the same
+code/data/configuration. The retained report hash is
+`9409628ecc4c33d027dfae80d077731a64c5377b4f7268c46eab350a93b218bf`.
 
-The local runtime's installed Python sources exactly match that fingerprint. Both
-runtime image scans report zero HIGH/CRITICAL vulnerabilities and embedded secrets,
-with no finding exclusions. The scanner reports config digests while Docker reports
-OCI index digests; the scanned configuration and rootfs layers were compared to the
-running images. One concurrent scanner cache process failed; serial retries against
-the completed advisory cache passed. This was a scanner process fault, not a skipped
-check or an application safety result.
+Final review corrected the blended 4-hour benchmark's annualisation interval and
+added a regression check. Candidate returns and the no-go decision are unchanged.
+Initial hosted checks passed 174 tests before that correction: [push 39073324375](https://github.com/JamesChan93/aca-2/actions/runs/39073324375)
+and [PR 39073355201](https://github.com/JamesChan93/aca-2/actions/runs/39073355201),
+including all dependency audits, builds, restart checks and image scans. Those dated
+records remain in [phase-3-hosted-ci.json](evidence/phase-3-hosted-ci.json).
+[Current release checks](https://github.com/JamesChan93/aca-2/pull/3/checks) bind the
+final interval regression and its evidence to the exact PR head; earlier results
+are not represented as checks of changed source.
 
-A protected pre-migration database dump is retained locally. Migration, application
-and database recreation preserved the public-data/audit history and research
-records. Re-publication inserted zero artefacts/events. The app/database are healthy,
-non-root, read-only, capability-dropped, on the internal network without published
-ports. This local backup/smoke evidence is not a disaster-restore or RPO/RTO claim.
-Exact counts, identities, scan hashes and verification are in
+The local runtime's installed Python sources exactly match the final fingerprint.
+Both runtime image scans report zero HIGH/CRITICAL vulnerabilities and embedded
+secrets, with no finding exclusions. The scanner reports config digests while
+Docker reports OCI index digests; scanned configurations and rootfs layers were
+compared to the running images. One concurrent scanner cache process failed;
+serial retries against the completed advisory cache passed. This was a scanner
+process fault, not a skipped check or application safety result.
+
+A protected pre-migration dump is retained locally. Migration and application/database
+recreation preserved public-data/audit history and research records. Re-publication
+inserted zero artefacts/events. App/database remain healthy, non-root, read-only,
+capability-dropped, on the internal network with no published ports. This is local
+backup/smoke evidence, not a disaster-restore or RPO/RTO claim.
+
+Exact counts, identities and scan hashes are in
 [phase-3-runtime.json](evidence/phase-3-runtime.json) and
 [phase-3-verification.json](evidence/phase-3-verification.json). The audited source
-and all candidate/fold outcomes are in
+and every candidate/fold outcome are in
 [phase-3-dataset.json](evidence/phase-3-dataset.json) and
 [phase-3-research.json](evidence/phase-3-research.json). The committed research export
-keeps selected metrics; full metrics, daily curves and episodes remain in its
-hash-addressed local report and the append-only PostgreSQL registry.
-
-Hosted Linux amd64 musl passed **174 tests in 55.61s**. Both source-commit
-checks passed: [push 39073324375](https://github.com/JamesChan93/aca-2/actions/runs/39073324375)
-and [PR 39073355201](https://github.com/JamesChan93/aca-2/actions/runs/39073355201).
-This includes all three dependency audits, package builds, clean bootstrap/restart
-and both runtime image scans. Job/step evidence is in
-[phase-3-hosted-ci.json](evidence/phase-3-hosted-ci.json).
+keeps selected metrics; full metrics, daily curves and episodes remain in the
+hash-addressed local report and append-only PostgreSQL registry.

@@ -166,6 +166,7 @@ def _curves(
             (),
             ZERO,
             0,
+            selected[0].interval_minutes,
         )
     return candidate, benchmarks
 
