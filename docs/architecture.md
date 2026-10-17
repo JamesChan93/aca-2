@@ -82,3 +82,34 @@ clear a halt or become profit. Stops do not guarantee fills or a maximum loss.
 Every later milestone must preserve unknown submission outcomes, avoid retries of
 ambiguous commands, count uncertain buys as exposure, reconcile private events to
 authoritative financial records and preserve protective exits during halts.
+
+## A21 — opt-in public capture boundary (Phase 2)
+
+Add HTTPX 0.28.1 and websockets 17.2 from the planned candidates, with reviewed
+transitives in both hash locks. Expose public discovery/history/stream protocols;
+provide no account or execution protocol implementation in this release. A separate
+Compose profile gives only the public collector egress. Default bootstrap remains
+offline. Capture is a supervised local evidence process, not an execution owner.
+Its PostgreSQL session advisory lock prevents duplicate capture against one database.
+
+## A22 — public timestamp evidence and deduplication
+
+A live public trial found a one-microsecond difference between REST epoch-decimal
+and WebSocket RFC3339 times for the same public trade ID, with exact matching price,
+quantity and side. The Kraken application binding supplies a narrowly scoped
+cross-protocol timestamp comparator: at most one microsecond, those two public
+sources, Kraken only. Default storage remains strict. Record every accepted alignment
+in a separate append-only receipt linking both sources; never overwrite canonical
+trade economics or source evidence. Same-protocol changes, larger differences and
+any economic mismatch fail. This says nothing about private fill identity or financial
+posting authority, which must be independently established in later milestones.
+
+## A23 — bounded local capture and conservative gaps
+
+Store public evidence and deduplicated trades in PostgreSQL for this low-volume
+milestone, with a 2GB database budget and bounded protocol buffers/pages. Require
+manual archival/review before exceeding it; do not weaken append-only controls to
+prune data. Startup, disconnects and unsafe data establish explicit gaps. Recent REST
+recovery never proves complete history. Local candles qualify only for closed intervals
+within healthy continuous capture segments; unexplained empty intervals remain absent.
+Long-term retention, archive ingestion and production disk management are later work.

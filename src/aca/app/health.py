@@ -14,7 +14,7 @@ from prometheus_client import (
 )
 
 BLOCKERS = (
-    "exchange_connectivity_not_implemented",
+    "authenticated_account_reads_not_implemented",
     "portfolio_accounting_not_implemented",
     "risk_enforcement_not_implemented",
     "paper_execution_not_implemented",
@@ -69,7 +69,9 @@ class FoundationMetrics:
         )
         self.database = Gauge("aca_database_ready", "Database safety check", registry=self.registry)
         self.trading = Gauge(
-            "aca_trading_ready", "Trading readiness; always zero in Phase 1", registry=self.registry
+            "aca_trading_ready",
+            "Trading readiness; always zero in this release",
+            registry=self.registry,
         )
         self.database_failures = Counter(
             "aca_database_check_failures", "Failed database checks", registry=self.registry

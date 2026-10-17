@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "source_commit": "30887a07b082d6f9859c27e017e934eb1950506d",
+  "requested_duration_seconds": 300,
+  "mode": "credential-free public market capture",
+  "report": {
+    "checksum_failures": 0,
+    "duplicate_stream_trades": 197,
+    "faults": 1,
+    "healthy_observations": 169,
+    "live_execution_available": false,
+    "new_stream_trades": 9,
+    "observations": 176,
+    "received_websocket_frames": 12073,
+    "reconnects": 1,
+    "rest_requests": 32,
+    "rest_retries": 0,
+    "schema_version": 1,
+    "trading_ready": false
+  },
+  "observation_scope": "Samples from active WebSocket epoch loops, excluding bootstrap/backoff; not an availability denominator",
+  "injected_fault": {
+    "schema_version": 1,
+    "fault": "collector egress disconnected",
+    "started_at": "2026-10-17T21:28:11.861124+00:00",
+    "health_exit_code": 1,
+    "health": {
+      "phase": 2,
+      "mode": "paper",
+      "foundation_ready": true,
+      "database_ready": true,
+      "schema_ready": true,
+      "reconciled": false,
+      "trading_ready": false,
+      "live_execution_available": false,
+      "incomplete_safety_requirements": [
+        "authenticated_account_reads_not_implemented",
+        "portfolio_accounting_not_implemented",
+        "risk_enforcement_not_implemented",
+        "paper_execution_not_implemented",
+        "reconciliation_not_implemented",
+        "live_execution_not_implemented"
+      ],
+      "public_data_only": true,
+      "market_data": {
+        "schema_version": 1,
+        "as_of": "2026-10-17T21:28:24.791820+00:00",
+        "epoch": "3dd4bee2-f614-4abe-b431-13d180c760f1",
+        "market_ready": false,
+        "blockers": [
+          "system_not_online",
+          "connection_stale",
+          "instrument_snapshot_incomplete",
+          "trade_snapshot_incomplete",
+          "book_stale_or_missing:BTC/GBP",
+          "book_stale_or_missing:ETH/GBP"
+        ],
+        "book_age_seconds": {
+          "BTC/GBP": null,
+          "ETH/GBP": null
+        },
+        "trading_ready": false,
+        "live_execution_available": false
+      },
+      "clock_evidence": {
+        "offset_lower_seconds": -0.2166910171508789,
+        "offset_upper_seconds": 0.823275089263916,
+        "round_trip_and_budget_wait_seconds": 4.898833626999931,
+        "live_clock_bound_verified": false
+      },
+      "capture_statistics": {
+        "schema_version": 1,
+        "received_websocket_frames": 4349,
+        "new_stream_trades": 2,
+        "duplicate_stream_trades": 100,
+        "reconnects": 0,
+        "faults": 0,
+        "checksum_failures": 0,
+        "healthy_observations": 66,
+        "observations": 72,
+        "rest_requests": 15,
+        "rest_retries": 0,
+        "trading_ready": false,
+        "live_execution_available": false
+      }
+    },
+    "restored_at": "2026-10-17T21:28:24.927541+00:00"
+  },
+  "recovered_health": {
+    "phase": 2,
+    "mode": "paper",
+    "foundation_ready": true,
+    "database_ready": true,
+    "schema_ready": true,
+    "reconciled": false,
+    "trading_ready": false,
+    "live_execution_available": false,
+    "incomplete_safety_requirements": [
+      "authenticated_account_reads_not_implemented",
+      "portfolio_accounting_not_implemented",
+      "risk_enforcement_not_implemented",
+      "paper_execution_not_implemented",
+      "reconciliation_not_implemented",
+      "live_execution_not_implemented"
+    ],
+    "public_data_only": true,
+    "market_data": {
+      "schema_version": 1,
+      "as_of": "2026-10-17T21:29:42.240849+00:00",
+      "epoch": "fe474097-aefb-49d8-93ef-3d9ad39d3dca",
+      "market_ready": true,
+      "blockers": [],
+      "book_age_seconds": {
+        "BTC/GBP": 1.167924,
+        "ETH/GBP": 0.170415
+      },
+      "trading_ready": false,
+      "live_execution_available": false
+    },
+    "clock_evidence": {
+      "offset_lower_seconds": -0.08402109146118164,
+      "offset_upper_seconds": 0.9689409732818604,
+      "round_trip_and_budget_wait_seconds": 5.015770545000123,
+      "live_clock_bound_verified": false
+    },
+    "capture_statistics": {
+      "schema_version": 1,
+      "received_websocket_frames": 4926,
+      "new_stream_trades": 5,
+      "duplicate_stream_trades": 197,
+      "reconnects": 1,
+      "faults": 1,
+      "checksum_failures": 0,
+      "healthy_observations": 85,
+      "observations": 92,
+      "rest_requests": 26,
+      "rest_retries": 0,
+      "trading_ready": false,
+      "live_execution_available": false
+    }
+  },
+  "readiness_transitions": [
+    {
+      "blockers": [
+        "system_not_online",
+        "connection_stale",
+        "instrument_snapshot_incomplete",
+        "trade_snapshot_incomplete",
+        "book_stale_or_missing:BTC/GBP",
+        "book_stale_or_missing:ETH/GBP"
+      ],
+      "epoch": "3dd4bee2-f614-4abe-b431-13d180c760f1",
+      "event": "public_market_readiness_changed",
+      "level": "info",
+      "market_ready": false,
+      "phase": 2,
+      "public_data_only": true,
+      "timestamp": "2026-10-17T21:27:04.129158Z"
+    },
+    {
+      "blockers": [],
+      "epoch": "3dd4bee2-f614-4abe-b431-13d180c760f1",
+      "event": "public_market_readiness_changed",
+      "level": "info",
+      "market_ready": true,
+      "phase": 2,
+      "public_data_only": true,
+      "timestamp": "2026-10-17T21:27:04.500025Z"
+    },
+    {
+      "blockers": [
+        "book_stale_or_missing:BTC/GBP",
+        "book_stale_or_missing:ETH/GBP"
+      ],
+      "epoch": "3dd4bee2-f614-4abe-b431-13d180c760f1",
+      "event": "public_market_readiness_changed",
+      "level": "info",
+      "market_ready": false,
+      "phase": 2,
+      "public_data_only": true,
+      "timestamp": "2026-10-17T21:28:16.920009Z"
+    },
+    {
+      "blockers": [
+        "system_not_online",
+        "connection_stale",
+        "instrument_snapshot_incomplete",
+        "trade_snapshot_incomplete",
+        "book_stale_or_missing:BTC/GBP",
+        "book_stale_or_missing:ETH/GBP"
+      ],
+      "epoch": "fe474097-aefb-49d8-93ef-3d9ad39d3dca",
+      "event": "public_market_readiness_changed",
+      "level": "info",
+      "market_ready": false,
+      "phase": 2,
+      "public_data_only": true,
+      "timestamp": "2026-10-17T21:29:20.113150Z"
+    },
+    {
+      "blockers": [],
+      "epoch": "fe474097-aefb-49d8-93ef-3d9ad39d3dca",
+      "event": "public_market_readiness_changed",
+      "level": "info",
+      "market_ready": true,
+      "phase": 2,
+      "public_data_only": true,
+      "timestamp": "2026-10-17T21:29:20.441570Z"
+    }
+  ],
+  "fault_events": [
+    {
+      "epoch": "3dd4bee2-f614-4abe-b431-13d180c760f1",
+      "error_type": "MarketDataError",
+      "event": "public_capture_interrupted",
+      "level": "warning",
+      "phase": 2,
+      "public_data_only": true,
+      "reason": "public WebSocket heartbeat deadline exceeded",
+      "timestamp": "2026-10-17T21:28:24.977498Z"
+    }
+  ],
+  "remaining_gates": "No research/paper/live promotion claim; no account access or exchange orders",
+  "persisted_trial": {
+    "receipt_counts": {
+      "book": 11869,
+      "capture_fault": 1,
+      "capture_stopped": 1,
+      "coverage_gap": 1,
+      "epoch_started": 2,
+      "heartbeat": 180,
+      "instrument": 2,
+      "instrument_rules": 2,
+      "rest:AssetPairs": 2,
+      "rest:OHLC": 8,
+      "rest:SystemStatus": 9,
+      "rest:Time": 8,
+      "rest:Trades": 4,
+      "rest:closed_candles": 8,
+      "rest:normalized_trades": 4,
+      "status": 2,
+      "subscription": 10,
+      "timestamp_alignment": 4,
+      "trade": 10,
+      "trade_recovery": 4
+    },
+    "report": {
+      "checksum_failures": 0,
+      "duplicate_stream_trades": 197,
+      "faults": 1,
+      "healthy_observations": 169,
+      "live_execution_available": false,
+      "new_stream_trades": 9,
+      "observations": 176,
+      "received_websocket_frames": 12073,
+      "reconnects": 1,
+      "rest_requests": 32,
+      "rest_retries": 0,
+      "schema_version": 1,
+      "trading_ready": false
+    },
+    "started_at": "2026-10-17T21:26:13.038956+00:00",
+    "stopped_at": "2026-10-17T21:31:13.065354+00:00"
+  }
+}

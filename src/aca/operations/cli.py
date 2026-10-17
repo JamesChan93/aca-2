@@ -1,4 +1,4 @@
-"""Local foundation administration. No exchange clients or trading actions are registered."""
+"""Local administration and opt-in public market reads. No trading actions exist."""
 
 import argparse
 import asyncio
@@ -14,6 +14,8 @@ from pydantic import ValidationError
 from aca import __version__
 from aca.app.health import BLOCKERS
 from aca.app.service import serve
+from aca.market_data.capture import capture
+from aca.market_data.store import MarketStore
 from aca.observability.logging import configure_logging
 from aca.operations.config import ConfigurationError, Settings, load_settings
 from aca.operations.provision import provision_roles
@@ -23,12 +25,38 @@ from aca.storage.migrate import migrate
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="aca", description="Paper-only Phase 1 foundation")
+    parser = argparse.ArgumentParser(
+        prog="aca", description="Paper-only platform with opt-in public market capture"
+    )
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("--config", type=Path)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("capabilities")
     commands.add_parser("serve")
+    market = commands.add_parser("market").add_subparsers(dest="action", required=True)
+    market.add_parser("status")
+    evidence = market.add_parser("evidence")
+    evidence.add_argument(
+        "--channel",
+        required=True,
+        choices=(
+            "instrument_rules",
+            "rest:closed_candles",
+            "local:closed_candle",
+            "trade_recovery",
+            "capture_fault",
+            "coverage_gap",
+        ),
+    )
+    evidence.add_argument("--limit", type=int, default=5, choices=range(1, 21))
+    market_capture = market.add_parser("capture")
+    market_capture.add_argument(
+        "--duration",
+        type=int,
+        default=300,
+        metavar="SECONDS",
+        help="wall-clock capture duration; 0 runs until interrupted",
+    )
     config = commands.add_parser("config").add_subparsers(dest="action", required=True)
     config.add_parser("check")
     database = commands.add_parser("db").add_subparsers(dest="action", required=True)
@@ -43,13 +71,19 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-async def _database_command(settings: Settings, command: str, limit: int = 20) -> None:
+async def _database_command(
+    settings: Settings, command: str, limit: int = 20, channel: str | None = None
+) -> None:
     engine = create_engine(settings)
     try:
         await verify_runtime(engine)
         result: object = {"database_ready": True, "trading_ready": False}
         if command == "audit":
             result = await FoundationStore(engine).list_events(limit)
+        elif command == "market_status":
+            result = await MarketStore(engine).status()
+        elif command == "market_evidence" and channel is not None:
+            result = await MarketStore(engine).evidence(channel=channel, limit=limit)
         print(json.dumps(result, sort_keys=True))
     finally:
         await engine.dispose()
@@ -67,6 +101,7 @@ def _health(url: str) -> int:
             "/health/live",
             "/health/ready",
             "/health/trading",
+            "/health/market",
         }
     ):
         raise ConfigurationError("health checks require a local HTTP health endpoint")
@@ -94,7 +129,9 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 json.dumps(
                     {
-                        "phase": 1,
+                        "phase": 2,
+                        "public_market_capture_available": True,
+                        "private_account_access_available": False,
                         "mode": "paper",
                         "version": __version__,
                         "live_execution_available": False,
@@ -102,6 +139,19 @@ def main(argv: list[str] | None = None) -> int:
                     }
                 )
             )
+        elif args.command == "market":
+            if args.action == "status":
+                asyncio.run(_database_command(settings, "market_status"))
+            elif args.action == "evidence":
+                asyncio.run(
+                    _database_command(settings, "market_evidence", args.limit, args.channel)
+                )
+            else:
+                if not 0 <= args.duration <= 86400:
+                    raise ConfigurationError("duration must be 0..86400 seconds")
+                result = asyncio.run(capture(settings, args.duration))
+                print(json.dumps(result, sort_keys=True))
+                return 0 if result["healthy_observations"] else 1
         elif args.command == "config":
             print(
                 json.dumps(

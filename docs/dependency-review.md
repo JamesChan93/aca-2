@@ -71,3 +71,21 @@ Audit uses `--disable-pip` after a separate hash-checked install. This enumerate
 locked pin, including packaging/pip/setuptools/wheel that pip's dry-run resolver can
 omit as already installed in its audit environment. Distribution hashes are checked
 by installation/download; advisory coverage is checked against all lock entries.
+
+## Phase 2 additions
+
+The planned HTTPX 0.28.1 and websockets 17.2 candidates are added without substitutions.
+Both runtime and development locks include exact distribution SHA-256 hashes.
+HTTPX requires Python >=3.8 (BSD-3-Clause); websockets requires Python >=3.11
+(BSD-3-Clause). New transitive packages: anyio 4.15.1 (Python >=3.10, MIT),
+httpcore 1.0.9 (Python >=3.8, BSD-3-Clause), h11 0.16.0 (Python >=3.8, MIT).
+Licence/Python declarations were inspected from installed distribution metadata.
+Existing certifi, idna and typing-extensions locks remain shared dependencies.
+Both complete locks pass the current pip-audit check. Linux musl binary-wheel and
+hosted amd64 verification are recorded in the Phase 2 report/evidence; this paragraph
+is not a claim of future advisory-free operation.
+
+HTTPX uses explicit timeouts, connection limits, TLS verification, no environment
+proxies and no redirects. websockets uses bounded frames/queues, no proxies and an
+explicit redirect rejection. HTTPX has no mutable/private endpoint to retry. No
+new secret input is introduced. Native websockets speedups are upstream dependencies.

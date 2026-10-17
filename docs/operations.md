@@ -1,4 +1,4 @@
-# Phase 1 operations
+# Foundation and public-capture operations
 
 This is a local paper-only foundation. There are no positions or orders for it to manage.
 Do not use it to supervise a live account. Future emergency trading procedures in the
@@ -106,3 +106,12 @@ Automated encrypted off-host backups, WAL archiving, restore schedules/RPO/RTO e
 external monitoring and Discord delivery are still required before production readiness.
 The local persistent volume and connection-restart tests are not disaster recovery.
 No paid service or VPS is provisioned by bootstrap.
+
+
+## Public-market capture
+
+See [Phase 2](phase-2.md) for the opt-in profile, finite capture, health and evidence
+queries. The new `0002_public_market` migration adds append-only public receipts and
+canonical trades; it does not alter financial history. Stop capture before upgrades.
+A Phase 1 binary rejects the new schema revision, so application rollback requires
+a compatible reviewed image rather than an automatic Alembic downgrade.

@@ -1,3 +1,3 @@
-"""Phase 1 foundation. There is deliberately no exchange execution implementation."""
+"""Paper foundation and read-only public market capture; no exchange execution."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
