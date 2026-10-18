@@ -31,7 +31,9 @@ class StoredPaperFeed:
                     (
                         await c.execute(
                             select(MarketReceipt.__table__)
-                            .where(MarketReceipt.channel == channel)
+                            .where(
+                                MarketReceipt.channel == channel, MarketReceipt.received_at <= at
+                            )
                             .order_by(MarketReceipt.received_at.desc(), MarketReceipt.id.desc())
                             .limit(1)
                         )
@@ -61,7 +63,11 @@ class StoredPaperFeed:
                 fault = (
                     await c.execute(
                         select(MarketReceipt.received_at)
-                        .where(MarketReceipt.channel == channel, MarketReceipt.epoch == epoch.epoch)
+                        .where(
+                            MarketReceipt.channel == channel,
+                            MarketReceipt.epoch == epoch.epoch,
+                            MarketReceipt.received_at <= at,
+                        )
                         .order_by(MarketReceipt.received_at.desc())
                         .limit(1)
                     )
@@ -76,6 +82,7 @@ class StoredPaperFeed:
                             MarketReceipt.channel == "book",
                             MarketReceipt.epoch == epoch.epoch,
                             MarketReceipt.received_at >= at - timedelta(seconds=5),
+                            MarketReceipt.received_at <= at,
                         )
                         .order_by(MarketReceipt.received_at.desc(), MarketReceipt.id.desc())
                         .limit(20)

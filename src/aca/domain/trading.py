@@ -280,6 +280,7 @@ class VenueOrder(Record):
     queue_epoch: UUID | None = None
     accepted_at: Time
     triggered_at: Time | None = None
+    cancelled_at: Time | None = None
 
 
 class VenueSnapshot(Record):

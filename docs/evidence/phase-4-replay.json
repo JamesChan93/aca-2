@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-18",
+  "version": "0.4.2",
+  "scope": "Phase 4 ordered public replay increment; not complete Phase 4/G2",
+  "source_hash": "573baa70a1326ad2418683617a6e5a64d5b2152e25f22fc03374e9e4c513b9af",
+  "source_matches_installed_wheel_and_runtime": true,
+  "tests": {
+    "native_macos_arm64": {
+      "passed": 276,
+      "seconds": 41.63
+    },
+    "linux_arm64_musl": {
+      "passed": 276,
+      "seconds": 45.19
+    },
+    "hosted_checks": "Pre-push record. Exact-head hosted results belong to PR checks and description."
+  },
+  "checks": {
+    "ruff": "passed",
+    "format": "107 files formatted",
+    "strict_mypy": "95 files passed",
+    "build": "wheel and sdist passed",
+    "pip_check": "passed",
+    "runtime_research_development_audits": "zero known vulnerabilities",
+    "new_dependencies": false,
+    "dependency_locks_changed": false,
+    "publication_secret_scan": {
+      "files": 154,
+      "secrets": 0
+    }
+  },
+  "backups": [
+    {
+      "path": ".secrets/backups/replay-20261018T134246Z/pre-replay.sql",
+      "bytes": 73572406,
+      "sha256": "136e9e2509d7d440ebd62cd5432cfd430dda1dd0672dbea7946d1843b5b2702e",
+      "restored": false
+    },
+    {
+      "path": ".secrets/backups/replay-cutoff-20261018T134938Z/pre-cutoff.sql",
+      "bytes": 87782219,
+      "sha256": "77b7164f8d8392c41bbb2bce65eae8838cc607a89b191cc15963734b77a4a1a3",
+      "restored": false
+    }
+  ],
+  "images": {
+    "app": {
+      "image": "sha256:e40e7ca57609e1d85f93edcc2546aa26b40c1202f0dfff1d92059bc34f0ea6ed",
+      "health": "healthy",
+      "user": "10001:10001",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "memory": 805306368,
+      "port_bindings": {},
+      "scan_high_critical": 0,
+      "scan_secrets": 0,
+      "scan_rootfs_matches": true,
+      "scan_config_matches": true
+    },
+    "db": {
+      "image": "sha256:1e36568c7f920116b9435d2093dfa9c202761f97805bbc0dda7e88f017774e93",
+      "health": "healthy",
+      "user": "postgres:postgres",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "memory": 1073741824,
+      "port_bindings": {},
+      "scan_high_critical": 0,
+      "scan_secrets": 0,
+      "scan_rootfs_matches": true,
+      "scan_config_matches": true
+    }
+  },
+  "runtime": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "balances": {
+      "BTC": "0E-8",
+      "ETH": "0",
+      "GBP": "249.724660782400000000"
+    },
+    "counts": {
+      "market_receipts": 17342,
+      "paper_checkpoints": 5,
+      "paper_events": 636,
+      "paper_fills": 4,
+      "paper_journals": 6,
+      "paper_replay_cursors": 153,
+      "paper_venue_events": 24,
+      "public_replay_events": 4070,
+      "public_trades": 9055,
+      "research_artifacts": 396,
+      "research_events": 386
+    },
+    "database_bytes": 53966527,
+    "incident": "paper_supervisor_stopped",
+    "live_execution_available": false,
+    "orders": 3,
+    "ready": false,
+    "schema": "0007_replay_cutoff",
+    "source_hash": "573baa70a1326ad2418683617a6e5a64d5b2152e25f22fc03374e9e4c513b9af",
+    "state_version": 614,
+    "version": "0.4.2"
+  },
+  "administrative_catchup": {
+    "processed": 2902,
+    "cursor": 2987,
+    "more": false,
+    "reconciled": true,
+    "live_execution_available": false
+  },
+  "healthy_observation": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "database_ready": true,
+    "fill_replay_enabled": true,
+    "foundation_ready": true,
+    "healthy_ticks": 50,
+    "incomplete_safety_requirements": [
+      "authenticated_account_reads_not_implemented",
+      "continuous_paper_runner_not_implemented",
+      "extended_paper_validation_not_complete",
+      "research_promotion_gate_not_passed",
+      "live_reconciliation_not_implemented",
+      "live_execution_not_implemented"
+    ],
+    "kind": "paper_maintenance_v1",
+    "last_tick_seconds": 0.6319884170000023,
+    "live_execution_available": false,
+    "market_ready": true,
+    "mode": "paper",
+    "phase": 4,
+    "promotion_evidence": false,
+    "reason": null,
+    "reconciled": true,
+    "replay_cursor": 3995,
+    "replay_processed": 1008,
+    "replay_skipped_trades": 2,
+    "schema_ready": true,
+    "strategy_dispatch_enabled": false,
+    "supervision_ready": true,
+    "ticks": 127,
+    "trading_ready": false
+  },
+  "feed_stopped_observation": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "database_ready": true,
+    "fill_replay_enabled": true,
+    "foundation_ready": false,
+    "healthy_ticks": 59,
+    "incomplete_safety_requirements": [
+      "authenticated_account_reads_not_implemented",
+      "continuous_paper_runner_not_implemented",
+      "extended_paper_validation_not_complete",
+      "research_promotion_gate_not_passed",
+      "live_reconciliation_not_implemented",
+      "live_execution_not_implemented"
+    ],
+    "kind": "paper_maintenance_v1",
+    "last_tick_seconds": 0.30850074999989374,
+    "live_execution_available": false,
+    "market_ready": false,
+    "mode": "paper",
+    "phase": 4,
+    "promotion_evidence": false,
+    "reason": "paper_replay_unavailable",
+    "reconciled": false,
+    "replay_cursor": 4070,
+    "replay_processed": 1083,
+    "replay_skipped_trades": 2,
+    "schema_ready": true,
+    "strategy_dispatch_enabled": false,
+    "supervision_ready": false,
+    "ticks": 165,
+    "trading_ready": false
+  },
+  "finite_supervisor_result": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "database_ready": true,
+    "fill_replay_enabled": true,
+    "foundation_ready": false,
+    "healthy_ticks": 59,
+    "incomplete_safety_requirements": [
+      "authenticated_account_reads_not_implemented",
+      "continuous_paper_runner_not_implemented",
+      "extended_paper_validation_not_complete",
+      "research_promotion_gate_not_passed",
+      "live_reconciliation_not_implemented",
+      "live_execution_not_implemented"
+    ],
+    "kind": "paper_maintenance_v1",
+    "last_tick_seconds": 0.29235449999987395,
+    "live_execution_available": false,
+    "market_ready": false,
+    "mode": "paper",
+    "phase": 4,
+    "promotion_evidence": false,
+    "reason": "paper_supervisor_stopped",
+    "reconciled": false,
+    "replay_cursor": 4070,
+    "replay_processed": 1083,
+    "replay_skipped_trades": 2,
+    "schema_ready": true,
+    "strategy_dispatch_enabled": false,
+    "supervision_ready": false,
+    "ticks": 168,
+    "trading_ready": false
+  },
+  "public_capture_result": {
+    "checksum_failures": 0,
+    "duplicate_stream_trades": 99,
+    "faults": 0,
+    "healthy_observations": 59,
+    "live_execution_available": false,
+    "new_stream_trades": 3,
+    "observations": 68,
+    "received_websocket_frames": 1027,
+    "reconnects": 0,
+    "rest_requests": 15,
+    "rest_retries": 0,
+    "schema_version": 1,
+    "trading_ready": false
+  },
+  "restarted_supervisor_result": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "database_ready": false,
+    "fill_replay_enabled": true,
+    "foundation_ready": false,
+    "healthy_ticks": 0,
+    "incomplete_safety_requirements": [
+      "authenticated_account_reads_not_implemented",
+      "continuous_paper_runner_not_implemented",
+      "extended_paper_validation_not_complete",
+      "research_promotion_gate_not_passed",
+      "live_reconciliation_not_implemented",
+      "live_execution_not_implemented"
+    ],
+    "kind": "paper_maintenance_v1",
+    "last_tick_seconds": 0.9525554580000062,
+    "live_execution_available": false,
+    "market_ready": false,
+    "mode": "paper",
+    "phase": 4,
+    "promotion_evidence": false,
+    "reason": "paper_supervisor_stopped",
+    "reconciled": false,
+    "replay_cursor": 4070,
+    "replay_processed": 0,
+    "replay_skipped_trades": 0,
+    "schema_ready": false,
+    "strategy_dispatch_enabled": false,
+    "supervision_ready": false,
+    "ticks": 5,
+    "trading_ready": false
+  },
+  "financial_comparison": {
+    "unchanged_balances_and_orders": true,
+    "state_version_before": 56,
+    "state_version_after": 614,
+    "gbp": "249.724660782400000000",
+    "new_orders": 0,
+    "new_fills": 0,
+    "position_episodes": 0
+  },
+  "persistence": "Container recreation retained version 614; full account audit passed. This is not a disaster restore.",
+  "retained_research": "396 artifacts and 386 events. No candidate promoted or holdout opened.",
+  "resolved_verification_findings": [
+    "Initial SQLAlchemy implicit receipt join was corrected to an explicit join.",
+    "A test fixture attempted a below-minimum entry and was corrected; risk was not relaxed.",
+    "A missing test import and a decision-time expectation were corrected.",
+    "The collector test exposed concurrent receipt arrivals after a decision cutoff. Added publication metadata, suffix deferral and matching mark cutoffs, with regression tests.",
+    "The flat-account optimisation initially bypassed late-cancellation review; retained cancellation chronology checks and reran the complete suites.",
+    "Docker Desktop was stopped; restarted it and the retained database before the successful protected backups and reruns.",
+    "Docker Desktop image index metadata was no longer inspectable after repeated builds. Recreated the foundation containers on retained volumes. Rescanned the final database configuration after Compose labels changed."
+  ],
+  "limits": [
+    "No strategy dispatch or qualifying paper episodes.",
+    "No historical per-observation financial risk reconstruction or calibrated fill validation.",
+    "No completed resource/retention, disk-exhaustion or disaster-restore trial.",
+    "The finite run includes bootstrapping, feed staleness and backlog; it is not a reliability percentage or 56-day validation.",
+    "Trade frames above 256 updates halt replay without truncation.",
+    "No private Kraken access, live writer, activation, Discord delivery or paid provisioning."
+  ],
+  "phase_4_complete": false,
+  "G2_passed": false,
+  "promotion_evidence": false,
+  "live_execution_available": false
+}

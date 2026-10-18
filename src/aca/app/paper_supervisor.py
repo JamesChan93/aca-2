@@ -19,8 +19,10 @@ from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
 from aca.operations.config import Settings
 from aca.simulation.paper import PaperExchange
+from aca.simulation.stored_replay import StoredReplay
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter
+from aca.storage.replay import cursors
 
 
 class SupervisorStatus(FoundationStatus):
@@ -33,6 +35,10 @@ class SupervisorStatus(FoundationStatus):
         self.ticks = 0
         self.healthy_ticks = 0
         self.tick_seconds = 0.0
+        self.fill_replay_enabled = False
+        self.replay_cursor: int | None = None
+        self.replay_processed = 0
+        self.replay_skipped_trades = 0
 
     @property
     def supervision_ready(self) -> bool:
@@ -53,7 +59,10 @@ class SupervisorStatus(FoundationStatus):
                 "healthy_ticks": self.healthy_ticks,
                 "last_tick_seconds": self.tick_seconds,
                 "strategy_dispatch_enabled": False,
-                "fill_replay_enabled": False,
+                "fill_replay_enabled": self.fill_replay_enabled,
+                "replay_cursor": self.replay_cursor,
+                "replay_processed": self.replay_processed,
+                "replay_skipped_trades": self.replay_skipped_trades,
                 "promotion_evidence": False,
             }
         )
@@ -75,11 +84,23 @@ class SupervisorMetrics(FoundationMetrics):
             ["healthy"],
             registry=self.registry,
         )
+        self.replay_cursor = Gauge(
+            "aca_paper_replay_cursor", "Last committed public replay number", registry=self.registry
+        )
+        self.replay_processed = Gauge(
+            "aca_paper_replay_processed", "Frames consumed this process", registry=self.registry
+        )
+        self.replay_skipped = Gauge(
+            "aca_paper_replay_skipped_trades", "Unusable update trades", registry=self.registry
+        )
 
     def render(self, status: FoundationStatus) -> bytes:
         if isinstance(status, SupervisorStatus):
             self.supervision.set(int(status.supervision_ready))
             self.duration.set(status.tick_seconds)
+            self.replay_cursor.set(status.replay_cursor or 0)
+            self.replay_processed.set(status.replay_processed)
+            self.replay_skipped.set(status.replay_skipped_trades)
         return super().render(status)
 
 
@@ -105,10 +126,13 @@ class PaperSupervisor:
         capacity: Callable[[], Awaitable[None]],
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         timer: Callable[[], float] = monotonic,
+        replay: StoredReplay | None = None,
     ) -> None:
         self.service, self.status = service, status
         self.marks, self.capacity, self.clock, self.timer = marks, capacity, clock, timer
         self.last_clock: datetime | None = None
+        self.replay = replay
+        status.fill_replay_enabled = replay is not None
         self.last_timer: float | None = None
         self.next_reconcile = 0.0
         status.account_id = service.store.account_id
@@ -139,8 +163,31 @@ class PaperSupervisor:
 
     async def start(self) -> None:
         at = self.clock()
+        if self.replay is None:
+            from sqlalchemy import select
+
+            async with self.service.writer.transaction() as c:
+                enrolled = await c.scalar(
+                    select(cursors.c.number)
+                    .where(cursors.c.account_id == self.service.store.account_id)
+                    .limit(1)
+                )
+            if enrolled is not None:
+                raise ValueError("enrolled paper accounts require the replay supervisor")
         if at < (await self.service._state()).as_of:
             raise ValueError("paper supervisor cannot move account clock backwards")
+        if self.replay:
+            await self.replay.audit()
+            for _ in range(8):
+                result = await self.replay.batch(limit=64, at=self.clock())
+                self.status.replay_cursor = result.cursor
+                self.status.replay_processed += result.processed
+                self.status.replay_skipped_trades += result.skipped_trades
+                if not result.more:
+                    break
+            else:
+                raise ValueError("paper replay startup backlog budget exhausted")
+            at = self.clock()
         # The owner already audited the prefix. Recovery never resends consumed
         # work; maintenance cancels outstanding entries and keeps protection.
         await self.service.recover(at)
@@ -158,6 +205,21 @@ class PaperSupervisor:
         if at < (await self.service._state()).as_of:
             raise ValueError("paper account time ahead of wall clock")
         await self.capacity()
+        if self.replay:
+            replay_result = await self.replay.batch(limit=64, at=at)
+            self.status.replay_cursor = replay_result.cursor
+            self.status.replay_processed += replay_result.processed
+            self.status.replay_skipped_trades += replay_result.skipped_trades
+            if replay_result.more:
+                await self.service.reconcile(at)
+                self.status.reason = "paper_replay_backlog"
+                await self.suspend(self.status.reason, at)
+                return
+            if replay_result.reason is not None:
+                await self.service.reconcile(at)
+                self.status.reason = "paper_replay_unavailable"
+                await self.suspend(self.status.reason, at)
+                return
         try:
             marks = await self.marks(at)
         except FeedUnavailable:
@@ -174,6 +236,8 @@ class PaperSupervisor:
                 "paper_feed_unavailable",
                 "paper_supervisor_starting",
                 "invalid_gbp_valuation",
+                "paper_replay_pending",
+                "paper_replay_backlog",
             }
         ):
             result = await self.service.reconcile(at)
@@ -232,7 +296,13 @@ class PaperSupervisor:
                 structlog.get_logger().error("paper_shutdown_state_unavailable")
 
 
-async def supervise(settings: Settings, account_id: UUID, duration: int) -> dict[str, object]:
+async def supervise(
+    settings: Settings,
+    account_id: UUID,
+    duration: int,
+    *,
+    replay_enabled: bool = False,
+) -> dict[str, object]:
     if not 0 <= duration <= 86400:
         raise ValueError("duration must be 0..86400 seconds")
     engine = create_engine(settings)
@@ -257,12 +327,14 @@ async def supervise(settings: Settings, account_id: UUID, duration: int) -> dict
     try:
         await verify_runtime(engine)
         async with PaperWriter(store) as owner:
-            service = PaperExecution(owner, PaperExchange(store))
+            venue = PaperExchange(store)
+            service = PaperExecution(owner, venue)
             supervisor = PaperSupervisor(
                 service,
                 status,
                 marks=StoredPaperFeed(store).marks,
                 capacity=capacity,
+                replay=StoredReplay(service, venue) if replay_enabled else None,
             )
             await server.start(settings.health.host, settings.health.port)
             await supervisor.run(stop, metrics)

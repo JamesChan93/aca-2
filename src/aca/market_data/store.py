@@ -1,6 +1,7 @@
 """Atomic raw evidence plus canonical public trade insertion; no account state."""
 
 import hashlib
+import json
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
@@ -12,8 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from aca.adapters.kraken.wire import MarketDataError
 from aca.domain.market import MarketTrade
+from aca.domain.trading import fingerprint
 from aca.domain.values import utc_datetime
 from aca.storage.models import MarketReceipt, PublicTradeRecord
+from aca.storage.replay import PUBLIC_REPLAY_LOCK, public_events
 
 
 class MarketStore:
@@ -45,6 +48,12 @@ class MarketStore:
         if len(payload.encode()) > 2_000_000:
             raise MarketDataError("market payload exceeds storage bound")
         async with self.sessions.begin() as session:
+            # Allocate the sequence only under a transaction lock held through
+            # commit. A higher committed number can never hide an earlier
+            # uncommitted receipt; rolled-back numbers may leave harmless gaps.
+            await session.execute(
+                text("SELECT pg_advisory_xact_lock(:key)"), {"key": PUBLIC_REPLAY_LOCK}
+            )
             session.add(
                 MarketReceipt(
                     id=receipt_id,
@@ -131,6 +140,42 @@ class MarketStore:
                         },
                     )
                 )
+            replay_channels = {
+                "epoch_started",
+                "instrument_rules",
+                "capture_health",
+                "status",
+                "book",
+                "trade",
+                "capture_fault",
+                "capture_stopped",
+                "quarantine",
+                "coverage_gap",
+            }
+            replay_document = {
+                "schema_version": 1,
+                "receipt_id": str(receipt_id),
+                "epoch": str(epoch),
+                "received_at": utc_datetime(received_at).isoformat(),
+                "channel": channel,
+                "valid": valid,
+                "payload_hash": hashlib.sha256(payload.encode()).hexdigest(),
+                "normalized": (normalized or {}) if channel in replay_channels else {},
+                # Only first-seen updates, in original frame order. Historical
+                # snapshots/REST recovery never imply executable liquidity.
+                "trades": [t.model_dump(mode="json") for t in added]
+                if valid and channel == "trade" and (normalized or {}).get("snapshot") is False
+                else [],
+            }
+            if len(json.dumps(replay_document).encode()) > 2_000_000:
+                raise MarketDataError("public replay envelope exceeds storage bound")
+            await session.execute(
+                public_events.insert().values(
+                    receipt_id=receipt_id,
+                    document=replay_document,
+                    fingerprint=fingerprint(replay_document),
+                )
+            )
         return tuple(added)
 
     async def check_capacity(self) -> None:

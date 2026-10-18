@@ -11,11 +11,13 @@ from uuid import UUID, uuid4
 
 from aca.app.paper_supervisor import supervise
 from aca.execution.paper import PaperExecution
+from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
 from aca.operations.config import Settings
 from aca.reporting.paper import performance
 from aca.research.artifacts import read_json
 from aca.simulation.paper import PaperExchange
 from aca.simulation.replay import ReplayPlan, demo_plan, run_replay
+from aca.simulation.stored_replay import StoredReplay
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter, read_alerts
 
@@ -33,6 +35,8 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "replay",
         "audit",
         "supervise",
+        "enrol",
+        "consume",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -42,11 +46,18 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
             parser.add_argument("--input", type=Path, required=True)
         if name == "supervise":
             parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
+            parser.add_argument(
+                "--replay",
+                action="store_true",
+                help="consume ordered public evidence for an enrolled paper account",
+            )
+        if name == "consume":
+            parser.add_argument("--limit", type=int, default=32, choices=range(1, 65))
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
     if args.action == "supervise":
-        return await supervise(settings, args.account, args.duration)
+        return await supervise(settings, args.account, args.duration, replay_enabled=args.replay)
     engine = create_engine(settings)
     store = PaperStore(engine, args.account)
     try:
@@ -113,6 +124,42 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
         async with PaperWriter(store) as owner:
             venue = PaperExchange(store)
             service = PaperExecution(owner, venue)
+            if args.action == "enrol":
+                cursor = await StoredReplay(service, venue).enrol()
+                return {
+                    "cursor": cursor.document(),
+                    "live_execution_available": False,
+                    "requires_new_capture_epoch": True,
+                    "promotion_evidence": False,
+                }
+            if args.action == "consume":
+                replay = StoredReplay(service, venue)
+                await replay.audit()
+                at = datetime.now(UTC)
+                result = await replay.batch(limit=args.limit, at=at)
+                reason = "paper_replay_backlog" if result.more else None
+                if result.reason and reason is None:
+                    reason = "paper_replay_unavailable"
+                try:
+                    marks = await StoredPaperFeed(store).marks(at)
+                    await service.mark(marks, at)
+                except FeedUnavailable:
+                    reason = "paper_feed_unavailable"
+                reconciliation = await service.reconcile(at)
+                if reason:
+                    state = await service._state()
+                    await service._save(
+                        state,
+                        state.model_copy(update={"ready": False, "incident": reason}),
+                        at=at,
+                        kind=reason,
+                    )
+                return {
+                    "batch": result.document(),
+                    "reconciliation": reconciliation.document(),
+                    "live_execution_available": False,
+                    "promotion_evidence": False,
+                }
             if args.action in {"demo", "replay"}:
                 plan = (
                     demo_plan(uuid4())
