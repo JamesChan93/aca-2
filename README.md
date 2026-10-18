@@ -81,7 +81,12 @@ sequence. Strategy dispatch remains disabled. This does not complete Phase 4 or 
 [Historical paper risk](docs/phase-4-historical-risk.md) now preserves original-time
 NAV, loss latches and investment flows during replay, with an explicit flat-account
 upgrade baseline. `aca paper valuations --account UUID --limit 20` reads its
-provisional evidence. Remaining accounting/performance workflows, strategy scheduling,
+provisional evidence. [Historical performance](docs/phase-4-performance.md) adds a
+read-only, source-bounded GBP report with journal-reconciled contributions, withdrawals,
+fees and P&L, flow-neutral TWR and bounded annualised MWR. Use
+`aca paper performance --account UUID`; missing valuation evidence leaves returns
+unavailable. The report begins at the explicit historical baseline. Remaining
+accounting workflows, strategy scheduling,
 resource/disaster trials and outbound delivery precede extended paper.
 
 See [development](docs/development.md), [operations](docs/operations.md),

@@ -255,3 +255,12 @@ def test_money_weighted_and_stale_performance_are_explicit() -> None:
     unsafe = portfolio().model_copy(update={"ready": False, "incident": "unreconciled_fill"})
     report = performance(unsafe, (), AT)
     assert report["provisional"] is True and report["reconciliation_issue"] == "unreconciled_fill"
+
+
+def test_full_precision_cash_flow_and_reversal_do_not_use_ambient_decimal_precision() -> None:
+    amount = D("10000000000000.123456789012345678")
+    journal = cash_flow("precise-flow", amount, AT)
+    assert journal.lines[1].gbp == amount.copy_negate()
+    reversal = reverse(journal, source="reverse-precise", reason="Precision fixture", at=AT)
+    assert reversal.movements[0].quantity == amount.copy_negate()
+    assert all(b.quantity == b.cost_gbp == 0 for b in balances((journal, reversal)))

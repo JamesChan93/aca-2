@@ -34,6 +34,12 @@ SIGTERM stops health serving and attempts a bounded shutdown audit write.
 
 ## Health
 
+For an enrolled virtual account, export original-time performance with
+`docker compose exec -T app aca paper performance --account UUID > report.json`.
+The [performance runbook](phase-4-performance.md) explains exact source boundaries,
+financial audit requirements and unavailable returns. This query uses a database
+read-only snapshot and can run alongside the paper writer.
+
 | Route | Meaning |
 | --- | --- |
 | GET /health/live | HTTP loop alive; not proof of database or trading safety |
