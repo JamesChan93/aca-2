@@ -62,7 +62,7 @@ def cash_flow(source: str, amount: Decimal, at: datetime) -> Journal:
         reason="Owner investment flow; excluded from trading P&L",
         lines=(
             JournalLine(account="asset:GBP", gbp=amount),
-            JournalLine(account="equity:flows", gbp=-amount),
+            JournalLine(account="equity:flows", gbp=amount.copy_negate()),
         ),
         movements=(Movement(asset="GBP", quantity=amount),),
     )
@@ -147,6 +147,10 @@ def reverse(journal: Journal, *, source: str, reason: str, at: datetime) -> Jour
         occurred_at=at,
         reverses=journal.id,
         reason=reason,
-        lines=tuple(JournalLine(account=line.account, gbp=-line.gbp) for line in journal.lines),
-        movements=tuple(Movement(asset=m.asset, quantity=-m.quantity) for m in journal.movements),
+        lines=tuple(
+            JournalLine(account=line.account, gbp=line.gbp.copy_negate()) for line in journal.lines
+        ),
+        movements=tuple(
+            Movement(asset=m.asset, quantity=m.quantity.copy_negate()) for m in journal.movements
+        ),
     )

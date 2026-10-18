@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-historical-performance",
+  "application_version": "0.4.4",
+  "verified_at_utc": "2026-10-18T16:10:27Z",
+  "scope": "Read-only, exact-source-bounded historical GBP performance for an enrolled local paper account",
+  "source": {
+    "sha256": "761ce943816e3de8fda180d2737488f11d0acb8ee86d73c406e7778c7eb77233",
+    "python_files": 86,
+    "source_wheel_running_image_match": true
+  },
+  "changes": [
+    "Rebuild every historical balance/unit snapshot through the selected endpoint from control-linked cash flows and reconciled authoritative virtual fills",
+    "Validate baseline inventory/units, financial and historical hash chains, source coverage, cursor anchor, policy and exact sealed fill/cash-flow journals",
+    "Report net flows, fees by actual asset and GBP valuation, realised/unrealised attribution, TWR, observed drawdown and uniquely established bounded annualised MWR",
+    "Use one database-enforced read-only REPEATABLE READ snapshot without taking execution ownership",
+    "Preserve exact Decimal sign changes in cash-flow and reversal construction"
+  ],
+  "verification": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 115,
+    "mypy_source_files": 102,
+    "linux_arm64_musl": {
+      "result": "passed",
+      "tests": 327,
+      "seconds": 49.28,
+      "postgresql": "18.6",
+      "schema": "0008_historical_risk"
+    },
+    "new_test_cases": 27,
+    "coverage": [
+      "Original-time NAV, fees, provenance and no later processing-quote substitution",
+      "Deposits/withdrawals excluded from return; exact source boundaries and unapplied suffixes",
+      "Completed position realised P&L and both fees counted once",
+      "Loss/rebound path retained in source-level maximum drawdown",
+      "Missing NAV and sticky historical gaps suppress TWR, MWR and drawdown",
+      "GBP/BTC/ETH-paid fee quantities, original GBP valuation and remaining inventory marks",
+      "Known annual return fixtures, withdrawals, same-instant aggregation and ambiguous multiple roots",
+      "Bounded multi-page prefix, gaps in source allocation and report-budget rejection",
+      "Concurrent financial/source commit cannot mix snapshots; real PostgreSQL transaction reports READ ONLY and REPEATABLE READ",
+      "Self-consistent historical hash with false investment units fails independent reconstruction",
+      "Full NUMERIC(38,18) precision survives cash-flow, reversal and historical reporting"
+    ],
+    "existing_generated_suite": "Retains 1000 examples per existing critical financial property and 10000 deterministic lifecycle/fault sequences; not 10000 process kills",
+    "wheel_and_sdist_build": "passed",
+    "dependency_changes": false,
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "hosted_checks": "See the pull request checks for this commit; local evidence does not assert a hosted result"
+  },
+  "local_runtime": {
+    "application_version": "0.4.4",
+    "source_files": 86,
+    "source_hash": "761ce943816e3de8fda180d2737488f11d0acb8ee86d73c406e7778c7eb77233",
+    "uid": 10001,
+    "schema": "0008_historical_risk",
+    "counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "market_receipts": 17491,
+      "public_replay_events": 4215,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "research_artifacts": 396,
+      "research_events": 386
+    },
+    "read_only": "on",
+    "source_matches_wheel_and_runtime": true,
+    "repeat_report_identical": true,
+    "financial_counts_and_account_state_unchanged": true,
+    "account_version": 810,
+    "report_seconds_including_cli_startup": 1.362682665931061,
+    "historical_range": [
+      4070,
+      4215
+    ],
+    "historical_observations": 146,
+    "historical_nav_gbp": "249.724660782400000000",
+    "historical_pnl_gbp": "0E-18",
+    "report_hash": "06ac40d6f0d98b7205221dd939fc0f6b37997b923d1fff55c7b04bf98a08d571",
+    "app_image": "sha256:83452dd4ce99ac63d3040f57e74f044842a8fc5dbdbd999743cc3ed06be0c51e",
+    "app_scan_config_image": "sha256:85770c4840638bd81d379f2d0152d6d459931613c761e17d824f4a987978e97d",
+    "scan_rootfs_and_config_match_runtime": true,
+    "high_critical_findings": 0,
+    "secret_findings": 0,
+    "health": "healthy",
+    "user": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges:true"
+    ],
+    "port_bindings": {}
+  },
+  "restart": {
+    "app_container_restarted": true,
+    "container_health_smoke": "passed",
+    "historical_report_identical_after_restart": true,
+    "schema_or_financial_migration_performed": false
+  },
+  "security": {
+    "app_scan": {
+      "scanner": "Trivy 0.76.0",
+      "scanner_image": "sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+      "offline_cached_advisory_database": true,
+      "high_critical_vulnerabilities": 0,
+      "secrets": 0,
+      "runtime_rootfs_and_config_verified": true
+    },
+    "database_image": "Unchanged pinned base; current hosted workflow scans both app and DB images",
+    "publication_scan": {
+      "publishable_files_scanned": 166,
+      "actual_local_secret_values_checked": 3,
+      "findings": 0
+    }
+  },
+  "limits": {
+    "report_per_account": {
+      "historical_values": 100000,
+      "operational_events": 100000,
+      "venue_events": 100000,
+      "journals": 10000,
+      "canonical_fills": 4096,
+      "read_page": 64,
+      "individual_sql_timeout_seconds": 30
+    },
+    "mwr": {
+      "maximum_input_flows_including_opening_nav": 256,
+      "maximum_years": 100,
+      "annual_rate_min": "-0.9999",
+      "annual_rate_max": "1000",
+      "bisection_steps": 100,
+      "uniqueness": "single chronological sign change after same-instant netting"
+    },
+    "max_drawdown": "Observed selected source-level unit prices only; no continuous-time or intrareceipt path guarantee",
+    "local_observation": "146 retained valuations, flat GBP cash only; no new market capture or strategy orders",
+    "report_timing": "One local CLI measurement, not a latency or long-duration resource qualification"
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "qualifying_paper_episodes_added": 0,
+    "extended_paper_days_added": 0,
+    "private_kraken_access_added": false,
+    "live_execution_available": false,
+    "reports_provisional": true,
+    "tax_report_final": false,
+    "remaining": [
+      "Transfers/conversions/corrections and tax-inventory workflows",
+      "Calibrated fills/latency and strategy scheduling",
+      "Long-duration storage/resource qualification and archival",
+      "Outbound Discord delivery",
+      "Process/disk fault trials and disaster restore/WAL/off-host backup evidence",
+      "Research edge, required episodes, 56-day paper and economic/readiness gates"
+    ]
+  }
+}

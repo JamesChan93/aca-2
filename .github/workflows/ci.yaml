@@ -57,12 +57,14 @@ jobs:
           docker compose exec -T app aca paper consume --account 6e04530b-9382-418d-9a24-331672f4016b --limit 32
           docker compose exec -T app aca paper valuations --account 6e04530b-9382-418d-9a24-331672f4016b --limit 2 > /tmp/aca-paper-valuations.json
           python -c 'import json; d=json.load(open("/tmp/aca-paper-valuations.json")); assert d["provisional"] is True; assert d["promotion_evidence"] is False; assert d["live_execution_available"] is False; assert len(d["items"]) >= 1'
+          docker compose exec -T app aca paper performance --account 6e04530b-9382-418d-9a24-331672f4016b > /tmp/aca-paper-performance.json
+          python -c 'import json; d=json.load(open("/tmp/aca-paper-performance.json")); assert d["provisional"] is True; assert d["promotion_evidence"] is False; assert d["live_execution_available"] is False; assert d["period"]["observations"] >= 1; assert d["financial_evidence_reconciled"] is True'
           docker compose run --rm --no-deps app aca paper supervise --account 6e04530b-9382-418d-9a24-331672f4016b --replay --duration 3 > /tmp/aca-paper-ordered-replay.json
           python -c 'import json; d=json.load(open("/tmp/aca-paper-ordered-replay.json")); assert d["strategy_dispatch_enabled"] is False; assert d["fill_replay_enabled"] is True; assert d["promotion_evidence"] is False; assert d["trading_ready"] is False; assert d["ticks"] >= 1; assert d["reason"] == "paper_supervisor_stopped"'
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.3
+          image-ref: aca-foundation:0.4.4
           version: v0.76.0
           scanners: vuln,secret
           format: table

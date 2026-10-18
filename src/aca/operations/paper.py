@@ -13,6 +13,7 @@ from aca.app.paper_supervisor import supervise
 from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
 from aca.operations.config import Settings
+from aca.reporting.historical import historical_performance
 from aca.reporting.paper import performance
 from aca.research.artifacts import read_json
 from aca.simulation.historical import HistoricalReplay
@@ -39,6 +40,7 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "enrol",
         "consume",
         "valuations",
+        "performance",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -58,6 +60,9 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         if name == "valuations":
             parser.add_argument("--limit", type=int, default=20, choices=range(1, 101))
             parser.add_argument("--before", type=int)
+        if name == "performance":
+            parser.add_argument("--start-source", type=int)
+            parser.add_argument("--end-source", type=int)
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
@@ -67,6 +72,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     store = PaperStore(engine, args.account)
     try:
         await verify_runtime(engine)
+        if args.action == "performance":
+            return await historical_performance(
+                store, start_source=args.start_source, end_source=args.end_source
+            )
         if args.action == "valuations":
             from sqlalchemy import select
 
