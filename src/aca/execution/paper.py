@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import select
 
-from aca.accounting.ledger import balances, cash_flow, fill_journal, stored
+from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
 from aca.domain.market import Symbol
 from aca.domain.trading import (
     TERMINAL,
@@ -139,10 +139,9 @@ class PaperExecution:
             if amount < 0 and -amount > free_cash(state):
                 raise ValueError("withdrawal spends reserved funds")
             units = flow_units(state, amount, at)
-            history = await self.store.history(c)
             new = state.model_copy(
                 update={
-                    "balances": balances((*history, journal)),
+                    "balances": apply_journals(state.balances, (journal,)),
                     "units": units,
                     "version": state.version + 1,
                     "as_of": at,
@@ -175,6 +174,10 @@ class PaperExecution:
             candidate = candidate.model_copy(
                 update={"ready": False, "incident": "invalid_gbp_valuation"}
             )
+        if candidate == old:
+            if entries_paused(old, at):
+                await self.cancel_entries(at)
+            return await self._state()
         new = await self._save(
             old,
             candidate,
@@ -374,10 +377,9 @@ class PaperExecution:
             )
             updated = order.model_copy(update={"filled": cumulative, "state": lifecycle})
             journal = fill_journal(fill, state.balances)
-            history = await self.store.history(c)
             new = replace_order(state, updated).model_copy(
                 update={
-                    "balances": balances((*history, journal)),
+                    "balances": apply_journals(state.balances, (journal,)),
                     "version": state.version + 1,
                     "as_of": at,
                 }
@@ -536,7 +538,7 @@ class PaperExecution:
             state,
             at=at,
             kind="reconciled" if not differences else "reconciliation_failed",
-            alert=bool(differences),
+            alert=bool(differences) and (old.ready or old.incident != state.incident),
         )
         # A fill can breach a risk threshold. Cancel only entries after its
         # financial transaction and complete snapshot have committed.

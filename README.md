@@ -1,6 +1,6 @@
 # ACA — Kraken research and local paper execution
 
-Phases 1–3 and the first Phase 4 core of the Kraken Spot platform plan. The application provides a
+Phases 1–3 and the Phase 4 paper core and maintenance increment. The application provides a
 paper-only foundation and opt-in, credential-free Kraken market capture for BTC/GBP
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
@@ -63,9 +63,20 @@ docker compose exec -T app aca paper demo --account 6e04530b-9382-418d-9a24-3316
 docker compose exec -T app aca paper status --account 6e04530b-9382-418d-9a24-331672f4016b
 ```
 
-Use a fresh account UUID for each replay. This first Phase 4 increment is not the
-whole phase or a G2 pass. Continuous supervision, incremental projections, resource
-trials, outbound delivery and restore work still precede extended paper operation.
+Use a fresh account UUID for each replay. [Checkpointed maintenance](docs/phase-4-supervision.md)
+adds incremental journal/state projections and an opt-in one-second supervisor for
+an **existing virtual account**:
+
+```sh
+docker compose exec -T app aca paper audit --account 6e04530b-9382-418d-9a24-331672f4016b
+docker compose run --rm --no-deps app aca paper supervise --account 6e04530b-9382-418d-9a24-331672f4016b --duration 60
+```
+
+The supervisor needs the separate public collector for healthy GBP marks. Without
+it, the account stays suspended. It observes risk, cancels entries and reconciles
+the local venue; strategy dispatch and continuous fill replay remain disabled.
+This does not complete Phase 4 or G2. Remaining accounting workflows, continuous
+execution, resource/disaster trials and outbound delivery precede extended paper.
 
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).

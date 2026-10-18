@@ -50,10 +50,13 @@ jobs:
           docker compose restart app
           python scripts/container_smoke.py
           docker compose exec -T app aca paper recover --account 6e04530b-9382-418d-9a24-331672f4016b
+          docker compose exec -T app aca paper audit --account 6e04530b-9382-418d-9a24-331672f4016b
+          docker compose run --rm --no-deps app aca paper supervise --account 6e04530b-9382-418d-9a24-331672f4016b --duration 3 > /tmp/aca-paper-supervision.json
+          python -c 'import json; d=json.load(open("/tmp/aca-paper-supervision.json")); assert d["strategy_dispatch_enabled"] is False; assert d["fill_replay_enabled"] is False; assert d["trading_ready"] is False; assert d["ticks"] >= 1; assert d["reason"] == "paper_supervisor_stopped"'
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.0
+          image-ref: aca-foundation:0.4.1
           version: v0.76.0
           scanners: vuln,secret
           format: table

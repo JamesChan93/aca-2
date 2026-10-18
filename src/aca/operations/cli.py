@@ -108,6 +108,7 @@ def _health(url: str) -> int:
             "/health/ready",
             "/health/trading",
             "/health/market",
+            "/health/paper",
         }
     ):
         raise ConfigurationError("health checks require a local HTTP health endpoint")
@@ -138,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
                         "phase": 4,
                         "offline_paper_execution_available": True,
                         "continuous_paper_runner_available": False,
+                        "paper_maintenance_supervisor_available": True,
                         "local_research_available": True,
                         "public_market_capture_available": True,
                         "private_account_access_available": False,

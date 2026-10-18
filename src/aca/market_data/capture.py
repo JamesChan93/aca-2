@@ -217,6 +217,7 @@ class PublicCapture:
         last_message = monotonic()
         next_database = 0.0
         next_observation = 0.0
+        next_health_receipt = 0.0
         last_health: bool | None = None
         next_rest = monotonic() + 30
         rest_task: asyncio.Task[None] | None = None
@@ -289,6 +290,19 @@ class PublicCapture:
                         epoch=str(self.epoch),
                     )
                     last_health = healthy
+                    next_health_receipt = 0.0
+                if monotonic() >= next_health_receipt:
+                    await self.marker(
+                        "capture_health",
+                        valid=healthy,
+                        detail={
+                            "market_ready": healthy,
+                            "blockers": health["blockers"],
+                            "clock_evidence": self.status.clock_evidence,
+                            "live_execution_available": False,
+                        },
+                    )
+                    next_health_receipt = monotonic() + 5
                 if healthy:
                     if aggregate is None:
                         aggregate = CandleAggregator(now)
