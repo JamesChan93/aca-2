@@ -8,6 +8,7 @@ from typing import Literal
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
 from aca.domain.market import Symbol
@@ -43,7 +44,8 @@ from aca.ports.execution import DefinitiveRejection, ExecutionPort
 from aca.risk.execution import DispatchDenied, MarketEvidence, execution_guard
 from aca.risk.portfolio import approve
 from aca.sizing.long_spot import round_increment, size_long
-from aca.storage.paper import PaperWriter, fills, journals
+from aca.storage.paper import PaperWriter, fills, journals, venue_events
+from aca.storage.replay import cursors, public_events
 from aca.strategies.slow import StrategySignal
 
 
@@ -111,6 +113,34 @@ class PaperExecution:
             await self.store.append(c, None, state, source="initialise", kind="initialised")
             return state
 
+    async def _require_drained_replay(self, c: AsyncConnection) -> None:
+        cursor = await c.scalar(
+            select(cursors.c.number)
+            .where(cursors.c.account_id == self.store.account_id)
+            .order_by(cursors.c.number.desc())
+            .limit(1)
+        )
+        if cursor is not None:
+            pending = await c.scalar(
+                select(public_events.c.number).where(public_events.c.number > cursor).limit(1)
+            )
+            unposted = await c.scalar(
+                select(venue_events.c.number)
+                .where(
+                    venue_events.c.account_id == self.store.account_id,
+                    venue_events.c.kind == "fill",
+                    ~select(fills.c.id)
+                    .where(
+                        fills.c.account_id == self.store.account_id,
+                        fills.c.id == venue_events.c.document["id"].astext,
+                    )
+                    .exists(),
+                )
+                .limit(1)
+            )
+            if pending is not None or unposted is not None:
+                raise ValueError("operation requires drained replay and reconciled fills")
+
     async def cashflow(self, source: str, amount: Decimal, at: datetime) -> PortfolioSnapshot:
         at = utc_datetime(at)
         journal = cash_flow(source, amount, at)
@@ -136,6 +166,7 @@ class PaperExecution:
                 return state
             if at < state.as_of:
                 raise ValueError("cash-flow clock moved backwards")
+            await self._require_drained_replay(c)
             if amount < 0 and -amount > free_cash(state):
                 raise ValueError("withdrawal spends reserved funds")
             units = flow_units(state, amount, at)
@@ -641,6 +672,8 @@ class PaperExecution:
         if not result.complete:
             raise DispatchDenied("reconciliation must complete before review")
         old = await self._state()
+        async with self.writer.transaction() as c:
+            await self._require_drained_replay(c)
         price = unit_price(old, at)
         # The prior epoch and inception high remain in immutable history. Daily
         # suspensions cannot be cleared through an epoch review.

@@ -23,3 +23,12 @@ cursors = Table(
     Column("fingerprint", String(64), nullable=False),
     Column("document", JSONB, nullable=False),
 )
+valuations = Table(
+    "paper_replay_valuations",
+    metadata,
+    Column("account_id", Uuid, ForeignKey("aca.paper_accounts.id"), primary_key=True),
+    Column("number", BigInteger, primary_key=True),
+    Column("previous_hash", String(64), nullable=False),
+    Column("fingerprint", String(64), nullable=False),
+    Column("document", JSONB, nullable=False),
+)

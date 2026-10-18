@@ -148,6 +148,9 @@ The default foundation process does not schedule strategies or supervise an acco
 The [checkpoint/supervision runbook](phase-4-supervision.md) covers 0.4.1 maintenance.
 Release 0.4.2 adds [ordered public replay](phase-4-replay.md), with flat-account
 enrolment, a fresh collector epoch and explicit `supervise --replay`. Back up before
-the additive `0006_replay` / `0007_replay_cutoff` migrations. Strategy scheduling, qualifying historical risk
-reconstruction, resource/disaster trials and outbound delivery remain outstanding.
+the additive `0006_replay` / `0007_replay_cutoff` migrations. Release 0.4.3 adds [historical paper valuation/risk](phase-4-historical-risk.md).
+Back up before `0008_historical_risk`; legacy replay accounts need explicit flat,
+reconciled enrolment at their existing drained cursor. No earlier risk is backfilled.
+Strategy scheduling, full accounting/performance workflows, resource/disaster trials
+and outbound delivery remain outstanding.
 Live execution, exchange-side fencing and activation remain separately authorised work.

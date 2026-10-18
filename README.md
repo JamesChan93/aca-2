@@ -1,6 +1,6 @@
 # ACA — Kraken research and local paper execution
 
-Phases 1–3 and the Phase 4 paper core, maintenance and ordered replay increments. The application provides a
+Phases 1–3 and the Phase 4 paper core, maintenance, ordered replay and historical risk increments. The application provides a
 paper-only foundation and opt-in, credential-free Kraken market capture for BTC/GBP
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
@@ -78,7 +78,10 @@ the local venue. [Ordered public replay](docs/phase-4-replay.md) adds explicit f
 enrolment, atomic venue effects and durable cursors. After enrolment, use
 `paper supervise --replay` and a new collector epoch; the runbook gives the full
 sequence. Strategy dispatch remains disabled. This does not complete Phase 4 or G2.
-Remaining accounting workflows, strategy scheduling, historical risk reconstruction,
+[Historical paper risk](docs/phase-4-historical-risk.md) now preserves original-time
+NAV, loss latches and investment flows during replay, with an explicit flat-account
+upgrade baseline. `aca paper valuations --account UUID --limit 20` reads its
+provisional evidence. Remaining accounting/performance workflows, strategy scheduling,
 resource/disaster trials and outbound delivery precede extended paper.
 
 See [development](docs/development.md), [operations](docs/operations.md),
