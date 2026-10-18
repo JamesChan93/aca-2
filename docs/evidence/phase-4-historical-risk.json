@@ -9,8 +9,8 @@
   "source_matches_installed_wheel_and_runtime": true,
   "tests": {
     "linux_arm64_musl": {
-      "passed": 299,
-      "seconds": 46.33
+      "passed": 300,
+      "seconds": 49.26
     },
     "hosted_checks": "Pre-push record. Exact-head hosted results belong to the PR checks and description."
   },
@@ -150,7 +150,7 @@
     "last_historical_nav": "249.724660782400000000",
     "last_historical_at": "2026-10-18T15:27:42.543532+00:00",
     "historical_incomplete_since": null,
-    "financial_cursor_historical_audit": "passed",
+    "financial_cursor_historical_audit": "passed on final source",
     "database_application_restart": "passed; cursor and NAV retained",
     "healthy_reliability_percentage_claimed": false,
     "qualifying_episodes": 0,
@@ -166,7 +166,8 @@
       "research_artifacts": 396,
       "research_events": 386
     },
-    "database_bytes_at_audit": 55219903
+    "database_bytes_at_audit": 55219903,
+    "finite_capture_source_hash_before_precision_followup": "09c7245fce05da3163a99b2565b5f7357ba45dec716cd0a4ba11c67ff59770a4"
   },
   "covered_behaviours": [
     "Original-time fill fees, balances and validated GBP bid NAV before financial import",
@@ -181,14 +182,16 @@
     "Interrupted held-asset evidence retains incomplete_since after recovery",
     "Hashes, policy, NAV arithmetic, cursor/source agreement and source coverage are audited",
     "Legacy accounts explicitly add a flat baseline without resetting an existing cursor",
-    "Bounded read-only valuation pages use Decimal strings and source-number cursors"
+    "Bounded read-only valuation pages use Decimal strings and source-number cursors",
+    "A GBP contribution with more than 28 significant digits retains every stored decimal place outside the caller financial context"
   ],
   "verification_findings_resolved": [
     "Native smoke initially addressed an older installed wheel; reinstalled and validated the final package in Linux",
     "A loss/rebound fixture was inside the protective child latency window; moved its observations after the existing delay",
     "Delayed heartbeats retain the prior economic time and omit NAV instead of repricing from future books",
     "Midnight fixtures cannot use tomorrow-dated public receipts; tested the shared historical clock transition directly",
-    "Historical daily baseline and control propagation preserve operator halts and review chronology"
+    "Historical daily baseline and control propagation preserve operator halts and review chronology",
+    "Final review removed ambient-context summation when reading a single GBP movement; a 32-digit contribution regression and the full 300-test suite pass"
   ],
   "limits": [
     "Finite flat-account run, not evidence of signal-driven episodes, alpha or 56-day reliability",

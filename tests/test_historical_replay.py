@@ -471,3 +471,26 @@ async def test_midnight_baseline_propagates_without_replacing_operator_halt_reas
     assert state.kill.hard and state.kill.reason == "operator incident"
     await runner.service.mark((), AT + timedelta(seconds=1))
     assert (await runner.service._state()).kill.reason == "operator incident"
+
+
+async def test_contribution_preserves_all_stored_decimal_places_outside_ambient_context(
+    replay: tuple[StoredReplay, Feed],
+) -> None:
+    from decimal import localcontext
+
+    from aca.domain.values import FINANCIAL_CONTEXT
+
+    runner, feed = replay
+    at = AT + timedelta(milliseconds=100)
+    amount = D("10000000000000.123456789012345678")
+    with localcontext(FINANCIAL_CONTEXT):
+        expected = D(1000) + amount
+        await runner.service.cashflow("precision-boundary", amount, at)
+    # Historical replay executes outside that caller's financial context. Reading
+    # a single authoritative GBP movement must not round it through a sum.
+    await feed.marker("heartbeat", at)
+    await runner.batch(at=at)
+    value = await latest(runner)
+    assert value.state.units == expected
+    assert value.nav_gbp == expected
+    assert value.state.last_unit_price == 1

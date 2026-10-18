@@ -268,10 +268,11 @@ class HistoricalReplay:
                 if (
                     journal.occurred_at != row["at"]
                     or journal.kind not in {"contribution", "withdrawal"}
+                    or len(journal.movements) != 1
                     or any(m.asset != "GBP" for m in journal.movements)
                 ):
                     raise ValueError("unsupported historical cash flow")
-                amount = sum((m.quantity for m in journal.movements), Decimal(0))
+                amount = journal.movements[0].quantity
                 units = flow_units(state, amount, row["at"])
                 opening = not state.units and state.daily_day != row["at"].date()
                 state = state.model_copy(

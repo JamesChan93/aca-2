@@ -36,7 +36,9 @@ and fees still enter the operational ledger exactly once through reconciliation.
 
 Cash flows and operator halts/reviews are read from immutable operational events
 in their original timestamp/version order. Contributions and withdrawals issue or
-redeem units using pre-flow marks. A mismatch with the operational unit ledger
+redeem units using pre-flow marks. The single authoritative GBP movement is read
+without summation through the ambient Decimal context, preserving every stored
+decimal place. A mismatch with the operational unit ledger
 stops replay rather than selecting a convenient valuation. A cash flow or epoch
 review requires drained public replay and reconciled virtual fills. Duplicate
 cash-flow sources retain their existing idempotence behaviour. A first funding
