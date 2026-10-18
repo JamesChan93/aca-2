@@ -3,7 +3,7 @@
   "date": "2026-10-18",
   "version": "0.4.3",
   "scope": "Historical paper valuation and risk; Phase 4 and G2-G6 remain incomplete",
-  "source_hash": "09c7245fce05da3163a99b2565b5f7357ba45dec716cd0a4ba11c67ff59770a4",
+  "source_hash": "5917994e6a765a32cdeb68053a4176541f3a15680ee6278a5c2c850d424bbfd1",
   "source_hash_method": "SHA256 of sorted relative aca/*.py paths, NUL, file bytes, NUL",
   "source_files": 84,
   "source_matches_installed_wheel_and_runtime": true,
@@ -46,8 +46,8 @@
   },
   "images": {
     "app": {
-      "image": "sha256:524c72194cc9a5547e12d7a5552e3ef5273f9f3f5069147f93379b1a7eea83d9",
-      "scan_config_image": "sha256:54eb33f2eab7dadf3da35b58a01a2f6b4778b95f2923fb3d38f270bbb102bf68",
+      "image": "sha256:4993a2332ec9afeb53bdfb42866611ee3940bac07b9e13d50f60ceac138fde6d",
+      "scan_config_image": "sha256:80203a27d9c99d3d99c69255023d460624e1f2f529b958369f02ee0f4cdc325a",
       "health": "healthy",
       "user": "10001:10001",
       "read_only": true,
@@ -65,7 +65,7 @@
       "secrets": 0
     },
     "db": {
-      "image": "sha256:a02bb3ce7930296bff6e97f351d7c8d0927bd76b347ab8cf30d676cd1f6287ca",
+      "image": "sha256:0aefa581dc3fc82175203a1229c017d1aeedd4bc7a08bd0a2d6d8d5220597ac7",
       "scan_config_image": "sha256:a47223f9b428635c5a92dbf83fa20955221c8760b48d1d87afc3d40012586ba4",
       "health": "healthy",
       "user": "postgres:postgres",
@@ -191,7 +191,8 @@
     "Delayed heartbeats retain the prior economic time and omit NAV instead of repricing from future books",
     "Midnight fixtures cannot use tomorrow-dated public receipts; tested the shared historical clock transition directly",
     "Historical daily baseline and control propagation preserve operator halts and review chronology",
-    "Final review removed ambient-context summation when reading a single GBP movement; a 32-digit contribution regression and the full 300-test suite pass"
+    "Final review removed ambient-context summation when reading a single GBP movement; a 32-digit contribution regression and the full 300-test suite pass",
+    "Refreshed stale Docker database image references by recreating local containers with retained volumes; regenerated and verified final source/wheel/runtime and scan metadata"
   ],
   "limits": [
     "Finite flat-account run, not evidence of signal-driven episodes, alpha or 56-day reliability",
