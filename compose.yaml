@@ -1,7 +1,7 @@
 name: aca-paper
 
 x-application: &application
-  image: aca-foundation:0.4.1
+  image: aca-foundation:0.4.2
   build:
     context: .
   user: "10001:10001"

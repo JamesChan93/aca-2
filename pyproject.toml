@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aca-platform"
-version = "0.4.1"
+version = "0.4.2"
 description = "Kraken research and durable local paper accounting and execution"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"

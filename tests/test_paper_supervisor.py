@@ -224,6 +224,7 @@ def test_supervision_health_and_metrics_cannot_grant_trading_permission() -> Non
         "stale_book",
         "bad_checksum",
         "future_book",
+        "future_arrival",
     ],
 )
 async def test_stored_public_feed_requires_complete_current_epoch(
@@ -294,15 +295,22 @@ async def test_stored_public_feed_requires_complete_current_epoch(
         if fault == "bad_checksum":
             books[0]["checksum_valid"] = False
         await receipt("book", {"books": books}, at_time=book_time)
+        if fault == "future_arrival":
+            future = at + timedelta(milliseconds=100)
+            later_books = [
+                dict(b, received_at=future.isoformat(), event_at=future.isoformat()) for b in books
+            ]
+            await receipt("book", {"books": later_books}, at_time=future)
         if fault == "new_epoch":
             epoch = uuid4()
             await receipt("epoch_started", {}, at_time=at + timedelta(microseconds=1))
         if fault in {"capture_fault", "capture_stopped", "quarantine", "coverage_gap"}:
             await receipt(fault, {})
         feed = StoredPaperFeed(PaperStore(engine, uuid4()))
-        if fault:
+        decision = at + timedelta(microseconds=1) if fault == "new_epoch" else at
+        if fault and fault != "future_arrival":
             with pytest.raises(FeedUnavailable):
-                await feed.marks(at)
+                await feed.marks(decision)
         else:
             marks = await feed.marks(at)
             assert {m.asset for m in marks} == {"BTC", "ETH"}

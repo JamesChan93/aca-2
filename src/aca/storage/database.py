@@ -13,7 +13,7 @@ from aca.operations.config import Settings
 from aca.operations.secrets import read_secret
 from aca.storage.models import AuditEvent, ConfigurationRecord
 
-SCHEMA_REVISION = "0005_checkpoints"
+SCHEMA_REVISION = "0007_replay_cutoff"
 
 
 class DatabaseSafetyError(RuntimeError):

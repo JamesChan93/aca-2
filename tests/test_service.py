@@ -86,7 +86,7 @@ async def test_service_restart_schema_failure_and_graceful_shutdown(
                     async with migration_engine.begin() as connection:
                         await connection.execute(
                             text(
-                                "UPDATE aca.alembic_version SET version_num = '0005_checkpoints'",
+                                "UPDATE aca.alembic_version SET version_num = '0007_replay_cutoff'",
                             )
                         )
                     await wait_health(port, 200)
@@ -104,7 +104,7 @@ async def test_service_restart_schema_failure_and_graceful_shutdown(
         async with migration_engine.begin() as connection:
             await connection.execute(
                 text(
-                    "UPDATE aca.alembic_version SET version_num = '0005_checkpoints'",
+                    "UPDATE aca.alembic_version SET version_num = '0007_replay_cutoff'",
                 )
             )
         await migration_engine.dispose()
