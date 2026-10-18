@@ -1,0 +1,82 @@
+{
+  "bootstrap": true,
+  "code_sha256": "e1faa0a2084eb1dbd4c74453a6b893fe93573056eef7d65808ff1dc08f0c09a4",
+  "containers": [
+    {
+      "dropped_capabilities": [
+        "ALL"
+      ],
+      "health": "healthy",
+      "image_id": "sha256:310356b709e6c58a4c1b3dd0fbfaa16584425cb78163f90b637708556c1aef3e",
+      "name": "/aca-paper-app-1",
+      "networks": [
+        "aca-paper_private"
+      ],
+      "published_ports": {},
+      "read_only": true,
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    {
+      "dropped_capabilities": [
+        "ALL"
+      ],
+      "health": "healthy",
+      "image_id": "sha256:108fb7602db12d7fa0c1ab43a05c49c680a9c64cfc9f312c1a3e263465fcbe44",
+      "name": "/aca-paper-db-1",
+      "networks": [
+        "aca-paper_private"
+      ],
+      "published_ports": {
+        "5432/tcp": null
+      },
+      "read_only": true,
+      "security_options": [
+        "no-new-privileges:true"
+      ],
+      "user": "postgres:postgres"
+    }
+  ],
+  "image_identity_note": "Docker reports OCI index digests for running images; Trivy reports config digests. Scanned configuration and rootfs diff IDs exactly match each running image. Local database container refreshed to the retained scanned image reference; persistent volume preserved.",
+  "live_execution_available": false,
+  "migration": "0003_research",
+  "observed_at": "2026-10-17T22:09:36.845586+00:00",
+  "persisted_database_counts": {
+    "audit_events": 40,
+    "market_receipts": 12262,
+    "public_trades": 8014,
+    "research_artifacts": 396,
+    "research_events": 386,
+    "schema_revision": "0003_research"
+  },
+  "pre_migration_backup": "Protected local pg_dump retained outside version control; not a disaster-restore drill.",
+  "publication_idempotent_repeat": {
+    "artifacts_inserted": 0,
+    "events_inserted": 0
+  },
+  "restart_persistence_smoke": true,
+  "scanner": "aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+  "scanner_note": "One concurrent shared-cache scan process faulted; serial retries with the completed advisory cache passed. No finding exclusions.",
+  "scans": {
+    "app": {
+      "config_digest": "sha256:eb47b1107bc303f46903621d2f97621011f29f3e284f99f4e173520dc4cb311c",
+      "created_at": "2026-10-17T22:08:07.248660125Z",
+      "embedded_secrets": 0,
+      "high_critical_vulnerabilities": 0,
+      "report_sha256": "5242afd64781ad81749e085f2b76a5c24d2545da8535df9450ffb97dd73cff00",
+      "running_rootfs_and_configuration_match": true
+    },
+    "db": {
+      "config_digest": "sha256:41579dae099b62c0b98e9b27d733906740f4833a12d873034b929c832e17c1f6",
+      "created_at": "2026-10-17T21:59:59.684244594Z",
+      "embedded_secrets": 0,
+      "high_critical_vulnerabilities": 0,
+      "report_sha256": "fdd199672085284549dd9b80677665dd0a66a5d9a59c41bddbc417861ca53217",
+      "running_rootfs_and_configuration_match": true
+    }
+  },
+  "schema_version": 1,
+  "source_identity": "Exact installed Python fingerprint; final PR head supplies the Git association."
+}

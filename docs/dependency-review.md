@@ -89,3 +89,19 @@ HTTPX uses explicit timeouts, connection limits, TLS verification, no environmen
 proxies and no redirects. websockets uses bounded frames/queues, no proxies and an
 explicit redirect rejection. HTTPX has no mutable/private endpoint to retry. No
 new secret input is introduced. Native websockets speedups are upstream dependencies.
+
+## Phase 3 optional research group
+
+NumPy 2.5.4 is the only added optional direct dependency. PyPI requires Python >=3.12
+and publishes standard CPython 3.14 macOS arm64/x86_64, manylinux arm64/amd64 and
+musllinux arm64/amd64 wheels. The installed metadata licence expression is
+`BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0`; its distribution retains
+bundled component licence notices. No new transitive Python requirement is added.
+`requirements/research.lock` includes the existing runtime plus reviewed NumPy
+distribution hashes. Native macOS and non-root Linux test wheels are exercised; CI
+checks amd64. The normal runtime image excludes this group.
+
+Pandas 3.0.6, SciPy 1.18.1, PyArrow 26.0.0 and DuckDB 1.5.6 remain deferred under
+ADR A24. This four-series CSV study does not need their functionality; there is no
+claim to have validated their combined compatibility or licences. Research cannot
+run with an unreviewed NumPy version. No direct candidate version is substituted.

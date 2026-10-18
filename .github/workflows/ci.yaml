@@ -20,6 +20,7 @@ jobs:
       - name: Install hash-locked dependencies
         run: |
           python -m pip install --require-hashes -r requirements/development.lock
+          python -m pip install --require-hashes -r requirements/research.lock
           python -m pip install --no-deps --no-build-isolation .
           python -m pip check
       - name: Static checks
@@ -31,6 +32,7 @@ jobs:
         run: python scripts/ci_database.py --linux
       - name: Dependency audit
         run: |
+          pip-audit --disable-pip --require-hashes -r requirements/research.lock
           pip-audit --disable-pip --require-hashes -r requirements/runtime.lock
           pip-audit --disable-pip --require-hashes -r requirements/development.lock
       - name: Build and inspect distributable
@@ -48,7 +50,7 @@ jobs:
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.2.0
+          image-ref: aca-foundation:0.3.0
           version: v0.76.0
           scanners: vuln,secret
           format: table

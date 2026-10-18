@@ -76,3 +76,29 @@ class PublicTradeRecord(Base):
     side: Mapped[str] = mapped_column(String(4))
     price: Mapped[Decimal] = mapped_column(Numeric(38, 18))
     quantity: Mapped[Decimal] = mapped_column(Numeric(38, 18))
+
+
+class ResearchArtifact(Base):
+    __tablename__ = "research_artifacts"
+    __table_args__ = (
+        CheckConstraint("schema_version = 1", name="research_artifact_schema_v1"),
+        {"schema": "aca"},
+    )
+    fingerprint: Mapped[str] = mapped_column(String(64), primary_key=True)
+    schema_version: Mapped[int]
+    kind: Mapped[str] = mapped_column(String(40))
+    document: Mapped[dict[str, object]] = mapped_column(JSONB)
+    registered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ResearchEvent(Base):
+    __tablename__ = "research_events"
+    __table_args__ = ({"schema": "aca"},)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    run_id: Mapped[UUID] = mapped_column(index=True)
+    artifact_fingerprint: Mapped[str] = mapped_column(
+        ForeignKey("aca.research_artifacts.fingerprint"),
+        unique=True,
+    )
+    status: Mapped[str] = mapped_column(String(40))
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

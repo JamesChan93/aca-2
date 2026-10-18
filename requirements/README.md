@@ -15,11 +15,19 @@ pip-compile --allow-unsafe --generate-hashes --no-emit-index-url --no-emit-trust
 Review the diff, release notes, supported Python/wheels, licences and advisories.
 Install with `pip install --require-hashes -r requirements/development.lock`, then
 `pip install --no-deps --no-build-isolation .`. Validate on Linux amd64 in CI.
-Research dependencies are deferred to Phase 3; no empty or unverified research lock
-is presented as a tested environment. Native libraries in Psycopg, SQLAlchemy,
+`research.lock` adds only NumPy 2.5.4 for statistics. Install both development and
+research locks to run the complete suite. The production runtime image does not
+install NumPy; statistical work runs locally. Pandas, SciPy, PyArrow and DuckDB
+remain deferred under ADR A24 because this bounded CSV workflow does not need them. Native libraries in Psycopg, SQLAlchemy,
 Pydantic and development tools are upstream dependencies, not custom services.
 
 The constraints retain the actually tested platformdirs version after an inconsistent
 simple-index response, and explicitly lock pip/setuptools. `--allow-unsafe` is pip-tools'
 term for including packaging tools; it does not disable hash checking or permit an
 unreviewed dependency. See ADR A16 in docs/architecture.md.
+
+Regenerate the optional research lock with:
+
+```sh
+pip-compile --allow-unsafe --generate-hashes --strip-extras --no-emit-index-url --no-emit-trusted-host -c requirements/constraints.in --extra research --output-file requirements/research.lock pyproject.toml
+```
