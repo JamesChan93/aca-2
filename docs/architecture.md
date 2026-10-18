@@ -1,8 +1,14 @@
 # Approved architecture and Phase 1 decisions
 
 Baseline: the user-approved specification of 17 October 2026. Its economic conclusion
-is **research and paper first; no live trading now**. Phases 1–2 are merged; the user authorised Phase 3 research. Each milestone retains
+is **research and paper first; no live trading now**. Phases 1–3 are merged; the user authorised Phase 4. Each milestone retains
 its own recorded implementation and validation boundary.
+
+The [Phase 4 offline paper core](phase-4.md) adds ADRs A27–A29, immutable paper
+contracts, a GBP ledger, flow-neutral units, independent admission/dispatch checks,
+single-writer durable commands, a separate simulated venue and recovery. Runtime
+database privileges remain SELECT/INSERT. No continuous runner or live writer is
+included; historical milestone descriptions below retain their original scope.
 
 ## System boundary
 

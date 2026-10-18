@@ -35,7 +35,7 @@ class StrategySignal(MarketRecord):
     def chronology(self) -> StrategySignal:
         if self.decision_at < self.data_watermark + timedelta(seconds=10):
             raise ValueError("signal precedes finalisation")
-        if self.expires_at <= self.decision_at:
+        if not self.decision_at < self.expires_at <= self.decision_at + timedelta(seconds=2):
             raise ValueError("signal has expired")
         return self
 

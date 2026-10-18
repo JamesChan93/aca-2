@@ -1,4 +1,4 @@
-"""Local administration and opt-in public market reads. No trading actions exist."""
+"""Local research, simulated execution and public reads. No live writer exists."""
 
 import argparse
 import asyncio
@@ -18,6 +18,8 @@ from aca.market_data.capture import capture
 from aca.market_data.store import MarketStore
 from aca.observability.logging import configure_logging
 from aca.operations.config import ConfigurationError, Settings, load_settings
+from aca.operations.paper import add_parser as add_paper_parser
+from aca.operations.paper import command as paper_command
 from aca.operations.provision import provision_roles
 from aca.operations.secrets import SecretFileError
 from aca.research.cli import add_parser as add_research_parser
@@ -36,6 +38,7 @@ def _parser() -> argparse.ArgumentParser:
     commands.add_parser("capabilities")
     commands.add_parser("serve")
     add_research_parser(commands)
+    add_paper_parser(commands)
     market = commands.add_parser("market").add_subparsers(dest="action", required=True)
     market.add_parser("status")
     evidence = market.add_parser("evidence")
@@ -132,7 +135,9 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 json.dumps(
                     {
-                        "phase": 3,
+                        "phase": 4,
+                        "offline_paper_execution_available": True,
+                        "continuous_paper_runner_available": False,
                         "local_research_available": True,
                         "public_market_capture_available": True,
                         "private_account_access_available": False,
@@ -145,6 +150,8 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.command == "research":
             return research_command(args, settings)
+        elif args.command == "paper":
+            return paper_command(args, settings)
         elif args.command == "market":
             if args.action == "status":
                 asyncio.run(_database_command(settings, "market_status"))

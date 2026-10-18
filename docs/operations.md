@@ -130,3 +130,21 @@ objects/manifests/events/reports together. Publication records are append-only
 against ordinary roles, not tamper-proof against an administrator. There is no
 research-result path to live activation. Historical bar results do not establish
 operational risk enforcement, exchange protection behaviour or the paper/live gates.
+
+## Phase 4 offline paper core
+
+Back up before upgrading 0.3.0 to 0.4.0. Bootstrap applies the additive `0004_paper`
+revision and preserves existing market/audit/research records. Keep the pre-upgrade
+dump in a private directory with mode 0600; this local dump is not a disaster-restore
+drill or proof of RPO/RTO. A blind database downgrade remains unsupported.
+
+Follow the [paper runbook](phase-4.md) for virtual demos, replay, status, journal CSV,
+local alerts, recovery, selective entry cancellation and audited epoch review.
+An uncertain consumed command stays reserved and is never replayed. Halt preserves
+protective sells. Do not use these simulated account records as evidence of actual
+Kraken balances, completed operational paper observation or a live approval.
+
+The default foundation process does not schedule strategies or supervise a paper
+account every second. Keep continuous operation disabled until its supervisor,
+incremental projections, resource, delivery and restore work is reviewed. Live
+execution, exchange-side fencing and activation remain separately authorised work.
