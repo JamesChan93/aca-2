@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-10-18T09:52:46.758484+00:00",
+  "release": "0.4.1",
+  "python_source_sha256": "0a1aa4c20c727de6dc5c96302c82b6ce877f15ac812e2444efbddfa6389e5bb9",
+  "tests": {
+    "native_macos_arm64": {
+      "passed": 245,
+      "seconds": "37.36",
+      "installed_wheel": true,
+      "postgres": "18.6"
+    },
+    "linux_arm64_musl": {
+      "passed": 245,
+      "seconds": "42.55",
+      "installed_wheel": true,
+      "non_root": true,
+      "postgres": "18.6"
+    }
+  },
+  "checks": {
+    "ruff": true,
+    "format": true,
+    "strict_mypy": true,
+    "wheel_sdist": true,
+    "pip_check": true,
+    "dependency_audits_no_known_vulnerabilities": [
+      "runtime",
+      "research",
+      "development"
+    ],
+    "publication_files_without_runtime_password": 144
+  },
+  "backup": {
+    "dump": ".secrets/backups/supervision-20261018T094700Z/pre-checkpoints.sql",
+    "bytes": 69241049,
+    "sha256": "76c4c74caaa6c9424def1ccc62ca87a88918203b2101eb2c3c19c3b8142739a0",
+    "restore_drill": false
+  },
+  "counts_after_restart": {
+    "revision": "0005_checkpoints",
+    "events": 78,
+    "checkpoints": 1,
+    "journals": 6,
+    "fills": 4,
+    "market_receipts": 13268,
+    "public_trades": 8714,
+    "research_artifacts": 396,
+    "research_events": 386,
+    "database_bytes": 42727103
+  },
+  "containers": {
+    "app": {
+      "image_id": "sha256:a1c41603affbaff507a3e67b4d5983df6244668dc6a914cf7fa4c9af012c5c69",
+      "scan_image_config_id": "sha256:fd7ea0aab5a46ad3f03c496f5a68f3d1c492012b0d94dd025f962a1a96c935bc",
+      "rootfs_and_image_config_match_scan": true,
+      "health": "healthy",
+      "user": "10001:10001",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "networks": [
+        "aca-paper_private"
+      ],
+      "published_ports": {},
+      "high_critical_vulnerabilities": 0,
+      "secrets": 0,
+      "scan_report_sha256": "b51175eca9a143da27f2b07208b01bf5c8a2f27d0abbab8e40fc4146c33690c0"
+    },
+    "db": {
+      "image_id": "sha256:d585e3b56f27fc7061e9500f0342b4ae1adde3e06624ba03ccd36d36d229d24d",
+      "scan_image_config_id": "sha256:41579dae099b62c0b98e9b27d733906740f4833a12d873034b929c832e17c1f6",
+      "rootfs_and_image_config_match_scan": true,
+      "health": "healthy",
+      "user": "postgres:postgres",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "networks": [
+        "aca-paper_private"
+      ],
+      "published_ports": {},
+      "high_critical_vulnerabilities": 0,
+      "secrets": 0,
+      "scan_report_sha256": "a3e0dc92baf41d7cfcefb6e47ba53431f06c66416082245cff096a4d008df3a6"
+    }
+  },
+  "maintenance": {
+    "healthy": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "database_ready": true,
+      "fill_replay_enabled": false,
+      "foundation_ready": true,
+      "healthy_ticks": 14,
+      "incomplete_safety_requirements": [
+        "authenticated_account_reads_not_implemented",
+        "continuous_paper_runner_not_implemented",
+        "extended_paper_validation_not_complete",
+        "research_promotion_gate_not_passed",
+        "live_reconciliation_not_implemented",
+        "live_execution_not_implemented"
+      ],
+      "kind": "paper_maintenance_v1",
+      "last_tick_seconds": 0.19146600000021863,
+      "live_execution_available": false,
+      "market_ready": true,
+      "mode": "paper",
+      "phase": 4,
+      "promotion_evidence": false,
+      "reason": null,
+      "reconciled": true,
+      "schema_ready": true,
+      "strategy_dispatch_enabled": false,
+      "supervision_ready": true,
+      "ticks": 48,
+      "trading_ready": false
+    },
+    "feed_stopped": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "database_ready": true,
+      "fill_replay_enabled": false,
+      "foundation_ready": false,
+      "healthy_ticks": 16,
+      "incomplete_safety_requirements": [
+        "authenticated_account_reads_not_implemented",
+        "continuous_paper_runner_not_implemented",
+        "extended_paper_validation_not_complete",
+        "research_promotion_gate_not_passed",
+        "live_reconciliation_not_implemented",
+        "live_execution_not_implemented"
+      ],
+      "kind": "paper_maintenance_v1",
+      "last_tick_seconds": 0.06637929099997564,
+      "live_execution_available": false,
+      "market_ready": false,
+      "mode": "paper",
+      "phase": 4,
+      "promotion_evidence": false,
+      "reason": "paper_feed_unavailable",
+      "reconciled": false,
+      "schema_ready": true,
+      "strategy_dispatch_enabled": false,
+      "supervision_ready": false,
+      "ticks": 62,
+      "trading_ready": false
+    },
+    "final": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "database_ready": true,
+      "fill_replay_enabled": false,
+      "foundation_ready": false,
+      "healthy_ticks": 16,
+      "incomplete_safety_requirements": [
+        "authenticated_account_reads_not_implemented",
+        "continuous_paper_runner_not_implemented",
+        "extended_paper_validation_not_complete",
+        "research_promotion_gate_not_passed",
+        "live_reconciliation_not_implemented",
+        "live_execution_not_implemented"
+      ],
+      "kind": "paper_maintenance_v1",
+      "last_tick_seconds": 0.0693397079994611,
+      "live_execution_available": false,
+      "market_ready": false,
+      "mode": "paper",
+      "phase": 4,
+      "promotion_evidence": false,
+      "reason": "paper_supervisor_stopped",
+      "reconciled": false,
+      "schema_ready": true,
+      "strategy_dispatch_enabled": false,
+      "supervision_ready": false,
+      "ticks": 86,
+      "trading_ready": false
+    },
+    "public_capture": {
+      "checksum_failures": 0,
+      "duplicate_stream_trades": 100,
+      "faults": 0,
+      "healthy_observations": 22,
+      "live_execution_available": false,
+      "new_stream_trades": 0,
+      "observations": 23,
+      "received_websocket_frames": 975,
+      "reconnects": 0,
+      "rest_requests": 11,
+      "rest_retries": 0,
+      "schema_version": 1,
+      "trading_ready": false
+    }
+  },
+  "portfolio_after_maintenance": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "version": 56,
+    "incident": "paper_supervisor_stopped",
+    "balances": [
+      {
+        "asset": "GBP",
+        "cost_gbp": "249.724660782400000000",
+        "quantity": "249.724660782400000000",
+        "schema_version": 1
+      },
+      {
+        "asset": "BTC",
+        "cost_gbp": "0E-18",
+        "quantity": "0E-8",
+        "schema_version": 1
+      },
+      {
+        "asset": "ETH",
+        "cost_gbp": "0",
+        "quantity": "0",
+        "schema_version": 1
+      }
+    ],
+    "performance": {
+      "as_of": "2026-10-18T09:52:46.093028+00:00",
+      "drawdown": "0.001101356870400000",
+      "exposure_gbp": "0E-18",
+      "fees_gbp": "0.259135167600000000",
+      "free_cash_gbp": "249.724660782400000000",
+      "inception_drawdown": "0.001101356870400000",
+      "live_execution_available": false,
+      "mode": "paper",
+      "mwr": "-0.623849694485074346",
+      "nav_gbp": "249.724660782400000000",
+      "net_investment_flows_gbp": "250",
+      "pnl_gbp": "-0.275339217600000000",
+      "provisional": true,
+      "reconciliation_issue": "paper_supervisor_stopped",
+      "reserved_planned_loss_gbp": "0E-18",
+      "schema_version": 1,
+      "synthetic_replay_counts_toward_promotion": false,
+      "tax_report_final": false,
+      "twr_since_inception": "-0.001101356870400000",
+      "unit_price": "0.998898643129600000"
+    }
+  },
+  "evidence_limits": {
+    "qualifying_paper_days": 0,
+    "qualifying_paper_episodes": 0,
+    "resource_or_disk_exhaustion_trial": false,
+    "restore_drill_or_rpo_rto_claim": false,
+    "g2_passed": false,
+    "live_execution_available": false
+  },
+  "hosted_checks": "This pre-push local record makes no hosted-pass claim. Pull request checks bind to their exact Git head.",
+  "resolved_verification_failures": [
+    "Full native fault suite exposed an unclosed server cursor in checkpoint-error handling. Bounded keyset pagination replaced that cursor; final strict-warning suites pass.",
+    "Sandbox DNS initially blocked advisory queries; network-authorised audits then passed.",
+    "Automatic review delayed overlapping-looking test starts; completed session and empty test-project evidence established sequential execution.",
+    "The local evidence collector first compared zero text incorrectly; Decimal comparison corrected the harness."
+  ]
+}

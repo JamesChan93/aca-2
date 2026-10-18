@@ -10,20 +10,29 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
     MetaData,
     Numeric,
     String,
     Table,
     Uuid,
+    func,
     select,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from aca.accounting.ledger import balances
-from aca.domain.trading import Journal, PortfolioSnapshot, fingerprint
+from aca.accounting.ledger import apply_journals
+from aca.domain.trading import ZERO, Balance, Journal, PortfolioSnapshot, fingerprint
+from aca.storage.paper_projection import (
+    CHECKPOINT_INTERVAL,
+    delta,
+    restore_event,
+    state_document,
+)
 
 metadata = MetaData(schema="aca")
 accounts = Table(
@@ -105,6 +114,18 @@ order_identities = Table(
     Column("client_id", Uuid, primary_key=True),
     Column("document", JSONB, nullable=False),
 )
+checkpoints = Table(
+    "paper_checkpoints",
+    metadata,
+    Column("account_id", Uuid, primary_key=True),
+    Column("version", Integer, primary_key=True),
+    Column("event_hash", String(64), nullable=False),
+    Column("state_hash", String(64), nullable=False),
+    Column("document", JSONB, nullable=False),
+    ForeignKeyConstraint(
+        ["account_id", "version"], ["aca.paper_events.account_id", "aca.paper_events.version"]
+    ),
+)
 
 
 def lock_key(account_id: UUID) -> int:
@@ -121,47 +142,231 @@ class PaperStore:
     def __init__(self, engine: AsyncEngine, account_id: UUID) -> None:
         self.engine, self.account_id = engine, account_id
 
+    def _restore_row(
+        self,
+        row: RowMapping,
+        previous: str,
+        number: int,
+        state: PortfolioSnapshot | None,
+    ) -> tuple[PortfolioSnapshot, str]:
+        doc = row["document"]
+        if not isinstance(doc, dict):
+            raise ValueError("invalid paper event document")
+        expected = fingerprint(
+            {
+                "previous": previous,
+                "version": number,
+                "kind": row["kind"],
+                "source": row["source"],
+                "state": doc,
+            }
+        )
+        if (
+            row["version"] != number
+            or row["previous_hash"] != previous
+            or expected != row["fingerprint"]
+        ):
+            raise ValueError("corrupt paper event chain")
+        restored = restore_event(state, doc)
+        if (
+            restored.account_id != self.account_id
+            or restored.version != number
+            or restored.as_of != row["at"]
+            or (state is not None and restored.as_of < state.as_of)
+        ):
+            raise ValueError("paper state/account version/time mismatch")
+        return restored, expected
+
+    async def ledger_balances(self, connection: AsyncConnection) -> tuple[Balance, ...]:
+        """Independent SQL aggregation of sealed journal quantities and costs."""
+        quantities = dict(
+            (
+                await connection.execute(
+                    select(movements.c.asset, func.sum(movements.c.quantity))
+                    .join(journals)
+                    .where(journals.c.account_id == self.account_id)
+                    .group_by(movements.c.asset)
+                )
+            ).all()
+        )
+        costs = dict(
+            (
+                await connection.execute(
+                    select(lines.c.account, func.sum(lines.c.gbp))
+                    .join(journals)
+                    .where(journals.c.account_id == self.account_id)
+                    .group_by(lines.c.account)
+                )
+            ).all()
+        )
+        return tuple(
+            Balance(
+                asset=a, quantity=quantities.get(a, ZERO), cost_gbp=costs.get(f"asset:{a}", ZERO)
+            )
+            for a in ("GBP", "BTC", "ETH")
+        )
+
+    async def audit(self, connection: AsyncConnection) -> PortfolioSnapshot | None:
+        """Explicit full-prefix audit, streamed in bounded pages. Never edits history."""
+        previous = "0" * 64
+        state: PortfolioSnapshot | None = None
+        cursor = 0
+        # Pin a high water so a separate read service cannot accidentally audit
+        # a mixture of prefixes while the owner appends new records.
+        head = await connection.scalar(
+            select(func.max(events.c.version)).where(events.c.account_id == self.account_id)
+        )
+        while cursor < (head or 0):
+            rows = (
+                (
+                    await connection.execute(
+                        select(events)
+                        .where(
+                            events.c.account_id == self.account_id,
+                            events.c.version > cursor,
+                            events.c.version <= head,
+                        )
+                        .order_by(events.c.version)
+                        .limit(CHECKPOINT_INTERVAL)
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            if not rows:
+                raise ValueError("paper audit prefix is incomplete")
+            for row in rows:
+                before = state
+                state, previous = self._restore_row(row, previous, cursor + 1, before)
+                if row["document"].get("format") == "paper_delta_v1":
+                    await self._verify_increment(connection, before, state, row["document"])
+                cursor += 1
+        if state is not None:
+            if await self.ledger_balances(connection) != state.balances:
+                raise ValueError("journal and portfolio projection differ")
+            # Verify *all* checkpoint anchors, including ones superseded by a
+            # newer checkpoint. The fast path relies on this immutable prefix.
+            checkpoint_cursor = 0
+            while True:
+                checkpoint_rows = (
+                    (
+                        await connection.execute(
+                            select(checkpoints)
+                            .where(
+                                checkpoints.c.account_id == self.account_id,
+                                checkpoints.c.version > checkpoint_cursor,
+                            )
+                            .order_by(checkpoints.c.version)
+                            .limit(16)
+                        )
+                    )
+                    .mappings()
+                    .all()
+                )
+                if not checkpoint_rows:
+                    break
+                for checkpoint_row in checkpoint_rows:
+                    await self._checkpoint(connection, checkpoint_row)
+                    checkpoint_cursor = checkpoint_row["version"]
+        return state
+
+    async def _verify_increment(
+        self,
+        connection: AsyncConnection,
+        old: PortfolioSnapshot | None,
+        state: PortfolioSnapshot,
+        document: dict[str, object],
+    ) -> None:
+        ident = document.get("journal_id")
+        history: tuple[Journal, ...] = ()
+        if isinstance(ident, str):
+            doc = await connection.scalar(
+                select(journals.c.document).where(
+                    journals.c.account_id == self.account_id, journals.c.id == UUID(ident)
+                )
+            )
+            if doc is None:
+                raise ValueError("paper event journal missing")
+            journal = Journal.restore(doc)
+            if journal.occurred_at > state.as_of:
+                raise ValueError("paper journal occurs after its event")
+            history = (journal,)
+        if state.balances != apply_journals(old.balances if old else (), history):
+            raise ValueError("journal and incremental projection differ")
+
+    async def _checkpoint(self, connection: AsyncConnection, row: RowMapping) -> PortfolioSnapshot:
+        doc = row["document"]
+        if not isinstance(doc, dict) or fingerprint(doc) != row["state_hash"]:
+            raise ValueError("corrupt paper checkpoint")
+        state = PortfolioSnapshot.restore(doc)
+        state_document(state)
+        anchor = (
+            (
+                await connection.execute(
+                    select(events).where(
+                        events.c.account_id == self.account_id, events.c.version == row["version"]
+                    )
+                )
+            )
+            .mappings()
+            .one()
+        )
+        envelope = anchor["document"]
+        if (
+            state.account_id != self.account_id
+            or state.version != row["version"]
+            or anchor["fingerprint"] != row["event_hash"]
+            or envelope.get("state_hash") != row["state_hash"]
+            or state.as_of != anchor["at"]
+            or fingerprint(
+                {
+                    "previous": anchor["previous_hash"],
+                    "version": state.version,
+                    "kind": anchor["kind"],
+                    "source": anchor["source"],
+                    "state": envelope,
+                }
+            )
+            != anchor["fingerprint"]
+        ):
+            raise ValueError("paper checkpoint anchor mismatch")
+        return state
+
     async def load(self, connection: AsyncConnection) -> PortfolioSnapshot | None:
+        checkpoint = (
+            (
+                await connection.execute(
+                    select(checkpoints)
+                    .where(checkpoints.c.account_id == self.account_id)
+                    .order_by(checkpoints.c.version.desc())
+                    .limit(1)
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if checkpoint is None:
+            return await self.audit(connection)  # legacy 0004 prefix, once before first append
+        state = await self._checkpoint(connection, checkpoint)
+        previous = str(checkpoint["event_hash"])
         rows = (
             (
                 await connection.execute(
                     select(events)
-                    .where(events.c.account_id == self.account_id)
+                    .where(events.c.account_id == self.account_id, events.c.version > state.version)
                     .order_by(events.c.version)
+                    .limit(CHECKPOINT_INTERVAL)
                 )
             )
             .mappings()
             .all()
         )
-        previous = "0" * 64
-        state: PortfolioSnapshot | None = None
-        for number, row in enumerate(rows, 1):
-            doc = row["document"]
-            expected = fingerprint(
-                {
-                    "previous": previous,
-                    "version": number,
-                    "kind": row["kind"],
-                    "source": row["source"],
-                    "state": doc,
-                }
-            )
-            if (
-                row["version"] != number
-                or row["previous_hash"] != previous
-                or expected != row["fingerprint"]
-            ):
-                raise ValueError("corrupt paper event chain")
-            state = PortfolioSnapshot.restore(doc)
-            if state.account_id != self.account_id or state.version != number:
-                raise ValueError("paper state/account version mismatch")
-            previous = expected
-        if state is not None:
-            rebuilt = balances(await self.history(connection))
-            if rebuilt != state.balances and (rebuilt or state.balances):
-                # Empty journal history reconstructs the three zero balances.
-                if any(b.quantity or b.cost_gbp for b in rebuilt) or state.balances:
-                    raise ValueError("journal and portfolio projection differ")
+        if len(rows) >= CHECKPOINT_INTERVAL:
+            raise ValueError("paper checkpoint tail exceeds replay budget")
+        for row in rows:
+            old = state
+            state, previous = self._restore_row(row, previous, old.version + 1, old)
+            await self._verify_increment(connection, old, state, row["document"])
         return state
 
     async def history(self, connection: AsyncConnection) -> tuple[Journal, ...]:
@@ -195,6 +400,11 @@ class PaperStore:
         if state.version != expected_version or state.account_id != self.account_id:
             raise ValueError("nonsequential paper state")
         PortfolioSnapshot.restore(state.document())
+        expected_balances = apply_journals(
+            previous.balances if previous else (), (journal,) if journal else ()
+        )
+        if state.balances != expected_balances:
+            raise ValueError("journal and next projection differ")
         if previous is not None:
             if state.as_of < previous.as_of:
                 raise ValueError("paper event time regressed")
@@ -215,17 +425,19 @@ class PaperStore:
             await connection.execute(
                 accounts.insert().values(id=self.account_id, created_at=state.as_of, mode="paper")
             )
-        prev_hash = (
-            await connection.scalar(
-                select(events.c.fingerprint)
+        head = (
+            await connection.execute(
+                select(events.c.version, events.c.fingerprint)
                 .where(events.c.account_id == self.account_id)
                 .order_by(events.c.version.desc())
                 .limit(1)
             )
-            or "0" * 64
-        )
+        ).one_or_none()
+        if (head[0] if head else 0) != (previous.version if previous else 0):
+            raise ValueError("paper append state is stale")
+        prev_hash = head[1] if head else "0" * 64
         event_id = uuid4()
-        doc = state.document()
+        doc = delta(previous, state, journal.id if journal else None)
         hashed = fingerprint(
             {
                 "previous": prev_hash,
@@ -303,9 +515,24 @@ class PaperStore:
                     },
                 )
             )
+        if state.version % CHECKPOINT_INTERVAL == 0 or not await connection.scalar(
+            select(checkpoints.c.version)
+            .where(checkpoints.c.account_id == self.account_id)
+            .limit(1)
+        ):
+            await connection.execute(
+                checkpoints.insert().values(
+                    account_id=self.account_id,
+                    version=state.version,
+                    event_hash=hashed,
+                    state_hash=fingerprint(state.document()),
+                    document=state.document(),
+                )
+            )
 
     async def status(self) -> dict[str, object]:
         async with self.engine.connect() as connection:
+            await connection.execution_options(isolation_level="REPEATABLE READ")
             state = await self.load(connection)
         return {
             "schema_version": 1,
@@ -327,6 +554,7 @@ class PaperWriter:
     async def __aenter__(self) -> PaperWriter:
         connection = await self.store.engine.connect()
         try:
+            await connection.execution_options(isolation_level="REPEATABLE READ")
             if not await connection.scalar(
                 text("SELECT pg_try_advisory_lock(:key)"), {"key": lock_key(self.store.account_id)}
             ):
@@ -334,6 +562,8 @@ class PaperWriter:
             self.pid = await connection.scalar(text("SELECT pg_backend_pid()"))
             await connection.commit()
             self.connection = connection
+            async with self.transaction() as c:
+                await self.store.audit(c)
             return self
         except BaseException:
             await connection.invalidate()

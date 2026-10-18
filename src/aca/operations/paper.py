@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from aca.app.paper_supervisor import supervise
 from aca.execution.paper import PaperExecution
 from aca.operations.config import Settings
 from aca.reporting.paper import performance
@@ -21,16 +22,31 @@ from aca.storage.paper import PaperStore, PaperWriter, read_alerts
 
 def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     actions = commands.add_parser("paper").add_subparsers(dest="action", required=True)
-    for name in ("status", "journal", "alerts", "recover", "halt", "review", "demo", "replay"):
+    for name in (
+        "status",
+        "journal",
+        "alerts",
+        "recover",
+        "halt",
+        "review",
+        "demo",
+        "replay",
+        "audit",
+        "supervise",
+    ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
         if name in {"halt", "review"}:
             parser.add_argument("--reason", required=True)
         if name == "replay":
             parser.add_argument("--input", type=Path, required=True)
+        if name == "supervise":
+            parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
+    if args.action == "supervise":
+        return await supervise(settings, args.account, args.duration)
     engine = create_engine(settings)
     store = PaperStore(engine, args.account)
     try:
@@ -41,8 +57,18 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                 "items": await read_alerts(store),
                 "live_execution_available": False,
             }
-        if args.action in {"status", "journal"}:
+        if args.action in {"status", "journal", "audit"}:
             async with engine.connect() as c:
+                await c.execution_options(isolation_level="REPEATABLE READ")
+                if args.action == "audit":
+                    state = await store.audit(c)
+                    return {
+                        "schema_version": 1,
+                        "account_id": str(args.account),
+                        "complete": state is not None,
+                        "version": state.version if state else None,
+                        "live_execution_available": False,
+                    }
                 state = await store.load(c)
                 history = await store.history(c)
             if args.action == "status":

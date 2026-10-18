@@ -1,6 +1,6 @@
 # Foundation and public-capture operations
 
-This is a local paper-only foundation. There are no positions or orders for it to manage.
+This is a local paper-only application with virtual accounts and a local venue.
 Do not use it to supervise a live account. Future emergency trading procedures in the
 approved specification are not implemented by these commands.
 
@@ -144,7 +144,8 @@ An uncertain consumed command stays reserved and is never replayed. Halt preserv
 protective sells. Do not use these simulated account records as evidence of actual
 Kraken balances, completed operational paper observation or a live approval.
 
-The default foundation process does not schedule strategies or supervise a paper
-account every second. Keep continuous operation disabled until its supervisor,
-incremental projections, resource, delivery and restore work is reviewed. Live
-execution, exchange-side fencing and activation remain separately authorised work.
+The default foundation process does not schedule strategies or supervise an account.
+An opt-in maintenance supervisor is available in 0.4.1; follow the
+[checkpoint/supervision runbook](phase-4-supervision.md). Continuous fill replay and
+strategy dispatch, resource/disaster trials and outbound delivery remain outstanding.
+Live execution, exchange-side fencing and activation remain separately authorised work.

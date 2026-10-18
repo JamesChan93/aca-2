@@ -16,9 +16,16 @@ def stored(value: Decimal) -> Decimal:
     return parse_decimal(result)
 
 
-def balances(journals: Sequence[Journal]) -> tuple[Balance, ...]:
-    quantities: dict[Asset, Decimal] = {"GBP": ZERO, "BTC": ZERO, "ETH": ZERO}
-    costs: dict[Asset, Decimal] = dict(quantities)
+def apply_journals(current: Sequence[Balance], journals: Sequence[Journal]) -> tuple[Balance, ...]:
+    """Increment an already verified projection without rereading its prefix."""
+    if len({b.asset for b in current}) != len(current):
+        raise ValueError("duplicate opening balance")
+    quantities: dict[Asset, Decimal] = {
+        a: next((b.quantity for b in current if b.asset == a), ZERO) for a in ("GBP", "BTC", "ETH")
+    }
+    costs: dict[Asset, Decimal] = {
+        a: next((b.cost_gbp for b in current if b.asset == a), ZERO) for a in quantities
+    }
     with localcontext(FINANCIAL_CONTEXT):
         for journal in journals:
             for movement in journal.movements:
@@ -37,6 +44,10 @@ def balances(journals: Sequence[Journal]) -> tuple[Balance, ...]:
             )
             for a in quantities
         )
+
+
+def balances(journals: Sequence[Journal]) -> tuple[Balance, ...]:
+    return apply_journals((), journals)
 
 
 def cash_flow(source: str, amount: Decimal, at: datetime) -> Journal:
