@@ -1,6 +1,6 @@
-# ACA — reproducible Kraken research and paper-only foundation
+# ACA — Kraken research and local paper execution
 
-Phases 1–3 of the approved Kraken Spot platform plan. The application provides a
+Phases 1–3 and the first Phase 4 core of the Kraken Spot platform plan. The application provides a
 paper-only foundation and opt-in, credential-free Kraken market capture for BTC/GBP
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
@@ -53,6 +53,20 @@ registry. Research runs locally with the optional hash-locked NumPy environment.
 The final year stays reserved until an explicit candidate freeze and holdout command.
 No candidate has qualified for promotion.
 
+The [Phase 4 offline paper core](docs/phase-4.md) adds append-only GBP journals,
+investment units, reservations, independent portfolio/dispatch risk checks, a
+durable local venue and recovery without command replay. A synthetic demonstration
+uses virtual funds and cannot qualify a strategy or count toward extended paper:
+
+```sh
+docker compose exec -T app aca paper demo --account 6e04530b-9382-418d-9a24-331672f4016b
+docker compose exec -T app aca paper status --account 6e04530b-9382-418d-9a24-331672f4016b
+```
+
+Use a fresh account UUID for each replay. This first Phase 4 increment is not the
+whole phase or a G2 pass. Continuous supervision, incremental projections, resource
+trials, outbound delivery and restore work still precede extended paper operation.
+
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
 Local Docker functional checks and both runtime image scans pass. The full Linux
@@ -63,10 +77,11 @@ are recorded in the milestone report; see the [image security review](docs/image
 
 Only paper mode exists. Unknown `ACA_` environment variables and unknown TOML keys
 are errors. `ACA_CONFIG` selects a TOML file; `ACA_MODE=paper` is the sole mode override.
-Risk policy v1 is immutable. Its limits constrain the historical reference simulator.
-Independent portfolio/execution guards and durable operational latches remain Phase 4.
+Risk policy v1 is immutable. Its limits constrain historical research and the
+offline operational paper core. Durable hard/soft halts require audited review.
 
-No authenticated account access, financial ledger, execution risk guard, paper order
-lifecycle, reconciliation, tax engine, Discord sender or live activation exists.
+No authenticated account access, continuous trading service, final tax engine,
+Discord sender or live activation exists. Paper reconciliation uses only the local
+simulator's records; it is not evidence of Kraken account reconciliation.
 Subsequent milestones require review; live order-writer implementation and activation
 require separate explicit authorisation under the approved plan.

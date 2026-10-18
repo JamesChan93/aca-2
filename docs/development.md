@@ -1,5 +1,11 @@
 # Development
 
+The [Phase 4 core report](phase-4.md) documents the new paper contracts, synthetic
+replay and limitations. Financial properties use 1,000 generated examples; lifecycle
+checks run 10,000 deterministic fault traces. Use the isolated test project only;
+do not run two `scripts/ci_database.py` processes concurrently because they share
+that project's database/port. Application and test Compose projects remain separate.
+
 ## Prerequisites
 
 Application: CPython 3.14.8 (standard GIL build). Database: PostgreSQL 18.6.

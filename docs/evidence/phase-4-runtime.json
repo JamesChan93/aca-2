@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-10-18T09:20:01.926375+00:00",
+  "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+  "source_sha256": "754ab05f29f6926fa6e1924ee95ab7ffafd03eb3acd641ea946472cd3065de63",
+  "synthetic_demo": {
+    "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "blocked_steps": 0,
+    "kind": "synthetic_paper_replay_report",
+    "live_execution_available": false,
+    "performance": {
+      "as_of": "2026-10-18T00:00:00.700000+00:00",
+      "drawdown": "0.001101356870400000",
+      "exposure_gbp": "0E-18",
+      "fees_gbp": "0.259135167600000000",
+      "free_cash_gbp": "249.724660782400000000",
+      "inception_drawdown": "0.001101356870400000",
+      "live_execution_available": false,
+      "mode": "paper",
+      "mwr": null,
+      "nav_gbp": "249.724660782400000000",
+      "net_investment_flows_gbp": "250",
+      "pnl_gbp": "-0.275339217600000000",
+      "provisional": false,
+      "reconciliation_issue": null,
+      "reserved_planned_loss_gbp": "0E-18",
+      "schema_version": 1,
+      "synthetic_replay_counts_toward_promotion": false,
+      "tax_report_final": false,
+      "twr_since_inception": "-0.001101356870400000",
+      "unit_price": "0.998898643129600000"
+    },
+    "promotion_evidence": false,
+    "schema_version": 1,
+    "state": {
+      "account_evidence_at": "2026-10-18T00:00:00.700000Z",
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "as_of": "2026-10-18T00:00:00.700000Z",
+      "balances": [
+        {
+          "asset": "GBP",
+          "cost_gbp": "249.724660782400000000",
+          "quantity": "249.724660782400000000",
+          "schema_version": 1
+        },
+        {
+          "asset": "BTC",
+          "cost_gbp": "0E-18",
+          "quantity": "0E-8",
+          "schema_version": 1
+        },
+        {
+          "asset": "ETH",
+          "cost_gbp": "0",
+          "quantity": "0",
+          "schema_version": 1
+        }
+      ],
+      "daily_day": "2026-10-18",
+      "daily_unit_price": "1",
+      "high_water": "1",
+      "inception_high_water": "1",
+      "incident": null,
+      "kill": {
+        "actor": "risk",
+        "daily_day": null,
+        "hard": false,
+        "latched_at": null,
+        "policy_epoch": "e99eefb0-f3b4-4015-a5b9-856ef55707c1",
+        "reason": null,
+        "schema_version": 1,
+        "soft": false
+      },
+      "last_unit_price": "0.998898643129600000",
+      "marks": [
+        {
+          "asset": "BTC",
+          "bid_gbp": "999",
+          "observed_at": "2026-10-18T00:00:00.700000Z",
+          "schema_version": 1,
+          "source": "synthetic-replay-book"
+        }
+      ],
+      "orders": [
+        {
+          "approval": {
+            "allowed": true,
+            "approved_at": "2026-10-18T00:00:00Z",
+            "expires_at": "2026-10-18T00:00:02Z",
+            "id": "0de48948-96ca-453f-a44e-b80cae12a53b",
+            "intent_hash": "f0029d36bdb83b08746b737dd598e60f383c6a2daed2b87431458e34703d51c7",
+            "intent_id": "d8d76c37-7d58-4b41-a854-4b128c8db4bd",
+            "planned_loss": "1.249999861860000000",
+            "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+            "reasons": [],
+            "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+            "schema_version": 1,
+            "state_version": 5
+          },
+          "filled": "0.016204050000000000",
+          "intent": {
+            "allowance_per_unit": "2.002000000000000000",
+            "client_id": "d8d76c37-7d58-4b41-a854-4b128c8db4bd",
+            "created_at": "2026-10-18T00:00:00Z",
+            "episode_id": "083483ac-a1a5-4985-bc79-7889ce21f12d",
+            "expires_at": "2026-10-18T00:00:02Z",
+            "fee_bound": "0.008",
+            "id": "d8d76c37-7d58-4b41-a854-4b128c8db4bd",
+            "limit_price": "1001.0",
+            "operator_reason": null,
+            "parent_id": null,
+            "protective_limit": "941.4",
+            "purpose": "entry",
+            "quantity": "0.01620405",
+            "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+            "schema_version": 1,
+            "side": "buy",
+            "stop_trigger": "950.9",
+            "strategy_version": "slow-v1",
+            "symbol": "BTC/GBP",
+            "time_in_force": "FOK"
+          },
+          "pending_operation": null,
+          "schema_version": 1,
+          "state": "FILLED",
+          "submitted_at": "2026-10-18T00:00:00Z",
+          "triggered": false,
+          "venue_id": "paper-d8d76c37-7d58-4b41-a854-4b128c8db4bd"
+        },
+        {
+          "approval": null,
+          "filled": "0",
+          "intent": {
+            "allowance_per_unit": "0",
+            "client_id": "28ba9aff-1a25-5832-af13-4a9ed9a222cf",
+            "created_at": "2026-10-18T00:00:00.300000Z",
+            "episode_id": "083483ac-a1a5-4985-bc79-7889ce21f12d",
+            "expires_at": "2036-10-15T00:00:00.300000Z",
+            "fee_bound": "0.008",
+            "id": "28ba9aff-1a25-5832-af13-4a9ed9a222cf",
+            "limit_price": "941.4",
+            "operator_reason": null,
+            "parent_id": "d8d76c37-7d58-4b41-a854-4b128c8db4bd",
+            "protective_limit": "0",
+            "purpose": "protection",
+            "quantity": "0.01620405",
+            "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+            "schema_version": 1,
+            "side": "sell",
+            "stop_trigger": "950.9",
+            "strategy_version": "safety-v1",
+            "symbol": "BTC/GBP",
+            "time_in_force": "GTC"
+          },
+          "pending_operation": null,
+          "schema_version": 1,
+          "state": "CANCELLED",
+          "submitted_at": "2026-10-18T00:00:00.300000Z",
+          "triggered": false,
+          "venue_id": "paper-28ba9aff-1a25-5832-af13-4a9ed9a222cf"
+        },
+        {
+          "approval": null,
+          "filled": "0.016204050000000000",
+          "intent": {
+            "allowance_per_unit": "0",
+            "client_id": "fc83c4a0-c803-4fbc-a57f-ad074ca938b2",
+            "created_at": "2026-10-18T00:00:00.400000Z",
+            "episode_id": "083483ac-a1a5-4985-bc79-7889ce21f12d",
+            "expires_at": "2026-10-18T00:00:02.400000Z",
+            "fee_bound": "0.008",
+            "id": "fc83c4a0-c803-4fbc-a57f-ad074ca938b2",
+            "limit_price": "997.1",
+            "operator_reason": null,
+            "parent_id": null,
+            "protective_limit": "0",
+            "purpose": "exit",
+            "quantity": "0.01620405",
+            "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+            "schema_version": 1,
+            "side": "sell",
+            "stop_trigger": "0",
+            "strategy_version": "safety-v1",
+            "symbol": "BTC/GBP",
+            "time_in_force": "IOC"
+          },
+          "pending_operation": null,
+          "schema_version": 1,
+          "state": "FILLED",
+          "submitted_at": "2026-10-18T00:00:00.400000Z",
+          "triggered": false,
+          "venue_id": "paper-fc83c4a0-c803-4fbc-a57f-ad074ca938b2"
+        }
+      ],
+      "ready": true,
+      "reconciled_at": "2026-10-18T00:00:00.700000Z",
+      "schema_version": 1,
+      "tax_reserve_gbp": "0",
+      "units": "250.000000000000000000",
+      "version": 22
+    },
+    "steps": 4
+  },
+  "input_sha256": "06541c58760bfaabcf1cba4f2a75c685d2fd4d72d1971ad3d5f38ea9fd911a8f",
+  "local_alerts": 8,
+  "recovery": {
+    "complete": true,
+    "differences": [],
+    "fills_checked": 2,
+    "observed_at": "2026-10-18T09:19:58.429314Z",
+    "orders_checked": 3,
+    "schema_version": 1
+  },
+  "counts": [
+    "0004_paper",
+    "paper_events|48",
+    "paper_journals|6",
+    "paper_fills|4",
+    "market_receipts|12262",
+    "public_trades|8014",
+    "research_artifacts|396",
+    "research_events|386"
+  ],
+  "containers": {
+    "app": {
+      "image_id": "sha256:410241fd1c1805edc38896fb291f70257b453dcb74857e63689a216523f82471",
+      "scan_config_sha256": "sha256:fb72dd10c457ed4a618f528e5885086c8e4a2ffd8c4e7302b79d57c463a1a7a9",
+      "rootfs_matches_scan": true,
+      "user": "10001:10001",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "networks": [
+        "aca-paper_private"
+      ],
+      "published_ports": {},
+      "health": "healthy",
+      "high_critical_vulnerabilities": 0,
+      "secrets": 0,
+      "scan_report_sha256": "1a13f3c11f489ec15aef986422c7499e00c4494db0159c7bcd6a946c3f0e120a",
+      "image_config_fields_match_scan": true
+    },
+    "db": {
+      "image_id": "sha256:1b1f6e7c599df942116eb6b23dcd27013f88122ffb070a333c3cfa9bc80750e8",
+      "scan_config_sha256": "sha256:a47223f9b428635c5a92dbf83fa20955221c8760b48d1d87afc3d40012586ba4",
+      "rootfs_matches_scan": true,
+      "user": "postgres:postgres",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "networks": [
+        "aca-paper_private"
+      ],
+      "published_ports": {},
+      "health": "healthy",
+      "high_critical_vulnerabilities": 0,
+      "secrets": 0,
+      "scan_report_sha256": "3c5f26fd661a71b856386098d100df0e04b3eac497512d9962324f655a5304f3",
+      "image_config_fields_match_scan": true
+    }
+  },
+  "live_execution_available": false,
+  "g2_passed": false,
+  "rpo_rto_or_restore_claim": false,
+  "evidence_notes": [
+    "Two closed virtual demo accounts are retained. One harness compared textual zero formats; Decimal comparison corrected it.",
+    "Docker OCI index metadata refreshed by recreating the database container on its existing volume; rootfs matches the scanned image.",
+    "The synthetic input and full report remain in ignored local data/paper/phase4; no actual observation/promotion evidence."
+  ]
+}

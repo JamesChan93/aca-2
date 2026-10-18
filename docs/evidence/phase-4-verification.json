@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-10-18T09:20:37.542829+00:00",
+  "release": "0.4.0",
+  "python_source_sha256": "754ab05f29f6926fa6e1924ee95ab7ffafd03eb3acd641ea946472cd3065de63",
+  "tests": {
+    "native_macos_arm64": {
+      "passed": 221,
+      "seconds": "28.13",
+      "postgres": "18.6",
+      "installed_wheel": true
+    },
+    "container_linux_arm64_musl": {
+      "passed": 221,
+      "seconds": "33.01",
+      "postgres": "18.6",
+      "non_root": true,
+      "installed_wheel": true
+    }
+  },
+  "properties": {
+    "financial_examples_per_property": 1000,
+    "lifecycle_fault_traces": 10000,
+    "deterministic": true,
+    "process_kill_trials": false
+  },
+  "checks": {
+    "ruff": true,
+    "format": true,
+    "strict_mypy": true,
+    "wheel_sdist": true,
+    "pip_check": true,
+    "runtime_audit_no_known_vulnerabilities": true,
+    "research_audit_no_known_vulnerabilities": true,
+    "development_audit_no_known_vulnerabilities": true,
+    "published_files_contain_database_password": false,
+    "secret_scan_files": 118
+  },
+  "backup": {
+    "kind": "local_pre_migration_pg_dump",
+    "bytes": 69018902,
+    "file_mode": "0600",
+    "directory_mode": "0700",
+    "rpo_rto_claim": false
+  },
+  "runtime_evidence": "phase-4-runtime.json",
+  "hosted_checks": "Pull request checks bind their results to the exact Git commit; no hosted pass claimed in this pre-push local evidence.",
+  "gates": {
+    "g2_passed": false,
+    "g3_passed": false,
+    "g4_passed": false,
+    "g5_passed": false,
+    "g6_passed": false,
+    "live_execution_available": false
+  },
+  "scope": "First offline Phase 4 core. Continuous supervision, incremental projections, remaining accounting workflows, delivery, resource and restore trials remain."
+}

@@ -15,10 +15,10 @@ from prometheus_client import (
 
 BLOCKERS = (
     "authenticated_account_reads_not_implemented",
-    "portfolio_accounting_not_implemented",
-    "risk_enforcement_not_implemented",
-    "paper_execution_not_implemented",
-    "reconciliation_not_implemented",
+    "continuous_paper_runner_not_implemented",
+    "extended_paper_validation_not_complete",
+    "research_promotion_gate_not_passed",
+    "live_reconciliation_not_implemented",
     "live_execution_not_implemented",
 )
 

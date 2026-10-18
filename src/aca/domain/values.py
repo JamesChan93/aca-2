@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from decimal import Context, Decimal, InvalidOperation, localcontext
 from typing import Annotated
 
-from pydantic import BeforeValidator
+from pydantic import BeforeValidator, ValidationInfo
 
 FINANCIAL_CONTEXT = Context(prec=50)
 
@@ -32,4 +32,15 @@ def utc_datetime(value: object) -> datetime:
 
 
 FinancialDecimal = Annotated[Decimal, BeforeValidator(parse_decimal)]
-UtcDateTime = Annotated[datetime, BeforeValidator(utc_datetime)]
+
+
+def _utc_boundary(value: object, info: ValidationInfo) -> datetime:
+    if info.mode == "json" and isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("invalid ISO timestamp") from exc
+    return utc_datetime(value)
+
+
+UtcDateTime = Annotated[datetime, BeforeValidator(_utc_boundary)]
