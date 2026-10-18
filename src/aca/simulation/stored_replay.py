@@ -16,8 +16,10 @@ from aca.domain.market import InstrumentRules, MarketTrade, OrderBook, Symbol
 from aca.domain.trading import TERMINAL, Record, Time, VenueOrder, fingerprint
 from aca.domain.values import utc_datetime
 from aca.execution.paper import PaperExecution
+from aca.simulation.historical import HistoricalReplay, HistoricalValuation
 from aca.simulation.paper import PaperExchange
 from aca.storage.models import MarketReceipt
+from aca.storage.paper import fills
 from aca.storage.replay import cursors, public_events
 
 EMPTY_HASH = "0" * 64
@@ -80,6 +82,7 @@ class StoredReplay:
         fault: Callable[[str], None] | None = None,
     ) -> None:
         self.service, self.venue, self.store = service, venue, service.store
+        self.history = HistoricalReplay(self.store, venue, service.policy)
         self.fault = fault or (lambda point: None)
 
     def _cursor(self, row: RowMapping, previous: str | None = None) -> ReplayCursor:
@@ -124,7 +127,7 @@ class StoredReplay:
         async with self.service.writer.transaction() as c:
             await self.venue._locked(c)
             row = await self._latest(c)
-            if row is not None:
+            if row is not None and await self.history.latest(c) is not None:
                 return self._cursor(row)
             state = await self.store.load(c)
             if state is None:
@@ -139,6 +142,17 @@ class StoredReplay:
                 raise ValueError(
                     "replay enrolment requires a flat account and no outstanding orders"
                 )
+            posted = dict(
+                (
+                    await c.execute(
+                        select(fills.c.id, fills.c.document).where(
+                            fills.c.account_id == self.store.account_id
+                        )
+                    )
+                ).all()
+            )
+            if posted != {fill.id: fill.document() for fill in remote.fills}:
+                raise ValueError("replay enrolment requires reconciled financial history")
             tail = (
                 await c.execute(
                     select(public_events.c.number, public_events.c.fingerprint)
@@ -146,12 +160,19 @@ class StoredReplay:
                     .limit(1)
                 )
             ).one_or_none()
+            if row is not None:
+                cursor = self._cursor(row)
+                if cursor.number != (tail.number if tail else 0):
+                    raise ValueError("drain legacy replay before historical enrolment")
+                await self.history.enrol(c, state, cursor.number, cursor.source_hash)
+                return cursor
             cursor = ReplayCursor(
                 account_id=self.store.account_id,
                 number=tail.number if tail else 0,
                 source_hash=tail.fingerprint if tail else EMPTY_HASH,
             )
             await self._save(c, cursor, EMPTY_HASH)
+            await self.history.enrol(c, state, cursor.number, cursor.source_hash)
             return cursor
 
     async def audit(self) -> ReplayCursor:
@@ -189,6 +210,7 @@ class StoredReplay:
                     break
             if last is None:
                 raise ValueError("paper account must explicitly enrol before replay")
+            await self.history.audit(c, last.number)
             return last
 
     async def _invalidate(self, c: AsyncConnection, at: datetime, active: bool) -> None:
@@ -219,6 +241,7 @@ class StoredReplay:
         receipt: ReplayReceipt,
         active: bool,
         cancelled: tuple[VenueOrder, ...],
+        historical: list[HistoricalValuation],
     ) -> tuple[ReplayCursor, int, int]:
         at, channel = receipt.received_at, receipt.channel
         if channel == "epoch_started":
@@ -369,6 +392,14 @@ class StoredReplay:
             }
         )
         rules_by_symbol = {r.symbol: r for r in context.rules}
+        historical[0] = self.history.observe(
+            historical[0],
+            at,
+            self.history.marks(context.books, context.book_sources),
+            self._reason(context, at),
+        )
+        if active:
+            await self.history.cancel_entries(c, historical[0], at)
         applied, used_trades = 0, 0
         for book, aggression in observations:
             rule = rules_by_symbol.get(book.symbol)
@@ -390,6 +421,8 @@ class StoredReplay:
                 await self.venue.advance(
                     book, rule, at, aggression, connection=c, observation_id=sources[book.symbol]
                 )
+                historical[0] = await self.history.import_fills(c, historical[0], at)
+                await self.history.cancel_entries(c, historical[0], at)
             else:
                 effective_at = aggression.event_at if aggression else at
                 if any(
@@ -414,6 +447,13 @@ class StoredReplay:
             if previous is None:
                 raise ValueError("paper account must explicitly enrol before replay")
             context = self._cursor(previous)
+            history_row = await self.history.latest(c)
+            if history_row is None:
+                raise ValueError("historical valuation baseline missing; flat enrolment required")
+            if history_row["number"] != context.number:
+                raise ValueError("historical valuation cursor mismatch")
+            if self.history.restore(history_row).source_hash != context.source_hash:
+                raise ValueError("historical valuation source mismatch")
             pending = await c.scalar(
                 select(public_events.c.number)
                 .where(public_events.c.number > context.number)
@@ -445,6 +485,12 @@ class StoredReplay:
             if previous is None:
                 raise ValueError("paper account must explicitly enrol before replay")
             context = self._cursor(previous)
+            history_row = await self.history.latest(c)
+            if history_row is None or history_row["number"] != context.number:
+                raise ValueError("historical valuation cursor mismatch")
+            historical = [self.history.restore(history_row)]
+            history_hash = history_row["fingerprint"]
+            controls = await self.history.controls(c, historical[0].control_version)
             rows = (
                 (
                     await c.execute(
@@ -489,7 +535,37 @@ class StoredReplay:
                     # time. Preserve the entire suffix, never skip to later IDs.
                     deferred = True
                     break
-                context, count, missed = await self._consume(c, context, receipt, active, cancelled)
+                historical[0] = await self.history.apply_controls(
+                    c, historical[0], controls, receipt.received_at
+                )
+                historical[0] = historical[0].model_copy(
+                    update={
+                        "number": row["number"],
+                        "source_hash": row["fingerprint"],
+                        "source_received_at": receipt.received_at,
+                    }
+                )
+                context, count, missed = await self._consume(
+                    c, context, receipt, active, cancelled, historical
+                )
+                if receipt.received_at < historical[0].state.as_of:
+                    if receipt.channel != "heartbeat":
+                        raise ValueError("historical market/control time regressed")
+                    # A delayed heartbeat has no economic timestamp or prices.
+                    # Retain the last state, rather than reprice it from its future.
+                    historical[0] = historical[0].model_copy(
+                        update={"nav_gbp": None, "reason": "late_auxiliary_receipt"}
+                    )
+                else:
+                    historical[0] = self.history.observe(
+                        historical[0],
+                        receipt.received_at,
+                        self.history.marks(context.books, context.book_sources),
+                        self._reason(context, receipt.received_at),
+                    )
+                    if active:
+                        await self.history.cancel_entries(c, historical[0], receipt.received_at)
+                history_hash = await self.history.save(c, historical[0], history_hash)
                 processed += 1
                 applied += count
                 skipped += missed
@@ -498,6 +574,7 @@ class StoredReplay:
                 )
             if processed:
                 self.fault("before_cursor")
+                await self.history.propagate(c, historical[0], at)
                 await self._save(c, context, previous["fingerprint"])
             self.fault("before_commit")
         self.fault("after_commit")

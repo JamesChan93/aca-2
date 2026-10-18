@@ -5,6 +5,9 @@ of committed public evidence for an existing virtual account. It does not comple
 Phase 4 or G2, qualify a strategy, establish an eight-week paper record, or add
 private Kraken access or a real exchange writer.
 
+The subsequent [0.4.3 historical-risk increment](phase-4-historical-risk.md) adds
+original-observation NAV and risk evidence. This document describes the 0.4.2 baseline.
+
 ## Behaviour
 
 `MarketStore` now publishes one replay envelope per append transaction, alongside

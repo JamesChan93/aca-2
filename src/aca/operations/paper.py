@@ -15,6 +15,7 @@ from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
 from aca.operations.config import Settings
 from aca.reporting.paper import performance
 from aca.research.artifacts import read_json
+from aca.simulation.historical import HistoricalReplay
 from aca.simulation.paper import PaperExchange
 from aca.simulation.replay import ReplayPlan, demo_plan, run_replay
 from aca.simulation.stored_replay import StoredReplay
@@ -37,6 +38,7 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "supervise",
         "enrol",
         "consume",
+        "valuations",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -53,6 +55,9 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
             )
         if name == "consume":
             parser.add_argument("--limit", type=int, default=32, choices=range(1, 65))
+        if name == "valuations":
+            parser.add_argument("--limit", type=int, default=20, choices=range(1, 101))
+            parser.add_argument("--before", type=int)
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
@@ -62,6 +67,34 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     store = PaperStore(engine, args.account)
     try:
         await verify_runtime(engine)
+        if args.action == "valuations":
+            from sqlalchemy import select
+
+            from aca.operations.config import RiskPolicy
+            from aca.storage.replay import valuations
+
+            query = select(valuations).where(valuations.c.account_id == args.account)
+            if args.before is not None:
+                if args.before < 0:
+                    raise ValueError("valuation cursor must be nonnegative")
+                query = query.where(valuations.c.number < args.before)
+            history_reader = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
+            async with engine.connect() as c:
+                await c.execution_options(isolation_level="REPEATABLE READ")
+                rows = (
+                    (await c.execute(query.order_by(valuations.c.number.desc()).limit(args.limit)))
+                    .mappings()
+                    .all()
+                )
+            return {
+                "schema_version": 1,
+                "account_id": str(args.account),
+                "items": [history_reader.restore(row).document() for row in rows],
+                "next_before": rows[-1]["number"] if len(rows) == args.limit else None,
+                "provisional": True,
+                "promotion_evidence": False,
+                "live_execution_available": False,
+            }
         if args.action == "alerts":
             return {
                 "schema_version": 1,

@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-18",
+  "version": "0.4.3",
+  "scope": "Historical paper valuation and risk; Phase 4 and G2-G6 remain incomplete",
+  "source_hash": "09c7245fce05da3163a99b2565b5f7357ba45dec716cd0a4ba11c67ff59770a4",
+  "source_hash_method": "SHA256 of sorted relative aca/*.py paths, NUL, file bytes, NUL",
+  "source_files": 84,
+  "source_matches_installed_wheel_and_runtime": true,
+  "tests": {
+    "linux_arm64_musl": {
+      "passed": 299,
+      "seconds": 46.33
+    },
+    "hosted_checks": "Pre-push record. Exact-head hosted results belong to the PR checks and description."
+  },
+  "checks": {
+    "ruff": "passed",
+    "format": "110 files passed",
+    "strict_mypy": "97 files passed",
+    "build": "wheel and sdist passed",
+    "pip_check": "passed",
+    "dependency_audits": "runtime, research and development: zero known vulnerabilities",
+    "new_dependencies": false,
+    "dependency_locks_changed": false,
+    "publication_secret_scan": {
+      "files": 159,
+      "matches": 0
+    }
+  },
+  "backup": {
+    "path": ".secrets/backups/historical-risk-20261018T152359Z/pre-historical-risk.sql",
+    "bytes": 94891549,
+    "sha256": "9d093a715ba919cd43ecc19f451134a58baf33cf4622013118191fd40ba5dc40",
+    "mode": "0o600",
+    "restore_drill": false
+  },
+  "migration": {
+    "from": "0007_replay_cutoff",
+    "to": "0008_historical_risk",
+    "additive": true,
+    "financial_history_preserved": true,
+    "legacy_cursor_preserved_at_enrolment": 4070,
+    "explicit_flat_baseline": true,
+    "earlier_risk_backfilled": false
+  },
+  "images": {
+    "app": {
+      "image": "sha256:524c72194cc9a5547e12d7a5552e3ef5273f9f3f5069147f93379b1a7eea83d9",
+      "scan_config_image": "sha256:54eb33f2eab7dadf3da35b58a01a2f6b4778b95f2923fb3d38f270bbb102bf68",
+      "health": "healthy",
+      "user": "10001:10001",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "memory": 805306368,
+      "port_bindings": {},
+      "scan_rootfs_matches": true,
+      "scan_config_matches": true,
+      "high_critical": 0,
+      "secrets": 0
+    },
+    "db": {
+      "image": "sha256:a02bb3ce7930296bff6e97f351d7c8d0927bd76b347ab8cf30d676cd1f6287ca",
+      "scan_config_image": "sha256:a47223f9b428635c5a92dbf83fa20955221c8760b48d1d87afc3d40012586ba4",
+      "health": "healthy",
+      "user": "postgres:postgres",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "memory": 1073741824,
+      "port_bindings": {},
+      "scan_rootfs_matches": true,
+      "scan_config_matches": true,
+      "high_critical": 0,
+      "secrets": 0
+    }
+  },
+  "runtime": {
+    "virtual_account": "c18b3acf-4197-443f-9d36-b67abe50761c",
+    "before_version": 614,
+    "after_version": 810,
+    "balances_unchanged": true,
+    "orders_unchanged": true,
+    "gbp_balance": "249.724660782400000000",
+    "crypto_inventory": "flat",
+    "new_orders": 0,
+    "new_fills": 0,
+    "supervisor": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "database_ready": true,
+      "fill_replay_enabled": true,
+      "foundation_ready": false,
+      "healthy_ticks": 3,
+      "incomplete_safety_requirements": [
+        "authenticated_account_reads_not_implemented",
+        "continuous_paper_runner_not_implemented",
+        "extended_paper_validation_not_complete",
+        "research_promotion_gate_not_passed",
+        "live_reconciliation_not_implemented",
+        "live_execution_not_implemented"
+      ],
+      "kind": "paper_maintenance_v1",
+      "last_tick_seconds": 0.17342129100006787,
+      "live_execution_available": false,
+      "market_ready": false,
+      "mode": "paper",
+      "phase": 4,
+      "promotion_evidence": false,
+      "reason": "paper_supervisor_stopped",
+      "reconciled": false,
+      "replay_cursor": 4215,
+      "replay_processed": 145,
+      "replay_skipped_trades": 0,
+      "schema_ready": true,
+      "strategy_dispatch_enabled": false,
+      "supervision_ready": false,
+      "ticks": 88,
+      "trading_ready": false
+    },
+    "public_capture": {
+      "checksum_failures": 0,
+      "duplicate_stream_trades": 100,
+      "faults": 0,
+      "healthy_observations": 6,
+      "live_execution_available": false,
+      "new_stream_trades": 1,
+      "observations": 7,
+      "received_websocket_frames": 120,
+      "reconnects": 0,
+      "rest_requests": 11,
+      "rest_retries": 0,
+      "schema_version": 1,
+      "trading_ready": false
+    },
+    "historical_valuation_records": 146,
+    "new_source_envelopes_consumed": 145,
+    "cursor_before": 4070,
+    "cursor_after": 4215,
+    "last_page_valid_market_rows": 79,
+    "last_page_rows": 100,
+    "last_historical_nav": "249.724660782400000000",
+    "last_historical_at": "2026-10-18T15:27:42.543532+00:00",
+    "historical_incomplete_since": null,
+    "financial_cursor_historical_audit": "passed",
+    "database_application_restart": "passed; cursor and NAV retained",
+    "healthy_reliability_percentage_claimed": false,
+    "qualifying_episodes": 0,
+    "counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "market_receipts": 17491,
+      "public_replay_events": 4215,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "research_artifacts": 396,
+      "research_events": 386
+    },
+    "database_bytes_at_audit": 55219903
+  },
+  "covered_behaviours": [
+    "Original-time fill fees, balances and validated GBP bid NAV before financial import",
+    "Peak, crash and rebound in a single batch retain a hard halt",
+    "Daily loss cancels the remaining virtual entry before later trade evidence",
+    "Protective sells survive risk cancellation; trigger latency and stop-limit gaps remain",
+    "Crash before cursor/commit rolls back valuation, venue effects and propagated risk; post-commit recovery is idempotent",
+    "Contributions and withdrawals preserve unit price and latches",
+    "Unread replay or unposted fills veto cash flows and epoch reviews",
+    "Missing midnight is suspended; exact midnight establishes a baseline",
+    "Daily baseline propagation preserves operator hard-halt reasons",
+    "Interrupted held-asset evidence retains incomplete_since after recovery",
+    "Hashes, policy, NAV arithmetic, cursor/source agreement and source coverage are audited",
+    "Legacy accounts explicitly add a flat baseline without resetting an existing cursor",
+    "Bounded read-only valuation pages use Decimal strings and source-number cursors"
+  ],
+  "verification_findings_resolved": [
+    "Native smoke initially addressed an older installed wheel; reinstalled and validated the final package in Linux",
+    "A loss/rebound fixture was inside the protective child latency window; moved its observations after the existing delay",
+    "Delayed heartbeats retain the prior economic time and omit NAV instead of repricing from future books",
+    "Midnight fixtures cannot use tomorrow-dated public receipts; tested the shared historical clock transition directly",
+    "Historical daily baseline and control propagation preserve operator halts and review chronology"
+  ],
+  "limits": [
+    "Finite flat-account run, not evidence of signal-driven episodes, alpha or 56-day reliability",
+    "Per-receipt evidence, full-prefix audits and SQL query cost grow; resource/archive/retention qualification remains required",
+    "Baseline starts at explicit flat/reconciled enrolment; no prior performance is reconstructed",
+    "All valuation pages remain provisional; no full tax or performance rebuild is implemented"
+  ],
+  "gates": {
+    "G2_complete": false,
+    "G3_research_passed": false,
+    "G4_paper_economics_passed": false,
+    "G5_readiness_passed": false,
+    "G6_live_activation_passed": false
+  },
+  "live_execution_available": false,
+  "strategy_dispatch_enabled": false,
+  "promotion_evidence": false,
+  "remaining": [
+    "Full accounting/performance workflows and historical report rebuild",
+    "Shared strategy scheduling without promoting rejected candidates",
+    "Measured latency/liquidity calibration and long-run storage/throughput trials",
+    "Outbound Discord delivery",
+    "Process/disk failure trials and disaster restore/WAL/off-host backup evidence",
+    "Extended paper and economic gates; separate live implementation/activation approval"
+  ]
+}
