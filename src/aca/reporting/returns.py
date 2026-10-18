@@ -57,7 +57,7 @@ def investor_return(
             return (seconds + Decimal(delta.microseconds) / 1000000) / 31557600
 
         dated = tuple((years(at), amount) for at, amount in ordered)
-        if dated[-1][0] > 100:
+        if years(end) > 100:
             return None, "duration_budget_exceeded"
 
         def value(rate: Decimal) -> Decimal:

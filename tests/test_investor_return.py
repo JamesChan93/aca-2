@@ -50,6 +50,10 @@ def test_zero_duration_root_range_budget_and_invalid_boundaries() -> None:
         None,
         "flow_budget_exceeded",
     )
+    assert investor_return(((AT, D(-100)), (AT + YEAR, D(110))), D(0), AT, AT + YEAR * 101) == (
+        None,
+        "duration_budget_exceeded",
+    )
     with pytest.raises(ValueError, match="outside return period"):
         investor_return(((AT - YEAR, D(-100)),), D(110), AT, AT + YEAR)
     with pytest.raises(ValueError, match="timezone-aware"):

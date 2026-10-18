@@ -2,10 +2,10 @@
   "schema_version": 1,
   "milestone": "phase-4-historical-performance",
   "application_version": "0.4.4",
-  "verified_at_utc": "2026-10-18T16:10:27Z",
+  "verified_at_utc": "2026-10-18T16:15:10Z",
   "scope": "Read-only, exact-source-bounded historical GBP performance for an enrolled local paper account",
   "source": {
-    "sha256": "761ce943816e3de8fda180d2737488f11d0acb8ee86d73c406e7778c7eb77233",
+    "sha256": "3208087c427e11aea8ac3a191affe8fb05993a424cacbfae553ea4d69525156f",
     "python_files": 86,
     "source_wheel_running_image_match": true
   },
@@ -23,7 +23,7 @@
     "linux_arm64_musl": {
       "result": "passed",
       "tests": 327,
-      "seconds": 49.28,
+      "seconds": 50.32,
       "postgresql": "18.6",
       "schema": "0008_historical_risk"
     },
@@ -39,7 +39,8 @@
       "Bounded multi-page prefix, gaps in source allocation and report-budget rejection",
       "Concurrent financial/source commit cannot mix snapshots; real PostgreSQL transaction reports READ ONLY and REPEATABLE READ",
       "Self-consistent historical hash with false investment units fails independent reconstruction",
-      "Full NUMERIC(38,18) precision survives cash-flow, reversal and historical reporting"
+      "Full NUMERIC(38,18) precision survives cash-flow, reversal and historical reporting",
+      "100-year MWR period bound still applies after a complete early withdrawal"
     ],
     "existing_generated_suite": "Retains 1000 examples per existing critical financial property and 10000 deterministic lifecycle/fault sequences; not 10000 process kills",
     "wheel_and_sdist_build": "passed",
@@ -54,7 +55,7 @@
   "local_runtime": {
     "application_version": "0.4.4",
     "source_files": 86,
-    "source_hash": "761ce943816e3de8fda180d2737488f11d0acb8ee86d73c406e7778c7eb77233",
+    "source_hash": "3208087c427e11aea8ac3a191affe8fb05993a424cacbfae553ea4d69525156f",
     "uid": 10001,
     "schema": "0008_historical_risk",
     "counts": {
@@ -74,7 +75,7 @@
     "repeat_report_identical": true,
     "financial_counts_and_account_state_unchanged": true,
     "account_version": 810,
-    "report_seconds_including_cli_startup": 1.362682665931061,
+    "report_seconds_including_cli_startup": 1.992512208991684,
     "historical_range": [
       4070,
       4215
@@ -83,8 +84,8 @@
     "historical_nav_gbp": "249.724660782400000000",
     "historical_pnl_gbp": "0E-18",
     "report_hash": "06ac40d6f0d98b7205221dd939fc0f6b37997b923d1fff55c7b04bf98a08d571",
-    "app_image": "sha256:83452dd4ce99ac63d3040f57e74f044842a8fc5dbdbd999743cc3ed06be0c51e",
-    "app_scan_config_image": "sha256:85770c4840638bd81d379f2d0152d6d459931613c761e17d824f4a987978e97d",
+    "app_image": "sha256:4e2b3b978723087d658816985215b511316b1bff6cd8055651a3cde4f34cd823",
+    "app_scan_config_image": "sha256:f84a08ec55328bbbe94f6e59cd82691a07a59c2ff15de52f28a86e37edcecffa",
     "scan_rootfs_and_config_match_runtime": true,
     "high_critical_findings": 0,
     "secret_findings": 0,
