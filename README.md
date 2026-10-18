@@ -8,6 +8,9 @@ preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange 
 The [original project prompt and implementation context](docs/context/README.md)
 are preserved in the repository for future contributors.
 
+Optional [outbound paper alerts](docs/phase-4-notifications.md) have a separate,
+explicit setup. The default stack neither mounts a Discord secret nor sends messages.
+
 ## Start locally
 
 Install Docker Engine/Desktop with Docker Compose v2.24 or newer, then run:
