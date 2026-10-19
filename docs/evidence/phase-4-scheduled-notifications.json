@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-scheduled-paper-notifications",
+  "application_version": "0.4.6",
+  "verified_at_utc": "2026-10-19T09:00:21.648099+00:00",
+  "scope": "Opt-in daily provisional paper summaries and current-state critical reminders; no trading authority",
+  "source": {
+    "source_sha256": "4930afa09ae0c24eb4e9b11eb7c800e386fe1f5a211524fbda66c252b4361ac8",
+    "python_files": 92,
+    "source_wheel_runtime_identical": true
+  },
+  "verification": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 123,
+    "mypy_source_files": 108,
+    "linux_arm64_musl": {
+      "tests": 380,
+      "seconds": 49.83,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0010_scheduled_notices"
+    },
+    "new_test_cases": 23,
+    "coverage": [
+      "UTC 00:10 eligibility including London civil-time conversion and exact threshold",
+      "Durable account/day uniqueness; latest-day-only scheduling after downtime",
+      "Read-only audited daily accounting with half-open economic dates and bounded original-source observed performance",
+      "Explicit unavailable daily return, tax estimate and backup health; no invented valuations",
+      "Critical/daily priority without advancing the ordinary transition cursor",
+      "Five-minute delay after terminal receipt, including delayed/rate-limited success",
+      "Current-state recovery supersedes queued reminders without HTTP",
+      "In-flight transition identity retained when a higher-priority reminder arrives",
+      "Committed scheduled attempt before HTTP, interrupted-send recovery and atomic receipt",
+      "Eight uncertain attempts produce a retained dead letter; notice-only retries",
+      "Daily evidence failure leaves already prepared critical work deliverable",
+      "Owner conflict, execution-owner independence, append-only tables, account-scoped bounded previews and safe rendering"
+    ],
+    "existing_generated_suite": "Retains 1000 examples per existing critical financial property and 10000 deterministic lifecycle/fault sequences; not process-kill evidence",
+    "wheel_sdist_install_and_pip_check": "passed",
+    "dependency_changes": false,
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "container_restart_health_and_paper_only_smoke": "passed",
+    "hosted_checks": "See the pull request checks for this commit; local evidence does not assert a hosted result"
+  },
+  "local_upgrade": {
+    "schema_from": "0009_notifications",
+    "schema_to": "0010_scheduled_notices",
+    "protected_backup_bytes": 14553013,
+    "protected_backup_sha256": "8d947e42d38c565706ea7e029456a2718f14d3b28a59249f5d6fd9656afce838",
+    "retained_counts_and_checksums_unchanged_during_migration": true,
+    "retained_counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0
+    },
+    "backup_storage": "Ignored private local directory; directory 0700, files 0600; no dump published",
+    "disaster_restore_or_rpo_proven": false
+  },
+  "local_runtime": {
+    "source_sha256": "4930afa09ae0c24eb4e9b11eb7c800e386fe1f5a211524fbda66c252b4361ac8",
+    "python_files": 92,
+    "version": "0.4.6",
+    "source_wheel_runtime_identical": true,
+    "image": "sha256:eb4e900fb09a811c773b873f0ee5a4f0b246159f797390f649886a5532dbc6b8",
+    "scan_config_image": "sha256:b239425eb136732b55ab6d63dd5177b3511b50a6f425b01e4a0668b7f9089422",
+    "scan_rootfs_and_config_match": true,
+    "uid": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges:true"
+    ],
+    "health": "healthy",
+    "port_bindings": {},
+    "retained_notification_status": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "backlog": 283,
+      "configured": false,
+      "delivered": 0,
+      "last_delivery_at": null,
+      "live_execution_available": false,
+      "mode": "paper",
+      "oldest_pending_at": "2026-10-18T00:00:00+00:00",
+      "retry_events": 0,
+      "scheduled_backlog": 1,
+      "schema_version": 1,
+      "state": null,
+      "terminal_failures": 0
+    },
+    "performance_economics_unchanged": true
+  },
+  "prepared_local_summary": {
+    "day": "2026-10-18",
+    "report_hash": "6de5430a24b49a9630e17cfdd7e240e03dfcc75b50253aae082c398c5dd4f151",
+    "contributions_gbp": "250",
+    "fees_gbp": "0.259135167600000000",
+    "recorded_interval": {
+      "drawdown": "0.001101356870400000",
+      "end": "2026-10-18T15:27:42.543532+00:00",
+      "exposure_gbp": "0E-18",
+      "nav_gbp": "249.724660782400000000",
+      "pnl_gbp": "0E-18",
+      "report_hash": "a44b526f33e94eb8f6e95a240a442974e24a0d8ef1ebd52b119af10c84b2c128",
+      "source_end": 4215,
+      "source_start": 4070,
+      "start": "2026-10-18T13:59:50.911942+00:00",
+      "twr": "0E-18",
+      "valuation_complete": true
+    },
+    "fault_transition_events": 278,
+    "daily_return_complete": false,
+    "tax_reserve_estimate_gbp": null,
+    "backup_status": "unverified",
+    "webhook_configured": false,
+    "discord_requests": 0
+  },
+  "security": {
+    "scanner": "Trivy 0.76.0 with cached advisory database, offline/no network",
+    "app_high_critical_vulnerabilities": 0,
+    "app_secret_findings": 0,
+    "running_image_rootfs_and_config_match_scan": true,
+    "database_image_change": false,
+    "original_prompt_archive_hash_verified": true,
+    "private_exchange_access": false,
+    "live_execution_available": false,
+    "publication_scan": {
+      "files": 182,
+      "actual_local_secret_values_checked": 3,
+      "findings": 0
+    }
+  },
+  "limits": {
+    "summary_async_deadline_seconds": 15,
+    "valuation_page_rows": 64,
+    "summary_check_interval_seconds": 60,
+    "minimum_critical_repeat_after_terminal_receipt_seconds": 300,
+    "attempts_per_notice": 8,
+    "priority": "In-flight item retained; otherwise critical reminder, daily summary, transition FIFO",
+    "rate_deadlines": "Shared per nominated account/destination; priority cannot bypass a known deadline",
+    "delivery": "Committed receipt prevents replay; ambiguous notification retries may duplicate messages",
+    "daily_pnl": "Unavailable until complete midnight boundary coverage is qualified",
+    "full_notification_history_audit": false,
+    "critical_sixty_second_latency_qualified": false
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "qualifying_paper_episodes_added": 0,
+    "extended_paper_days_added": 0,
+    "remaining": [
+      "Continuous signal scheduling and calibrated fills/latency",
+      "Transfers/conversions/corrections and owner-wide tax/reserve workflows",
+      "Full-day boundaries, notification metrics/health, real integration and latency qualification",
+      "Resource/retention and process/storage fault trials",
+      "Off-host backups, WAL/disaster restore and demonstrated RPO/RTO",
+      "Required research edge, episodes, 56-day paper, economics, readiness and live gates"
+    ]
+  }
+}

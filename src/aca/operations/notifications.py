@@ -11,7 +11,7 @@ from uuid import UUID
 
 import structlog
 
-from aca.observability.delivery import NotificationOwner, status
+from aca.observability.delivery import NotificationOwner, read_notices, status
 from aca.observability.discord import DiscordSender, Webhook
 from aca.operations.config import ConfigurationError, Settings
 from aca.storage.database import create_engine, verify_runtime
@@ -19,22 +19,24 @@ from aca.storage.database import create_engine, verify_runtime
 
 def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     actions = commands.add_parser("notifications").add_subparsers(dest="action", required=True)
-    for name in ("configure", "run", "status"):
+    for name in ("configure", "run", "status", "prepare", "notices"):
         parser = actions.add_parser(name)
         parser.add_argument("--account", required=True, type=UUID)
-        if name != "status":
+        if name in {"configure", "run"}:
             parser.add_argument("--webhook-file", required=True, type=Path)
         if name == "configure":
             parser.add_argument("--after-version", type=int)
         if name == "run":
             parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
+        if name == "notices":
+            parser.add_argument("--limit", type=int, choices=range(1, 101), default=20)
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object]:
     if args.action == "run" and not 0 <= args.duration <= 86400:
         raise ConfigurationError("duration must be 0..86400 seconds")
     # Register/redact the URL before constructing any HTTP client or database connection.
-    webhook = Webhook.load(args.webhook_file) if args.action != "status" else None
+    webhook = Webhook.load(args.webhook_file) if args.action in {"configure", "run"} else None
     engine = create_engine(settings)
     sender: DiscordSender | None = None
     stop = asyncio.Event()
@@ -44,18 +46,34 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
         await verify_runtime(engine)
         if args.action == "status":
             return await status(engine, args.account)
-        if webhook is None:
+        if args.action == "notices":
+            return await read_notices(engine, args.account, args.limit)
+        if webhook is None and args.action != "prepare":
             raise ConfigurationError("a notification secret file is required")
         async with NotificationOwner(engine, args.account) as owner:
-            if args.action == "configure":
+            if args.action == "prepare":
+                return await owner.prepare(datetime.now(UTC))
+            if args.action == "configure" and webhook is not None:
                 await owner.configure(webhook, datetime.now(UTC), after_version=args.after_version)
             else:
+                if webhook is None:
+                    raise ConfigurationError("a notification secret file is required")
                 sender = DiscordSender(webhook)
                 for sig in (signal.SIGTERM, signal.SIGINT):
                     loop.add_signal_handler(sig, stop.set)
                     signals.append(sig)
                 deadline = monotonic() + args.duration if args.duration else None
+                next_daily = 0.0
                 while not stop.is_set() and (deadline is None or monotonic() < deadline):
+                    include_daily = monotonic() >= next_daily
+                    prepared = await owner.prepare(datetime.now(UTC), include_daily=include_daily)
+                    if include_daily:
+                        next_daily = monotonic() + 60
+                    if prepared["daily_evidence_unavailable"]:
+                        structlog.get_logger().error(
+                            "notification_summary_evidence_unavailable",
+                            account_id=str(args.account),
+                        )
                     outcome = await owner.tick(sender, datetime.now(UTC))
                     if outcome in {"disabled", "dead_letter", "abandoned"}:
                         structlog.get_logger().error(
@@ -81,6 +99,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
 def command(args: argparse.Namespace, settings: Settings) -> int:
     result = asyncio.run(execute(args, settings))
     print(json.dumps(result, sort_keys=True))
+    if args.action == "prepare":
+        return 1 if result["daily_evidence_unavailable"] else 0
     state = result.get("state")
-    failed = (isinstance(state, dict) and not state["enabled"]) or result["terminal_failures"] != 0
+    failed = (isinstance(state, dict) and not state["enabled"]) or result.get(
+        "terminal_failures", 0
+    ) != 0
     return 1 if args.action == "run" and failed else 0

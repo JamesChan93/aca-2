@@ -10,6 +10,9 @@ are preserved in the repository for future contributors.
 
 Optional [outbound paper alerts](docs/phase-4-notifications.md) have a separate,
 explicit setup. The default stack neither mounts a Discord secret nor sends messages.
+[Scheduled summaries and critical reminders](docs/phase-4-scheduled-notifications.md)
+extend that optional worker. See the [current milestone status](docs/status.md) for
+the remaining Phase 4 work and the separate Phase 5 observation requirements.
 
 ## Start locally
 
@@ -92,8 +95,9 @@ read-only, source-bounded GBP report with journal-reconciled contributions, with
 fees and P&L, flow-neutral TWR and bounded annualised MWR. Use
 `aca paper performance --account UUID`; missing valuation evidence leaves returns
 unavailable. The report begins at the explicit historical baseline. Remaining
-accounting workflows, strategy scheduling,
-resource/disaster trials and outbound delivery precede extended paper.
+accounting workflows, strategy scheduling and resource/disaster trials precede
+extended paper. Outbound delivery and scheduled notices are opt-in capabilities;
+real destination integration and alert latency qualification remain outstanding.
 
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
@@ -108,8 +112,8 @@ are errors. `ACA_CONFIG` selects a TOML file; `ACA_MODE=paper` is the sole mode 
 Risk policy v1 is immutable. Its limits constrain historical research and the
 offline operational paper core. Durable hard/soft halts require audited review.
 
-No authenticated account access, continuous trading service, final tax engine,
-Discord sender or live activation exists. Paper reconciliation uses only the local
+No authenticated account access, continuous strategy trading service, final tax
+engine or live activation exists. Paper reconciliation uses only the local
 simulator's records; it is not evidence of Kraken account reconciliation.
 Subsequent milestones require review; live order-writer implementation and activation
 require separate explicit authorisation under the approved plan.

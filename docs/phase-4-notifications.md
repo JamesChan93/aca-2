@@ -1,5 +1,9 @@
 # Phase 4 increment — outbound paper alerts
 
+This is the 0.4.5 milestone record. Release 0.4.6 adds
+[scheduled notices](phase-4-scheduled-notifications.md); use its upgrade and current
+queue-ordering instructions together with the webhook setup below.
+
 Release candidate 0.4.5, 18 October 2026. This delivers the existing transactional
 paper alert outbox through an optional Discord webhook. No destination is configured
 by installation, migration or default Compose startup. It adds no strategy dispatch,

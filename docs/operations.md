@@ -161,6 +161,12 @@ enrolment, a fresh collector epoch and explicit `supervise --replay`. Back up be
 the additive `0006_replay` / `0007_replay_cutoff` migrations. Release 0.4.3 adds [historical paper valuation/risk](phase-4-historical-risk.md).
 Back up before `0008_historical_risk`; legacy replay accounts need explicit flat,
 reconciled enrolment at their existing drained cursor. No earlier risk is backfilled.
-Strategy scheduling, full accounting/performance workflows, resource/disaster trials
-and outbound delivery remain outstanding.
+See the [current status](status.md) for remaining Phase 4 engineering. Outbound
+alerts are available through the separately configured notification worker, with
+[scheduled summaries and critical repeats](phase-4-scheduled-notifications.md) in
+0.4.6. Back up before `0010_scheduled_notices`; stop workers, migrate with the
+migration role, then deploy the compatible image. The default service does not
+prepare or deliver notices. Preview with `aca notifications prepare --account UUID`
+and `aca notifications notices --account UUID`. These commands need no Discord
+secret or egress; `prepare` appends notification records only.
 Live execution, exchange-side fencing and activation remain separately authorised work.
