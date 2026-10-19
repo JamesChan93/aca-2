@@ -15,6 +15,7 @@ from aca.domain.market import InstrumentRules, Level, MarketTrade, OrderBook
 from aca.domain.trading import Fill, Journal, OrderIntent, PortfolioSnapshot, Valuation, VenueOrder
 from aca.execution.paper import PaperExecution
 from aca.operations.config import DatabaseSettings, Settings
+from aca.portfolio.reserves import TaxReserveRecord
 from aca.portfolio.state import reserved_cash
 from aca.risk.execution import DispatchDenied, MarketEvidence
 from aca.simulation.paper import PaperExchange
@@ -90,9 +91,17 @@ class GateStore(PaperStore):
         kind: str,
         journal: Journal | None = None,
         alert: bool = False,
+        tax_reserve: TaxReserveRecord | None = None,
     ) -> None:
         await super().append(
-            connection, previous, state, source=source, kind=kind, journal=journal, alert=alert
+            connection,
+            previous,
+            state,
+            source=source,
+            kind=kind,
+            journal=journal,
+            alert=alert,
+            tax_reserve=tax_reserve,
         )
         if kind == self.stop_kind:
             gate("uncommitted_" + kind)

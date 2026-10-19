@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 19 October 2026 for release candidate 0.4.8 and its local restore drill.
+Updated 19 October 2026 for release candidate 0.4.9 and its manual tax-cash workflow.
 This describes engineering capabilities and missing evidence; it is not a gate approval.
 
 **Phase 4 still has coding and safety validation work. The Phase 5 56-day
@@ -11,7 +11,7 @@ and short maintenance runs do not count as qualifying signal-driven paper tradin
 | --- | --- | --- |
 | Foundation and data | Paper-only package, restricted PostgreSQL roles, migrations, containers, public Kraken metadata/books/trades/candles, persisted provenance and replay | Sustained resource/retention qualification and the remaining operational fault trials |
 | Research | Shared deterministic indicators and strategies, audited datasets, cost-aware simulation and recorded trials | All 20 evaluated candidates rejected; no qualifying edge, frozen candidate or opened final holdout |
-| Accounting and risk | GBP journal/quantities, contributions/withdrawals, unitisation, reservations, Decimal sizing, independent dispatch controls and durable loss latches | Operational transfers/conversions/corrections, tax inventory/reserve workflows and complete safety evidence |
+| Accounting and risk | GBP journal/quantities, contributions/withdrawals, unitisation, reservations, Decimal sizing, independent dispatch controls, durable loss latches and [audited manual tax-cash earmarks](phase-4-tax-cash-reserve.md) | Operational transfers/conversions/corrections, owner-wide tax inventory/estimates/payments and complete safety evidence |
 | Paper execution | Durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery, ordered public replay and [separate-process crash tests](phase-4-process-recovery.md) | Continuous signal scheduling, measured fill/latency calibration and remaining process/storage/recovery trials |
 | Reports | Audited original-time valuations, bounded historical performance, flow-neutral TWR and bounded MWR | Complete daily boundary coverage, owner-wide tax reporting and extended-period resource qualification |
 | Notifications | Optional Discord transition alerts, durable retries, daily provisional summaries, current-state critical repeats, cached worker health/metrics and exact-event operator reviews | Real webhook integration, latency/reliability qualification, extended review/retention qualification and external heartbeat |

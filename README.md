@@ -101,6 +101,11 @@ accounting workflows, strategy scheduling and resource/disaster trials precede
 extended paper. Outbound delivery and scheduled notices are opt-in capabilities;
 real destination integration and alert latency qualification remain outstanding.
 
+[Manual tax-cash reserves](docs/phase-4-tax-cash-reserve.md) add an audited, version-bound
+operator earmark of virtual GBP. `aca paper tax-reserves --account UUID` reads the
+current reserve and decision history. It reduces spendable cash while preserving
+NAV and return history; it is not a tax estimate or a completed tax workflow.
+
 [Process-kill recovery validation](docs/phase-4-process-recovery.md) exercises
 abrupt writer death and recovery in separate interpreters using a disposable
 PostgreSQL database. A [separate local restore drill](docs/phase-4-local-restore.md)

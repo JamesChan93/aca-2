@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-tax-cash-reserve",
+  "application_version": "0.4.9",
+  "verified_at_utc": "2026-10-19T16:00:34.844887+00:00",
+  "scope": "Audited manual paper GBP earmarks with no financial posting or tax estimation; disposable validation only",
+  "source": {
+    "python_files": 99,
+    "source_sha256": "5c51a786f50da3117b8caa3208d3869409ddf05cb3a28758ebb5c68e47c96bda",
+    "source_wheel_runtime_image_identical": true,
+    "dependency_and_base_image_changes": false
+  },
+  "verification": {
+    "ruff_lint_and_format": "passed",
+    "ruff_format_files": 139,
+    "mypy_source_files": 121,
+    "dependency_consistency": "passed",
+    "wheel_and_sdist_build": "passed",
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "full_linux_arm64_musl": {
+      "tests": 483,
+      "seconds": 78.69,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0012_tax_cash_reserves"
+    },
+    "new_test_cases": 30,
+    "new_generated_financial_examples": 1000,
+    "existing_generated_properties_and_10000_lifecycle_sequences_retained": true,
+    "coverage": [
+      "Strict Decimal/reason inputs; UTC and regressing-clock rejection; stale/no-op requests have no side effects",
+      "Reserve, state and outbox commit together; rollback before commit; exact retry after lost response",
+      "Conflicting request IDs reject; retrying an older decision cannot overwrite a later reserve",
+      "Unchanged NAV, units, balances, high-water marks, daily baselines, risk latches and journals",
+      "Withdrawals and minimum-size entries cannot spend earmarked funds; free cash excludes pending/uncertain buys",
+      "Queued approvals become stale after a reserve decision; protective/strategy exits remain usable",
+      "Unknown commands remain reserved, unready and non-replayable after reserve release",
+      "Undrained public replay and unposted authoritative fills reject a new reserve",
+      "Reserve survives halt, contribution, recovery, restart and fresh-cluster restore",
+      "Unpaired/mismatched SQL evidence and legacy-format reserve bypass reject; history is immutable",
+      "Read-only bounded cursor pages; CLI uses database decision time; no HTTP or venue operation",
+      "Original-time control replay and journal-audited reports preserve returns/flows and disclose endpoint reserve",
+      "Populated 0011 to 0012 upgrade preserves all legacy event/checkpoint hashes and journal evidence"
+    ],
+    "local_packaged_smoke": {
+      "project": "aca-reserve-smoke-d42932af6559",
+      "live_execution_available": false,
+      "status": "passed",
+      "image_id": "sha256:937c3a91392884cce742b44b0166a0a1e2717ea9ff859f1a162997157fcb0ed2",
+      "capabilities": {
+        "phase": 4,
+        "offline_paper_execution_available": true,
+        "continuous_paper_runner_available": false,
+        "paper_maintenance_supervisor_available": true,
+        "ordered_paper_fill_replay_available": true,
+        "historical_paper_risk_available": true,
+        "historical_paper_performance_available": true,
+        "manual_paper_tax_cash_reserve_available": true,
+        "outbound_paper_notifications_available": true,
+        "local_research_available": true,
+        "public_market_capture_available": true,
+        "private_account_access_available": false,
+        "mode": "paper",
+        "version": "0.4.9",
+        "live_execution_available": false,
+        "incomplete_safety_requirements": [
+          "authenticated_account_reads_not_implemented",
+          "continuous_paper_runner_not_implemented",
+          "extended_paper_validation_not_complete",
+          "research_promotion_gate_not_passed",
+          "live_reconciliation_not_implemented",
+          "live_execution_not_implemented"
+        ]
+      },
+      "manual_reserve_gbp": "25.00",
+      "immutable_decision_rows": 1,
+      "restart_persistence": true,
+      "exact_retry_after_restart": true,
+      "nav_units_latches_and_financial_state_unchanged": true,
+      "financial_audit": "passed",
+      "non_root_read_only_capability_dropped": true,
+      "cleanup_complete": true
+    },
+    "fresh_cluster_restore": {
+      "result": "passed",
+      "application_tables_compared": 25,
+      "synthetic_accounts": 4,
+      "manual_tax_reserve_decision_rows": 1,
+      "manual_tax_cash_reserve_gbp": "100",
+      "dump": {
+        "bytes": 110443,
+        "sha256": "be3646f711f5232b51a8b6f9e3632441358602f0256f181bc8e21225fa97e3f9",
+        "format": "custom"
+      },
+      "restore_and_verify_seconds": 0.807,
+      "end_to_end_seconds": 39.149,
+      "failed_restore_rolled_back": true,
+      "source_equals_restored_before_recovery": true,
+      "recovery_submit_or_cancel_attempts": 0,
+      "repeated_recovery_economics_equal": true,
+      "source_unchanged": true,
+      "cleanup_complete": true,
+      "production_rpo_rto_demonstrated": false
+    },
+    "initial_verification_correction": "PostgreSQL JSON subtraction in the deferred trigger required explicit parentheses; corrected before the final 483-test run and restore drill",
+    "hosted_checks": "Recorded separately on the exact pull request commit; this record asserts local results only"
+  },
+  "security": {
+    "scanner": "Trivy 0.76.0 with local cached advisory database, offline/no network",
+    "app_image_id": "sha256:937c3a91392884cce742b44b0166a0a1e2717ea9ff859f1a162997157fcb0ed2",
+    "scan_config_image_id": "sha256:d01ee793512c68ccfedb38adb829f6d96122e9d14ecd50d3bfac9a782acca334",
+    "scan_rootfs_and_full_image_config_match": true,
+    "app_high_critical_vulnerabilities": 0,
+    "app_secret_findings": 0,
+    "database_base_image_unchanged": true,
+    "publication_scan": {
+      "files_checked_before_evidence_file": 208,
+      "actual_local_secret_values_checked": 3,
+      "findings": 0
+    },
+    "original_prompt_archive_hash_verified": true
+  },
+  "retained_environment": {
+    "version": "0.4.8",
+    "source_sha256": "54483cff9d5f504cb562b79f867f0143e19ae76371a69fbca8ac78e69cc4ebbe",
+    "schema": "0011_notification_reviews",
+    "container_ids_unchanged_and_healthy": true,
+    "retained_counts_and_content_digests_unchanged": true,
+    "retained_counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0,
+      "paper_notices": 1,
+      "paper_notice_receipts": 0
+    },
+    "notification_review_rows": 0,
+    "retained_backup_migration_deployment_or_restart": false,
+    "retained_tax_cash_reserve_changed": false,
+    "notification_worker_or_collector_started": false,
+    "discord_requests": 0,
+    "private_exchange_access": false,
+    "live_execution_available": false
+  },
+  "limits": {
+    "manual_earmark_not_tax_liability_or_estimate": true,
+    "tax_report_final": false,
+    "reserve_decisions_per_account": 10000,
+    "history_page_rows": 100,
+    "actor_identity": "Local operator assertion under runtime credential, not authenticated identity or signature",
+    "evidence_sha256": "Private review-document reference; contents or legal correctness are not fetched or validated",
+    "idempotence": "Same typed request for one account/request UUID; economic Decimal equality, not byte-level input spelling",
+    "automatic_sale_partial_allocation_or_reserve_release": false,
+    "historical_endpoint_amounts_are_source_bounded": true,
+    "daily_notification_tax_estimates_available": false,
+    "owner_wide_inventory_tax_matching_payments_or_household_tax_reporting": false,
+    "reserve_archive_procedure_or_extended_retention_resource_qualification": false,
+    "live_approval_authority": false
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "extended_paper_days_added": 0,
+    "qualifying_paper_episodes_added": 0,
+    "remaining": [
+      "Continuous signal scheduling and measured fill/latency calibration",
+      "Transfers/conversions/corrections, owner-wide tax inventory/estimates/payments and complete daily boundaries",
+      "Notification integration, latency/reliability, external heartbeat and retention qualification",
+      "Remaining process/storage faults, off-host backup/WAL/disaster recovery and demonstrated RPO/RTO",
+      "Research edge, 56-day signal-driven observation, episodes, economics/readiness/live gates"
+    ]
+  }
+}

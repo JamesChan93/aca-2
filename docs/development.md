@@ -19,6 +19,12 @@ into a fresh cluster. CI runs this real drill after the full Linux suite. Its
 archive/target/comparison guard tests are also part of pytest. It does not back up
 or restart retained services or prove production RPO/RTO.
 
+The [manual tax-cash reserve workflow](phase-4-tax-cash-reserve.md) adds a sealed
+decision/event transaction, read-only history and original-time report controls.
+Its integration tests include a populated 0011→0012 upgrade, and the restore drill
+includes a nonzero reserve. All validation targets disposable databases; it does
+not change the retained paper account's reserve or deploy the new schema there.
+
 ## Prerequisites
 
 Application: CPython 3.14.8 (standard GIL build). Database: PostgreSQL 18.6.
