@@ -2,7 +2,9 @@
 
 For optional delivery of existing paper alerts, see the
 [notification setup and failure procedure](phase-4-notifications.md). It is disabled
-in the default stack and has no trading authority.
+in the default stack and has no trading authority. The optional worker has its own
+[health/metrics procedure](phase-4-notification-health.md); its `/health/ready` checks
+notification readiness rather than foundation readiness.
 
 This is a local paper-only application with virtual accounts and a local venue.
 Do not use it to supervise a live account. Future emergency trading procedures in the
@@ -113,7 +115,7 @@ mount, with `--no-build`; never reuse the Alpine volume with the Debian image. T
 local transition does not implement production backup schedules or disaster recovery.
 
 Automated encrypted off-host backups, WAL archiving, restore schedules/RPO/RTO evidence,
-external monitoring and Discord delivery are still required before production readiness.
+external monitoring and real Discord integration are still required before production readiness.
 The local persistent volume and connection-restart tests are not disaster recovery.
 No paid service or VPS is provisioned by bootstrap.
 

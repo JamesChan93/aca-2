@@ -112,6 +112,7 @@ def _health(url: str) -> int:
             "/health/trading",
             "/health/market",
             "/health/paper",
+            "/health/notifications",
         }
     ):
         raise ConfigurationError("health checks require a local HTTP health endpoint")

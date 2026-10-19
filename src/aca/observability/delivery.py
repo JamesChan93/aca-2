@@ -580,34 +580,39 @@ async def status(engine: AsyncEngine, account_id: UUID) -> dict[str, object]:
             .subquery()
         )
         backlog, oldest = (await c.execute(select(func.count(), func.min(pending.c.at)))).one()
-        failures = await c.scalar(
-            select(func.count())
-            .select_from(history)
-            .where(
-                history.c.account_id == account_id, history.c.kind.in_(["dead_letter", "abandoned"])
-            )
-        )
-        delivered, retries, last_delivery = (
+        delivered, retries, failures, last_delivery = (
             await c.execute(
                 select(
                     func.count().filter(history.c.kind == "delivered"),
                     func.count().filter(history.c.kind == "retry"),
+                    func.count().filter(history.c.kind.in_(["dead_letter", "abandoned"])),
                     func.max(history.c.at).filter(history.c.kind == "delivered"),
                 ).where(history.c.account_id == account_id)
             )
         ).one()
-        scheduled_backlog = await c.scalar(
-            select(func.count())
-            .select_from(notices)
-            .where(
-                notices.c.account_id == account_id,
-                ~select(receipts.c.notice_id).where(receipts.c.notice_id == notices.c.id).exists(),
+        scheduled = (
+            await c.execute(
+                select(notices.c.kind, func.count(), func.min(notices.c.created_at))
+                .where(
+                    notices.c.account_id == account_id,
+                    ~select(receipts.c.notice_id)
+                    .where(receipts.c.notice_id == notices.c.id)
+                    .exists(),
+                )
+                .group_by(notices.c.kind)
             )
-        )
+        ).all()
+        queues = {
+            kind: {"count": count, "oldest_at": utc_datetime(at).isoformat()}
+            for kind, count, at in scheduled
+        }
+        # Database wall time is evidence time; local monotonic time ages cached samples.
+        as_of = utc_datetime(await c.scalar(select(func.clock_timestamp())))
     return {
         "schema_version": 1,
         "mode": "paper",
         "account_id": str(account_id),
+        "as_of": as_of.isoformat(),
         "configured": state is not None,
         "state": state.model_dump(mode="json") if state else None,
         "backlog": backlog,
@@ -616,7 +621,8 @@ async def status(engine: AsyncEngine, account_id: UUID) -> dict[str, object]:
         "delivered": delivered,
         "retry_events": retries,
         "last_delivery_at": utc_datetime(last_delivery).isoformat() if last_delivery else None,
-        "scheduled_backlog": scheduled_backlog,
+        "scheduled_backlog": sum(item["count"] for item in queues.values()),
+        "scheduled_queues": queues,
         "live_execution_available": False,
     }
 

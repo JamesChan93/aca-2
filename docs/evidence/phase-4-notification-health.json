@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-notification-health",
+  "application_version": "0.4.7",
+  "verified_at_utc": "2026-10-19T10:35:26.198942+00:00",
+  "scope": "Cached opt-in notification health and metrics; read-only observer, no command authority",
+  "source": {
+    "source_sha256": "0f6f9d9128f90c39a675d6b58cb520aeeb349405a67843cde6c7d8c77be3a297",
+    "python_files": 93,
+    "source_wheel_runtime_identical": true
+  },
+  "verification": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 125,
+    "mypy_source_files": 110,
+    "focused_notification_tests": {
+      "tests": 70,
+      "seconds": 8.21,
+      "result": "passed"
+    },
+    "linux_arm64_musl": {
+      "tests": 397,
+      "seconds": 58.25,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0010_scheduled_notices"
+    },
+    "new_test_cases": 17,
+    "coverage": [
+      "Independent ten-second observer and thirty-second worker freshness with monotonic timing",
+      "Configured/disabled destination, daily evidence error, shutdown and retained failure readiness",
+      "Strict monitoring DTOs, fixed metric labels and explicit unavailable/future ages",
+      "Four-second observation timeout and prompt cancellation",
+      "Failed observation revokes freshness and logs no raw exception message",
+      "Cached HTTP/CLI metrics and health routes never trigger database/network work",
+      "Database-enforced READ ONLY REPEATABLE READ and separate pool while both owner pool slots occupied",
+      "Daily/critical queue counts and oldest timestamps, account isolation and unchanged finance",
+      "Two-hour retry wait, retained terminal event and durable disable visible across restart",
+      "Opt-in worker HTTPX-fixture integration, healthy local route and cancellation cleanup"
+    ],
+    "existing_generated_suite": "Retains 1000 examples per critical financial property and 10000 deterministic lifecycle/fault sequences; not process-kill evidence",
+    "dependency_changes": false,
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "container_health_persistence_and_paper_only_smoke": "passed",
+    "packaged_read_only_observer_smoke": {
+      "routes": {
+        "/health/notifications": 503,
+        "/health/trading": 503,
+        "/metrics": 200
+      },
+      "sample": {
+        "as_of": "2026-10-19T10:33:59.948438Z",
+        "configured": false,
+        "enabled": false,
+        "transitions": 283,
+        "daily": 1,
+        "critical": 0,
+        "oldest_transition_at": "2026-10-18T00:00:00Z",
+        "oldest_daily_at": "2026-10-19T08:58:45.668386Z",
+        "oldest_critical_at": null,
+        "delivered": 0,
+        "retry_events": 0,
+        "terminal_failures": 0,
+        "last_delivery_at": null,
+        "attempts": 0,
+        "not_before": null
+      },
+      "worker_started": false,
+      "discord_requests": 0,
+      "live_execution_available": false
+    },
+    "hosted_checks": "See exact-commit pull request checks; this record asserts local results only"
+  },
+  "local_upgrade": {
+    "schema": "0010_scheduled_notices",
+    "schema_change": false,
+    "protected_backup_bytes": 14559552,
+    "protected_backup_sha256": "872f49a1c9853d9a8213de3785547293ecc8cd413812099e349f8fe81da18bc5",
+    "retained_counts_and_checksums_unchanged": true,
+    "retained_counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0,
+      "paper_notices": 1,
+      "paper_notice_receipts": 0
+    },
+    "backup_storage": "Ignored private local directory, directory 0700/files 0600; no dump published",
+    "disaster_restore_or_rpo_proven": false
+  },
+  "local_runtime": {
+    "source_sha256": "0f6f9d9128f90c39a675d6b58cb520aeeb349405a67843cde6c7d8c77be3a297",
+    "python_files": 93,
+    "version": "0.4.7",
+    "image": "sha256:a6a5dffe29fbe1c8cee57fef6d61e3e143a7737c5630d87140b7151150f1059c",
+    "scan_config_image": "sha256:dce9ef21a9b25a3789f9f244692283abd0dd2a0b1e1ed21a48febb39b484809a",
+    "scan_rootfs_and_config_match": true,
+    "uid": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges:true"
+    ],
+    "health": "healthy",
+    "port_bindings": {},
+    "retained_notification_status": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "as_of": "2026-10-19T10:33:51.511769+00:00",
+      "backlog": 283,
+      "configured": false,
+      "delivered": 0,
+      "last_delivery_at": null,
+      "live_execution_available": false,
+      "mode": "paper",
+      "oldest_pending_at": "2026-10-18T00:00:00+00:00",
+      "retry_events": 0,
+      "scheduled_backlog": 1,
+      "scheduled_queues": {
+        "daily": {
+          "count": 1,
+          "oldest_at": "2026-10-19T08:58:45.668386+00:00"
+        }
+      },
+      "schema_version": 1,
+      "state": null,
+      "terminal_failures": 0
+    },
+    "performance_economics_unchanged": true,
+    "notification_worker_started": false,
+    "discord_requests": 0
+  },
+  "security": {
+    "scanner": "Trivy 0.76.0, cached advisory database, offline/no network",
+    "app_high_critical_vulnerabilities": 0,
+    "app_secret_findings": 0,
+    "database_image_change": false,
+    "original_prompt_archive_hash_verified": true,
+    "private_exchange_access": false,
+    "live_execution_available": false,
+    "publication_scan": {
+      "files": 186,
+      "actual_local_secret_values_checked": 3,
+      "findings": 0
+    }
+  },
+  "limits": {
+    "observer_async_deadline_seconds": 4,
+    "poll_wait_after_completion_seconds": 5,
+    "observer_freshness_seconds": 10,
+    "worker_freshness_seconds": 30,
+    "retained_failures": "Readiness remains degraded; acknowledgement workflow not implemented",
+    "transition_age": "Source economic timestamp age, not queue waiting/detection/delivery latency",
+    "known_throttle": "Worker can be healthy while respecting a long persisted deadline",
+    "cached_metrics": "Use with freshness; cached counts remain after failure; missing ages/waits are -1",
+    "full_notification_history_audit": false,
+    "resource_retention_qualified": false,
+    "external_heartbeat": false,
+    "critical_sixty_second_latency_qualified": false,
+    "real_destination_integration": false
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "qualifying_paper_episodes_added": 0,
+    "extended_paper_days_added": 0,
+    "remaining": [
+      "Continuous signal scheduling and calibrated fills/latency",
+      "Transfers/conversions/corrections, complete daily boundaries and owner-wide tax/reserve workflows",
+      "Real notification integration, latency/reliability and retained-failure review workflow",
+      "Resource/retention, process/storage faults and external heartbeat",
+      "Off-host backup/WAL/disaster restore and demonstrated RPO/RTO",
+      "Research edge, episodes, 56-day observation, economics/readiness/live gates"
+    ]
+  }
+}
