@@ -1,5 +1,9 @@
 # Foundation and public-capture operations
 
+For optional delivery of existing paper alerts, see the
+[notification setup and failure procedure](phase-4-notifications.md). It is disabled
+in the default stack and has no trading authority.
+
 This is a local paper-only application with virtual accounts and a local venue.
 Do not use it to supervise a live account. Future emergency trading procedures in the
 approved specification are not implemented by these commands.

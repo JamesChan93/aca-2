@@ -1,1 +1,1 @@
-"""Local structured logging and metrics; no notifications are sent in Phase 1."""
+"""Redacted logs, metrics and separately opted-in outbound paper notifications."""

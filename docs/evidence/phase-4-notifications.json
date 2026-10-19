@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-outbound-paper-notifications",
+  "application_version": "0.4.5",
+  "verified_at_utc": "2026-10-18T22:47:23.770705+00:00",
+  "scope": "Explicitly configured outbound delivery of existing local paper alert events; no live exchange capability",
+  "source": {
+    "sha256": "20afd299c384c84adf387c092cb4b03c137b8c578ebc587646c210b5c162ab52",
+    "python_files": 90,
+    "source_wheel_runtime_identical": true
+  },
+  "original_prompt_archive": {
+    "path": "docs/context/original-master-prompt.md",
+    "sha256": "4e4f70158d261d54f99204045d1e1c33d1bc0871e8850213aedceb3b67eadc01",
+    "byte_for_byte_verified": true
+  },
+  "verification": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 120,
+    "mypy_source_files": 106,
+    "linux_arm64_musl": {
+      "result": "passed",
+      "tests": 357,
+      "seconds": 48.91,
+      "postgresql": "18.6",
+      "schema": "0009_notifications"
+    },
+    "new_test_cases": 30,
+    "coverage": [
+      "Committed attempt visible to independent connection before HTTP",
+      "Financial event/journal/fill/venue/outbox counts unchanged; paper journal audit passes after delivery",
+      "Confirmed deliveries and cursor survive restart without retransmission",
+      "404 disable persists; explicit reconfiguration required",
+      "Two-hour throttle and successful bucket exhaustion survive restart and configuration",
+      "Eight bounded uncertain attempts, retained dead letter, permanent message rejection and later delivery",
+      "Interrupted send leaves durable in-flight deadline and retries only notification",
+      "Independent owner conflict, execution owner coexistence, invalidated connection and failed pre-send database insert",
+      "Exact HTTPS webhook allowlist, secret file permissions, raw-text omission, mention suppression, redaction and response budget",
+      "Explicit initial cutoff, destination binding, no later cursor skip or rewind"
+    ],
+    "existing_generated_suite": "Retains 1000 examples per existing critical financial property and 10000 deterministic lifecycle/fault sequences; not process-kill evidence",
+    "wheel_and_sdist_build": "passed",
+    "native_wheel_install_and_pip_check": "passed",
+    "container_restart_health_and_paper_only_smoke": "passed",
+    "compose_override": "Resolved config inspected: inert help command, no restart, separate egress; app/DB remain private and app has only DB secret",
+    "dependency_changes": false,
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "hosted_checks": "See the pull request checks for this commit; local evidence does not assert a hosted result"
+  },
+  "local_upgrade": {
+    "schema_from": "0008_historical_risk",
+    "schema_to": "0009_notifications",
+    "protected_custom_format_backup_bytes": 14549739,
+    "protected_backup_sha256": "247bb85d15a6a46cc446c2f1f134813ec5302d0578f3f005076bf5020641a2c7",
+    "retained_evidence_counts_and_checksums_unchanged": true,
+    "retained_counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289
+    },
+    "backup_location": "Ignored .secrets/backups directory, directory 0700/files 0600; no SQL or dump published",
+    "disaster_restore_or_rpo_proven": false
+  },
+  "local_runtime": {
+    "source_sha256": "20afd299c384c84adf387c092cb4b03c137b8c578ebc587646c210b5c162ab52",
+    "python_files": 90,
+    "version": "0.4.5",
+    "source_wheel_runtime_identical": true,
+    "image": "sha256:bc945f136a42d82df96e07fbf6b0473ced7fe4f94f4f6e123e6ab868c4516ab6",
+    "scan_config_image": "sha256:1725ff2adb276bc971dc9e4b18d3f2309728550e931134c217a4d49c19a18b5e",
+    "scan_rootfs_and_config_match": true,
+    "uid": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges:true"
+    ],
+    "health": "healthy",
+    "port_bindings": {},
+    "retained_notification_status": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "backlog": 283,
+      "configured": false,
+      "delivered": 0,
+      "last_delivery_at": null,
+      "live_execution_available": false,
+      "mode": "paper",
+      "oldest_pending_at": "2026-10-18T00:00:00+00:00",
+      "retry_events": 0,
+      "schema_version": 1,
+      "state": null,
+      "terminal_failures": 0
+    },
+    "performance_economics_unchanged": true
+  },
+  "security": {
+    "app_scan": {
+      "scanner": "Trivy 0.76.0",
+      "offline_cached_advisory_database": true,
+      "high_critical_vulnerabilities": 0,
+      "secret_findings": 0,
+      "runtime_rootfs_and_config_match": true
+    },
+    "database_image": "No database image change; hosted workflow scans app and DB images",
+    "webhook_configured": false,
+    "notification_requests_to_real_discord": 0,
+    "private_exchange_access": false,
+    "live_execution_available": false,
+    "publication_scan": {
+      "publishable_files": 176,
+      "actual_local_secret_values_checked": 3,
+      "findings": 0
+    }
+  },
+  "limits": {
+    "attempts_per_alert": 8,
+    "backoff_seconds": [
+      5,
+      300
+    ],
+    "jitter": "Stable 0–999 ms per alert",
+    "pre_send_crash_retry_seconds_minimum": 30,
+    "http_operation_timeout_seconds": 5,
+    "http_overall_deadline_seconds": 10,
+    "raw_response_bytes": 16384,
+    "maximum_supported_rate_deadline_days": 7,
+    "delivery_semantics": "Confirmed cursor is durable; ambiguous notification retries may duplicate messages",
+    "ordering": "Account event version FIFO; critical latency under a backlog is not qualified",
+    "status": "Database-enforced read-only REPEATABLE READ query; validates notification head, not a full financial reconciliation"
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "qualifying_paper_episodes_added": 0,
+    "extended_paper_days_added": 0,
+    "remaining": [
+      "Critical repeat scheduling, daily summaries, notification metrics/health, external heartbeat and real webhook integration",
+      "Resource/retention qualification and end-to-end alert latency",
+      "Transfers/conversions/corrections and tax-inventory workflows",
+      "Calibrated fills/latency and strategy scheduling",
+      "Process/disk fault trials and disaster restore/WAL/off-host backup evidence",
+      "Required research edge, episodes, 56-day paper, economics, readiness and live gates"
+    ]
+  }
+}

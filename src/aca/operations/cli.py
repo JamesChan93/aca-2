@@ -18,6 +18,8 @@ from aca.market_data.capture import capture
 from aca.market_data.store import MarketStore
 from aca.observability.logging import configure_logging
 from aca.operations.config import ConfigurationError, Settings, load_settings
+from aca.operations.notifications import add_parser as add_notification_parser
+from aca.operations.notifications import command as notification_command
 from aca.operations.paper import add_parser as add_paper_parser
 from aca.operations.paper import command as paper_command
 from aca.operations.provision import provision_roles
@@ -39,6 +41,7 @@ def _parser() -> argparse.ArgumentParser:
     commands.add_parser("serve")
     add_research_parser(commands)
     add_paper_parser(commands)
+    add_notification_parser(commands)
     market = commands.add_parser("market").add_subparsers(dest="action", required=True)
     market.add_parser("status")
     evidence = market.add_parser("evidence")
@@ -143,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
                         "ordered_paper_fill_replay_available": True,
                         "historical_paper_risk_available": True,
                         "historical_paper_performance_available": True,
+                        "outbound_paper_notifications_available": True,
                         "local_research_available": True,
                         "public_market_capture_available": True,
                         "private_account_access_available": False,
@@ -157,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
             return research_command(args, settings)
         elif args.command == "paper":
             return paper_command(args, settings)
+        elif args.command == "notifications":
+            return notification_command(args, settings)
         elif args.command == "market":
             if args.action == "status":
                 asyncio.run(_database_command(settings, "market_status"))

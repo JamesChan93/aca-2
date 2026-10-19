@@ -1,0 +1,21 @@
+# Opt-in only. Create .secrets/discord_webhook before using this override.
+# Commands must supply the account and secret file explicitly; `up` cannot send.
+services:
+  notifications:
+    extends:
+      file: compose.yaml
+      service: app
+    profiles: [notifications]
+    command: [aca, notifications, --help]
+    networks: [private, notifications_egress]
+    secrets: [runtime_password, discord_webhook]
+    restart: "no"
+    healthcheck:
+      disable: true
+
+networks:
+  notifications_egress:
+
+secrets:
+  discord_webhook:
+    file: .secrets/discord_webhook
