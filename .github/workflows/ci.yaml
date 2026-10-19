@@ -73,10 +73,18 @@ jobs:
           python -c 'import json; d=json.load(open("/tmp/aca-paper-performance.json")); assert d["provisional"] is True; assert d["promotion_evidence"] is False; assert d["live_execution_available"] is False; assert d["period"]["observations"] >= 1; assert d["financial_evidence_reconciled"] is True'
           docker compose run --rm --no-deps app aca paper supervise --account 6e04530b-9382-418d-9a24-331672f4016b --replay --duration 3 > /tmp/aca-paper-ordered-replay.json
           python -c 'import json; d=json.load(open("/tmp/aca-paper-ordered-replay.json")); assert d["strategy_dispatch_enabled"] is False; assert d["fill_replay_enabled"] is True; assert d["promotion_evidence"] is False; assert d["trading_ready"] is False; assert d["ticks"] >= 1; assert d["reason"] == "paper_supervisor_stopped"'
+          docker compose exec -T app aca paper create --account c0e44fce-9604-4484-86ad-21ddd063ec75
+          docker compose exec -T app aca paper fund --account c0e44fce-9604-4484-86ad-21ddd063ec75 --reference ci-opening --amount-gbp 250 --occurred-at "$(date -u +%Y-%m-%dT%H:%M:%S.%NZ)"
+          docker compose exec -T app aca paper select --account c0e44fce-9604-4484-86ad-21ddd063ec75 --strategy sma200 --symbol BTC/GBP --interval 240 --operational-experiment
+          docker compose exec -T app aca paper enrol --account c0e44fce-9604-4484-86ad-21ddd063ec75
+          docker compose run --rm --no-deps app aca paper run --account c0e44fce-9604-4484-86ad-21ddd063ec75 --duration 3 > /tmp/aca-paper-strategy.json
+          python -c 'import json; d=json.load(open("/tmp/aca-paper-strategy.json")); assert d["kind"] == "paper_strategy_runner_v1"; assert d["strategy_dispatch_enabled"] is True; assert d["fill_replay_enabled"] is True; assert d["trading_ready"] is False; assert d["qualifying_days"] == d["qualifying_episodes"] == 0; assert d["ticks"] >= 1'
+          docker compose exec -T app aca paper decisions --account c0e44fce-9604-4484-86ad-21ddd063ec75 > /tmp/aca-paper-decisions.json
+          python -c 'import json; d=json.load(open("/tmp/aca-paper-decisions.json")); assert d["selection"]["operational_only"] is True; assert d["decisions"] == []; assert d["promotion_evidence"] is False'
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.9
+          image-ref: aca-foundation:0.4.10
           version: v0.76.0
           scanners: vuln,secret
           format: table

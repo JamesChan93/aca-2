@@ -1,7 +1,7 @@
 # Disposable restore fixtures only. No host ports or public network.
 services:
   restore-worker:
-    image: aca-restore-tests:0.4.9
+    image: aca-restore-tests:0.4.10
     build:
       context: .
       target: test

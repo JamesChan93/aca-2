@@ -41,14 +41,15 @@ new projects to repeat before each increment:
 - [Process-crash recovery](phase-4-process-recovery.md) and the
   [disposable logical-restore drill](phase-4-local-restore.md).
 
-The latest recorded full Linux suite is **515 passing tests**. That is historical
-evidence from PR #16, not a new run or a count of completed requirements. A named
+The audited baseline recorded **515 passing tests** in PR #16. Current C1 results
+are linked in its completion evidence; neither count measures completed requirements. A named
 test below identifies relevant evidence; it does not assert that its entire T-group
 or a release gate is complete.
 
 ## Fixed remaining Phase 4 work
 
-All four packages are **open**. Execution order is C1, C2, C3, then C4. C3 tests the
+**C1 is complete** in 0.4.10, with [implementation and acceptance evidence](phase-4-continuous-paper.md).
+C2, C3 and C4 remain **open**. Execution order is C1, C2, C3, then C4. C3 tests the
 integrated C1/C2 behaviour as well as existing controls. Implementation may be split
 for review, but every PR must name one of these IDs and the acceptance conditions it
 closes. These are four work packages, not a promise of four PRs or four days.
@@ -56,26 +57,26 @@ closes. These are four work packages, not a promise of four PRs or four days.
 ### P4-C1 — Complete the continuous paper workflow
 
 **Source:** §§8, 11–13, 16, 20 Phase 4; T01–T04, T14–T17, T23, T29, T31.
-**Gap:** the current [supervisor](../src/aca/app/paper_supervisor.py) maintains and
+**Gap at the audited baseline:** the [supervisor](../src/aca/app/paper_supervisor.py) maintains and
 replays existing accounts; it explicitly reports `strategy_dispatch_enabled=false`.
 
-- [ ] Add explicit selection of an existing versioned strategy, instrument and
+- [x] Add explicit selection of an existing versioned strategy, instrument and
   daily/4-hour interval for local paper execution, with its configuration recorded.
   An operational test selection must remain visibly non-qualifying. No rejected
   research candidate is automatically promoted, frozen or granted holdout access.
-- [ ] Connect persisted closed candles and sufficient past-only warm-up to the
+- [x] Connect persisted closed candles and sufficient past-only warm-up to the
   existing pure strategy functions after the ten-second finalisation delay. Record
   the decision watermark and stable strategy/instrument/decision identity. Gaps,
   unfinished bars, insufficient warm-up and expired decisions cannot cause entries.
-- [ ] Persist decisions and use the existing sizing, portfolio risk, reservations,
+- [x] Persist decisions and use the existing sizing, portfolio risk, reservations,
   dispatch guard and local venue for entries and exits. Duplicate ticks, duplicate
   candles and restart cannot create a second economic action. Recovery retains the
   consumed-command rule; backlog cannot create stale catch-up orders.
-- [ ] Integrate UTC-day boundaries with risk observation and daily reporting. Valid
+- [x] Integrate UTC-day boundaries with risk observation and daily reporting. Valid
   point-in-time boundary evidence must be auditable; missing evidence must keep the
   existing daily suspension/provisional-report behaviour. Exact-boundary pure tests
   alone do not establish that the running workflow captures the boundary.
-- [ ] Demonstrate the complete runner with deterministic input through a long/flat
+- [x] Demonstrate the complete runner with deterministic input through a long/flat
   signal, bounded entry, fill/fee posting, protection, strategy exit and restart.
   Repeat with a stale feed, data gap and loss latch and prove entries are blocked.
   Produce status and daily-report evidence from that same account. The fixture is
@@ -180,6 +181,10 @@ named and open; it cannot be relabelled as complete.
 
 ## Safety scenario inventory at the audited baseline
 
+C1 integration gaps in this baseline inventory are now covered by its linked
+implementation/tests. C3 still reviews the complete integrated release against
+every applicable assertion; the later-stage allocations remain unchanged.
+
 **Evidence** means relevant implementation/tests exist and need review for the
 integrated release. **Gap** names a specific remaining paper assertion. **Later**
 identifies evidence that cannot be supplied by this local paper application. Full
@@ -251,7 +256,8 @@ No positive gate or observation-start decision is made here.
 
 ## Change control and stop condition
 
-The next implementation task is **P4-C1**. C2–C4 follow its connected workflow.
+P4-C1 is complete with the linked acceptance evidence. The next implementation task
+is **P4-C2**. C3 and C4 follow the connected workflow and accounting operations.
 Before adding a Phase 4 blocker,
 record the original requirement, the concrete unsafe/missing behaviour and the
 acceptance condition. An optional enhancement or later readiness measurement must

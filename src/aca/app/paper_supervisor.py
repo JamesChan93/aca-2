@@ -14,6 +14,7 @@ from prometheus_client import Counter, Gauge
 from sqlalchemy import text
 
 from aca.app.health import FoundationMetrics, FoundationStatus, HealthServer
+from aca.app.paper_strategy import PaperStrategy
 from aca.domain.trading import Valuation
 from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
@@ -39,6 +40,10 @@ class SupervisorStatus(FoundationStatus):
         self.replay_cursor: int | None = None
         self.replay_processed = 0
         self.replay_skipped_trades = 0
+        self.strategy_dispatch_enabled = False
+        self.strategy_watermark: str | None = None
+        self.strategy_decisions = 0
+        self.strategy_reason: str | None = None
 
     @property
     def supervision_ready(self) -> bool:
@@ -49,7 +54,9 @@ class SupervisorStatus(FoundationStatus):
         doc.update(
             {
                 "phase": 4,
-                "kind": "paper_maintenance_v1",
+                "kind": "paper_strategy_runner_v1"
+                if self.strategy_dispatch_enabled
+                else "paper_maintenance_v1",
                 "account_id": str(self.account_id),
                 "supervision_ready": self.supervision_ready,
                 "market_ready": self.market_ready,
@@ -58,12 +65,18 @@ class SupervisorStatus(FoundationStatus):
                 "ticks": self.ticks,
                 "healthy_ticks": self.healthy_ticks,
                 "last_tick_seconds": self.tick_seconds,
-                "strategy_dispatch_enabled": False,
+                "strategy_dispatch_enabled": self.strategy_dispatch_enabled,
+                "strategy_watermark": self.strategy_watermark,
+                "strategy_decisions_this_process": self.strategy_decisions,
+                "strategy_reason": self.strategy_reason,
+                "qualifying_days": 0,
+                "qualifying_episodes": 0,
                 "fill_replay_enabled": self.fill_replay_enabled,
                 "replay_cursor": self.replay_cursor,
                 "replay_processed": self.replay_processed,
                 "replay_skipped_trades": self.replay_skipped_trades,
                 "promotion_evidence": False,
+                "operational_only": True,
             }
         )
         return doc
@@ -127,11 +140,16 @@ class PaperSupervisor:
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         timer: Callable[[], float] = monotonic,
         replay: StoredReplay | None = None,
+        strategy: PaperStrategy | None = None,
     ) -> None:
         self.service, self.status = service, status
         self.marks, self.capacity, self.clock, self.timer = marks, capacity, clock, timer
         self.last_clock: datetime | None = None
         self.replay = replay
+        self.strategy = strategy
+        if strategy is not None and replay is None:
+            raise ValueError("strategy runner requires ordered fill replay")
+        status.strategy_dispatch_enabled = strategy is not None
         status.fill_replay_enabled = replay is not None
         self.last_timer: float | None = None
         self.next_reconcile = 0.0
@@ -193,6 +211,8 @@ class PaperSupervisor:
         await self.service.recover(at)
         await self.service.cancel_entries(at)
         await self.suspend("paper_supervisor_starting", at)
+        if self.strategy is not None:
+            await self.strategy.start()
 
     async def tick(self) -> None:
         at, tick = self.clock(), self.timer()
@@ -248,6 +268,13 @@ class PaperSupervisor:
                 state.reconciled_at is not None
                 and 0 <= (at - state.reconciled_at).total_seconds() <= 30
             )
+        if self.strategy is not None and self.status.reconciled:
+            await self.strategy.tick(at)
+            self.status.strategy_watermark = (
+                self.strategy.last_watermark.isoformat() if self.strategy.last_watermark else None
+            )
+            self.status.strategy_decisions = self.strategy.decisions
+            self.status.strategy_reason = self.strategy.reason
         state = await self.service._state()
         # A risk latch is healthy detection, but it cannot grant readiness.
         from aca.portfolio.state import entries_paused
@@ -302,6 +329,7 @@ async def supervise(
     duration: int,
     *,
     replay_enabled: bool = False,
+    strategy_enabled: bool = False,
 ) -> dict[str, object]:
     if not 0 <= duration <= 86400:
         raise ValueError("duration must be 0..86400 seconds")
@@ -335,6 +363,7 @@ async def supervise(
                 marks=StoredPaperFeed(store).marks,
                 capacity=capacity,
                 replay=StoredReplay(service, venue) if replay_enabled else None,
+                strategy=PaperStrategy(service) if strategy_enabled else None,
             )
             await server.start(settings.health.host, settings.health.port)
             await supervisor.run(stop, metrics)

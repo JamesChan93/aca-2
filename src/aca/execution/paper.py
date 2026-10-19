@@ -1,7 +1,7 @@
 """Single-writer paper execution. Consumed commands are never replayed."""
 
 import asyncio
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from datetime import datetime, timedelta
 from decimal import Decimal, localcontext
 from typing import Literal
@@ -328,6 +328,7 @@ class PaperExecution:
         at: datetime,
         *,
         time_in_force: Literal["GTD", "IOC", "FOK"] = "GTD",
+        client_id: UUID | None = None,
     ) -> Order:
         at = utc_datetime(at)
         old = await self._state()
@@ -376,7 +377,9 @@ class PaperExecution:
         if result.reason:
             await self._save(old, old, at=at, kind=f"skipped_{result.reason}", alert=True)
             raise DispatchDenied(result.reason)
-        ident = uuid4()
+        ident = client_id or uuid4()
+        if any(o.intent.client_id == ident for o in old.orders):
+            raise DispatchDenied("economic action identity already exists")
         intent = OrderIntent(
             id=ident,
             client_id=ident,
@@ -800,8 +803,14 @@ class PaperExecution:
         at: datetime,
         *,
         manual_review: str | None = None,
+        client_id: UUID | None = None,
+        expires_at: datetime | None = None,
+        clock: Callable[[], datetime] | None = None,
+        refresh: Callable[[datetime], Awaitable[tuple[MarketEvidence, ...]]] | None = None,
     ) -> Order | None:
         state = await self._state()
+        if client_id is not None and any(o.intent.client_id == client_id for o in state.orders):
+            raise DispatchDenied("economic action identity already exists")
         if state.kill.hard and not manual_review:
             raise DispatchDenied("hard halt requires an explicit position decision")
         b, r = market.book, market.rules
@@ -854,6 +863,37 @@ class PaperExecution:
         if any(d != "unprotected_or_overreserved_inventory" for d in result.differences):
             raise DispatchDenied("unresolved exit cancellation or fills")
         state = await self._state()
+        if clock is not None:
+            at = utc_datetime(clock())
+        if refresh is not None:
+            markets = await refresh(at)
+            market = next(m for m in markets if m.book.symbol == symbol)
+            if clock is not None:
+                at = utc_datetime(clock())
+        if expires_at is not None and at >= expires_at:
+            raise DispatchDenied("strategy exit decision expired during cancellation")
+        if state.kill.hard and not manual_review:
+            raise DispatchDenied("hard halt requires an explicit position decision")
+        if (
+            market.book.symbol != symbol
+            or market.rules.symbol != symbol
+            or market.book.venue != market.rules.venue
+            or not market.system_online
+            or not market.metadata_consistent
+            or market.rules.status != "online"
+            or abs(market.clock_offset_ms) > 500
+            or not 0 <= (at - market.book.received_at).total_seconds() <= 5
+            or (
+                market.book.event_at is not None
+                and not 0 <= (at - market.book.event_at).total_seconds() <= 5
+            )
+            or not 0 <= (at - market.rules.observed_at).total_seconds() <= 3600
+        ):
+            raise DispatchDenied("exit evidence changed during cancellation")
+        with localcontext(FINANCIAL_CONTEXT):
+            mid = (market.book.bids[0].price + market.book.asks[0].price) / 2
+            if (market.book.asks[0].price - market.book.bids[0].price) / mid > Decimal("0.002"):
+                raise DispatchDenied("exit spread changed during cancellation")
         if any(
             o.intent.symbol == symbol and o.intent.side == "sell" and o.state not in TERMINAL
             for o in state.orders
@@ -880,7 +920,7 @@ class PaperExecution:
             for o in reversed(state.orders)
             if o.intent.symbol == symbol and o.intent.purpose == "entry"
         )
-        ident = uuid4()
+        ident = client_id or uuid4()
         intent = OrderIntent(
             id=ident,
             client_id=ident,
@@ -894,7 +934,9 @@ class PaperExecution:
             fee_bound=parent.intent.fee_bound,
             allowance_per_unit=ZERO,
             created_at=at,
-            expires_at=at + timedelta(seconds=2),
+            expires_at=min(expires_at, at + timedelta(seconds=2))
+            if expires_at
+            else at + timedelta(seconds=2),
             strategy_version="safety-v1",
             rules_hash=fingerprint(market.rules.model_dump(mode="json")),
             episode_id=parent.intent.episode_id,

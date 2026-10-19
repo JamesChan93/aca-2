@@ -164,6 +164,7 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
     reader = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
     # The bounded report audit validates source coverage and financial identity.
     first = last = None
+    opening = closing_boundary = None
     number = -1
     while True:
         rows = (
@@ -184,6 +185,11 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
         for row in rows:
             value = reader.restore(row)
             number = value.number
+            if value.day_boundary is not None:
+                if value.day_boundary.at == start:
+                    opening = value.day_boundary
+                if value.day_boundary.at == end:
+                    closing_boundary = value.day_boundary
             if start <= value.state.as_of < end:
                 first = row if first is None else first
                 last = row
@@ -219,6 +225,23 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
                 "source_end": last["number"],
                 "report_hash": report["report_hash"],
             }
+    daily_pnl = daily_twr = None
+    boundary_evidence = None
+    if opening is not None and closing_boundary is not None:
+        # Audits every source, financial movement and the embedded boundary
+        # anchors. An earlier coverage failure remains sticky, never repaired by
+        # simply receiving a fresh price at the next boundary.
+        await _report(c, store, opening.previous_source, closing_boundary.following_source)
+        if opening.incomplete_since is None and closing_boundary.incomplete_since is None:
+            with localcontext(FINANCIAL_CONTEXT):
+                daily_pnl = str(
+                    stored(closing_boundary.nav_gbp - opening.nav_gbp - contributions + withdrawals)
+                )
+                daily_twr = str(stored(closing_boundary.unit_price / opening.unit_price - 1))
+            boundary_evidence = {
+                "opening": opening.document(),
+                "closing": closing_boundary.document(),
+            }
     result: dict[str, object] = {
         "day": day.isoformat(),
         "contributions_gbp": str(contributions),
@@ -226,9 +249,13 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
         "fees_gbp": str(fees),
         "fault_events": faults,
         "observed": observed,
-        "daily_pnl_gbp": None,
-        "daily_return_complete": False,
-        "daily_return_reason": "midnight_boundary_coverage_not_qualified",
+        "daily_pnl_gbp": daily_pnl,
+        "daily_twr": daily_twr,
+        "day_boundaries": boundary_evidence,
+        "daily_return_complete": daily_pnl is not None,
+        "daily_return_reason": None
+        if daily_pnl is not None
+        else "midnight_boundary_coverage_not_qualified",
         "tax_reserve_estimate_gbp": None,
         "backup_status": "unverified",
         "financial_head_version": state.version,
@@ -274,11 +301,14 @@ def notice_payload(document: dict[str, object], ident: UUID, account: UUID) -> d
             str(parse_decimal(summary[key]))
             for key in ("contributions_gbp", "withdrawals_gbp", "fees_gbp")
         ]
+        pnl = "unavailable; midnight coverage unqualified"
+        if summary.get("daily_return_complete") is True:
+            pnl = str(parse_decimal(summary["daily_pnl_gbp"])) + " GBP"
         body = (
             f"DAILY SUMMARY | {day.isoformat()} UTC\n"
             f"Contributions GBP: {amounts[0]} | Withdrawals GBP: {amounts[1]}\n"
             f"Fees GBP: {amounts[2]}\n"
-            "Daily P&L: unavailable; midnight coverage unqualified\n"
+            f"Daily P&L: {pnl}\n"
             "Tax reserve estimate: unavailable | Backup: unverified"
         )
         observed = summary.get("observed")
