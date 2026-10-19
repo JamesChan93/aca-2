@@ -220,12 +220,23 @@ def constraint_text(definition: str) -> str:
     return definition
 
 
-def database_snapshot(settings: Settings) -> dict[str, Any]:
+def snapshot_id(value: str) -> str:
+    if not re.fullmatch(r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{8}-[0-9]+", value):
+        raise ValueError("invalid exported snapshot identifier")
+    return value
+
+
+def database_snapshot(settings: Settings, snapshot: str | None = None) -> dict[str, Any]:
     """Small fixture only: bounded rows, deterministic JSON, no password catalog."""
     tables: dict[str, Any] = {}
     sequences: dict[str, Any] = {}
+    maxima: dict[str, int | None] = {}
     with admin(settings) as c, c.transaction():
         c.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+        if snapshot is not None:
+            c.execute(
+                sql.SQL("SET TRANSACTION SNAPSHOT {}").format(sql.Literal(snapshot_id(snapshot)))
+            )
         names = c.execute(
             "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
             "WHERE n.nspname='aca' AND c.relkind='r' ORDER BY c.relname"
@@ -247,12 +258,38 @@ def database_snapshot(settings: Settings) -> dict[str, Any]:
             "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
             "WHERE n.nspname='aca' AND c.relkind='S' ORDER BY c.relname"
         ).fetchall():
+            definition = c.execute(
+                "SELECT increment_by,cache_size,cycle,min_value FROM pg_sequences "
+                "WHERE schemaname='aca' AND sequencename=%s",
+                (name,),
+            ).fetchone()
+            if definition != (1, 1, False, 1):
+                raise ValueError("restore fixture requires positive cache-one noncycling sequences")
             sequences[name] = list(
                 c.execute(
                     sql.SQL("SELECT last_value, is_called FROM aca.{}").format(sql.Identifier(name))
                 ).fetchone()
                 or ()
             )
+            owned = c.execute(
+                "SELECT t.relname,a.attname FROM pg_class s "
+                "JOIN pg_namespace n ON n.oid=s.relnamespace "
+                "JOIN pg_depend d ON d.objid=s.oid AND d.classid='pg_class'::regclass "
+                "AND d.refclassid='pg_class'::regclass AND d.deptype IN ('a','i') "
+                "JOIN pg_class t ON t.oid=d.refobjid "
+                "JOIN pg_attribute a ON a.attrelid=t.oid AND a.attnum=d.refobjsubid "
+                "WHERE n.nspname='aca' AND s.relname=%s",
+                (name,),
+            ).fetchone()
+            if owned is None:
+                raise ValueError("restore fixture requires an owned sequence")
+            maximum = c.execute(
+                sql.SQL("SELECT max({}) FROM aca.{}").format(
+                    sql.Identifier(owned[1]), sql.Identifier(owned[0])
+                )
+            ).fetchone()
+            assert maximum is not None
+            maxima[name] = maximum[0]
         # Object definitions and role *names* avoid unstable per-cluster OIDs.
         catalog_queries = {
             "schema": (
@@ -282,6 +319,10 @@ def database_snapshot(settings: Settings) -> dict[str, Any]:
                 "n.oid=c.relnamespace WHERE n.nspname='aca'"
             ),
             "indexes": "SELECT tablename,indexname,indexdef FROM pg_indexes WHERE schemaname='aca'",
+            "sequence_definitions": (
+                "SELECT sequencename,sequenceowner,data_type,start_value,min_value,max_value,"
+                "increment_by,cycle,cache_size FROM pg_sequences WHERE schemaname='aca'"
+            ),
             "triggers": (
                 "SELECT c.relname,t.tgname,t.tgenabled,pg_get_triggerdef(t.oid,true) FROM "
                 "pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON "
@@ -321,12 +362,13 @@ def database_snapshot(settings: Settings) -> dict[str, Any]:
     return {
         "tables": tables,
         "sequences": sequences,
+        "sequence_row_maxima": maxima,
         "catalog_sha256": catalog,
         "constraint_definitions": constraint_definitions,
     }
 
 
-async def economics(settings: Settings) -> dict[str, Any]:
+async def economics(settings: Settings, snapshot: str | None = None) -> dict[str, Any]:
     engine = create_engine(settings)
     result: dict[str, Any] = {}
     try:
@@ -334,6 +376,8 @@ async def economics(settings: Settings) -> dict[str, Any]:
         async with engine.connect() as c:
             await c.execution_options(isolation_level="REPEATABLE READ")
             await c.execute(text("SET TRANSACTION READ ONLY"))
+            if snapshot is not None:
+                await c.exec_driver_sql("SET TRANSACTION SNAPSHOT '" + snapshot_id(snapshot) + "'")
             if set(await c.scalars(select(accounts.c.id))) != set(CASES.values()):
                 raise AssertionError("unexpected fixture accounts")
             for case, account in CASES.items():

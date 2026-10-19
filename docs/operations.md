@@ -126,11 +126,14 @@ The local persistent volume and connection-restart tests are not disaster recove
 No paid service or VPS is provisioned by bootstrap.
 
 The [disposable logical-restore drill](phase-4-local-restore.md) now exercises a
-custom-format dump, transactional failure rollback, fresh-cluster role/schema/data
+custom-format dump with an exported snapshot during controlled paper commits,
+transactional failure rollback, fresh-cluster role/schema/data
 restoration and paper recovery without resubmission. Run it with
 `python3 scripts/restore_drill.py`. Its private synthetic backup and manifest stay
 under `.secrets/backups/restore-drill-<id>/`; only the two generated disposable
-projects/volumes are removed. It does not restore or restart this retained stack,
+projects/volumes and their generated snapshot helper are removed. The restored
+snapshot excludes the deliberately newer source suffix; no backup-gap import is
+implemented. It does not restore or restart this retained stack,
 replace its backups, implement off-host/WAL recovery or demonstrate production RPO/RTO.
 
 [Process-kill recovery tests](phase-4-process-recovery.md) now exercise paper-writer

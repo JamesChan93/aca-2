@@ -109,8 +109,9 @@ NAV and return history; it is not a tax estimate or a completed tax workflow.
 [Process-kill recovery validation](docs/phase-4-process-recovery.md) exercises
 abrupt writer death and recovery in separate interpreters using a disposable
 PostgreSQL database. A [separate local restore drill](docs/phase-4-local-restore.md)
-backs up synthetic paper states and restores them into a fresh disposable cluster,
-checking data/permissions and recovery without command replay. Off-host backups,
+captures one exported snapshot while controlled synthetic paper commits advance
+the source, then restores that prefix into a fresh disposable cluster. It checks
+data/permissions, safe sequence counters and recovery without command replay. Off-host backups,
 WAL/disaster recovery and the remaining Phase 4 work still need implementation/review.
 
 See [development](docs/development.md), [operations](docs/operations.md),

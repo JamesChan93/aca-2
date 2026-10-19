@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 19 October 2026 for release candidate 0.4.9 and its manual tax-cash workflow.
+Updated 19 October 2026 for release candidate 0.4.9 and its controlled concurrent-backup drill.
 This describes engineering capabilities and missing evidence; it is not a gate approval.
 
 **Phase 4 still has coding and safety validation work. The Phase 5 56-day
@@ -15,7 +15,7 @@ and short maintenance runs do not count as qualifying signal-driven paper tradin
 | Paper execution | Durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery, ordered public replay and [separate-process crash tests](phase-4-process-recovery.md) | Continuous signal scheduling, measured fill/latency calibration and remaining process/storage/recovery trials |
 | Reports | Audited original-time valuations, bounded historical performance, flow-neutral TWR and bounded MWR | Complete daily boundary coverage, owner-wide tax reporting and extended-period resource qualification |
 | Notifications | Optional Discord transition alerts, durable retries, daily provisional summaries, current-state critical repeats, cached worker health/metrics and exact-event operator reviews | Real webhook integration, latency/reliability qualification, extended review/retention qualification and external heartbeat |
-| Operations | Local health/metrics, private backups before upgrades, documented procedures and a [disposable two-cluster logical-restore drill](phase-4-local-restore.md) | Populated-history/backup-gap qualification, off-host encrypted backups, WAL recovery, disaster exercises and demonstrated RPO/RTO |
+| Operations | Local health/metrics, private backups before upgrades, documented procedures and a [disposable logical-restore drill with controlled concurrent commits](phase-4-local-restore.md) | Extended/populated research, replay and notification restore qualification, backup-gap reconciliation, off-host encrypted backups, WAL recovery, disaster exercises and demonstrated RPO/RTO |
 
 The Phase 4 exit is **G2: the applicable safety suite, deterministic replay,
 reconstructable balances and no enabled Kraken order writer**. Tests implemented so
