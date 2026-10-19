@@ -13,6 +13,7 @@ from aca.app.paper_supervisor import supervise
 from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
 from aca.operations.config import Settings
+from aca.portfolio.reserves import TaxReserveRequest
 from aca.reporting.historical import historical_performance
 from aca.reporting.paper import performance
 from aca.research.artifacts import read_json
@@ -22,6 +23,7 @@ from aca.simulation.replay import ReplayPlan, demo_plan, run_replay
 from aca.simulation.stored_replay import StoredReplay
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter, read_alerts
+from aca.storage.reserves import read_reserves
 
 
 def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -41,6 +43,8 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "consume",
         "valuations",
         "performance",
+        "tax-reserve",
+        "tax-reserves",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -63,6 +67,18 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         if name == "performance":
             parser.add_argument("--start-source", type=int)
             parser.add_argument("--end-source", type=int)
+        if name == "tax-reserve":
+            parser.add_argument("--request-id", type=UUID, required=True)
+            parser.add_argument("--actor", type=UUID, required=True)
+            parser.add_argument("--expected-version", type=int, required=True)
+            parser.add_argument(
+                "--amount-gbp", required=True, help="absolute Decimal-string earmark"
+            )
+            parser.add_argument("--evidence-sha256", required=True)
+            parser.add_argument("--reason", required=True)
+        if name == "tax-reserves":
+            parser.add_argument("--after-version", type=int, default=0)
+            parser.add_argument("--limit", type=int, default=20, choices=range(1, 101))
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
@@ -72,6 +88,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     store = PaperStore(engine, args.account)
     try:
         await verify_runtime(engine)
+        if args.action == "tax-reserves":
+            return await read_reserves(
+                engine, args.account, after_version=args.after_version, limit=args.limit
+            )
         if args.action == "performance":
             return await historical_performance(
                 store, start_source=args.start_source, end_source=args.end_source
@@ -166,6 +186,17 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
         async with PaperWriter(store) as owner:
             venue = PaperExchange(store)
             service = PaperExecution(owner, venue)
+            if args.action == "tax-reserve":
+                return await service.reserve_tax_cash(
+                    TaxReserveRequest(
+                        request_id=args.request_id,
+                        actor=args.actor,
+                        expected_version=args.expected_version,
+                        amount_gbp=args.amount_gbp,
+                        evidence_sha256=args.evidence_sha256,
+                        reason=args.reason,
+                    )
+                )
             if args.action == "enrol":
                 cursor = await StoredReplay(service, venue).enrol()
                 return {

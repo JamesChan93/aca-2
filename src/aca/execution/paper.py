@@ -7,7 +7,7 @@ from decimal import Decimal, localcontext
 from typing import Literal
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
@@ -30,6 +30,7 @@ from aca.domain.trading import (
 )
 from aca.domain.values import FINANCIAL_CONTEXT, utc_datetime
 from aca.operations.config import RiskPolicy
+from aca.portfolio.reserves import TaxReserveRecord, TaxReserveRequest
 from aca.portfolio.state import (
     entries_paused,
     episode_risk,
@@ -46,6 +47,7 @@ from aca.risk.portfolio import approve
 from aca.sizing.long_spot import round_increment, size_long
 from aca.storage.paper import PaperWriter, fills, journals, venue_events
 from aca.storage.replay import cursors, public_events
+from aca.storage.reserves import MAX_RESERVES, for_event, reserves
 from aca.strategies.slow import StrategySignal
 
 
@@ -219,6 +221,105 @@ class PaperExecution:
         if entries_paused(new, at):
             await self.cancel_entries(at)
         return await self._state()
+
+    async def reserve_tax_cash(
+        self, request: TaxReserveRequest, *, at: datetime | None = None
+    ) -> dict[str, object]:
+        """Record an exact, idempotent manual earmark without a venue operation.
+
+        CLI time comes from PostgreSQL. The optional clock is for deterministic
+        local simulation and tests; no CLI timestamp override is exposed.
+        """
+        request = TaxReserveRequest.restore(request.document())
+        async with self.writer.transaction() as c:
+            old = await self.store.load(c)
+            if old is None:
+                raise ValueError("paper account not initialised")
+            existing = await c.scalar(
+                select(reserves.c.event_version).where(
+                    reserves.c.account_id == self.store.account_id,
+                    reserves.c.request_id == request.request_id,
+                )
+            )
+            if existing is not None:
+                record = await for_event(c, self.store.account_id, existing)
+                if record.request() != request:
+                    raise ValueError("reserve request ID already has a different decision")
+                inserted = False
+            else:
+                if request.expected_version != old.version:
+                    raise ValueError("reserve request has a stale paper state version")
+                if request.amount_gbp == old.tax_reserve_gbp:
+                    raise ValueError("tax cash reserve is already this amount")
+                await self._require_drained_replay(c)
+                # Also apply to offline accounts that have not enrolled in replay.
+                unposted = await c.scalar(
+                    select(venue_events.c.number)
+                    .where(
+                        venue_events.c.account_id == self.store.account_id,
+                        venue_events.c.kind == "fill",
+                        ~select(fills.c.id)
+                        .where(
+                            fills.c.account_id == self.store.account_id,
+                            fills.c.id == venue_events.c.document["id"].astext,
+                        )
+                        .exists(),
+                    )
+                    .limit(1)
+                )
+                if unposted is not None:
+                    raise ValueError("tax cash reserve requires reconciled fills")
+                count = await c.scalar(
+                    select(func.count())
+                    .select_from(reserves)
+                    .where(reserves.c.account_id == self.store.account_id)
+                )
+                if count is None or count >= MAX_RESERVES:
+                    raise ValueError("tax cash reserve evidence budget exhausted")
+                timestamp = utc_datetime(
+                    at if at is not None else await c.scalar(select(func.clock_timestamp()))
+                )
+                record = TaxReserveRecord(
+                    **request.model_dump(),
+                    account_id=self.store.account_id,
+                    event_version=old.version + 1,
+                    previous_gbp=old.tax_reserve_gbp,
+                    recorded_at=timestamp,
+                )
+                new = old.model_copy(
+                    update={
+                        "tax_reserve_gbp": record.amount_gbp,
+                        "version": record.event_version,
+                        "as_of": timestamp,
+                    }
+                )
+                self.fault("before_tax_reserve")
+                await self.store.append(
+                    c,
+                    old,
+                    new,
+                    source=f"tax-reserve:{record.request_id}",
+                    kind="tax_reserve_set",
+                    tax_reserve=record,
+                    alert=True,
+                )
+                self.fault("before_tax_reserve_commit")
+                inserted = True
+            current = new if inserted else old
+        self.fault("after_tax_reserve_commit")
+        return {
+            "schema_version": 1,
+            "account_id": str(self.store.account_id),
+            "mode": "paper",
+            "decision": record.document(),
+            "inserted": inserted,
+            "current_state_version": current.version,
+            "current_tax_cash_reserve_gbp": str(current.tax_reserve_gbp),
+            "financial_posting_created": False,
+            "tax_estimate": False,
+            "promotion_evidence": False,
+            "live_execution_available": False,
+        }
 
     async def queue(
         self,

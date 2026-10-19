@@ -14,6 +14,7 @@ from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, store
 from aca.domain.trading import ZERO, Asset, Fill, Journal, fingerprint
 from aca.domain.values import FINANCIAL_CONTEXT
 from aca.operations.config import RiskPolicy
+from aca.portfolio.reserves import TaxReserveRecord
 from aca.portfolio.state import flow_units, unit_price
 from aca.reporting.returns import MAX_RETURN_FLOWS, investor_return
 from aca.simulation.historical import EMPTY_HASH, HistoricalReplay, HistoricalValuation
@@ -21,6 +22,7 @@ from aca.simulation.paper import PaperExchange
 from aca.simulation.stored_replay import ReplayCursor
 from aca.storage.paper import PaperStore, checkpoints, events, fills, journals, venue_events
 from aca.storage.replay import cursors, public_events, valuations
+from aca.storage.reserves import for_event
 
 MAX_REPORT_VALUES = 100000
 MAX_REPORT_EVENTS = 100000
@@ -62,6 +64,7 @@ class Totals:
 class Evidence:
     flows: deque[tuple[int, Journal]]
     trades: deque[tuple[int, Fill, Journal]]
+    reserves: deque[TaxReserveRecord]
 
 
 async def _budget(c: AsyncConnection, store: PaperStore) -> None:
@@ -129,6 +132,7 @@ async def _baseline(c: AsyncConnection, store: PaperStore, value: HistoricalValu
         or value.state.balances != state.balances
         or value.state.units != state.units
         or value.state.last_unit_price != state.last_unit_price
+        or value.state.tax_reserve_gbp != state.tax_reserve_gbp
         or value.state.as_of != state.as_of
         or state.quantity("BTC")
         or state.quantity("ETH")
@@ -151,6 +155,7 @@ async def _evidence(
     ).all()
     sealed = {ident: Journal.restore(doc) for ident, doc in documents}
     controls: list[tuple[int, Journal]] = []
+    reserve_records: list[TaxReserveRecord] = []
     number = baseline.control_version
     while True:
         rows = (
@@ -167,6 +172,8 @@ async def _evidence(
         )
         for row in rows:
             number = row["version"]
+            if row["kind"] == "tax_reserve_set" and number <= end.control_version:
+                reserve_records.append(await for_event(c, store.account_id, number))
             ident = row["document"].get("journal_id")
             journal = sealed.get(UUID(ident)) if ident else None
             if (
@@ -230,7 +237,7 @@ async def _evidence(
         if journal is None:
             raise ValueError("performance fill journal missing")
         trades.append((row["number"], fill, journal))
-    return Evidence(deque(controls), deque(trades))
+    return Evidence(deque(controls), deque(trades), deque(reserve_records))
 
 
 def _advance(
@@ -240,6 +247,17 @@ def _advance(
     totals: Totals,
 ) -> tuple[tuple[datetime, Decimal], ...]:
     state, investor_flows = before.state, []
+    while evidence.reserves and evidence.reserves[0].event_version <= after.control_version:
+        record = evidence.reserves.popleft()
+        if (
+            record.event_version <= before.control_version
+            or not before.state.as_of <= record.recorded_at <= after.state.as_of
+            or record.previous_gbp != state.tax_reserve_gbp
+        ):
+            raise ValueError("performance tax cash reserve chronology mismatch")
+        state = state.model_copy(update={"tax_reserve_gbp": record.amount_gbp})
+    if state.tax_reserve_gbp != after.state.tax_reserve_gbp:
+        raise ValueError("historical tax cash reserve does not reconstruct from decisions")
     while evidence.flows and evidence.flows[0][0] <= after.control_version:
         version, journal = evidence.flows.popleft()
         if version <= before.control_version:
@@ -287,6 +305,7 @@ def _endpoint(value: HistoricalValuation, hashed: str) -> dict[str, object]:
         "fill_number": value.fill_number,
         "nav_gbp": str(value.nav_gbp) if value.nav_gbp is not None else None,
         "units": str(value.state.units),
+        "manual_tax_cash_reserve_gbp": str(value.state.tax_reserve_gbp),
         "unit_price": str(unit_price(value.state, value.state.as_of))
         if value.nav_gbp is not None
         else None,

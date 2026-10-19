@@ -8,6 +8,10 @@ notification readiness rather than foundation readiness. Use the
 [terminal-failure review procedure](phase-4-notification-review.md) to inspect and
 record an exact-event review without requeuing delivery or changing trading state.
 
+Use the [manual tax-cash reserve procedure](phase-4-tax-cash-reserve.md) to inspect
+and record an absolute paper GBP earmark. It requires a reviewed amount, evidence
+digest and exact state version; it does not calculate or pay tax.
+
 This is a local paper-only application with virtual accounts and a local venue.
 Do not use it to supervise a live account. Future emergency trading procedures in the
 approved specification are not implemented by these commands.

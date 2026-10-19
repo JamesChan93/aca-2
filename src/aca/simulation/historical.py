@@ -28,9 +28,10 @@ from aca.portfolio.state import entries_paused, flow_units, nav, observe_risk
 from aca.simulation.paper import PaperExchange
 from aca.storage.paper import PaperStore, events, journals, venue_events
 from aca.storage.replay import public_events, valuations
+from aca.storage.reserves import for_event
 
 EMPTY_HASH = "0" * 64
-CONTROL_KINDS = ("cash_flow", "manual_epoch_review", "hard_halt", "soft_halt")
+CONTROL_KINDS = ("cash_flow", "manual_epoch_review", "hard_halt", "soft_halt", "tax_reserve_set")
 
 
 class HistoricalValuation(Record):
@@ -292,6 +293,11 @@ class HistoricalReplay:
                 # silently replacing the operational unit ledger.
                 if state.units != Decimal(str(changes.get("units", state.units))):
                     raise ValueError("historical and operational investment units differ")
+            elif row["kind"] == "tax_reserve_set":
+                record = await for_event(c, self.store.account_id, row["version"])
+                if record.previous_gbp != state.tax_reserve_gbp:
+                    raise ValueError("historical tax cash reserve differs from decision")
+                state = state.model_copy(update={"tax_reserve_gbp": record.amount_gbp})
             else:
                 raw_kill = changes.get("kill")
                 if not isinstance(raw_kill, dict):

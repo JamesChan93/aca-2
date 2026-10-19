@@ -55,6 +55,7 @@ def payload(row: dict[str, object], version: int) -> dict[str, object]:
     category = str(row["category"])
     categories = {
         "cash_flow",
+        "tax_reserve_set",
         "valuation",
         "risk_rejected",
         "dispatch_denied",

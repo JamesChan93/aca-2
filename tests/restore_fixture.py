@@ -28,6 +28,7 @@ from aca.execution.paper import PaperExecution, SimulatedCrash
 from aca.operations.config import DatabaseSettings, Settings
 from aca.operations.provision import provision_roles
 from aca.operations.secrets import read_secret
+from aca.portfolio.reserves import TaxReserveRequest
 from aca.portfolio.state import reserved_cash
 from aca.risk.execution import DispatchDenied
 from aca.simulation.paper import PaperExchange
@@ -121,6 +122,19 @@ async def seed(settings: Settings) -> None:
                     AT,
                 )
                 assert (await execution.recover(AT)).complete
+                if case == "validated":
+                    state = await execution._state()
+                    await execution.reserve_tax_cash(
+                        TaxReserveRequest(
+                            request_id=UUID("7ac9ded4-768e-46a2-bfae-96f818e4b070"),
+                            actor=UUID("2b1571b8-d9e3-4da2-89d9-4ee8aec77678"),
+                            expected_version=state.version,
+                            amount_gbp=D(100),
+                            evidence_sha256="1" * 64,
+                            reason="Synthetic restore fixture manual tax cash reserve",
+                        ),
+                        at=AT,
+                    )
                 order = await execution.queue(proposal(), market(), AT, time_in_force="FOK")
                 if case == "validated":
                     continue
@@ -329,6 +343,7 @@ async def economics(settings: Settings) -> dict[str, Any]:
                 result[case] = {
                     "balances": [b.model_dump(mode="json") for b in state.balances],
                     "reserved_gbp": str(reserved_cash(state)),
+                    "tax_cash_reserve_gbp": str(state.tax_reserve_gbp),
                     "kill": state.kill.document(),
                     "orders": [
                         {
@@ -398,10 +413,12 @@ async def recover(settings: Settings) -> dict[str, Any]:
     after = await economics(settings)
     assert after["validated"]["orders"][0]["state"] == "EXPIRED"
     assert D(after["validated"]["reserved_gbp"]) == 0
+    assert D(after["validated"]["tax_cash_reserve_gbp"]) == 100
     assert after["uncertain"]["orders"][0]["state"] == "UNKNOWN"
     assert D(after["uncertain"]["reserved_gbp"]) > 0
     assert after["hard_halt"]["kill"] == before["hard_halt"]["kill"]
     for case in ("validated", "uncertain", "hard_halt"):
+        assert after[case]["tax_cash_reserve_gbp"] == before[case]["tax_cash_reserve_gbp"]
         assert after[case]["balances"] == before[case]["balances"]
         assert after[case]["fills"] == before[case]["fills"]
         assert after[case]["journals"] == before[case]["journals"]

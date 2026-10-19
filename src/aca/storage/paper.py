@@ -27,12 +27,14 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from aca.accounting.ledger import apply_journals
 from aca.domain.trading import ZERO, Balance, Journal, PortfolioSnapshot, fingerprint
+from aca.portfolio.reserves import TaxReserveRecord, validate_reserve_transition
 from aca.storage.paper_projection import (
     CHECKPOINT_INTERVAL,
     delta,
     restore_event,
     state_document,
 )
+from aca.storage.reserves import for_event, insert_record
 
 metadata = MetaData(schema="aca")
 accounts = Table(
@@ -175,6 +177,11 @@ class PaperStore:
             or (state is not None and restored.as_of < state.as_of)
         ):
             raise ValueError("paper state/account version/time mismatch")
+        if row["kind"] == "tax_reserve_set":
+            if doc.get("format") != "paper_delta_v1":
+                raise ValueError("tax cash decision requires a versioned delta")
+        elif restored.tax_reserve_gbp != (state.tax_reserve_gbp if state else ZERO):
+            raise ValueError("tax cash reserve changed without a decision")
         return restored, expected
 
     async def ledger_balances(self, connection: AsyncConnection) -> tuple[Balance, ...]:
@@ -239,7 +246,7 @@ class PaperStore:
                 before = state
                 state, previous = self._restore_row(row, previous, cursor + 1, before)
                 if row["document"].get("format") == "paper_delta_v1":
-                    await self._verify_increment(connection, before, state, row["document"])
+                    await self._verify_increment(connection, before, state, row)
                 cursor += 1
         if state is not None:
             if await self.ledger_balances(connection) != state.balances:
@@ -275,8 +282,9 @@ class PaperStore:
         connection: AsyncConnection,
         old: PortfolioSnapshot | None,
         state: PortfolioSnapshot,
-        document: dict[str, object],
+        row: RowMapping,
     ) -> None:
+        document = row["document"]
         ident = document.get("journal_id")
         history: tuple[Journal, ...] = ()
         if isinstance(ident, str):
@@ -293,6 +301,11 @@ class PaperStore:
             history = (journal,)
         if state.balances != apply_journals(old.balances if old else (), history):
             raise ValueError("journal and incremental projection differ")
+        if row["kind"] == "tax_reserve_set":
+            record = await for_event(connection, self.account_id, state.version)
+            validate_reserve_transition(old, state, record)
+        elif state.tax_reserve_gbp != (old.tax_reserve_gbp if old else ZERO):
+            raise ValueError("tax cash reserve changed without a decision")
 
     async def _checkpoint(self, connection: AsyncConnection, row: RowMapping) -> PortfolioSnapshot:
         doc = row["document"]
@@ -366,7 +379,7 @@ class PaperStore:
         for row in rows:
             old = state
             state, previous = self._restore_row(row, previous, old.version + 1, old)
-            await self._verify_increment(connection, old, state, row["document"])
+            await self._verify_increment(connection, old, state, row)
         return state
 
     async def history(self, connection: AsyncConnection) -> tuple[Journal, ...]:
@@ -393,6 +406,7 @@ class PaperStore:
         kind: str,
         journal: Journal | None = None,
         alert: bool = False,
+        tax_reserve: TaxReserveRecord | None = None,
     ) -> None:
         # Call only inside the owning writer transaction. Unique versions/source
         # keys give a second barrier against duplicate stale transitions.
@@ -405,6 +419,16 @@ class PaperStore:
         )
         if state.balances != expected_balances:
             raise ValueError("journal and next projection differ")
+        if kind == "tax_reserve_set":
+            if tax_reserve is None or journal is not None:
+                raise ValueError("tax cash reserve requires a non-financial decision")
+            validate_reserve_transition(previous, state, tax_reserve)
+            if source != f"tax-reserve:{tax_reserve.request_id}":
+                raise ValueError("tax cash reserve source differs from its decision")
+        elif tax_reserve is not None or state.tax_reserve_gbp != (
+            previous.tax_reserve_gbp if previous else ZERO
+        ):
+            raise ValueError("tax cash reserve changed without a decision")
         if previous is not None:
             if state.as_of < previous.as_of:
                 raise ValueError("paper event time regressed")
@@ -460,6 +484,8 @@ class PaperStore:
                 document=doc,
             )
         )
+        if tax_reserve is not None:
+            await insert_record(connection, tax_reserve)
         old_ids = {o.intent.client_id for o in previous.orders} if previous else set()
         for order in state.orders:
             if order.intent.client_id not in old_ids:

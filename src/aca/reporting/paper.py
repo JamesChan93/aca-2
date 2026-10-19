@@ -55,6 +55,8 @@ def _performance(
         "mode": "paper",
         "as_of": at.isoformat(),
         "net_investment_flows_gbp": str(contributions),
+        "manual_tax_cash_reserve_gbp": str(state.tax_reserve_gbp),
+        "tax_reserve_estimate_gbp": None,
         "live_execution_available": False,
         "synthetic_replay_counts_toward_promotion": False,
         "tax_report_final": False,

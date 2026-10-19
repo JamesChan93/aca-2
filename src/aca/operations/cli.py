@@ -147,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
                         "ordered_paper_fill_replay_available": True,
                         "historical_paper_risk_available": True,
                         "historical_paper_performance_available": True,
+                        "manual_paper_tax_cash_reserve_available": True,
                         "outbound_paper_notifications_available": True,
                         "local_research_available": True,
                         "public_market_capture_available": True,
