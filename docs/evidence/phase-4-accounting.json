@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "work_package": "P4-C2",
+  "application_version": "0.4.11",
+  "schema_revision": "0014_accounting_operations",
+  "base_commit": "375ea3856ead57e11f5f3cfe0f3042e16d0e3716",
+  "source": {
+    "files": 108,
+    "sha256": "fd8217d8c0284a16dd2e0d8e19c563b92ede21b023a11b48ecff497c38f9489f",
+    "algorithm": "SHA-256 over sorted package-relative UTF-8 filename, NUL and file bytes"
+  },
+  "original_master_prompt_sha256": "4e4f70158d261d54f99204045d1e1c33d1bc0871e8850213aedceb3b67eadc01",
+  "acceptance": {
+    "quantity_transfers": {
+      "complete": true,
+      "assets": [
+        "GBP",
+        "BTC",
+        "ETH"
+      ],
+      "directions": [
+        "in",
+        "out"
+      ],
+      "tests": [
+        "test_transfer_in_out_independent_units_balances_journal_and_restart",
+        "test_outgoing_crypto_carries_basis_without_a_trade_or_tax_disposal",
+        "test_report_attributes_transferred_unrealised_gain_without_a_sale",
+        "test_replay_transfer_accounting_and_report_flow_neutrality"
+      ]
+    },
+    "immutable_corrections": {
+      "complete": true,
+      "chosen_option": "Explicit invalidation, not a historical units/cost rebuild",
+      "supported_targets": [
+        "contribution",
+        "withdrawal",
+        "transfer"
+      ],
+      "postings": "atomic reversal and replacement, permanently linked to original",
+      "reports": "prior report/evidence retained; current units/cost/returns invalid and account hard-halted",
+      "tests": [
+        "test_correction_reverses_replaces_backdated_record_invalidates_and_survives_restart",
+        "test_correction_of_transfer_and_replacement_chain",
+        "test_sql_seals_prevent_mutation_and_invalidation_bypass"
+      ]
+    },
+    "faults_and_independent_fixtures": {
+      "complete": true,
+      "tests": [
+        "test_duplicate_and_conflicting_transfer_reference_and_stale_version",
+        "test_transfer_requires_exact_event_time_valuation",
+        "test_transfer_insufficient_and_reserved_cash_inventory",
+        "test_unknown_command_blocks_accounting_without_releasing_reservation",
+        "test_unposted_fill_and_unknown_command_block_both_mutations",
+        "test_correction_rejects_spent_and_reserved_funds",
+        "test_accounting_crash_atomicity_and_exact_retry",
+        "test_stale_preflow_holding_and_regressing_transfer_time_are_blocked",
+        "test_transfer_uses_pre_flow_loss_and_retains_hard_latch"
+      ]
+    }
+  },
+  "verification": {
+    "focused_postgresql": {
+      "command": ".venv/bin/python scripts/ci_database.py -q tests/test_accounting_operations.py",
+      "passed": 29,
+      "seconds": 4.89,
+      "scope": "focused run; final query/enrolment assertions also covered by final Linux/CI suite"
+    },
+    "linux_postgresql": {
+      "command": ".venv/bin/python scripts/ci_database.py --linux -q",
+      "passed": 566,
+      "seconds": 104.9,
+      "postgresql": "18.6",
+      "platform": "linux arm64 musl",
+      "final_log_sha256": "d0629b45c0405ef2d996610a50f2f76d91b6870fbb7b8958462060cb2979411d"
+    },
+    "financial_property": {
+      "name": "test_generated_transfer_no_gain_at_same_price_and_no_quantity_creation",
+      "examples": 1000,
+      "derandomize": true,
+      "deadline": null
+    },
+    "existing_safety_properties": "Existing 1,000-example financial properties and 10,000 generated lifecycle sequences retained in full regression suite; no release-gate approval inferred",
+    "quality": {
+      "ruff_lint": "passed",
+      "ruff_format_files": 154,
+      "mypy_files": 134,
+      "mypy": "passed",
+      "pip_check": "passed",
+      "wheel_and_sdist": "built",
+      "dependency_and_image_versions": "Dependency locks, base image digests and action commits unchanged; hosted CI requires three advisory audits and two image scans",
+      "source_matches": "checkout, installed wheel, built wheel and packaged runtime all match the recorded source SHA-256"
+    }
+  },
+  "packaged_cli": {
+    "passed": true,
+    "disposable_project": "aca-c2-smoke-8453b2880ab3",
+    "account_id": "8940001a-da5e-4922-90cc-b0bbbe193541",
+    "image_id": "sha256:4c22dccf7ebbbe0912241288e9d2960715e35e2bbac8560d29f2dd3229d3972e",
+    "runtime_source": {
+      "files": 108,
+      "sha256": "fd8217d8c0284a16dd2e0d8e19c563b92ede21b023a11b48ecff497c38f9489f"
+    },
+    "synthetic_input": "GBP 250 inbound; BTC 0.001 inbound/outbound at GBP 60,000; opening GBP corrected to 240",
+    "before_correction": {
+      "nav_gbp": "250.000000000000000000",
+      "units": "250.000000000000000000",
+      "pnl_gbp": "0E-18",
+      "twr": "0E-18"
+    },
+    "after_two_recoveries": {
+      "state_version": 9,
+      "balances": [
+        {
+          "asset": "GBP",
+          "cost_gbp": "240.000000000000000000",
+          "quantity": "240",
+          "schema_version": 1
+        },
+        {
+          "asset": "BTC",
+          "cost_gbp": "0E-18",
+          "quantity": "0.000",
+          "schema_version": 1
+        },
+        {
+          "asset": "ETH",
+          "cost_gbp": "0",
+          "quantity": "0",
+          "schema_version": 1
+        }
+      ],
+      "retained_invalid_units": "250.000000000000000000",
+      "accounting_invalidated": true,
+      "hard_halt": true,
+      "ready": false,
+      "orders": 0,
+      "pnl_gbp": null,
+      "immutable_operations": 4
+    },
+    "application_container_restart_preserved_state": true,
+    "retained_containers_unchanged": true,
+    "cleanup": "all containers and volumes owned by generated disposable project removed",
+    "artifact_sha256": "7afb9b4ff60aad690ea9dd117f8bf45fafb8a01a4407c82e17fbdbfef294c547"
+  },
+  "restore_regression": {
+    "passed": true,
+    "tables_compared": 29,
+    "synthetic_accounts": 4,
+    "elapsed_seconds": 66.808,
+    "failed_restore_rolled_back": true,
+    "recovery_venue_commands": 0,
+    "cleanup_complete": true,
+    "manifest_sha256": "05a2fc4dcd956ef3fbf01f03703489b886d5fbda09d1d11507e27dc4aa513753",
+    "source_sha256": "0554b80c4a881d9e6b586e7b94ea60a42b7b83efa0b7d460e34a12ca9dcd752c",
+    "scope": "Existing snapshot/restore regression; new accounting-operation table, strategy selections and replay/notice tables remain empty in this fixture. Final source reruns the same restore in hosted CI. C3 populated restore and full T25 remain open."
+  },
+  "gate_status": {
+    "P4-C1": "complete",
+    "P4-C2": "complete",
+    "P4-C3": "open",
+    "P4-C4": "open",
+    "G2": "not approved",
+    "qualifying_days": 0,
+    "qualifying_episodes": 0,
+    "research_candidates": "all 20 remain rejected; holdout closed",
+    "retained_stack_upgraded": false,
+    "private_kraken_access": false,
+    "live_execution_available": false,
+    "tax_report_final": false
+  },
+  "limits": [
+    "Corrected accounts remain quarantined; no cost/unit-history rebuild or rearm command",
+    "Intervening authoritative fills and fee records are not rewritten",
+    "Owner-wide tax pools, estimates/payments, general FX and deployment backups remain outside C2",
+    "Local fixtures are synthetic; no external transfers, exchange orders or Discord delivery"
+  ]
+}

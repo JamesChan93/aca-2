@@ -11,6 +11,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca.accounting.ledger import apply_journals, fill_journal
+from aca.accounting.operations import flow_from_journal, flow_marks, investment_amount
 from aca.domain.market import OrderBook, Symbol
 from aca.domain.trading import (
     TERMINAL,
@@ -32,7 +33,14 @@ from aca.storage.replay import public_events, valuations
 from aca.storage.reserves import for_event
 
 EMPTY_HASH = "0" * 64
-CONTROL_KINDS = ("cash_flow", "manual_epoch_review", "hard_halt", "soft_halt", "tax_reserve_set")
+CONTROL_KINDS = (
+    "cash_flow",
+    "asset_transfer",
+    "manual_epoch_review",
+    "hard_halt",
+    "soft_halt",
+    "tax_reserve_set",
+)
 
 
 class HistoricalValuation(Record):
@@ -290,7 +298,7 @@ class HistoricalReplay:
             state = value.state
             document = row["document"]
             changes: dict[str, Any] = document.get("changes", document)
-            if row["kind"] == "cash_flow":
+            if row["kind"] in {"cash_flow", "asset_transfer"}:
                 ident = document.get("journal_id")
                 raw = await c.scalar(
                     select(journals.c.document).where(
@@ -303,12 +311,18 @@ class HistoricalReplay:
                 journal = Journal.restore(raw)
                 if (
                     journal.occurred_at != row["at"]
-                    or journal.kind not in {"contribution", "withdrawal"}
+                    or journal.kind not in {"contribution", "withdrawal", "transfer"}
                     or len(journal.movements) != 1
-                    or any(m.asset != "GBP" for m in journal.movements)
+                    or (
+                        row["kind"] == "cash_flow"
+                        and any(m.asset != "GBP" for m in journal.movements)
+                    )
                 ):
                     raise ValueError("unsupported historical cash flow")
-                amount = journal.movements[0].quantity
+                state = flow_marks(state, flow_from_journal(journal))
+                if journal.kind == "transfer" and state.units:
+                    state = observe_risk(state, row["at"], self.policy)
+                amount = investment_amount(journal)
                 units = flow_units(state, amount, row["at"])
                 opening = not state.units and state.daily_day != row["at"].date()
                 state = state.model_copy(

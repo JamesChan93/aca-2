@@ -25,6 +25,8 @@ def nav(state: PortfolioSnapshot, at: datetime, *, max_age: int = 5) -> Decimal:
 
 
 def unit_price(state: PortfolioSnapshot, at: datetime) -> Decimal:
+    if state.accounting_invalidated:
+        raise ValueError("accounting correction invalidated investment units")
     value = nav(state, at)
     if not state.units:
         if value:
@@ -155,5 +157,9 @@ def observe_risk(state: PortfolioSnapshot, at: datetime, policy: RiskPolicy) -> 
 
 def entries_paused(state: PortfolioSnapshot, at: datetime) -> bool:
     return bool(
-        state.kill.soft or state.kill.hard or state.kill.daily_day == at.date() or state.incident
+        state.accounting_invalidated
+        or state.kill.soft
+        or state.kill.hard
+        or state.kill.daily_day == at.date()
+        or state.incident
     )

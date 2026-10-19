@@ -128,10 +128,12 @@ class StoredReplay:
         """Explicit flat-account baseline. Never backfill order-sensitive UUID history."""
         async with self.service.writer.transaction() as c:
             await self.venue._locked(c)
+            state = await self.store.load(c)
+            if state is not None and state.accounting_invalidated:
+                raise ValueError("accounting correction invalidated replay enrolment")
             row = await self._latest(c)
             if row is not None and await self.history.latest(c) is not None:
                 return self._cursor(row)
-            state = await self.store.load(c)
             if state is None:
                 raise ValueError("paper account not initialised")
             remote = self.venue._snapshot(await self.venue._rows(c), state.as_of)
@@ -444,6 +446,10 @@ class StoredReplay:
         if not 1 <= limit <= 64:
             raise ValueError("replay limit must be 1..64")
         at = utc_datetime(at)
+        if (await self.service._state()).accounting_invalidated:
+            raise ValueError(
+                "accounting correction invalidated historical replay; rebuild required"
+            )
         async with self.service.writer.transaction() as c:
             previous = await self._latest(c)
             if previous is None:

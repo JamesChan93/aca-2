@@ -92,6 +92,7 @@ class GateStore(PaperStore):
         journal: Journal | None = None,
         alert: bool = False,
         tax_reserve: TaxReserveRecord | None = None,
+        additional_journals: tuple[Journal, ...] = (),
     ) -> None:
         await super().append(
             connection,
@@ -102,6 +103,7 @@ class GateStore(PaperStore):
             journal=journal,
             alert=alert,
             tax_reserve=tax_reserve,
+            additional_journals=additional_journals,
         )
         if kind == self.stop_kind:
             gate("uncommitted_" + kind)

@@ -168,6 +168,8 @@ class PaperExecution:
                 return state
             if at < state.as_of:
                 raise ValueError("cash-flow clock moved backwards")
+            if state.accounting_invalidated:
+                raise ValueError("accounting correction invalidated investment units")
             await self._require_drained_replay(c)
             if amount < 0 and -amount > free_cash(state):
                 raise ValueError("withdrawal spends reserved funds")
@@ -561,6 +563,8 @@ class PaperExecution:
                 fills_checked=0,
             )
         differences: list[str] = []
+        if (await self._state()).accounting_invalidated:
+            differences.append("accounting_correction_requires_rebuild")
         async with self.writer.transaction() as c:
             posted_ids = set(
                 (
