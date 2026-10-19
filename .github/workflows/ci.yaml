@@ -30,6 +30,8 @@ jobs:
           mypy
       - name: Real PostgreSQL integration and unit tests on Linux musl
         run: python scripts/ci_database.py --linux
+      - name: Restore paper fixtures into a fresh disposable PostgreSQL cluster
+        run: python scripts/restore_drill.py
       - name: Dependency audit
         run: |
           pip-audit --disable-pip --require-hashes -r requirements/research.lock

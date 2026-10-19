@@ -103,8 +103,10 @@ real destination integration and alert latency qualification remain outstanding.
 
 [Process-kill recovery validation](docs/phase-4-process-recovery.md) exercises
 abrupt writer death and recovery in separate interpreters using a disposable
-PostgreSQL database. It adds safety evidence for existing paper behavior; database
-disaster restore and the remaining Phase 4 work still need implementation/review.
+PostgreSQL database. A [separate local restore drill](docs/phase-4-local-restore.md)
+backs up synthetic paper states and restores them into a fresh disposable cluster,
+checking data/permissions and recovery without command replay. Off-host backups,
+WAL/disaster recovery and the remaining Phase 4 work still need implementation/review.
 
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).

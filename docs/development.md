@@ -12,6 +12,13 @@ in fresh interpreters. It runs in the ordinary full Linux suite and uses only th
 disposable test database. These tests do not kill retained services or demonstrate
 database/host disaster recovery.
 
+The [local logical-restore drill](phase-4-local-restore.md) runs separately with
+`python3 scripts/restore_drill.py`. It needs only Docker and host Python 3.9+, uses
+two random disposable projects without host ports, and restores synthetic accounts
+into a fresh cluster. CI runs this real drill after the full Linux suite. Its
+archive/target/comparison guard tests are also part of pytest. It does not back up
+or restart retained services or prove production RPO/RTO.
+
 ## Prerequisites
 
 Application: CPython 3.14.8 (standard GIL build). Database: PostgreSQL 18.6.
