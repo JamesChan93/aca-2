@@ -6,6 +6,12 @@ checks run 10,000 deterministic fault traces. Use the isolated test project only
 do not run two `scripts/ci_database.py` processes concurrently because they share
 that project's database/port. Application and test Compose projects remain separate.
 
+The [process-recovery suite](phase-4-process-recovery.md) additionally kills real
+paper-writer interpreters at specific durable boundaries and recovers each account
+in fresh interpreters. It runs in the ordinary full Linux suite and uses only the
+disposable test database. These tests do not kill retained services or demonstrate
+database/host disaster recovery.
+
 ## Prerequisites
 
 Application: CPython 3.14.8 (standard GIL build). Database: PostgreSQL 18.6.

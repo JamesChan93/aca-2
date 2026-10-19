@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-process-recovery",
+  "application_version": "0.4.8",
+  "verified_at_utc": "2026-10-19T12:56:05.071956+00:00",
+  "scope": "Test and documentation increment; real SIGKILL and separate-interpreter recovery against disposable PostgreSQL",
+  "source": {
+    "application_python_files": 96,
+    "application_source_sha256": "54483cff9d5f504cb562b79f867f0143e19ae76371a69fbca8ac78e69cc4ebbe",
+    "application_source_unchanged": true,
+    "source_wheel_retained_runtime_identical": true,
+    "process_test_source_sha256": "eee73026015cfc059a9d6294dd86bae12f331a7a4e3d7526199588eb9cf5e912",
+    "runtime_wheel_excludes_test_worker": true,
+    "dependency_config_image_and_workflow_pins_unchanged": true
+  },
+  "verification": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 131,
+    "mypy_source_files": 115,
+    "wheel_and_sdist_build": "passed",
+    "dependency_consistency": "passed",
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "focused_linux_arm64_musl": {
+      "tests": 15,
+      "seconds": 16.19,
+      "result": "passed"
+    },
+    "full_linux_arm64_musl": {
+      "tests": 429,
+      "seconds": 74.76,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0011_notification_reviews"
+    },
+    "new_cases": {
+      "confirmed_sigkill": 12,
+      "live_interpreter_backend_termination_before_consumption": 1,
+      "rejected_non_disposable_targets": 2
+    },
+    "sigkill_crash_points": [
+      "uncommitted_intent",
+      "before_submitting",
+      "after_submitting_before_send",
+      "after_send_before_ack",
+      "filled_before_ack",
+      "partial_before_ack",
+      "uncommitted_fill",
+      "committed_fill",
+      "cancel_partial",
+      "cancel_before_send",
+      "cancel_racing_fill",
+      "committed_halt"
+    ],
+    "recovery_in_fresh_interpreters": true,
+    "twice_recovered_per_sigkill_fixture": true,
+    "recovery_submit_or_cancel_attempts": 0,
+    "confirmed_sigkill_exit_code": -9,
+    "independent_checks": [
+      "Uncommitted reservation/financial transaction rollback",
+      "Consumed-command uncertainty and cash reservations survive process death",
+      "Original client ID cannot be dispatched again",
+      "One authoritative fill and fee journal; Decimal GBP cash and base quantity reconcile",
+      "Partial fills and cancelled remainders retain correct protection and reservations",
+      "Full event-prefix hashes and sealed ledger audit before and after recovery",
+      "Repeated recovery leaves journals, fills, order economics and venue evidence unchanged",
+      "Hard halt and policy epoch survive; halted and uncertain accounts reject new entries",
+      "Healthy original writer excludes another writer; replacement waits for old-process exit",
+      "Terminated pre-consumption backend fails before any venue call and does not silently rearm"
+    ],
+    "generated_suite_retained": "1000 examples per critical financial property and 10000 deterministic lifecycle sequences; distinct from the 12 real process-kill cases",
+    "initial_harness_failures": [
+      "Corrected strict settings IPC to validate DatabaseSettings before constructing Settings",
+      "Refreshed post-probe state after a denied new entry appended its rejection audit",
+      "Selected original entry by purpose rather than assuming UUID-sorted order index"
+    ],
+    "hosted_checks": "Recorded separately on the exact pull request commit; this evidence asserts local results only"
+  },
+  "retained_environment": {
+    "read_only_health_checks": "passed",
+    "application_and_database_container_ids_unchanged": true,
+    "application_version": "0.4.8",
+    "schema": "0011_notification_reviews",
+    "retained_paper_replay_notification_counts_and_digests_unchanged_since_prior_upgrade": true,
+    "counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0,
+      "paper_notices": 1,
+      "paper_notice_receipts": 0
+    },
+    "notification_review_rows": 0,
+    "backup_migration_deployment_or_service_restart": false,
+    "notification_worker_or_collector_started": false,
+    "discord_requests": 0,
+    "private_exchange_access": false,
+    "live_execution_available": false
+  },
+  "limits": {
+    "local_venue_only": true,
+    "paper_suite_is_not_a_security_sandbox": true,
+    "gate_timeout_seconds": 15,
+    "child_watchdog_seconds": 60,
+    "exit_and_lock_cleanup_timeout_seconds": 5,
+    "host_database_crash_disk_full_network_partition_or_restore_demonstrated": false,
+    "strategy_exit_protective_sell_process_race_added": false,
+    "rpo_rto_demonstrated": false,
+    "database_lock_is_exchange_fencing": false,
+    "old_writer_failover_requires_confirmed_stop_or_key_revocation": true,
+    "backend_loss_case_limited_to_pre_consumption": true,
+    "real_fee_protection_fill_and_latency_calibration": false,
+    "permanent_failure_trace_archive": false
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "strategy_dispatch_enabled": false,
+    "extended_paper_days_added": 0,
+    "qualifying_paper_episodes_added": 0,
+    "remaining": [
+      "Continuous signal scheduling and measured fill/latency calibration",
+      "Operational accounting and owner-wide tax/reserve workflows; complete daily boundaries",
+      "Extended resource/retention, process/storage and recovery qualification",
+      "External notification reliability/heartbeat and off-host backup/WAL/restore drills",
+      "Research and economic gates, 56-day observation, readiness and separately approved live work"
+    ]
+  },
+  "publication_scan": {
+    "files": 196,
+    "actual_local_database_secret_values_checked": 3,
+    "findings": 0,
+    "original_prompt_archive_sha256_verified": true
+  }
+}

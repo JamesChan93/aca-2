@@ -1,7 +1,7 @@
 # Implementation status
 
-Updated 19 October 2026 for release candidate 0.4.8. This describes engineering
-capabilities and missing evidence; it is not a gate approval.
+Updated 19 October 2026 for release candidate 0.4.8 and its process-recovery tests.
+This describes engineering capabilities and missing evidence; it is not a gate approval.
 
 **Phase 4 still has coding and safety validation work. The Phase 5 56-day
 observation period has not started.** Local demos, historical replay, passing tests
@@ -12,7 +12,7 @@ and short maintenance runs do not count as qualifying signal-driven paper tradin
 | Foundation and data | Paper-only package, restricted PostgreSQL roles, migrations, containers, public Kraken metadata/books/trades/candles, persisted provenance and replay | Sustained resource/retention qualification and the remaining operational fault trials |
 | Research | Shared deterministic indicators and strategies, audited datasets, cost-aware simulation and recorded trials | All 20 evaluated candidates rejected; no qualifying edge, frozen candidate or opened final holdout |
 | Accounting and risk | GBP journal/quantities, contributions/withdrawals, unitisation, reservations, Decimal sizing, independent dispatch controls and durable loss latches | Operational transfers/conversions/corrections, tax inventory/reserve workflows and complete safety evidence |
-| Paper execution | Durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery and ordered public replay | Continuous signal scheduling, measured fill/latency calibration and remaining process/storage/recovery trials |
+| Paper execution | Durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery, ordered public replay and [separate-process crash tests](phase-4-process-recovery.md) | Continuous signal scheduling, measured fill/latency calibration and remaining process/storage/recovery trials |
 | Reports | Audited original-time valuations, bounded historical performance, flow-neutral TWR and bounded MWR | Complete daily boundary coverage, owner-wide tax reporting and extended-period resource qualification |
 | Notifications | Optional Discord transition alerts, durable retries, daily provisional summaries, current-state critical repeats, cached worker health/metrics and exact-event operator reviews | Real webhook integration, latency/reliability qualification, extended review/retention qualification and external heartbeat |
 | Operations | Local health/metrics, private backups before upgrades and documented procedures | Off-host encrypted backups, WAL recovery, restore drill and demonstrated RPO/RTO |
