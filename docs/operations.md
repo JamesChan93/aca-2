@@ -121,6 +121,11 @@ external monitoring and real Discord integration are still required before produ
 The local persistent volume and connection-restart tests are not disaster recovery.
 No paid service or VPS is provisioned by bootstrap.
 
+[Process-kill recovery tests](phase-4-process-recovery.md) now exercise paper-writer
+death at submission, fill-posting, cancellation and halt boundaries against an
+isolated test database. They do not stop this stack, prove database disaster
+restore or replace the old-writer fencing requirement for any future live failover.
+
 
 ## Public-market capture
 

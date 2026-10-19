@@ -101,6 +101,11 @@ accounting workflows, strategy scheduling and resource/disaster trials precede
 extended paper. Outbound delivery and scheduled notices are opt-in capabilities;
 real destination integration and alert latency qualification remain outstanding.
 
+[Process-kill recovery validation](docs/phase-4-process-recovery.md) exercises
+abrupt writer death and recovery in separate interpreters using a disposable
+PostgreSQL database. It adds safety evidence for existing paper behavior; database
+disaster restore and the remaining Phase 4 work still need implementation/review.
+
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
 Local Docker functional checks and both runtime image scans pass. The full Linux
