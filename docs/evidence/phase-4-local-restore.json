@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-local-restore",
+  "application_version": "0.4.8",
+  "verified_at_utc": "2026-10-19T14:17:32.864900+00:00",
+  "scope": "Repeatable quiescent synthetic logical backup/restore between two disposable local PostgreSQL clusters; no retained stack deployment",
+  "source": {
+    "application_python_files": 96,
+    "application_source_sha256": "54483cff9d5f504cb562b79f867f0143e19ae76371a69fbca8ac78e69cc4ebbe",
+    "application_source_unchanged": true,
+    "source_wheel_retained_runtime_identical": true,
+    "drill_source_sha256": "8d714407fe24eaa40a982d112322b3c7dfa12c57166bc18e8c4e12f3943b21f1",
+    "runtime_wheel_excludes_drill_and_tests": true,
+    "dependency_config_and_image_pins_unchanged": true,
+    "ci_adds_two_cluster_restore_step": true
+  },
+  "verification": {
+    "ruff_lint_and_format": "passed",
+    "ruff_format_files": 134,
+    "mypy_source_files": 117,
+    "wheel_and_sdist_build": "passed",
+    "dependency_consistency": "passed",
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "full_linux_arm64_musl": {
+      "tests": 453,
+      "seconds": 119.43,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0011_notification_reviews"
+    },
+    "new_pytest_guard_cases": 24,
+    "existing_critical_properties_and_10000_lifecycle_sequences_retained": true,
+    "host_orchestrator_python": "3.9.6",
+    "host_syntax_regression_check": "Python 3.9 grammar accepted",
+    "local_drill": {
+      "result": "passed",
+      "fresh_disposable_clusters": 2,
+      "fixture_accounts": 4,
+      "dump": {
+        "bytes": 102801,
+        "sha256": "f0eb1624b17cdc57b566fecd62b29880efbc0384b5ad04048f10855404019087",
+        "format": "custom"
+      },
+      "application_tables_compared": 24,
+      "source_table_counts_and_sha256": {
+        "alembic_version": {
+          "rows": 1,
+          "sha256": "67d654e325b51f9d3e06db2994c844c1d036863b283ba18ff4a35d76af12badc"
+        },
+        "audit_events": {
+          "rows": 1,
+          "sha256": "376cc21b0d0bb497a7f24c07b6fd776203fc751792e77a4fc2fa73d7e16b9a68"
+        },
+        "configuration_versions": {
+          "rows": 1,
+          "sha256": "842c93802ece6764c123f569021cefcc7028533a861dec48297d8ce7ccd31c56"
+        },
+        "market_receipts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_accounts": {
+          "rows": 4,
+          "sha256": "7924f597a2799612b197e225a31090846a696374b7cb06594f18474d38677b77"
+        },
+        "paper_alerts": {
+          "rows": 11,
+          "sha256": "f7170eed064eb10ef9fcc410694c5d8e598b8f9eb08d1c15543287a37e65d881"
+        },
+        "paper_checkpoints": {
+          "rows": 5,
+          "sha256": "c203cde8cdcadfc07a98c4c282a6ae9c3bf222e54b6185c0943f970f07b6db72"
+        },
+        "paper_events": {
+          "rows": 162,
+          "sha256": "965f4d45327ca847ea641b92da4d051c608307257bed1c617d2276a45eec3409"
+        },
+        "paper_fills": {
+          "rows": 1,
+          "sha256": "7a045e288adcd27e032b040d39aacf2bf304ef65260983701b07787b0e10aa0b"
+        },
+        "paper_journal_lines": {
+          "rows": 12,
+          "sha256": "43fa0b8a1dd38eef87f87b7313097bcc7481cc6c53c05778dd10e726756a5aba"
+        },
+        "paper_journals": {
+          "rows": 5,
+          "sha256": "ee2713151362dedffd6d3eb16e81db4edebe7286747af62462efb327764727be"
+        },
+        "paper_movements": {
+          "rows": 7,
+          "sha256": "f59a4aa6eb286db43bf687b1cbade6769abafb8c70adda3ceb9e19cd66b271b9"
+        },
+        "paper_notice_receipts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_notices": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_notification_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_notification_reviews": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_order_identities": {
+          "rows": 5,
+          "sha256": "b32d78f0d3efe0c4cbf56d2896c6ec454db8ca96255c34bc4278d4c3193928ac"
+        },
+        "paper_replay_cursors": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_replay_valuations": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_venue_events": {
+          "rows": 10,
+          "sha256": "aa40012b6f0ae2016d237ef304bd94c4c10bef107cda3cfcd1dcd30039f040e3"
+        },
+        "public_replay_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "public_trades": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "research_artifacts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "research_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "sequence_values_compared": {
+        "public_replay_events_number_seq": [
+          1,
+          false
+        ]
+      },
+      "selected_catalog_sha256": {
+        "columns": "66b5e19215c2441d20af72f0a6f61bf61b40240384f76d567dcd457cbcb2b7ee",
+        "constraints": "6e53b9811a58ff2925cf573cc82c60a1f606e33bdb48f3528fed85d8492d6819",
+        "database_privileges": "519e544e0ce1f2e1892b53660bae58dd29369999d1787d739fdff8bf10acdac7",
+        "default_privileges": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "functions": "27627f57504d831ccf97d46cff8354af5e1889ffa5a823c2a4e753cc0b5284a1",
+        "indexes": "d0d4a2b76160a87b32b807305e0b8d113047608bf5a646943d1b84bcb42a8c61",
+        "relations": "ef6c55bd0d41deaddfd79c1d4b467746f473b2af0e0d5e82630b572b64f26a90",
+        "roles": "62e4337ab73e4d87068af027daa6b171d5e31d1c843922e08dc33a5defc3718b",
+        "schema": "0f07aebd66b1629e392af0668179f6b1365474eb717a5d6ba57456ea38352cbc",
+        "triggers": "256d7bf7a86417b905380e4248ff0a42dad04e4c8cd634e670d8772223cccdf2"
+      },
+      "catalog_check_flags_include_validation_enforcement_and_deferral": true,
+      "source_equals_restored_before_recovery": true,
+      "source_unchanged_after_recovery": true,
+      "missing_role_acl_restore_failure_rolled_back": true,
+      "restore_preserves_ownership_and_acl": true,
+      "single_transaction_and_exit_on_error": true,
+      "restore_and_verify_seconds": 1.334,
+      "end_to_end_helper_seconds_including_build_startup_and_cleanup": 38.585,
+      "recovery_runs_in_separate_interpreters": 2,
+      "recovery_submit_or_cancel_attempts": 0,
+      "repeated_recovery_economics_unchanged": true,
+      "full_paper_financial_audits": true,
+      "runtime_ddl_history_mutation_and_owner_trigger_probes": "passed",
+      "cleanup_containers_and_volumes_verified": true,
+      "private_artifact_directory_mode": "0700",
+      "private_files_mode": "0600"
+    },
+    "recovery_cases": [
+      "Unused VALIDATED entry expires and releases its reservation without transmission",
+      "Consumed unseen entry remains UNKNOWN and reserved; new entry rejected; no resend",
+      "Accepted unposted venue fill posts exactly one fill/fee journal and discovers protective child",
+      "Hard halt, policy epoch, posted balances/journal/fill and protective exit survive; new entry rejected"
+    ],
+    "comparison_normalisation": "Only two complete enum-style CHECK forms for equivalent unbounded varchar literal array casts; exact columns/literals and validation/enforcement/deferral flags preserved; other types remain distinct",
+    "initial_fixture_corrections": [
+      "Used recover rather than reconcile for the synthetic lost-acknowledgement halt setup",
+      "Caught Python 3.14-only formatter syntax in the host helper; restored Python 3.9 syntax and added a grammar regression check",
+      "Diagnosed PostgreSQL array-cast reparse in constraint definitions and added narrow equivalence tests; no financial data difference"
+    ],
+    "hosted_checks": "Recorded separately on the exact pull request commit; this record asserts local results only"
+  },
+  "retained_environment": {
+    "application_and_database_container_ids_unchanged": true,
+    "application_and_database_healthy": true,
+    "schema": "0011_notification_reviews",
+    "retained_counts_and_content_digests_unchanged": true,
+    "counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0,
+      "paper_notices": 1,
+      "paper_notice_receipts": 0
+    },
+    "notification_review_rows": 0,
+    "retained_backup_migration_deployment_or_service_restart": false,
+    "notification_worker_or_collector_started": false,
+    "discord_requests": 0,
+    "private_exchange_access": false,
+    "live_execution_available": false
+  },
+  "limits": {
+    "synthetic_quiescent_local_logical_backup_only": true,
+    "source_retained_for_comparison": true,
+    "two_clusters_share_one_docker_host": true,
+    "populated_market_research_replay_or_notification_history_restore_qualified": false,
+    "backup_files_encrypted": false,
+    "off_host_backups": false,
+    "wal_pitr": false,
+    "actual_host_database_crash_disk_full_power_loss_or_network_partition": false,
+    "concurrent_backup_load_or_long_history_resource_trial": false,
+    "old_writer_fencing_or_real_exchange_backup_gap_reconciliation": false,
+    "production_rpo_or_rto_demonstrated": false,
+    "general_sql_equivalence_or_integrity_attestation": false,
+    "child_command_timeout_seconds": 180,
+    "private_diagnostic_artifacts_uploaded_to_hosted_ci": false,
+    "trusted_fixture_admin_is_not_a_security_sandbox": true
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "T25_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "extended_paper_days_added": 0,
+    "qualifying_paper_episodes_added": 0
+  },
+  "publication_scan": {
+    "files": 202,
+    "actual_local_database_secret_values_checked": 3,
+    "findings": 0,
+    "original_prompt_archive_sha256_verified": true
+  }
+}

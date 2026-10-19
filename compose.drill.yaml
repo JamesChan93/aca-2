@@ -1,0 +1,20 @@
+# Disposable restore fixtures only. No host ports or public network.
+services:
+  restore-worker:
+    image: aca-restore-tests:0.4.8
+    build:
+      context: .
+      target: test
+    profiles: [restore-drill]
+    network_mode: service:db
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=256m,mode=1777
+    secrets: [admin_password, runtime_password, migration_password]
+    mem_limit: 1g
+    pids_limit: 128
+    healthcheck:
+      disable: true
