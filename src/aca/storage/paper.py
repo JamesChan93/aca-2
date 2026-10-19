@@ -31,6 +31,7 @@ from aca.portfolio.reserves import TaxReserveRecord, validate_reserve_transition
 from aca.storage.paper_projection import (
     CHECKPOINT_INTERVAL,
     delta,
+    journal_links,
     restore_event,
     state_document,
 )
@@ -245,7 +246,7 @@ class PaperStore:
             for row in rows:
                 before = state
                 state, previous = self._restore_row(row, previous, cursor + 1, before)
-                if row["document"].get("format") == "paper_delta_v1":
+                if row["document"].get("format") in {"paper_delta_v1", "paper_delta_v2"}:
                     await self._verify_increment(connection, before, state, row)
                 cursor += 1
         if state is not None:
@@ -285,12 +286,11 @@ class PaperStore:
         row: RowMapping,
     ) -> None:
         document = row["document"]
-        ident = document.get("journal_id")
-        history: tuple[Journal, ...] = ()
-        if isinstance(ident, str):
+        history: list[Journal] = []
+        for ident in journal_links(document):
             doc = await connection.scalar(
                 select(journals.c.document).where(
-                    journals.c.account_id == self.account_id, journals.c.id == UUID(ident)
+                    journals.c.account_id == self.account_id, journals.c.id == ident
                 )
             )
             if doc is None:
@@ -298,9 +298,12 @@ class PaperStore:
             journal = Journal.restore(doc)
             if journal.occurred_at > state.as_of:
                 raise ValueError("paper journal occurs after its event")
-            history = (journal,)
+            history.append(journal)
         if state.balances != apply_journals(old.balances if old else (), history):
             raise ValueError("journal and incremental projection differ")
+        from aca.storage.accounting import verify_operation
+
+        await verify_operation(connection, self.account_id, old, state, row["kind"], tuple(history))
         if row["kind"] == "tax_reserve_set":
             record = await for_event(connection, self.account_id, state.version)
             validate_reserve_transition(old, state, record)
@@ -407,6 +410,7 @@ class PaperStore:
         journal: Journal | None = None,
         alert: bool = False,
         tax_reserve: TaxReserveRecord | None = None,
+        additional_journals: tuple[Journal, ...] = (),
     ) -> None:
         # Call only inside the owning writer transaction. Unique versions/source
         # keys give a second barrier against duplicate stale transitions.
@@ -414,11 +418,13 @@ class PaperStore:
         if state.version != expected_version or state.account_id != self.account_id:
             raise ValueError("nonsequential paper state")
         PortfolioSnapshot.restore(state.document())
-        expected_balances = apply_journals(
-            previous.balances if previous else (), (journal,) if journal else ()
-        )
+        batch = ((journal,) if journal else ()) + additional_journals
+        expected_balances = apply_journals(previous.balances if previous else (), batch)
         if state.balances != expected_balances:
             raise ValueError("journal and next projection differ")
+        from aca.storage.accounting import verify_operation
+
+        await verify_operation(connection, self.account_id, previous, state, kind, batch)
         if kind == "tax_reserve_set":
             if tax_reserve is None or journal is not None:
                 raise ValueError("tax cash reserve requires a non-financial decision")
@@ -461,7 +467,12 @@ class PaperStore:
             raise ValueError("paper append state is stale")
         prev_hash = head[1] if head else "0" * 64
         event_id = uuid4()
-        doc = delta(previous, state, journal.id if journal else None)
+        doc = delta(
+            previous,
+            state,
+            journal.id if journal else None,
+            tuple(j.id for j in additional_journals),
+        )
         hashed = fingerprint(
             {
                 "previous": prev_hash,
@@ -496,7 +507,7 @@ class PaperStore:
                         document=order.intent.document(),
                     )
                 )
-        if journal is not None:
+        for journal in batch:
             await connection.execute(
                 journals.insert().values(
                     id=journal.id,

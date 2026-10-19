@@ -13,7 +13,7 @@ from aca.operations.config import Settings
 from aca.operations.secrets import read_secret
 from aca.storage.models import AuditEvent, ConfigurationRecord
 
-SCHEMA_REVISION = "0013_paper_strategy"
+SCHEMA_REVISION = "0014_accounting_operations"
 
 
 class DatabaseSafetyError(RuntimeError):

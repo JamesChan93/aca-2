@@ -9,9 +9,11 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from aca.accounting.operations import CorrectionRequest, TransferRequest
 from aca.app.paper_supervisor import supervise
 from aca.domain.trading import fingerprint
 from aca.domain.values import parse_decimal, utc_datetime
+from aca.execution.accounting import correct_accounting, external_transfer
 from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
 from aca.observability.notices import daily_summary
@@ -24,6 +26,7 @@ from aca.simulation.historical import HistoricalReplay
 from aca.simulation.paper import PaperExchange
 from aca.simulation.replay import ReplayPlan, demo_plan, run_replay
 from aca.simulation.stored_replay import StoredReplay
+from aca.storage.accounting import accounting_status
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter, read_alerts
 from aca.storage.reserves import read_reserves
@@ -56,6 +59,9 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "decisions",
         "run",
         "daily",
+        "transfer",
+        "correct",
+        "accounting",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -63,6 +69,13 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
             parser.add_argument("--reason", required=True)
         if name == "replay":
             parser.add_argument("--input", type=Path, required=True)
+        if name in {"transfer", "correct"}:
+            parser.add_argument(
+                "--input", type=Path, required=True, help="strict versioned JSON operator request"
+            )
+        if name == "accounting":
+            parser.add_argument("--after-version", type=int, default=0)
+            parser.add_argument("--limit", type=int, default=20, choices=range(1, 101))
         if name in {"supervise", "run"}:
             parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
         if name == "supervise":
@@ -118,7 +131,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     store = PaperStore(engine, args.account)
     try:
         await verify_runtime(engine)
-        if args.action in {"decisions", "daily"}:
+        if args.action in {"decisions", "daily", "accounting"}:
             from sqlalchemy import text
 
             async with engine.connect() as c:
@@ -126,6 +139,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                 await c.execute(text("SET TRANSACTION READ ONLY"))
                 if args.action == "decisions":
                     return await strategy_status(c, args.account)
+                if args.action == "accounting":
+                    return await accounting_status(
+                        c, args.account, after_version=args.after_version, limit=args.limit
+                    )
                 return await daily_summary(c, store, args.day)
         if args.action == "tax-reserves":
             return await read_reserves(
@@ -148,6 +165,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             history_reader = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
             async with engine.connect() as c:
                 await c.execution_options(isolation_level="REPEATABLE READ")
+                state = await store.load(c)
                 rows = (
                     (await c.execute(query.order_by(valuations.c.number.desc()).limit(args.limit)))
                     .mappings()
@@ -159,6 +177,8 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                 "items": [history_reader.restore(row).document() for row in rows],
                 "next_before": rows[-1]["number"] if len(rows) == args.limit else None,
                 "provisional": True,
+                "accounting_valid": state is not None and not state.accounting_invalidated,
+                "units_valid": state is not None and not state.accounting_invalidated,
                 "promotion_evidence": False,
                 "live_execution_available": False,
             }
@@ -177,6 +197,8 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                         "schema_version": 1,
                         "account_id": str(args.account),
                         "complete": state is not None,
+                        "accounting_valid": state is not None and not state.accounting_invalidated,
+                        "units_valid": state is not None and not state.accounting_invalidated,
                         "version": state.version if state else None,
                         "live_execution_available": False,
                     }
@@ -228,6 +250,14 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             service = PaperExecution(owner, venue)
             if args.action == "create":
                 return (await service.initialise(datetime.now(UTC))).document()
+            if args.action == "transfer":
+                return await external_transfer(
+                    service, TransferRequest.restore(read_json(args.input))
+                )
+            if args.action == "correct":
+                return await correct_accounting(
+                    service, CorrectionRequest.restore(read_json(args.input))
+                )
             if args.action == "fund":
                 return (
                     await service.cashflow(

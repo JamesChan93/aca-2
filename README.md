@@ -95,7 +95,7 @@ sequence. The `supervise` command keeps strategy dispatch disabled. The opt-in
 explicit operational strategy selection to this same replay/risk/execution core.
 It includes finalised candle warm-up, permanent decision identities, entries, exits
 and UTC boundary accounting. It grants zero qualifying paper days or episodes.
-C1 is complete; Phase 4 and G2 still require C2–C4.
+C1 and C2 are complete; Phase 4 and G2 still require C3–C4.
 [Historical paper risk](docs/phase-4-historical-risk.md) now preserves original-time
 NAV, loss latches and investment flows during replay, with an explicit flat-account
 upgrade baseline. `aca paper valuations --account UUID --limit 20` reads its
@@ -103,9 +103,10 @@ provisional evidence. [Historical performance](docs/phase-4-performance.md) adds
 read-only, source-bounded GBP report with journal-reconciled contributions, withdrawals,
 fees and P&L, flow-neutral TWR and bounded annualised MWR. Use
 `aca paper performance --account UUID`; missing valuation evidence leaves returns
-unavailable. The report begins at the explicit historical baseline. Remaining
-accounting operations and the named local safety checks are
-tracked in the completion checklist. Deployment recovery and sustained reliability
+unavailable. The report begins at the explicit historical baseline. [Managed-account transfers and corrections](docs/phase-4-accounting.md) add explicit
+GBP/BTC/ETH owner flows and immutable reversal/replacement. Corrections invalidate
+units/returns and quarantine the account; no unit-history rebuild/rearm is supplied.
+The named local safety checks and closeout remain in the completion checklist. Deployment recovery and sustained reliability
 have separate later-stage acceptance. Outbound delivery and scheduled notices are
 opt-in capabilities;
 real destination integration and alert latency qualification remain outstanding.

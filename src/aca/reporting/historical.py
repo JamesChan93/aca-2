@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca import __version__
 from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
+from aca.accounting.operations import flow_from_journal, flow_journal, flow_marks, investment_amount
 from aca.domain.trading import ZERO, Asset, Fill, Journal, fingerprint
 from aca.domain.values import FINANCIAL_CONTEXT
 from aca.operations.config import RiskPolicy
@@ -39,12 +40,13 @@ class Totals:
     realised: Decimal = ZERO
     trades: int = 0
     flows: int = 0
+    transferred_unrealised: Decimal = ZERO
     fee_assets: dict[Asset, Decimal] = field(default_factory=dict)
 
     def add(self, journal: Journal, fill: Fill | None = None) -> None:
         with localcontext(FINANCIAL_CONTEXT):
-            if journal.kind in {"contribution", "withdrawal"}:
-                amount = journal.movements[0].quantity
+            if journal.kind in {"contribution", "withdrawal", "transfer"}:
+                amount = investment_amount(journal)
                 self.contributions += max(ZERO, amount)
                 self.withdrawals += max(ZERO, -amount)
                 self.flows += 1
@@ -55,6 +57,10 @@ class Totals:
             )
             self.realised -= sum(
                 (line.gbp for line in journal.lines if line.account == "pnl:realised"), ZERO
+            )
+            self.transferred_unrealised -= sum(
+                (line.gbp for line in journal.lines if line.account == "equity:transfer_basis"),
+                ZERO,
             )
             for fee in fill.fees if fill else ():
                 self.fee_assets[fee.asset] = self.fee_assets.get(fee.asset, ZERO) + fee.quantity
@@ -179,10 +185,16 @@ async def _evidence(
             if (
                 journal
                 and journal.occurred_at <= end.state.as_of
-                and journal.kind not in {"contribution", "withdrawal", "trade"}
+                and journal.kind not in {"contribution", "withdrawal", "trade", "transfer"}
             ):
                 raise ValueError("performance does not support transfers/corrections")
-            if row["kind"] == "cash_flow" and number <= end.control_version:
+            if row["kind"] in {"cash_flow", "asset_transfer"} and number <= end.control_version:
+                if journal is not None and journal.kind == "transfer":
+                    flow_from_journal(journal)
+                    if journal.occurred_at != row["at"]:
+                        raise ValueError("transfer chronology differs from event")
+                    controls.append((number, journal))
+                    continue
                 if (
                     journal is None
                     or journal.kind not in {"contribution", "withdrawal"}
@@ -264,7 +276,15 @@ def _advance(
             raise ValueError("performance cash flow was already consumed")
         if not before.state.as_of <= journal.occurred_at <= after.state.as_of:
             raise ValueError("performance cash-flow chronology mismatch")
-        amount = journal.movements[0].quantity
+        flow = flow_from_journal(journal)
+        if journal.kind == "transfer":
+            expected = flow_journal(flow, state.balances, source=journal.source).model_copy(
+                update={"id": journal.id}
+            )
+            if expected != journal:
+                raise ValueError("performance transfer economics differ from sealed journal")
+        state = flow_marks(state, flow)
+        amount = investment_amount(journal)
         price = unit_price(state, journal.occurred_at)
         units = flow_units(state, amount, journal.occurred_at)
         state = state.model_copy(
@@ -352,7 +372,7 @@ class Period:
                     - start.nav_gbp
                     + sum((b.cost_gbp for b in start.state.balances), ZERO)
                 )
-                if pnl != t.realised + unrealised - t.fees:
+                if pnl != t.realised + unrealised + t.transferred_unrealised - t.fees:
                     raise ValueError("performance attribution does not balance")
             if not self.issues:
                 if start.state.units:
@@ -385,6 +405,7 @@ class Period:
                 "fees_gbp": str(t.fees),
                 "fee_quantities": {a: str(q) for a, q in sorted(t.fee_assets.items())},
                 "realised_pnl_gbp": str(t.realised),
+                "transferred_unrealised_gbp": str(t.transferred_unrealised),
                 "unrealised_change_gbp": str(unrealised) if unrealised is not None else None,
                 "pnl_gbp": str(pnl) if pnl is not None else None,
                 "twr": str(twr) if twr is not None else None,
@@ -402,6 +423,29 @@ async def _report(
     financial = await store.audit(c)
     if financial is None:
         raise ValueError("paper account not initialised")
+    if financial.accounting_invalidated:
+        from aca.storage.accounting import accounting_status
+
+        invalid: dict[str, object] = {
+            "schema_version": 1,
+            "report_type": "historical_paper_performance",
+            "application_version": __version__,
+            "calculation_version": "historical-performance-v2",
+            "account_id": str(store.account_id),
+            "financial_head_version": financial.version,
+            "requested_start_source": start_source,
+            "requested_end_source": end_source,
+            "accounting_valid": False,
+            "units_valid": False,
+            "period": None,
+            "reason": "accounting_correction_requires_rebuild",
+            "corrections": await accounting_status(c, store.account_id),
+            "provisional": True,
+            "promotion_evidence": False,
+            "tax_report_final": False,
+            "live_execution_available": False,
+        }
+        return {**invalid, "report_hash": fingerprint(invalid)}
     reader = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
     head = await reader.latest(c)
     cursor = (
@@ -506,7 +550,7 @@ async def _report(
         "schema_version": 1,
         "report_type": "historical_paper_performance",
         "application_version": __version__,
-        "calculation_version": "historical-performance-v1",
+        "calculation_version": "historical-performance-v2",
         "account_id": str(store.account_id),
         "mode": "paper",
         "scope": "recorded_historical_baseline_forward",
@@ -528,7 +572,7 @@ async def _report(
             .select_from(events)
             .where(
                 events.c.account_id == store.account_id,
-                events.c.kind == "cash_flow",
+                events.c.kind.in_(("cash_flow", "asset_transfer")),
                 events.c.version > reader.restore(head).control_version,
             )
         ),

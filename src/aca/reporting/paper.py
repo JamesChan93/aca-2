@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal, localcontext
 
 from aca.accounting.ledger import stored
+from aca.accounting.operations import investment_amount
 from aca.domain.trading import ZERO, Journal, PortfolioSnapshot
 from aca.domain.values import FINANCIAL_CONTEXT
 from aca.portfolio.state import episode_risk, free_cash, market_exposure, nav, unit_price
@@ -45,9 +46,9 @@ def _performance(
     state: PortfolioSnapshot, history: tuple[Journal, ...], at: datetime
 ) -> dict[str, object]:
     flows = tuple(
-        (j.occurred_at, -sum((m.quantity for m in j.movements if m.asset == "GBP"), ZERO))
+        (j.occurred_at, investment_amount(j).copy_negate())
         for j in history
-        if j.kind in {"contribution", "withdrawal"}
+        if j.kind in {"contribution", "withdrawal", "transfer", "correction"}
     )
     contributions = -sum((amount for _, amount in flows), ZERO)
     result: dict[str, object] = {
@@ -61,6 +62,20 @@ def _performance(
         "synthetic_replay_counts_toward_promotion": False,
         "tax_report_final": False,
     }
+    if state.accounting_invalidated:
+        result.update(
+            provisional=True,
+            reason="accounting_correction_requires_rebuild",
+            accounting_valid=False,
+            units_valid=False,
+            unit_price=None,
+            twr_since_inception=None,
+            pnl_gbp=None,
+            mwr=None,
+            drawdown=None,
+            balances=[b.document() for b in state.balances],
+        )
+        return result
     try:
         value, unit = nav(state, at), unit_price(state, at)
         result.update(

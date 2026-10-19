@@ -49,7 +49,8 @@ or a release gate is complete.
 ## Fixed remaining Phase 4 work
 
 **C1 is complete** in 0.4.10, with [implementation and acceptance evidence](phase-4-continuous-paper.md).
-C2, C3 and C4 remain **open**. Execution order is C1, C2, C3, then C4. C3 tests the
+**C2 is complete** in 0.4.11 with [transfer/correction evidence](phase-4-accounting.md).
+C3 and C4 remain **open**. Execution order is C1, C2, C3, then C4. C3 tests the
 integrated C1/C2 behaviour as well as existing controls. Implementation may be split
 for review, but every PR must name one of these IDs and the acceptance conditions it
 closes. These are four work packages, not a promise of four PRs or four days.
@@ -93,15 +94,15 @@ paper-only; the runner supplies no research promotion or Kraken write capability
 **Gap:** purchases, sales, fees, contributions/withdrawals and manual reserves exist;
 operational transfer and correction/rebuild paths remain incomplete.
 
-- [ ] Support explicit quantity transfers into/out of the nominated virtual account
+- [x] Support explicit quantity transfers into/out of the nominated virtual account
   for its admitted GBP/BTC/ETH assets, with external reference, event-time GBP
   valuation and investment-flow classification. A transfer across this managed-account
   boundary must not be reported as trading P&L or a tax disposal by assumption.
-- [ ] Expose audited reversal/replacement of supported erroneous accounting records,
+- [x] Expose audited reversal/replacement of supported erroneous accounting records,
   using immutable links and reasons. Rebuild or explicitly invalidate affected
   projections, units and historical reports; previously issued reports retain their
   original version/evidence. Do not add an UPDATE/DELETE shortcut.
-- [ ] Test duplicate/conflicting references, an unavailable GBP valuation, out-of-order
+- [x] Test duplicate/conflicting references, an unavailable GBP valuation, out-of-order
   correction, insufficient inventory/reserved funds and restart. Compare balances,
   journal totals and flow-neutral returns with independently calculated fixtures.
   Pending fills and uncertain commands continue to block unsafe mutations/entries.
@@ -181,8 +182,8 @@ named and open; it cannot be relabelled as complete.
 
 ## Safety scenario inventory at the audited baseline
 
-C1 integration gaps in this baseline inventory are now covered by its linked
-implementation/tests. C3 still reviews the complete integrated release against
+C1 integration gaps and C2 accounting gaps in this baseline inventory are now
+covered by their linked implementation/tests. C3 still reviews the complete integrated release against
 every applicable assertion; the later-stage allocations remain unchanged.
 
 **Evidence** means relevant implementation/tests exist and need review for the
@@ -256,8 +257,8 @@ No positive gate or observation-start decision is made here.
 
 ## Change control and stop condition
 
-P4-C1 is complete with the linked acceptance evidence. The next implementation task
-is **P4-C2**. C3 and C4 follow the connected workflow and accounting operations.
+P4-C1 and P4-C2 are complete with their linked acceptance evidence. The next
+implementation task is **P4-C3**; P4-C4 follows its integrated safety results.
 Before adding a Phase 4 blocker,
 record the original requirement, the concrete unsafe/missing behaviour and the
 acceptance condition. An optional enhancement or later readiness measurement must

@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca.accounting.ledger import stored
+from aca.accounting.operations import investment_amount
 from aca.domain.trading import (
     TERMINAL,
     UNCERTAIN,
@@ -122,6 +123,26 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
     state = await store.audit(c)
     if state is None:
         raise ValueError("paper account not initialised")
+    if state.accounting_invalidated:
+        result: dict[str, object] = {
+            "day": day.isoformat(),
+            "contributions_gbp": None,
+            "withdrawals_gbp": None,
+            "fees_gbp": None,
+            "accounting_totals_available": False,
+            "fault_events": None,
+            "observed": None,
+            "daily_pnl_gbp": None,
+            "daily_twr": None,
+            "day_boundaries": None,
+            "daily_return_complete": False,
+            "daily_return_reason": "accounting_correction_requires_rebuild",
+            "units_valid": False,
+            "tax_reserve_estimate_gbp": None,
+            "backup_status": "unverified",
+            "financial_head_version": state.version,
+        }
+        return {**result, "report_hash": fingerprint(result)}
     rows = (
         (
             await c.execute(
@@ -139,12 +160,12 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
     with localcontext(FINANCIAL_CONTEXT):
         for raw in rows:
             journal = Journal.restore(raw)
-            if journal.kind not in {"contribution", "withdrawal", "trade"}:
+            if journal.kind not in {"contribution", "withdrawal", "trade", "transfer"}:
                 raise ValueError("daily summary does not support transfers/corrections")
-            if journal.kind in {"contribution", "withdrawal"}:
-                if len(journal.movements) != 1 or journal.movements[0].asset != "GBP":
+            if journal.kind in {"contribution", "withdrawal", "transfer"}:
+                if len(journal.movements) != 1:
                     raise ValueError("unsupported daily investment flow")
-                amount = journal.movements[0].quantity
+                amount = investment_amount(journal)
                 contributions += max(ZERO, amount)
                 withdrawals += max(ZERO, amount.copy_negate())
             fees += sum(
@@ -242,7 +263,7 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
                 "opening": opening.document(),
                 "closing": closing_boundary.document(),
             }
-    result: dict[str, object] = {
+    result = {
         "day": day.isoformat(),
         "contributions_gbp": str(contributions),
         "withdrawals_gbp": str(withdrawals),
@@ -297,6 +318,13 @@ def notice_payload(document: dict[str, object], ident: UUID, account: UUID) -> d
         day = date.fromisoformat(str(summary["day"]))
         from aca.domain.values import parse_decimal
 
+        if summary.get("accounting_totals_available") is False:
+            return {
+                "content": f"DAILY SUMMARY | {day.isoformat()} UTC\n"
+                "Accounting corrected; units and daily totals require rebuild. "
+                f"Entries halted.\nAccount: {account}\nNotice: {ident}\nLive trading: disabled",
+                "allowed_mentions": {"parse": []},
+            }
         amounts = [
             str(parse_decimal(summary[key]))
             for key in ("contributions_gbp", "withdrawals_gbp", "fees_gbp")

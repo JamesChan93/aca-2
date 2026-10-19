@@ -74,7 +74,9 @@ class Fill(Record):
 
 
 class JournalLine(Record):
-    account: str = Field(pattern=r"^(asset:(GBP|BTC|ETH)|equity:flows|pnl:realised|expense:fees)$")
+    account: str = Field(
+        pattern=r"^(asset:(GBP|BTC|ETH)|equity:(flows|transfer_basis)|pnl:realised|expense:fees)$"
+    )
     gbp: FinancialDecimal
 
 
@@ -91,6 +93,8 @@ class Journal(Record):
     lines: tuple[JournalLine, ...] = Field(min_length=2)
     movements: tuple[Movement, ...]
     reverses: UUID | None = None
+    replaces: UUID | None = Field(default=None, exclude_if=lambda v: v is None)
+    valuation: Valuation | None = Field(default=None, exclude_if=lambda v: v is None)
     reason: str = Field(min_length=1, max_length=240)
 
     @model_validator(mode="after")
@@ -237,6 +241,8 @@ class PortfolioSnapshot(Record):
     ready: bool = False
     tax_reserve_gbp: FinancialDecimal = Field(default=ZERO, ge=0)
     incident: str | None = None
+    # Omit the default to preserve every pre-C2 checkpoint/delta hash.
+    accounting_invalidated: bool = Field(default=False, exclude_if=lambda v: not v)
 
     @model_validator(mode="after")
     def unique(self) -> Self:

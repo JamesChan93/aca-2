@@ -6,7 +6,7 @@ services:
       - "127.0.0.1:55432:5432"
 
   linux_tests:
-    image: aca-foundation-tests:0.4.10
+    image: aca-foundation-tests:0.4.11
     build:
       context: .
       target: test
