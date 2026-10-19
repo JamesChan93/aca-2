@@ -4,6 +4,8 @@ Release candidate 0.4.6, 19 October 2026. Extends the optional outbound worker w
 daily summaries and repeated current critical conditions. Phase 4/G2 remain
 incomplete; this adds no strategy dispatch, qualifying paper days or live capability.
 The [status register](status.md) separates engineering from the later 56-day trial.
+Release 0.4.7 adds [worker health and metrics](phase-4-notification-health.md); its
+run command binds a local health port and should use its own notification container.
 
 ## Upgrade and preview
 
@@ -118,7 +120,7 @@ retries, terminal receipts, bounded failures, safe rendering and unavailable rep
 No real Discord or exchange request is part of the suite.
 
 The single nominated account/destination remains the operating scope. Shared-webhook
-rate coordination across accounts is unimplemented. Notification health/Prometheus,
+rate coordination across accounts is unimplemented. At this 0.4.6 milestone, notification health/Prometheus,
 external heartbeat, complete full-day returns, real destination integration and the
 critical 60-second latency objective remain unqualified. Resource/retention and
 disaster restore trials remain required. See the [verification record](evidence/phase-4-scheduled-notifications.json).

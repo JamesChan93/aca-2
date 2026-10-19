@@ -52,7 +52,7 @@ jobs:
           docker compose exec -T app aca paper recover --account 6e04530b-9382-418d-9a24-331672f4016b
           docker compose exec -T app aca paper audit --account 6e04530b-9382-418d-9a24-331672f4016b
           docker compose exec -T app aca notifications status --account 6e04530b-9382-418d-9a24-331672f4016b > /tmp/aca-notifications.json
-          python -c 'import json; d=json.load(open("/tmp/aca-notifications.json")); assert d["configured"] is False; assert d["backlog"] >= 1; assert d["delivered"] == 0; assert d["live_execution_available"] is False'
+          python -c 'import json; d=json.load(open("/tmp/aca-notifications.json")); assert d["configured"] is False; assert d["backlog"] >= 1; assert d["delivered"] == 0; assert d["live_execution_available"] is False; assert d["as_of"]; assert isinstance(d["scheduled_queues"], dict)'
           docker compose exec -T app aca notifications prepare --account 6e04530b-9382-418d-9a24-331672f4016b > /tmp/aca-notice-preparation.json
           python -c 'import json; d=json.load(open("/tmp/aca-notice-preparation.json")); assert d["live_execution_available"] is False; assert d["daily_evidence_unavailable"] is False'
           docker compose exec -T app aca notifications notices --account 6e04530b-9382-418d-9a24-331672f4016b --limit 2 > /tmp/aca-notice-preview.json
@@ -70,7 +70,7 @@ jobs:
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.6
+          image-ref: aca-foundation:0.4.7
           version: v0.76.0
           scanners: vuln,secret
           format: table

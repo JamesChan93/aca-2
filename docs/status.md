@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 19 October 2026 for release candidate 0.4.6. This describes engineering
+Updated 19 October 2026 for release candidate 0.4.7. This describes engineering
 capabilities and missing evidence; it is not a gate approval.
 
 **Phase 4 still has coding and safety validation work. The Phase 5 56-day
@@ -14,7 +14,7 @@ and short maintenance runs do not count as qualifying signal-driven paper tradin
 | Accounting and risk | GBP journal/quantities, contributions/withdrawals, unitisation, reservations, Decimal sizing, independent dispatch controls and durable loss latches | Operational transfers/conversions/corrections, tax inventory/reserve workflows and complete safety evidence |
 | Paper execution | Durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery and ordered public replay | Continuous signal scheduling, measured fill/latency calibration and remaining process/storage/recovery trials |
 | Reports | Audited original-time valuations, bounded historical performance, flow-neutral TWR and bounded MWR | Complete daily boundary coverage, owner-wide tax reporting and extended-period resource qualification |
-| Notifications | Optional Discord transition alerts, durable retries, daily provisional summaries and current-state critical repeats | Real webhook integration, latency/reliability qualification, notification metrics/health and external heartbeat |
+| Notifications | Optional Discord transition alerts, durable retries, daily provisional summaries, current-state critical repeats and cached worker health/metrics | Real webhook integration, latency/reliability qualification, retained-failure review workflow and external heartbeat |
 | Operations | Local health/metrics, private backups before upgrades and documented procedures | Off-host encrypted backups, WAL recovery, restore drill and demonstrated RPO/RTO |
 
 The Phase 4 exit is **G2: the applicable safety suite, deterministic replay,

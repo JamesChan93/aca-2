@@ -10,9 +10,17 @@ from time import monotonic
 from uuid import UUID
 
 import structlog
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from aca.observability.delivery import NotificationOwner, read_notices, status
 from aca.observability.discord import DiscordSender, Webhook
+from aca.observability.health import (
+    NotificationHealthServer,
+    NotificationMetrics,
+    NotificationMonitor,
+    NotificationStatus,
+    read_sample,
+)
 from aca.operations.config import ConfigurationError, Settings
 from aca.storage.database import create_engine, verify_runtime
 
@@ -39,6 +47,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     webhook = Webhook.load(args.webhook_file) if args.action in {"configure", "run"} else None
     engine = create_engine(settings)
     sender: DiscordSender | None = None
+    health: NotificationStatus | None = None
+    server: NotificationHealthServer | None = None
+    monitor_task: asyncio.Task[None] | None = None
+    monitor_engine: AsyncEngine | None = None
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     signals: list[signal.Signals] = []
@@ -59,6 +71,17 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                 if webhook is None:
                     raise ConfigurationError("a notification secret file is required")
                 sender = DiscordSender(webhook)
+                health, metrics = NotificationStatus(args.account), NotificationMetrics()
+                server = NotificationHealthServer(health, metrics)
+                await server.start(settings.health.host, settings.health.port)
+                # Separate pool: observation cannot consume the delivery owner's spare
+                # connection while it builds a daily report. HTTP handlers only read cache.
+                monitor_engine = create_engine(settings)
+                observer_engine = monitor_engine
+                monitor = NotificationMonitor(
+                    health, metrics, lambda: read_sample(observer_engine, args.account)
+                )
+                monitor_task = asyncio.create_task(monitor.run(stop))
                 for sig in (signal.SIGTERM, signal.SIGINT):
                     loop.add_signal_handler(sig, stop.set)
                     signals.append(sig)
@@ -69,12 +92,16 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                     prepared = await owner.prepare(datetime.now(UTC), include_daily=include_daily)
                     if include_daily:
                         next_daily = monotonic() + 60
+                        health.daily_evidence_unavailable = bool(
+                            prepared["daily_evidence_unavailable"]
+                        )
                     if prepared["daily_evidence_unavailable"]:
                         structlog.get_logger().error(
                             "notification_summary_evidence_unavailable",
                             account_id=str(args.account),
                         )
                     outcome = await owner.tick(sender, datetime.now(UTC))
+                    health.worker_last_success = monotonic()
                     if outcome in {"disabled", "dead_letter", "abandoned"}:
                         structlog.get_logger().error(
                             "notification_delivery_incident",
@@ -87,8 +114,26 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                         await asyncio.wait_for(stop.wait(), timeout=1)
                     except TimeoutError:
                         pass
-        return await status(engine, args.account)
+        result = await status(engine, args.account)
+        if health is not None:
+            health.shutting_down = True
+            result["worker_health"] = health.document()
+        return result
+    except BaseException:
+        if health is not None:
+            health.worker_faulted = True
+        raise
     finally:
+        if health is not None:
+            health.shutting_down = True
+        stop.set()
+        if monitor_task is not None:
+            monitor_task.cancel()
+            await asyncio.gather(monitor_task, return_exceptions=True)
+        if server is not None:
+            await server.close()
+        if monitor_engine is not None:
+            await monitor_engine.dispose()
         for sig in signals:
             loop.remove_signal_handler(sig)
         if sender is not None:

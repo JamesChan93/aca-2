@@ -11,7 +11,12 @@ services:
     secrets: [runtime_password, discord_webhook]
     restart: "no"
     healthcheck:
-      disable: true
+      disable: false
+      test: [CMD, aca, health, --url, "http://127.0.0.1:8000/health/notifications"]
+      interval: 5s
+      timeout: 4s
+      start_period: 30s
+      retries: 2
 
 networks:
   notifications_egress:
