@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-concurrent-restore",
+  "application_version": "0.4.9",
+  "verified_at_utc": "2026-10-19T17:16:55.183089+00:00",
+  "scope": "Exported-snapshot consistency with deterministic concurrent paper commits between two disposable local PostgreSQL clusters",
+  "source": {
+    "application_python_files": 99,
+    "application_source_sha256": "5c51a786f50da3117b8caa3208d3869409ddf05cb3a28758ebb5c68e47c96bda",
+    "application_source_unchanged": true,
+    "source_wheel_existing_candidate_image_identical": true,
+    "runtime_wheel_excludes_tests_and_helpers": true,
+    "drill_files_sha256": "6bb013fc68c38981abbefe635f585cd72ea87a2965b7c8254b5ecd90ba3dbe90",
+    "dependency_config_schema_and_base_image_changes": false
+  },
+  "verification": {
+    "ruff_lint_and_format": "passed",
+    "ruff_format_files": 141,
+    "mypy_source_files": 123,
+    "wheel_and_sdist_build": "passed",
+    "dependency_consistency": "passed",
+    "full_linux_arm64_musl": {
+      "tests": 515,
+      "seconds": 86.32,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0012_tax_cash_reserves"
+    },
+    "new_pytest_guard_cases": 32,
+    "focused_native_restore_guards": {
+      "tests": 56,
+      "seconds": 0.25,
+      "result": "passed"
+    },
+    "existing_1000_example_financial_properties_and_10000_lifecycle_sequences_retained": true,
+    "host_orchestrator_python": "3.9.6",
+    "local_drill": {
+      "result": "passed",
+      "fresh_clusters": 2,
+      "synthetic_accounts": 4,
+      "prefix_cycles_before_snapshot": 64,
+      "overlap_cycles": 32,
+      "commits_while_dump_waited": 96,
+      "dump_backend_observed_blocked_by_exact_barrier_backend": true,
+      "snapshot_exporter_held_until_dump_completed": true,
+      "snapshot_reimport_unchanged_after_writes": true,
+      "newer_source_rows_and_financial_economics_observed": true,
+      "post_snapshot_rows_excluded_from_restore": true,
+      "application_tables_compared": 25,
+      "populated_tables_compared": 17,
+      "captured_table_counts_and_sha256": {
+        "alembic_version": {
+          "rows": 1,
+          "sha256": "f53ba8ee1c23d6be1e35d0d3519521c930e672573a8ecd3c69db6a95c9a43583"
+        },
+        "audit_events": {
+          "rows": 1,
+          "sha256": "1dba9fe10937b32ffc78df5c0f1aa4468212aa1e85b63e379efd8cc38fd766bb"
+        },
+        "configuration_versions": {
+          "rows": 1,
+          "sha256": "c632e29f9d9aae7e6952c428ec942d8dc8cd89a42c006121ac85e258de868b38"
+        },
+        "market_receipts": {
+          "rows": 64,
+          "sha256": "42aee837822a78a0a0bf0c315b8956f1a10a5dd9aa2f1f107395492f06a5c022"
+        },
+        "paper_accounts": {
+          "rows": 4,
+          "sha256": "7924f597a2799612b197e225a31090846a696374b7cb06594f18474d38677b77"
+        },
+        "paper_alerts": {
+          "rows": 140,
+          "sha256": "6b44c1abbff79ced7fd7c1a4b679851b5d40b23aa5886696ba03043585c279ed"
+        },
+        "paper_checkpoints": {
+          "rows": 6,
+          "sha256": "92fd11a94d37f2774085ae8a95aaa6bd41245d71399d4315ebd63256c381aef1"
+        },
+        "paper_events": {
+          "rows": 291,
+          "sha256": "c3b196cc4027dabd0d7d17a98b64863e3c4c0b2249c510e9040b1a460cd0da79"
+        },
+        "paper_fills": {
+          "rows": 1,
+          "sha256": "845789083f71ce861dd5312c19aeca7126f0a81da4b165a33f35d7b04b1cf198"
+        },
+        "paper_journal_lines": {
+          "rows": 140,
+          "sha256": "ecf976a80cefd2c35e5e24c150de9beef0671a06a28d40f9d35c14d65ceab663"
+        },
+        "paper_journals": {
+          "rows": 69,
+          "sha256": "e334e2cbecf14e4e4c43a32de169ee1231b5797799b35ba971efed2b9d44d45f"
+        },
+        "paper_movements": {
+          "rows": 71,
+          "sha256": "8e1e6a2c6af829c85fc2721b513ecc9ffc9ae0a5d07f2d9295f75065cd39507a"
+        },
+        "paper_notice_receipts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_notices": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_notification_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_notification_reviews": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_order_identities": {
+          "rows": 5,
+          "sha256": "184ffbe4ea16bfcd84a13a79cb4bc98f3583ee651eb28264ab1cf692af90dfb8"
+        },
+        "paper_replay_cursors": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_replay_valuations": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "paper_tax_reserves": {
+          "rows": 65,
+          "sha256": "035b0b9c04dc2b5887787f5f5c633ff75232dd98f07dd253fd449a4e0ea1a41a"
+        },
+        "paper_venue_events": {
+          "rows": 10,
+          "sha256": "a39ab076daecf9e2a7b01500cbfd247879678dd2cfd40b297d2f3916d51a31fe"
+        },
+        "public_replay_events": {
+          "rows": 64,
+          "sha256": "0d4a96b0ccfed28b4620cc2ca0b36010962bfe9c2941eca82e4e8607ce104860"
+        },
+        "public_trades": {
+          "rows": 64,
+          "sha256": "479e1917b6ee7cb70486db7a860b3a40cbab8ec1836faf826f813ad267efdc51"
+        },
+        "research_artifacts": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "research_events": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "captured_sequence_counters": {
+        "public_replay_events_number_seq": [
+          64,
+          true
+        ]
+      },
+      "captured_sequence_row_maxima": {
+        "public_replay_events_number_seq": 64
+      },
+      "fenced_source_sequence_counters": {
+        "public_replay_events_number_seq": [
+          96,
+          true
+        ]
+      },
+      "restored_sequence_counters": {
+        "public_replay_events_number_seq": [
+          96,
+          true
+        ]
+      },
+      "sequence_bounds_and_existing_row_id_safety_verified": true,
+      "selected_catalog_sha256": {
+        "columns": "5012c502c6f4def7af4a842b4c2511eaab9d75c4850deff66f25574deca7ecd1",
+        "constraints": "066df0a25e08e22303a631da0397430a25059f33239f882ebe0048ad474b74be",
+        "database_privileges": "519e544e0ce1f2e1892b53660bae58dd29369999d1787d739fdff8bf10acdac7",
+        "default_privileges": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "functions": "425fc1fc71c82c4ef7d56e1d9b8a6e4ee7317c0268afe731bd2f8734caa94a9a",
+        "indexes": "8301c9afa7331a226395df297cce25fde28a5c8d59159b634e5e2d2be20365fe",
+        "relations": "9d84ab9a8f9b570c3aa6489396268282d2f7ddae02affafbea39aaafbb5721ff",
+        "roles": "62e4337ab73e4d87068af027daa6b171d5e31d1c843922e08dc33a5defc3718b",
+        "schema": "0f07aebd66b1629e392af0668179f6b1365474eb717a5d6ba57456ea38352cbc",
+        "sequence_definitions": "cd7de79a7b1a8587c071255b7977082205943967359648d54525c0315348c60b",
+        "triggers": "9ef548ce0e7f134e7685adce4a9bb4735c6d05453ac995cda41482bfdf10aec7"
+      },
+      "validated_case_gbp": {
+        "captured": "1064",
+        "newer_source": "1096",
+        "restored": "1064"
+      },
+      "dump": {
+        "bytes": 159247,
+        "sha256": "3122b08ffd0dedc38f3aa024cd667300fe31b1a6927027b1841034886f2fa24f",
+        "format": "custom"
+      },
+      "restore_and_verify_seconds": 0.928,
+      "end_to_end_seconds_including_build_startup_and_cleanup": 32.854,
+      "failed_acl_restore_rolled_back": true,
+      "restore_preserves_ownership_and_acl": true,
+      "single_transaction_and_exit_on_error": true,
+      "separate_interpreter_recovery_runs": 2,
+      "recovery_submit_or_cancel_attempts": 0,
+      "repeated_recovery_economics_equal": true,
+      "full_financial_audits_and_runtime_permission_probes": "passed",
+      "source_unchanged_after_capture": true,
+      "cleanup_complete": true,
+      "private_directory_mode": "0700",
+      "private_files_mode": "0600"
+    },
+    "hosted_checks": "Recorded separately on the exact pull request commit; local evidence only"
+  },
+  "retained_environment": {
+    "application_version": "0.4.8",
+    "schema": "0011_notification_reviews",
+    "container_ids_unchanged_and_healthy": true,
+    "financial_counts_and_content_digests_unchanged": true,
+    "financial_counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0,
+      "paper_notices": 1,
+      "paper_notice_receipts": 0
+    },
+    "backup_migration_deployment_or_restart": false,
+    "collector_or_notification_worker_started": false,
+    "discord_requests": 0,
+    "private_kraken_access": false
+  },
+  "limits": {
+    "controlled_overlap_not_continuous_write_copy_throughput_trial": true,
+    "source_retained_for_comparison_and_both_clusters_on_one_host": true,
+    "research_account_replay_and_scheduled_notification_tables_populated": false,
+    "backup_gap_import_or_complete_exchange_reconciliation": false,
+    "encryption_off_host_wal_pitr_or_production_backup_schedules": false,
+    "actual_host_database_crash_disk_full_power_loss_or_old_writer_fencing": false,
+    "production_rpo_or_rto_proven": false,
+    "long_history_resource_or_retention_qualification": false,
+    "trusted_admin_fixture_is_a_security_sandbox": false,
+    "sequence_policy": "Exact definitions; owned, increment 1, cache 1, non-cycling, min 1; counter bounds checked separately from MVCC rows"
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "T25_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "extended_paper_days_added": 0,
+    "qualifying_episodes_added": 0,
+    "live_execution_available": false
+  },
+  "publication_scan": {
+    "files": 212,
+    "actual_local_database_secret_values_checked": 3,
+    "findings": 0,
+    "original_prompt_hash_verified": true
+  }
+}

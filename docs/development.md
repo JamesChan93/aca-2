@@ -16,7 +16,10 @@ The [local logical-restore drill](phase-4-local-restore.md) runs separately with
 `python3 scripts/restore_drill.py`. It needs only Docker and host Python 3.9+, uses
 two random disposable projects without host ports, and restores synthetic accounts
 into a fresh cluster. CI runs this real drill after the full Linux suite. Its
-archive/target/comparison guard tests are also part of pytest. It does not back up
+archive/target/comparison and bounded snapshot-session guard tests are also part of
+pytest. The dump imports an exported snapshot while 96 controlled commits advance
+the source; the restored rows must match the captured prefix, with separate safe
+sequence-counter bounds. It does not back up
 or restart retained services or prove production RPO/RTO.
 
 The [manual tax-cash reserve workflow](phase-4-tax-cash-reserve.md) adds a sealed
