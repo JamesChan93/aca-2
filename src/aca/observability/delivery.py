@@ -9,24 +9,15 @@ from time import monotonic
 from typing import Self
 from uuid import UUID, uuid4
 
-from pydantic import Field
 from sqlalchemy import (
-    BigInteger,
-    Column,
-    DateTime,
-    MetaData,
-    String,
-    Table,
-    Uuid,
     func,
     select,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from aca.domain.trading import fingerprint
-from aca.domain.values import UtcDateTime, utc_datetime
+from aca.domain.values import utc_datetime
 from aca.observability.discord import DiscordSender, Webhook
 from aca.observability.notices import (
     critical,
@@ -36,36 +27,10 @@ from aca.observability.notices import (
     receipts,
     summary_day,
 )
-from aca.operations.config import StrictModel
+from aca.observability.records import MAX_ATTEMPTS, DeliveryState
+from aca.observability.records import history as history
+from aca.observability.reviews import ReviewRequest, review_failure, reviewed_count
 from aca.storage.paper import PaperStore, accounts, events, outbox
-
-history = Table(
-    "paper_notification_events",
-    MetaData(schema="aca"),
-    Column("account_id", Uuid, primary_key=True),
-    Column("number", BigInteger, primary_key=True),
-    Column("at", DateTime(timezone=True)),
-    Column("kind", String(32)),
-    Column("previous_hash", String(64)),
-    Column("fingerprint", String(64)),
-    Column("document", JSONB),
-)
-MAX_ATTEMPTS = 8
-
-
-class DeliveryState(StrictModel):
-    schema_version: int = Field(default=1, ge=1, le=1)
-    account_id: UUID
-    destination_hash: str = Field(pattern="^[a-f0-9]{64}$")
-    enabled: bool = True
-    cursor: int = Field(default=0, ge=0)
-    attempts: int = Field(default=0, ge=0, le=MAX_ATTEMPTS)
-    not_before: UtcDateTime
-    outcome: str = Field(default="configured", pattern="^[a-z_]{1,40}$")
-    alert_id: UUID | None = None
-    http_status: int | None = Field(default=None, ge=100, le=599)
-    message_id: str | None = Field(default=None, pattern="^[0-9]{17,20}$")
-    notice_id: UUID | None = None
 
 
 def payload(row: dict[str, object], version: int) -> dict[str, object]:
@@ -275,6 +240,13 @@ class NotificationOwner:
                 alert_id=old.alert_id if old and old.attempts else None,
             )
             await self._append(c, state, at, "operator_configured")
+
+    async def review(self, request: ReviewRequest) -> dict[str, object]:
+        async with self.operation, self.transaction() as c:
+            # Same per-account owner as delivery. A review never appends delivery
+            # state or invokes HTTP, and cannot overlap an in-flight local tick.
+            await self._head(c)
+            return await review_failure(c, self.account_id, request)
 
     async def _notice(
         self, c: AsyncConnection, kind: str, key: str, document: dict[str, object], at: datetime
@@ -590,6 +562,9 @@ async def status(engine: AsyncEngine, account_id: UUID) -> dict[str, object]:
                 ).where(history.c.account_id == account_id)
             )
         ).one()
+        reviewed = await reviewed_count(c, account_id)
+        if reviewed > failures:
+            raise ValueError("notification review counts are invalid")
         scheduled = (
             await c.execute(
                 select(notices.c.kind, func.count(), func.min(notices.c.created_at))
@@ -618,6 +593,8 @@ async def status(engine: AsyncEngine, account_id: UUID) -> dict[str, object]:
         "backlog": backlog,
         "oldest_pending_at": utc_datetime(oldest).isoformat() if oldest else None,
         "terminal_failures": failures,
+        "reviewed_terminal_failures": reviewed,
+        "unreviewed_terminal_failures": failures - reviewed,
         "delivered": delivered,
         "retry_events": retries,
         "last_delivery_at": utc_datetime(last_delivery).isoformat() if last_delivery else None,

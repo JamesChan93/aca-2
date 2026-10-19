@@ -68,14 +68,15 @@ On this worker `/health/ready` and `/health/notifications` return 200 only when:
 - A runtime/schema snapshot succeeded within ten seconds.
 - A worker tick completed within 30 seconds, without shutdown or worker fault.
 - The destination is configured/enabled and the last daily check has no evidence error.
-- No retained abandoned/dead-letter delivery events exist for the account.
+- No unreviewed abandoned/dead-letter delivery events exist for the account.
 
 Otherwise they return 503 with a fixed reason. The response includes a safe sample
 of counts, UTC timestamps, attempt count and retry deadline, never a webhook,
 destination hash, incident text, message body or Discord message ID. Retained terminal
-failures conservatively keep readiness degraded even after reconfiguration. There
-is no acknowledgement/clearing workflow in this increment; inspect the journal and
-record review separately. Delivery's existing retry/cursor policy continues.
+failures remain visible after review. Release 0.4.8 adds an
+[exact-event review workflow](phase-4-notification-review.md) for notification
+readiness; reconfiguration alone cannot acknowledge a lost message. Delivery's
+existing retry/cursor policy continues.
 
 A rate-limit wait is a functioning worker state, so it does not itself force 503.
 Use the wait/backlog metrics to detect delayed delivery. Readiness is not a claim
@@ -103,7 +104,7 @@ fixed queue/event/result labels are used.
 | `aca_notifications_destination_enabled` | Configured/enabled in the last sample |
 | `aca_notifications_pending{kind}` | Last observed transition/daily/critical backlog; -1 before any sample |
 | `aca_notifications_oldest_age_seconds{kind}` | Oldest timestamp age, or -1 if absent/future/unavailable |
-| `aca_notifications_delivery_events{kind}` | Retained delivered/retry/terminal-failure journal counts |
+| `aca_notifications_delivery_events{kind}` | Retained delivered/retry and total/reviewed/unreviewed terminal-failure counts |
 | `aca_notifications_current_attempts` | Current item's durable attempt count; -1 before a sample |
 | `aca_notifications_retry_wait_seconds` | Known deadline remaining, or -1 if unavailable |
 | `aca_notifications_last_delivery_age_seconds` | Age of last confirmed message, or -1 if absent/future/unavailable |

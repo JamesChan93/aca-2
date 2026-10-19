@@ -57,6 +57,8 @@ def sample(**changes: object) -> QueueSample:
             "delivered": 3,
             "retry_events": 1,
             "terminal_failures": 0,
+            "reviewed_terminal_failures": 0,
+            "unreviewed_terminal_failures": 0,
             "last_delivery_at": AT - timedelta(seconds=1),
             "attempts": 2,
             "not_before": AT + timedelta(hours=2),
@@ -99,7 +101,10 @@ def test_monotonic_cache_and_worker_freshness_are_independent() -> None:
     [
         ({"configured": False, "enabled": False}, "destination_unconfigured"),
         ({"enabled": False}, "destination_disabled"),
-        ({"terminal_failures": 1}, "retained_terminal_failures"),
+        (
+            {"terminal_failures": 1, "unreviewed_terminal_failures": 1},
+            "unreviewed_terminal_failures",
+        ),
     ],
 )
 def test_destination_failures_degrade_health_without_changing_delivery(

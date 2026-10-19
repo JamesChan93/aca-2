@@ -12,7 +12,8 @@ Optional [outbound paper alerts](docs/phase-4-notifications.md) have a separate,
 explicit setup. The default stack neither mounts a Discord secret nor sends messages.
 [Scheduled summaries and critical reminders](docs/phase-4-scheduled-notifications.md)
 extend that optional worker, with [local health and metrics](docs/phase-4-notification-health.md)
-when explicitly run in its own container. See the [current milestone status](docs/status.md) for
+when explicitly run in its own container. [Exact-event operator reviews](docs/phase-4-notification-review.md)
+preserve failed-delivery evidence while allowing notification health to recover. See the [current milestone status](docs/status.md) for
 the remaining Phase 4 work and the separate Phase 5 observation requirements.
 
 ## Start locally
