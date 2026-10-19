@@ -142,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
                     {
                         "phase": 4,
                         "offline_paper_execution_available": True,
-                        "continuous_paper_runner_available": False,
+                        "continuous_paper_runner_available": True,
                         "paper_maintenance_supervisor_available": True,
                         "ordered_paper_fill_replay_available": True,
                         "historical_paper_risk_available": True,

@@ -15,7 +15,7 @@ extend that optional worker, with [local health and metrics](docs/phase-4-notifi
 when explicitly run in its own container. [Exact-event operator reviews](docs/phase-4-notification-review.md)
 preserve failed-delivery evidence while allowing notification health to recover.
 See the [current milestone status](docs/status.md) and
-[fixed Phase 4 completion checklist](docs/phase-4-completion.md) for the four remaining
+[fixed Phase 4 completion checklist](docs/phase-4-completion.md) for C1 completion, the three remaining
 engineering packages and the separate research, observation and readiness gates.
 
 ## Start locally
@@ -90,7 +90,12 @@ it, the account stays suspended. It observes risk, cancels entries and reconcile
 the local venue. [Ordered public replay](docs/phase-4-replay.md) adds explicit flat-account
 enrolment, atomic venue effects and durable cursors. After enrolment, use
 `paper supervise --replay` and a new collector epoch; the runbook gives the full
-sequence. Strategy dispatch remains disabled. This does not complete Phase 4 or G2.
+sequence. The `supervise` command keeps strategy dispatch disabled. The opt-in
+[continuous runner](docs/phase-4-continuous-paper.md), `paper run`, connects an
+explicit operational strategy selection to this same replay/risk/execution core.
+It includes finalised candle warm-up, permanent decision identities, entries, exits
+and UTC boundary accounting. It grants zero qualifying paper days or episodes.
+C1 is complete; Phase 4 and G2 still require C2–C4.
 [Historical paper risk](docs/phase-4-historical-risk.md) now preserves original-time
 NAV, loss latches and investment flows during replay, with an explicit flat-account
 upgrade baseline. `aca paper valuations --account UUID --limit 20` reads its
@@ -99,7 +104,7 @@ read-only, source-bounded GBP report with journal-reconciled contributions, with
 fees and P&L, flow-neutral TWR and bounded annualised MWR. Use
 `aca paper performance --account UUID`; missing valuation evidence leaves returns
 unavailable. The report begins at the explicit historical baseline. Remaining
-accounting operations, strategy scheduling and the named local safety checks are
+accounting operations and the named local safety checks are
 tracked in the completion checklist. Deployment recovery and sustained reliability
 have separate later-stage acceptance. Outbound delivery and scheduled notices are
 opt-in capabilities;
@@ -132,8 +137,8 @@ are errors. `ACA_CONFIG` selects a TOML file; `ACA_MODE=paper` is the sole mode 
 Risk policy v1 is immutable. Its limits constrain historical research and the
 offline operational paper core. Durable hard/soft halts require audited review.
 
-No authenticated account access, continuous strategy trading service, final tax
-engine or live activation exists. Paper reconciliation uses only the local
+No authenticated account access, final tax engine or live activation exists.
+The continuous operational runner uses only the durable local paper venue. Paper reconciliation uses only the local
 simulator's records; it is not evidence of Kraken account reconciliation.
 Subsequent milestones require review; live order-writer implementation and activation
 require separate explicit authorisation under the approved plan.

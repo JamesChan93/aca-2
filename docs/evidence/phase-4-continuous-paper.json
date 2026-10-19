@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "milestone": "P4-C1",
+  "application_version": "0.4.10",
+  "database_schema": "0013_paper_strategy",
+  "verified_at_utc": "2026-10-19T19:22:28.408993+00:00",
+  "baseline": {
+    "pr": 17,
+    "commit": "faa7c0f319a0132107f6ffeed6c1e01ad87db395"
+  },
+  "source": {
+    "python_files": 104,
+    "sha256": "3fdc955791fd48e896e5f0fb4532e285d122e8d868efb3e8c7d1bebfd2fe6b23",
+    "hash_algorithm": "SHA256 of sorted package-relative UTF-8 path, NUL, file bytes for each .py",
+    "checkout_installed_wheel_runtime_image_identical": true,
+    "dependency_lock_or_base_image_changes": false
+  },
+  "verification": {
+    "ruff_lint_and_format": "passed",
+    "ruff_format_files": 148,
+    "mypy_source_files": 129,
+    "full_linux_arm64_musl": {
+      "result": "passed",
+      "tests": 537,
+      "seconds": 88.72,
+      "postgresql": "18.6",
+      "command": ".venv/bin/python scripts/ci_database.py --linux -q"
+    },
+    "focused_native": {
+      "result": "passed",
+      "tests": 22,
+      "seconds": 9.99,
+      "command": ".venv/bin/python scripts/ci_database.py tests/test_paper_strategy.py tests/test_capture_refresh.py -q"
+    },
+    "wheel_and_sdist_build": "passed",
+    "existing_1000_example_financial_properties_and_10000_lifecycle_sequences_retained": true,
+    "coverage": [
+      "Explicit immutable operational strategy selection; no research promotion or holdout state mutation",
+      "Stored point-in-time complete 200/201-bar prefix, strict symbol/interval and provenance binding",
+      "Long-to-entry-to-fill/fee-to-protection-to-flat-to-bounded-exit through the supervisor",
+      "Repeated ticks, duplicate candle receipts and new writer sessions do not duplicate economic actions",
+      "Crash after decision claim, after reservation, after consume/before send and after send/before acknowledgement; no replay",
+      "Stale capture, missing/unfinished/gapped candles and expired decisions cannot create entries",
+      "Original decision expiry is not extended by processing delay",
+      "Changed minimums and maintenance arriving after reservation veto submission and release only unused reservations",
+      "Actual daily-loss crossing blocks a later scheduled entry after the position is closed",
+      "Same-prefix UTC midnight valuation or continued daily suspension when its bridge is missing",
+      "Two audited midnight boundaries and a midday contribution yield zero cash-only daily P&L/TWR",
+      "Unchanged metadata refresh preserves collector epoch; changed rules require fresh v2 verification",
+      "Packaged CLI create/fund/select/enrol/run/status/decisions/daily/audit and persistence through restart"
+    ],
+    "existing_restore_regression": {
+      "result": "passed",
+      "application_tables_compared": 28,
+      "elapsed_seconds": 32.295,
+      "recovery_venue_commands": 0,
+      "failed_restore_rolled_back": true,
+      "cleanup_complete": true,
+      "fixture": "existing four-account concurrent-snapshot fixture; new strategy tables empty",
+      "C3_populated_restore_or_full_T25_completed": false
+    }
+  },
+  "synthetic_lifecycle": {
+    "account_id": "6d92b44f-2771-4027-802e-97daa1b8f956",
+    "source_artifact_sha256": "5aaa0af8d70bbb3c3be340808f5b9d04cf8f7c9a34f735b25c7168e1d4e5db6b",
+    "state_version": 50,
+    "balances": [
+      {
+        "schema_version": 1,
+        "asset": "GBP",
+        "quantity": "998.904279206080000000",
+        "cost_gbp": "998.904279206080000000"
+      },
+      {
+        "schema_version": 1,
+        "asset": "BTC",
+        "quantity": "0E-8",
+        "cost_gbp": "0E-18"
+      },
+      {
+        "schema_version": 1,
+        "asset": "ETH",
+        "quantity": "0",
+        "cost_gbp": "0"
+      }
+    ],
+    "order_outcomes": [
+      {
+        "purpose": "entry",
+        "client_id": "8445e36e-8307-5823-ab71-e282aa433c1a",
+        "state": "CANCELLED",
+        "filled": "0"
+      },
+      {
+        "purpose": "entry",
+        "client_id": "a0a1a8e2-8e9d-54a0-bc4e-e2a611160062",
+        "state": "FILLED",
+        "filled": "0.064484510000000000"
+      },
+      {
+        "purpose": "protection",
+        "client_id": "75ab9606-43f8-515e-a14c-82722a88fa15",
+        "state": "CANCELLED",
+        "filled": "0"
+      },
+      {
+        "purpose": "exit",
+        "client_id": "a9b090f4-14b2-5772-8651-076477c3960b",
+        "state": "FILLED",
+        "filled": "0.064484510000000000"
+      }
+    ],
+    "fill_postings": 2,
+    "journals": 3,
+    "fees_gbp": "1.031236283920000000",
+    "realised_pnl_gbp": "-0.064484510000000000",
+    "pnl_gbp": "-1.095720793920000000",
+    "financial_evidence_reconciled": true,
+    "valuation_complete": false,
+    "issues": [
+      "incomplete_historical_prefix",
+      "missing_gbp_valuation"
+    ],
+    "daily_return_complete": false,
+    "performance_report_hash": "ae8d41563b9b64aca848e05b8f672dd9f7b387745af0d63b6eaeb38304cec580",
+    "daily_report_hash": "dc14bb83947b62e1aeb7bec8ac8f60f53efe441f35bfb201049abb3d75509cd3",
+    "decision_count": 3,
+    "decision_hashes": [
+      "39455b583acc19cd0ffc700812ca5061c24dd40d9c48e2c3e40844dff7d5f4a2",
+      "f9c7cc9ef11e9d8788b6dfde220209326bfd8428f586aad0532b87fdc9e76081",
+      "2d00befac47d89aca5493a9ca89fc1631e158633e281e59eaaf10a6c894d2cbd"
+    ],
+    "sparse_held_feed_deliberately_leaves_performance_provisional": true
+  },
+  "cash_day_boundaries": {
+    "source_artifact_sha256": "b59b5815a8e7cee6de8931918111cf9eabd6289d225ead8df857e9dba874ea9a",
+    "day": "2026-01-15",
+    "contributions_gbp": "100",
+    "daily_pnl_gbp": "0E-18",
+    "daily_twr": "0E-18",
+    "daily_return_complete": true,
+    "report_hash": "c0f24733c42bff747e4d134a460d5ab93dd39df87dbada0aa64f20bd22343f7f",
+    "opening": {
+      "at": "2026-01-15T00:00:00Z",
+      "nav_gbp": "1000.000000000000000000",
+      "previous_source_hash": "b06255c4eabfb4e27a1966f2f36abf2cf9af4ba9e36e099a8c7ae02a6f05d349",
+      "following_source_hash": "781b2f6e4b0179b4e2fec3774ac1014cc6f644c710036181729d939d42ced94f"
+    },
+    "closing": {
+      "at": "2026-01-16T00:00:00Z",
+      "nav_gbp": "1100.000000000000000000",
+      "previous_source_hash": "1f282ee5b313635e4039d6e9d24c2dd80af5e161c520f894ec72b180979d5427",
+      "following_source_hash": "f8b6207ae17ac7aca62a3523018f8d8d16035150e2c0ad6df942a71f9654e701"
+    }
+  },
+  "local_packaged_smoke": {
+    "passed": true,
+    "project": "aca-c1-smoke-468185dabf02",
+    "account_id": "776a0271-c625-459c-b0c8-466d1b9e87b0",
+    "image_id": "sha256:9e47c1bb8275aeb60f3bab78e7368375cb8ce6b9e691c5dd75f130ca6e581c52",
+    "workers": [
+      {
+        "account_id": "776a0271-c625-459c-b0c8-466d1b9e87b0",
+        "database_ready": false,
+        "fill_replay_enabled": true,
+        "foundation_ready": false,
+        "healthy_ticks": 0,
+        "incomplete_safety_requirements": [
+          "authenticated_account_reads_not_implemented",
+          "local_paper_safety_review_not_complete",
+          "extended_paper_validation_not_complete",
+          "research_promotion_gate_not_passed",
+          "live_reconciliation_not_implemented",
+          "live_execution_not_implemented"
+        ],
+        "kind": "paper_strategy_runner_v1",
+        "last_tick_seconds": 0.026740582994534634,
+        "live_execution_available": false,
+        "market_ready": false,
+        "mode": "paper",
+        "operational_only": true,
+        "phase": 4,
+        "promotion_evidence": false,
+        "qualifying_days": 0,
+        "qualifying_episodes": 0,
+        "reason": "paper_supervisor_stopped",
+        "reconciled": false,
+        "replay_cursor": 0,
+        "replay_processed": 0,
+        "replay_skipped_trades": 0,
+        "schema_ready": false,
+        "strategy_decisions_this_process": 0,
+        "strategy_dispatch_enabled": true,
+        "strategy_reason": null,
+        "strategy_watermark": null,
+        "supervision_ready": false,
+        "ticks": 3,
+        "trading_ready": false
+      },
+      {
+        "account_id": "776a0271-c625-459c-b0c8-466d1b9e87b0",
+        "database_ready": false,
+        "fill_replay_enabled": true,
+        "foundation_ready": false,
+        "healthy_ticks": 0,
+        "incomplete_safety_requirements": [
+          "authenticated_account_reads_not_implemented",
+          "local_paper_safety_review_not_complete",
+          "extended_paper_validation_not_complete",
+          "research_promotion_gate_not_passed",
+          "live_reconciliation_not_implemented",
+          "live_execution_not_implemented"
+        ],
+        "kind": "paper_strategy_runner_v1",
+        "last_tick_seconds": 0.0279363339941483,
+        "live_execution_available": false,
+        "market_ready": false,
+        "mode": "paper",
+        "operational_only": true,
+        "phase": 4,
+        "promotion_evidence": false,
+        "qualifying_days": 0,
+        "qualifying_episodes": 0,
+        "reason": "paper_supervisor_stopped",
+        "reconciled": false,
+        "replay_cursor": 0,
+        "replay_processed": 0,
+        "replay_skipped_trades": 0,
+        "schema_ready": false,
+        "strategy_decisions_this_process": 0,
+        "strategy_dispatch_enabled": true,
+        "strategy_reason": null,
+        "strategy_watermark": null,
+        "supervision_ready": false,
+        "ticks": 3,
+        "trading_ready": false
+      }
+    ],
+    "selection": {
+      "account_id": "776a0271-c625-459c-b0c8-466d1b9e87b0",
+      "application_version": "0.4.10",
+      "entry_time_in_force": "FOK",
+      "interval_minutes": 240,
+      "live_execution_available": false,
+      "operational_only": true,
+      "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+      "promotion_evidence": false,
+      "qualifying_days": 0,
+      "qualifying_episodes": 0,
+      "schema_version": 1,
+      "selected_at": "2026-10-19T19:18:25.861043Z",
+      "strategy": "sma200",
+      "strategy_version": "slow-v1",
+      "symbol": "BTC/GBP"
+    },
+    "orders": 0,
+    "decisions": 0,
+    "opening_gbp": "250",
+    "daily_return_complete": false,
+    "retained_container_identities_unchanged": true,
+    "only_owned_disposable_stack_and_volumes_removed": true,
+    "no_feed_provided_entries_remained_blocked": true
+  },
+  "completion": {
+    "C1_conditions_closed": 5,
+    "C1_complete": true,
+    "C2_complete": false,
+    "C3_complete": false,
+    "C4_complete": false,
+    "G2_to_G6_complete": false,
+    "qualifying_paper_days": 0,
+    "qualifying_position_episodes": 0,
+    "research_candidates_promoted": 0,
+    "holdout_opened": false,
+    "retained_stack_upgraded": false,
+    "live_execution_available": false,
+    "full_T25_complete": false
+  },
+  "limits": [
+    "Operational synthetic evidence only; research candidates remain rejected and no qualifying observation period starts",
+    "One immutable strategy/instrument/interval selection per virtual account",
+    "C3 integrated storage/restore/capacity/notification timing review and C4 gate decision remain open",
+    "Private Kraken eligibility, actual protection semantics, off-host/WAL recovery and live approval remain later requirements"
+  ]
+}

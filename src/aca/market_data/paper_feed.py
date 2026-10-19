@@ -8,6 +8,7 @@ from sqlalchemy import select
 from aca.domain.market import InstrumentRules, OrderBook
 from aca.domain.trading import Valuation
 from aca.domain.values import utc_datetime
+from aca.risk.execution import MarketEvidence
 from aca.storage.models import MarketReceipt
 from aca.storage.paper import PaperStore
 
@@ -21,6 +22,17 @@ class StoredPaperFeed:
         self.store = store
 
     async def marks(self, at: datetime) -> tuple[Valuation, ...]:
+        return tuple(
+            Valuation(
+                asset="BTC" if market.book.symbol == "BTC/GBP" else "ETH",
+                bid_gbp=market.book.bids[0].price,
+                observed_at=market.book.received_at,
+                source=f"kraken-public-book:{market.book.epoch}",
+            )
+            for market in await self.current(at)
+        )
+
+    async def current(self, at: datetime) -> tuple[MarketEvidence, ...]:
         at = utc_datetime(at)
         async with self.store.engine.connect() as c:
             await c.execution_options(isolation_level="REPEATABLE READ")
@@ -59,6 +71,22 @@ class StoredPaperFeed:
                 or not 0 <= (at - rules.received_at).total_seconds() <= 3600
             ):
                 raise FeedUnavailable("public capture health or rules stale/incomplete")
+            status = (
+                await c.execute(
+                    select(MarketReceipt.normalized)
+                    .where(
+                        MarketReceipt.channel == "status",
+                        MarketReceipt.epoch == epoch.epoch,
+                        MarketReceipt.received_at <= at,
+                    )
+                    .order_by(MarketReceipt.received_at.desc(), MarketReceipt.id.desc())
+                    .limit(1)
+                )
+            ).scalar_one_or_none()
+            if status is not None and status.get("system") != "online":
+                # A newly received maintenance status vetoes dispatch even before
+                # the next periodic health marker or account replay tick.
+                raise FeedUnavailable("current public exchange status is not online")
             for channel in ("capture_fault", "capture_stopped", "quarantine", "coverage_gap"):
                 fault = (
                     await c.execute(
@@ -127,12 +155,7 @@ class StoredPaperFeed:
             if set(books) != {"BTC/GBP", "ETH/GBP"} or set(by_symbol) != set(books):
                 raise ValueError("incomplete current books")
             return tuple(
-                Valuation(
-                    asset="BTC" if symbol == "BTC/GBP" else "ETH",
-                    bid_gbp=books[symbol].bids[0].price,
-                    observed_at=books[symbol].received_at,
-                    source=f"kraken-public-book:{epoch.epoch}",
-                )
+                MarketEvidence(book=books[symbol], rules=by_symbol[symbol])
                 for symbol in ("BTC/GBP", "ETH/GBP")
             )
         except (ValueError, KeyError, TypeError) as exc:

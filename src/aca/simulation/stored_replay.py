@@ -2,7 +2,7 @@
 
 import json
 from collections.abc import Callable
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from decimal import Decimal
 from typing import Any, Self
 from uuid import UUID
@@ -16,6 +16,8 @@ from aca.domain.market import InstrumentRules, MarketTrade, OrderBook, Symbol
 from aca.domain.trading import TERMINAL, Record, Time, VenueOrder, fingerprint
 from aca.domain.values import utc_datetime
 from aca.execution.paper import PaperExecution
+from aca.portfolio.state import unit_price
+from aca.simulation.day_boundary import DayBoundary
 from aca.simulation.historical import HistoricalReplay, HistoricalValuation
 from aca.simulation.paper import PaperExchange
 from aca.storage.models import MarketReceipt
@@ -535,6 +537,54 @@ class StoredReplay:
                     # time. Preserve the entire suffix, never skip to later IDs.
                     deferred = True
                     break
+                # A timer need not hit 00:00:00.000000. Value that instant from
+                # the last complete healthy prefix, before applying the first
+                # following receipt. Neither its prices nor later trades enter
+                # this boundary. A >5s bridge, reconnect or fault stays missing.
+                boundary_at = datetime.combine(receipt.received_at.date(), time(), UTC)
+                historical[0] = historical[0].model_copy(update={"day_boundary": None})
+                if (
+                    historical[0].state.as_of < boundary_at <= receipt.received_at
+                    and (receipt.received_at - boundary_at).total_seconds() <= 5
+                    and context.last_received is not None
+                    and 0 <= (boundary_at - context.last_received).total_seconds() <= 5
+                    and receipt.epoch == context.epoch
+                    and receipt.valid
+                    and receipt.channel
+                    not in {
+                        "capture_fault",
+                        "capture_stopped",
+                        "quarantine",
+                        "coverage_gap",
+                        "epoch_started",
+                    }
+                    and self._reason(context, boundary_at) is None
+                ):
+                    boundary_value = await self.history.apply_controls(
+                        c, historical[0], controls, boundary_at - timedelta(microseconds=1)
+                    )
+                    boundary_value = self.history.observe(
+                        boundary_value,
+                        boundary_at,
+                        self.history.marks(context.books, context.book_sources),
+                        None,
+                    )
+                    if boundary_value.nav_gbp is not None:
+                        boundary = DayBoundary(
+                            at=boundary_at,
+                            previous_source=context.number,
+                            previous_source_hash=context.source_hash,
+                            previous_valuation_hash=history_hash,
+                            following_source=row["number"],
+                            following_source_hash=row["fingerprint"],
+                            context_hash=fingerprint(context.document()),
+                            state=boundary_value.state,
+                            nav_gbp=boundary_value.nav_gbp,
+                            unit_price=unit_price(boundary_value.state, boundary_at),
+                            incomplete_since=boundary_value.incomplete_since,
+                        )
+                        boundary.validate_economics()
+                        historical[0] = boundary_value.model_copy(update={"day_boundary": boundary})
                 historical[0] = await self.history.apply_controls(
                     c, historical[0], controls, receipt.received_at
                 )

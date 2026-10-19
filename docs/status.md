@@ -1,13 +1,13 @@
 # Implementation status
 
-Updated 19 October 2026 after the scope review of merged PR #16 (`bafb928`).
-Application candidate: 0.4.9. This register separates engineering completion from
-research eligibility, extended paper observation and later deployment/live gates.
+Updated 19 October 2026 for P4-C1, following the scope review merged in PR #17.
+Application candidate: 0.4.10; schema `0013_paper_strategy`. This register separates
+engineering completion from research eligibility, extended paper observation and later deployment/live gates.
 
-**Phase 4 is incomplete. Its remaining work is fixed in four named packages in the
+**Phase 4 is incomplete. C1 is complete; C2–C4 remain in the fixed packages in the
 [completion checklist](phase-4-completion.md). The Phase 5 qualifying observation
-period has not started.** The checklist changes scope accounting; it adds no runtime
-capability and approves no release gate.
+period has not started.** The new runner is an opt-in operational experiment. It
+approves no research, observation-start or release gate. The retained local stack has not been upgraded.
 
 ## Existing implementation
 
@@ -16,20 +16,21 @@ capability and approves no release gate.
 | Foundation/data | Paper-only package, restricted PostgreSQL roles, migrations, containers, public Kraken metadata/books/trades/candles, provenance and ordered replay |
 | Research | Shared deterministic indicators/strategies, audited datasets, cost-aware simulation and recorded trials; all 20 evaluated candidates rejected, final holdout closed |
 | Accounting/risk | GBP journal and quantity movements, contributions/withdrawals, unitisation, reservations, Decimal sizing, independent dispatch controls, durable loss latches and [manual tax-cash earmarks](phase-4-tax-cash-reserve.md) |
-| Paper execution | Durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery, public replay and [separate-process crash tests](phase-4-process-recovery.md) |
+| Paper execution | [Continuous operational runner](phase-4-continuous-paper.md), explicit immutable selection, finalised candle decisions, restart deduplication, entry/exit dispatch and UTC boundary accounting; durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery, public replay and [separate-process crash tests](phase-4-process-recovery.md) |
 | Reports | Audited original-time valuations, bounded historical performance, flow-neutral TWR and bounded MWR; incomplete evidence is explicitly provisional |
 | Notifications | Opt-in Discord worker, durable retries, provisional daily summaries, critical repeats, cached health/metrics and exact-event failure reviews |
 | Operations | Local health/metrics, private upgrade backups, runbooks and a [disposable logical restore with controlled concurrent commits](phase-4-local-restore.md) |
 
-The latest recorded full Linux test run is 515 passes from PR #16. This scope review
-does not rerun or extend that runtime evidence. Passing tests for these increments
-do not prove every original T-group or gate is complete.
+The C1 full Linux run passed **537 tests**, with Ruff formatting/lint and strict
+Mypy checks passing. The [C1 report](phase-4-continuous-paper.md) and
+[evidence](evidence/phase-4-continuous-paper.json) record its exact scope and results.
+Passing tests for these increments do not prove every original T-group or gate is complete.
 
 ## Phase 4 closure register
 
 | ID | Remaining work | Status / observable exit |
 | --- | --- | --- |
-| P4-C1 | Complete continuous strategy-to-paper workflow, including warm-up, finalised decisions, restart deduplication and UTC-day integration | Open: current supervisor explicitly disables strategy dispatch; close with a packaged continuous runner and deterministic full-lifecycle/fault evidence |
+| P4-C1 | Continuous strategy-to-paper workflow, including warm-up, finalised decisions, restart deduplication and UTC-day integration | Complete: all five conditions linked to [implementation and evidence](phase-4-continuous-paper.md); operational experiments only |
 | P4-C2 | Supported-account transfers and audited corrections/rebuilds | Open: operator paths, immutable financial evidence and independent balance/flow/performance fixtures for GBP/BTC/ETH |
 | P4-C3 | Named local safety gaps and integrated regression | Open: isolated actual storage-write failure, populated replay/notice restore and declared-gap blocking, bounded capacity trial, integrated fault/notification timing and T00–T32 coverage review |
 | P4-C4 | Local handoff and explicit engineering/G2 review | Open: packaged runbook smoke, linked C1–C3 evidence, applicable safety decision and separate research/observation status |
@@ -37,7 +38,8 @@ do not prove every original T-group or gate is complete.
 The [checklist](phase-4-completion.md) supplies the source sections, acceptance
 conditions, existing test references for all 33 IDs and change-control rule. The
 four packages are an engineering allocation of the user's specification, not four
-additional requirements or a promise of four PRs. The next implementation is C1.
+additional requirements or a promise of four PRs. C1 is complete; the next
+implementation is C2.
 Standalone backup/notification enhancements do not automatically become blockers.
 
 ## Separate later work and gates

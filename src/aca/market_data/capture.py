@@ -94,6 +94,7 @@ class PublicCapture:
         self.checksum_failures = 0
         self.healthy_observations = 0
         self.observations = 0
+        self.rules_refreshed = 0.0
 
     async def _rest_evidence(self, endpoint: str, payload: str, received: datetime) -> None:
         self.last_raw = payload
@@ -207,7 +208,26 @@ class PublicCapture:
                 )
             await self.recover_recent_trades(symbol)
         await self.check_exchange()
+        self.rules_refreshed = monotonic()
         return PublicProcessor(rules, self.epoch)
+
+    async def maintain_exchange(self, processor: PublicProcessor) -> None:
+        await self.check_exchange()
+        if monotonic() - self.rules_refreshed < 3000:
+            return
+        rules = await self.rest.instruments()
+        refreshed = {rule.symbol: rule for rule in rules}
+        if set(refreshed) != set(processor.rules) or any(
+            refreshed[symbol].model_dump(exclude={"observed_at"})
+            != processor.rules[symbol].model_dump(exclude={"observed_at"})
+            for symbol in processor.rules
+        ):
+            raise MarketDataError("changed REST rules require fresh v2 verification")
+        await self.marker(
+            "instrument_rules", detail={"rules": [r.model_dump(mode="json") for r in rules]}
+        )
+        processor.rules = refreshed
+        self.rules_refreshed = monotonic()
 
     async def epoch_loop(self, processor: PublicProcessor, stop: asyncio.Event) -> None:
         iterator: AsyncIterator[str] = self.stream.messages()
@@ -325,10 +345,7 @@ class PublicCapture:
                     rest_task = None
                     next_rest = monotonic() + 30
                 if rest_task is None and monotonic() >= next_rest:
-                    rest_task = asyncio.create_task(self.check_exchange())
-                if monotonic() - started >= 3000:
-                    # Refresh before the hourly rules deadline, obtaining new snapshots and history.
-                    return
+                    rest_task = asyncio.create_task(self.maintain_exchange(processor))
         finally:
             processor.invalidate()
             for task in (pending, rest_task):

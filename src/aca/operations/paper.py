@@ -5,14 +5,17 @@ import asyncio
 import csv
 import io
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
 from aca.app.paper_supervisor import supervise
+from aca.domain.trading import fingerprint
+from aca.domain.values import parse_decimal, utc_datetime
 from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
-from aca.operations.config import Settings
+from aca.observability.notices import daily_summary
+from aca.operations.config import RiskPolicy, Settings
 from aca.portfolio.reserves import TaxReserveRequest
 from aca.reporting.historical import historical_performance
 from aca.reporting.paper import performance
@@ -24,6 +27,8 @@ from aca.simulation.stored_replay import StoredReplay
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter, read_alerts
 from aca.storage.reserves import read_reserves
+from aca.storage.strategy import PaperSelection, select_strategy, strategy_status
+from aca.strategies.slow import VARIANTS
 
 
 def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -45,6 +50,12 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "performance",
         "tax-reserve",
         "tax-reserves",
+        "create",
+        "fund",
+        "select",
+        "decisions",
+        "run",
+        "daily",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -52,13 +63,26 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
             parser.add_argument("--reason", required=True)
         if name == "replay":
             parser.add_argument("--input", type=Path, required=True)
-        if name == "supervise":
+        if name in {"supervise", "run"}:
             parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
+        if name == "supervise":
             parser.add_argument(
                 "--replay",
                 action="store_true",
                 help="consume ordered public evidence for an enrolled paper account",
             )
+        if name == "select":
+            parser.add_argument("--strategy", choices=VARIANTS, required=True)
+            parser.add_argument("--symbol", choices=("BTC/GBP", "ETH/GBP"), required=True)
+            parser.add_argument("--interval", type=int, choices=(240, 1440), required=True)
+            parser.add_argument("--entry-tif", choices=("GTD", "FOK"), default="GTD")
+            parser.add_argument("--operational-experiment", action="store_true", required=True)
+        if name == "fund":
+            parser.add_argument("--reference", required=True)
+            parser.add_argument("--amount-gbp", required=True)
+            parser.add_argument("--occurred-at", required=True, help="aware ISO UTC timestamp")
+        if name == "daily":
+            parser.add_argument("--day", type=date.fromisoformat, required=True)
         if name == "consume":
             parser.add_argument("--limit", type=int, default=32, choices=range(1, 65))
         if name == "valuations":
@@ -82,12 +106,27 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
-    if args.action == "supervise":
-        return await supervise(settings, args.account, args.duration, replay_enabled=args.replay)
+    if args.action in {"supervise", "run"}:
+        return await supervise(
+            settings,
+            args.account,
+            args.duration,
+            replay_enabled=args.action == "run" or args.replay,
+            strategy_enabled=args.action == "run",
+        )
     engine = create_engine(settings)
     store = PaperStore(engine, args.account)
     try:
         await verify_runtime(engine)
+        if args.action in {"decisions", "daily"}:
+            from sqlalchemy import text
+
+            async with engine.connect() as c:
+                await c.execution_options(isolation_level="REPEATABLE READ")
+                await c.execute(text("SET TRANSACTION READ ONLY"))
+                if args.action == "decisions":
+                    return await strategy_status(c, args.account)
+                return await daily_summary(c, store, args.day)
         if args.action == "tax-reserves":
             return await read_reserves(
                 engine, args.account, after_version=args.after_version, limit=args.limit
@@ -99,7 +138,6 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
         if args.action == "valuations":
             from sqlalchemy import select
 
-            from aca.operations.config import RiskPolicy
             from aca.storage.replay import valuations
 
             query = select(valuations).where(valuations.c.account_id == args.account)
@@ -144,6 +182,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                     }
                 state = await store.load(c)
                 history = await store.history(c)
+                strategy = await strategy_status(c, args.account)
             if args.action == "status":
                 at = datetime.now(UTC)
                 return {
@@ -152,6 +191,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                     "as_of": at.isoformat(),
                     "state": state.document() if state else None,
                     "performance": performance(state, history, at) if state else None,
+                    "strategy": strategy,
                     "live_execution_available": False,
                 }
             output = io.StringIO(newline="")
@@ -186,6 +226,27 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
         async with PaperWriter(store) as owner:
             venue = PaperExchange(store)
             service = PaperExecution(owner, venue)
+            if args.action == "create":
+                return (await service.initialise(datetime.now(UTC))).document()
+            if args.action == "fund":
+                return (
+                    await service.cashflow(
+                        args.reference,
+                        parse_decimal(args.amount_gbp),
+                        utc_datetime(datetime.fromisoformat(args.occurred_at)),
+                    )
+                ).document()
+            if args.action == "select":
+                chosen = PaperSelection(
+                    account_id=args.account,
+                    strategy=args.strategy,
+                    symbol=args.symbol,
+                    interval_minutes=args.interval,
+                    entry_time_in_force=args.entry_tif,
+                    selected_at=datetime.now(UTC),
+                    policy_hash=fingerprint(RiskPolicy().model_dump(mode="json")),
+                )
+                return (await select_strategy(owner, chosen)).document()
             if args.action == "tax-reserve":
                 return await service.reserve_tax_cash(
                     TaxReserveRequest(

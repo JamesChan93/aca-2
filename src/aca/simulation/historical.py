@@ -1,6 +1,6 @@
 """Original-observation paper economics, independent of financial import time."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -25,6 +25,7 @@ from aca.domain.trading import (
 from aca.domain.values import FinancialDecimal
 from aca.operations.config import RiskPolicy
 from aca.portfolio.state import entries_paused, flow_units, nav, observe_risk
+from aca.simulation.day_boundary import DayBoundary
 from aca.simulation.paper import PaperExchange
 from aca.storage.paper import PaperStore, events, journals, venue_events
 from aca.storage.replay import public_events, valuations
@@ -45,6 +46,7 @@ class HistoricalValuation(Record):
     reason: str | None = "baseline"
     incomplete_since: Time | None = None
     policy_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    day_boundary: DayBoundary | None = None
     promotion_evidence: bool = False
     live_execution_available: bool = False
 
@@ -72,6 +74,17 @@ class HistoricalReplay:
             raise ValueError("historical valuation identity/policy mismatch")
         if value.nav_gbp is not None and nav(value.state, value.state.as_of) != value.nav_gbp:
             raise ValueError("historical NAV does not match its evidence")
+        if value.day_boundary is not None:
+            boundary = value.day_boundary
+            boundary.validate_economics()
+            if (
+                boundary.state.account_id != self.store.account_id
+                or boundary.following_source != value.number
+                or boundary.following_source_hash != value.source_hash
+                or value.source_received_at is None
+                or not 0 <= (value.source_received_at - boundary.at).total_seconds() <= 5
+            ):
+                raise ValueError("UTC boundary source mismatch")
         return value
 
     async def latest(self, c: AsyncConnection) -> RowMapping | None:
@@ -141,6 +154,28 @@ class HistoricalReplay:
             )
             for row in rows:
                 value = self.restore(row, previous)
+                if value.day_boundary is not None:
+                    boundary = value.day_boundary
+                    if (
+                        last is None
+                        or boundary.previous_source != last.number
+                        or boundary.previous_source_hash != last.source_hash
+                        or boundary.previous_valuation_hash != previous
+                        or not last.state.as_of < boundary.at
+                    ):
+                        raise ValueError("UTC boundary previous anchor mismatch")
+                    expected = await self.apply_controls(
+                        c,
+                        last,
+                        await self.controls(c, last.control_version),
+                        boundary.at - timedelta(microseconds=1),
+                    )
+                    expected = self.observe(expected, boundary.at, last.state.marks, None)
+                    if (
+                        expected.state != boundary.state
+                        or expected.incomplete_since != boundary.incomplete_since
+                    ):
+                        raise ValueError("UTC boundary does not reconstruct from its prefix")
                 if last is not None and (
                     value.state.as_of < last.state.as_of
                     or value.control_version < last.control_version
