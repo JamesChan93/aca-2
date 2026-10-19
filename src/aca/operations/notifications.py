@@ -21,13 +21,14 @@ from aca.observability.health import (
     NotificationStatus,
     read_sample,
 )
+from aca.observability.reviews import ReviewRequest, read_failures
 from aca.operations.config import ConfigurationError, Settings
 from aca.storage.database import create_engine, verify_runtime
 
 
 def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     actions = commands.add_parser("notifications").add_subparsers(dest="action", required=True)
-    for name in ("configure", "run", "status", "prepare", "notices"):
+    for name in ("configure", "run", "status", "prepare", "notices", "failures", "review"):
         parser = actions.add_parser(name)
         parser.add_argument("--account", required=True, type=UUID)
         if name in {"configure", "run"}:
@@ -36,7 +37,22 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
             parser.add_argument("--after-version", type=int)
         if name == "run":
             parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
-        if name == "notices":
+        if name == "review":
+            parser.add_argument("--failure-number", required=True, type=int)
+            parser.add_argument("--failure-hash", required=True)
+            parser.add_argument("--actor", required=True, type=UUID)
+            parser.add_argument(
+                "--resolution",
+                required=True,
+                choices=(
+                    "manual_notification_confirmed",
+                    "delivery_loss_accepted",
+                ),
+            )
+            parser.add_argument("--evidence-sha256", required=True)
+        if name == "failures":
+            parser.add_argument("--after-number", type=int, default=0)
+        if name in {"notices", "failures"}:
             parser.add_argument("--limit", type=int, choices=range(1, 101), default=20)
 
 
@@ -60,9 +76,26 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             return await status(engine, args.account)
         if args.action == "notices":
             return await read_notices(engine, args.account, args.limit)
-        if webhook is None and args.action != "prepare":
+        if args.action == "failures":
+            return await read_failures(
+                engine, args.account, after_number=args.after_number, limit=args.limit
+            )
+        if webhook is None and args.action not in {"prepare", "review"}:
             raise ConfigurationError("a notification secret file is required")
+        request = (
+            ReviewRequest(
+                failure_number=args.failure_number,
+                failure_hash=args.failure_hash,
+                actor=args.actor,
+                resolution=args.resolution,
+                evidence_sha256=args.evidence_sha256,
+            )
+            if args.action == "review"
+            else None
+        )
         async with NotificationOwner(engine, args.account) as owner:
+            if request is not None:
+                return await owner.review(request)
             if args.action == "prepare":
                 return await owner.prepare(datetime.now(UTC))
             if args.action == "configure" and webhook is not None:
@@ -148,6 +181,6 @@ def command(args: argparse.Namespace, settings: Settings) -> int:
         return 1 if result["daily_evidence_unavailable"] else 0
     state = result.get("state")
     failed = (isinstance(state, dict) and not state["enabled"]) or result.get(
-        "terminal_failures", 0
+        "unreviewed_terminal_failures", 0
     ) != 0
     return 1 if args.action == "run" and failed else 0

@@ -9,7 +9,7 @@ from uuid import UUID
 
 import structlog
 from prometheus_client import Counter, Gauge
-from pydantic import Field
+from pydantic import Field, model_validator
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from aca.app.health import FoundationMetrics, FoundationStatus, HealthServer
@@ -34,9 +34,20 @@ class QueueSample(StrictModel):
     delivered: int = Field(ge=0)
     retry_events: int = Field(ge=0)
     terminal_failures: int = Field(ge=0)
+    reviewed_terminal_failures: int = Field(ge=0)
+    unreviewed_terminal_failures: int = Field(ge=0)
     last_delivery_at: UtcDateTime | None
     attempts: int = Field(ge=0, le=8)
     not_before: UtcDateTime | None
+
+    @model_validator(mode="after")
+    def balanced_failure_counts(self) -> QueueSample:
+        if (
+            self.terminal_failures
+            != self.reviewed_terminal_failures + self.unreviewed_terminal_failures
+        ):
+            raise ValueError("notification failure counts do not balance")
+        return self
 
 
 async def read_sample(engine: AsyncEngine, account_id: UUID) -> QueueSample:
@@ -62,6 +73,8 @@ async def read_sample(engine: AsyncEngine, account_id: UUID) -> QueueSample:
                 "delivered": report["delivered"],
                 "retry_events": report["retry_events"],
                 "terminal_failures": report["terminal_failures"],
+                "reviewed_terminal_failures": report["reviewed_terminal_failures"],
+                "unreviewed_terminal_failures": report["unreviewed_terminal_failures"],
                 "last_delivery_at": report["last_delivery_at"],
                 "attempts": state["attempts"] if state else 0,
                 "not_before": state["not_before"] if state else None,
@@ -114,8 +127,8 @@ class NotificationStatus(FoundationStatus):
             return "destination_disabled"
         if self.daily_evidence_unavailable:
             return "daily_evidence_unavailable"
-        if self.sample.terminal_failures:
-            return "retained_terminal_failures"
+        if self.sample.unreviewed_terminal_failures:
+            return "unreviewed_terminal_failures"
         return None
 
     @property
@@ -233,7 +246,13 @@ class NotificationMetrics(FoundationMetrics):
                 self.age.labels(kind).set(
                     status.age(getattr(sample, f"oldest_{kind}_at") if sample else None)
                 )
-            for kind in ("delivered", "retry_events", "terminal_failures"):
+            for kind in (
+                "delivered",
+                "retry_events",
+                "terminal_failures",
+                "reviewed_terminal_failures",
+                "unreviewed_terminal_failures",
+            ):
                 self.events.labels(kind).set(getattr(sample, kind) if sample else -1)
             self.wait.set(status.retry_wait())
             self.attempts.set(sample.attempts if sample else -1)

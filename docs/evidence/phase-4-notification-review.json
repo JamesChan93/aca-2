@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "milestone": "phase-4-notification-review",
+  "application_version": "0.4.8",
+  "verified_at_utc": "2026-10-19T11:36:38.102009+00:00",
+  "scope": "Append-only operator review of exact terminal notifications; no replay or execution authority",
+  "source": {
+    "source_sha256": "54483cff9d5f504cb562b79f867f0143e19ae76371a69fbca8ac78e69cc4ebbe",
+    "python_files": 96,
+    "source_wheel_runtime_identical": true
+  },
+  "verification": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 129,
+    "mypy_source_files": 113,
+    "focused_notification_tests": {
+      "tests": 87,
+      "seconds": 8.86,
+      "result": "passed"
+    },
+    "linux_arm64_musl": {
+      "tests": 414,
+      "seconds": 56.78,
+      "result": "passed",
+      "postgresql": "18.6",
+      "schema": "0011_notification_reviews"
+    },
+    "new_test_cases": 17,
+    "coverage": [
+      "Strict review fields, exact account/event/hash target and rejected nonterminal events",
+      "Idempotent repeat after owner restart; conflicting review rejected; later failure degrades readiness",
+      "Exclusive delivery ownership; missing account and database cross-account/target restrictions",
+      "Unchanged cursor, attempts, two-hour rate deadline and disabled destination",
+      "Bounded cursor listing and CLI without webhook/sender; reviewed rows remain visible",
+      "Database-enforced immutable review rows and runtime privilege verification",
+      "Malformed retained review, transaction rollback and audit-budget failures block healthy observation",
+      "Scheduled dead-letter receipt retained and active critical condition continues its five-minute repeat",
+      "Balanced total/reviewed/unreviewed monitoring values and fixed metric labels",
+      "Financial counts unchanged by review and notification fault fixtures"
+    ],
+    "existing_generated_suite": "Retains 1000 examples per critical financial property and 10000 deterministic lifecycle/fault sequences; not process-kill evidence",
+    "dependency_changes": false,
+    "dependency_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "container_health_persistence_and_paper_only_smoke": "passed",
+    "packaged_read_only_failure_listing": "empty retained failure list, no HTTP/sender",
+    "packaged_read_only_observer_smoke": {
+      "routes": {
+        "/health/notifications": 503,
+        "/health/trading": 503,
+        "/metrics": 200
+      },
+      "sample": {
+        "as_of": "2026-10-19T11:35:39.839471Z",
+        "configured": false,
+        "enabled": false,
+        "transitions": 283,
+        "daily": 1,
+        "critical": 0,
+        "oldest_transition_at": "2026-10-18T00:00:00Z",
+        "oldest_daily_at": "2026-10-19T08:58:45.668386Z",
+        "oldest_critical_at": null,
+        "delivered": 0,
+        "retry_events": 0,
+        "terminal_failures": 0,
+        "reviewed_terminal_failures": 0,
+        "unreviewed_terminal_failures": 0,
+        "last_delivery_at": null,
+        "attempts": 0,
+        "not_before": null
+      },
+      "worker_started": false,
+      "discord_requests": 0,
+      "live_execution_available": false
+    },
+    "hosted_checks": "See exact-commit pull request checks; this record asserts local results only"
+  },
+  "local_upgrade": {
+    "from_schema": "0010_scheduled_notices",
+    "to_schema": "0011_notification_reviews",
+    "protected_backup_bytes": 14559651,
+    "protected_backup_sha256": "ae4bc2b17f86f2263cdc120c7e93ea272412361c9daba310324b61a290d57357",
+    "retained_counts_and_checksums_unchanged": true,
+    "retained_counts": {
+      "paper_events": 832,
+      "paper_journals": 6,
+      "paper_fills": 4,
+      "paper_venue_events": 24,
+      "paper_order_identities": 6,
+      "paper_replay_cursors": 174,
+      "paper_replay_valuations": 146,
+      "paper_alerts": 289,
+      "paper_notification_events": 0,
+      "paper_notices": 1,
+      "paper_notice_receipts": 0
+    },
+    "new_review_rows": 0,
+    "backup_storage": "Ignored private local directory, directory 0700/files 0600; no dump published",
+    "disaster_restore_or_rpo_proven": false
+  },
+  "local_runtime": {
+    "source_sha256": "54483cff9d5f504cb562b79f867f0143e19ae76371a69fbca8ac78e69cc4ebbe",
+    "python_files": 96,
+    "version": "0.4.8",
+    "image": "sha256:1db2268f99cc7dd477faafafacca77ce6749861a3db9d694b50d0e2517e4f270",
+    "scan_config_image": "sha256:42bfd13b2cd361a6901bb7290023536a7b9b2c8e3b868106756fea9b466b2c2c",
+    "scan_rootfs_and_config_match": true,
+    "uid": "10001:10001",
+    "read_only_root": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges:true"
+    ],
+    "health": "healthy",
+    "port_bindings": {},
+    "retained_notification_status": {
+      "account_id": "c18b3acf-4197-443f-9d36-b67abe50761c",
+      "as_of": "2026-10-19T11:35:34.015138+00:00",
+      "backlog": 283,
+      "configured": false,
+      "delivered": 0,
+      "last_delivery_at": null,
+      "live_execution_available": false,
+      "mode": "paper",
+      "oldest_pending_at": "2026-10-18T00:00:00+00:00",
+      "retry_events": 0,
+      "reviewed_terminal_failures": 0,
+      "scheduled_backlog": 1,
+      "scheduled_queues": {
+        "daily": {
+          "count": 1,
+          "oldest_at": "2026-10-19T08:58:45.668386+00:00"
+        }
+      },
+      "schema_version": 1,
+      "state": null,
+      "terminal_failures": 0,
+      "unreviewed_terminal_failures": 0
+    },
+    "performance_economics_unchanged": true,
+    "notification_worker_started": false,
+    "discord_requests": 0
+  },
+  "security": {
+    "scanner": "Trivy 0.76.0, cached advisory database, offline/no network",
+    "app_high_critical_vulnerabilities": 0,
+    "app_secret_findings": 0,
+    "database_image_change": false,
+    "original_prompt_archive_hash_verified": true,
+    "private_exchange_access": false,
+    "live_execution_available": false,
+    "publication_scan": {
+      "files": 192,
+      "actual_local_secret_values_checked": 3,
+      "findings": 0
+    }
+  },
+  "limits": {
+    "review_audit_rows": 10000,
+    "failure_page_rows": 100,
+    "review_authority": "Local CLI/runtime database credential; operator UUID is an assertion, not authenticated identity",
+    "evidence_digest": "Private external review document reference; content/substance not fetched or verified",
+    "automatic_review_or_bulk_acknowledgement": false,
+    "failed_message_requeue": false,
+    "review_changes_delivery_state_or_risk_latches": false,
+    "full_delivery_journal_hash_chain_audit": false,
+    "review_budget_archive_procedure_implemented": false,
+    "resource_retention_qualified": false,
+    "real_destination_integration": false,
+    "external_heartbeat": false,
+    "critical_sixty_second_latency_qualified": false
+  },
+  "release_boundary": {
+    "phase_4_complete": false,
+    "G2_through_G6_passed": false,
+    "strategy_dispatch_enabled": false,
+    "all_20_research_candidates_rejected": true,
+    "final_holdout_opened": false,
+    "qualifying_paper_episodes_added": 0,
+    "extended_paper_days_added": 0,
+    "remaining": [
+      "Continuous signal scheduling and measured fill/latency calibration",
+      "Transfers/conversions/corrections, complete daily boundaries and owner-wide tax/reserve workflows",
+      "Real notification integration, latency/reliability, external heartbeat and retention qualification",
+      "Resource/retention and process/storage faults; off-host backup/WAL/disaster restore and RPO/RTO",
+      "Research edge, episodes, 56-day observation, economics/readiness/live gates"
+    ]
+  }
+}

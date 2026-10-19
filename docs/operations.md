@@ -4,7 +4,9 @@ For optional delivery of existing paper alerts, see the
 [notification setup and failure procedure](phase-4-notifications.md). It is disabled
 in the default stack and has no trading authority. The optional worker has its own
 [health/metrics procedure](phase-4-notification-health.md); its `/health/ready` checks
-notification readiness rather than foundation readiness.
+notification readiness rather than foundation readiness. Use the
+[terminal-failure review procedure](phase-4-notification-review.md) to inspect and
+record an exact-event review without requeuing delivery or changing trading state.
 
 This is a local paper-only application with virtual accounts and a local venue.
 Do not use it to supervise a live account. Future emergency trading procedures in the
