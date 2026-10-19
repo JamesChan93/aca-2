@@ -33,3 +33,10 @@ The [architecture and decision log](../architecture.md),
 implemented scope, validation evidence and outstanding requirements. Consult those
 records for current status rather than treating the original request as a claim
 that every requested feature has been implemented.
+
+The [Phase 4 completion checklist](../phase-4-completion.md), reviewed on
+19 October 2026 against merged PR #16, fixes the remaining engineering work in four
+packages and maps T00–T32. Its section references refer to the later implementation
+specification named above, not to the archived planning prompt. The package breakdown
+and staged allocation are engineering decisions; the checklist separates them from
+the user's requirements and leaves gate approval explicit.

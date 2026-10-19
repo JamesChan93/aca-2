@@ -13,8 +13,10 @@ explicit setup. The default stack neither mounts a Discord secret nor sends mess
 [Scheduled summaries and critical reminders](docs/phase-4-scheduled-notifications.md)
 extend that optional worker, with [local health and metrics](docs/phase-4-notification-health.md)
 when explicitly run in its own container. [Exact-event operator reviews](docs/phase-4-notification-review.md)
-preserve failed-delivery evidence while allowing notification health to recover. See the [current milestone status](docs/status.md) for
-the remaining Phase 4 work and the separate Phase 5 observation requirements.
+preserve failed-delivery evidence while allowing notification health to recover.
+See the [current milestone status](docs/status.md) and
+[fixed Phase 4 completion checklist](docs/phase-4-completion.md) for the four remaining
+engineering packages and the separate research, observation and readiness gates.
 
 ## Start locally
 
@@ -97,8 +99,10 @@ read-only, source-bounded GBP report with journal-reconciled contributions, with
 fees and P&L, flow-neutral TWR and bounded annualised MWR. Use
 `aca paper performance --account UUID`; missing valuation evidence leaves returns
 unavailable. The report begins at the explicit historical baseline. Remaining
-accounting workflows, strategy scheduling and resource/disaster trials precede
-extended paper. Outbound delivery and scheduled notices are opt-in capabilities;
+accounting operations, strategy scheduling and the named local safety checks are
+tracked in the completion checklist. Deployment recovery and sustained reliability
+have separate later-stage acceptance. Outbound delivery and scheduled notices are
+opt-in capabilities;
 real destination integration and alert latency qualification remain outstanding.
 
 [Manual tax-cash reserves](docs/phase-4-tax-cash-reserve.md) add an audited, version-bound
@@ -111,8 +115,9 @@ abrupt writer death and recovery in separate interpreters using a disposable
 PostgreSQL database. A [separate local restore drill](docs/phase-4-local-restore.md)
 captures one exported snapshot while controlled synthetic paper commits advance
 the source, then restores that prefix into a fresh disposable cluster. It checks
-data/permissions, safe sequence counters and recovery without command replay. Off-host backups,
-WAL/disaster recovery and the remaining Phase 4 work still need implementation/review.
+data/permissions, safe sequence counters and recovery without command replay.
+Off-host backups and WAL/disaster recovery remain deployment/readiness work. The completion checklist
+records the local-paper restore checks still needed for Phase 4.
 
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
