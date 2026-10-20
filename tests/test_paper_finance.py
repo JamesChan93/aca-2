@@ -65,7 +65,7 @@ def test_exact_thresholds(cash: str, soft: bool, hard: bool, daily: bool) -> Non
     assert restored.kill == state.kill
 
 
-@settings(max_examples=1000, derandomize=True, deadline=None)
+@settings(max_examples=1000, derandomize=True, deadline=None, print_blob=True)
 @given(cash=st.integers(1, 100000), mark=st.integers(1, 10000), contribution=st.integers(1, 100000))
 def test_investment_flows_preserve_unit_price(cash: int, mark: int, contribution: int) -> None:
     old = portfolio(str(cash), "1", str(mark))
@@ -192,7 +192,7 @@ def test_append_only_reverse_replace_and_unfunded_fee() -> None:
         )
 
 
-@settings(max_examples=1000, derandomize=True, deadline=None)
+@settings(max_examples=1000, derandomize=True, deadline=None, print_blob=True)
 @given(q=st.integers(1, 100000), p=st.integers(1, 100000))
 def test_generated_trade_journal_rebuilds_balances(q: int, p: int) -> None:
     with localcontext(FINANCIAL_CONTEXT):

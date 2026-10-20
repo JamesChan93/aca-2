@@ -15,8 +15,9 @@ extend that optional worker, with [local health and metrics](docs/phase-4-notifi
 when explicitly run in its own container. [Exact-event operator reviews](docs/phase-4-notification-review.md)
 preserve failed-delivery evidence while allowing notification health to recover.
 See the [current milestone status](docs/status.md) and
-[fixed Phase 4 completion checklist](docs/phase-4-completion.md) for C1 completion, the three remaining
-engineering packages and the separate research, observation and readiness gates.
+[fixed Phase 4 completion checklist](docs/phase-4-completion.md) for completed C1/C2,
+the [C3 safety results and measured capacity blocker](docs/phase-4-safety.md), C4 closeout
+and the separate research, observation and readiness gates.
 
 ## Start locally
 

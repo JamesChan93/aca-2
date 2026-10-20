@@ -1,0 +1,40 @@
+# Only scripts/storage_fault_drill.py may start this generated disposable project.
+# The volume is RAM-backed and capped; it cannot consume the retained host disk.
+services:
+  db:
+    restart: "no"
+    volumes:
+      - type: volume
+        source: storage_fault_data
+        target: /var/lib/postgresql
+        volume:
+          nocopy: true
+    command: [postgres, -c, shared_buffers=32MB, -c, max_connections=30, -c, timezone=UTC, -c, wal_recycle=off]
+  storage-holder:
+    image: aca-restore-tests:0.4.12
+    user: "70:70"
+    command: [python, -c, "import time; time.sleep(900)"]
+    volumes:
+      - type: volume
+        source: storage_fault_data
+        target: /held
+        volume:
+          nocopy: true
+    read_only: true
+    network_mode: none
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python, -c, "import os; os.kill(1, 0)"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    mem_limit: 64m
+    pids_limit: 16
+volumes:
+  storage_fault_data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=384m,uid=70,gid=70,mode=0700

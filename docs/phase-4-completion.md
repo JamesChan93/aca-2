@@ -50,7 +50,10 @@ or a release gate is complete.
 
 **C1 is complete** in 0.4.10, with [implementation and acceptance evidence](phase-4-continuous-paper.md).
 **C2 is complete** in 0.4.11 with [transfer/correction evidence](phase-4-accounting.md).
-C3 and C4 remain **open**. Execution order is C1, C2, C3, then C4. C3 tests the
+C3 is **partially complete** in 0.4.12, with [safety and capacity evidence](phase-4-safety.md):
+conditions 1, 2, 3 and 5 have evidence; condition 4 remains open because the capacity
+trial did not establish report/audit or 56-day retention headroom. C4 remains **open**.
+Execution order is C1, C2, C3, then C4. C3 tests the
 integrated C1/C2 behaviour as well as existing controls. Implementation may be split
 for review, but every PR must name one of these IDs and the acceptance conditions it
 closes. These are four work packages, not a promise of four PRs or four days.
@@ -117,16 +120,16 @@ USD/USDC funding and general FX execution are outside this package.
 **Source:** §19; §20 Phase 4; G2. The scenario inventory below fixes the coverage
 review to T00–T32 and distinguishes paper evidence from future exchange evidence.
 
-- [ ] Map every applicable paper assertion in that inventory to a test/result on the
+- [x] Map every applicable paper assertion in that inventory to a test/result on the
   integrated release. Retain the required 1,000-example financial properties and
   10,000 generated lifecycle sequences with reproducible seeds/failure traces.
   Existing passing assertions need regression verification, not replacement features.
-- [ ] Exercise actual storage-write failure in an isolated, disposable environment,
+- [x] Exercise actual storage-write failure in an isolated, disposable environment,
   including the database/WAL storage boundary, rather than only raising the mocked
   capacity exception. Prove zero unaudited submissions, durable reservation/ledger
   consistency, unhealthy entry blocking and disarmed recovery. Record the exact
   failure mechanism and cleanup. Never fill the workstation's retained volume.
-- [ ] Extend the existing restore fixture with populated account replay/valuation and
+- [x] Extend the existing restore fixture with populated account replay/valuation and
   scheduled-notification/review records. Verify their source anchors, financial
   totals and delivery identities survive restore and two recoveries; no order is
   resubmitted or fill booked twice. Use a declared missing-suffix case to prove the
@@ -138,7 +141,7 @@ review to T00–T32 and distinguishes paper evidence from future exchange eviden
   Either demonstrate sufficient headroom for the planned 56-day workload or provide
   a reviewed retention/archive path preserving financial history and permanent IDs.
   This is an engineering capacity check, not 56 days of reliability evidence.
-- [ ] Prove integrated critical local faults are detected within ten seconds and an
+- [x] Prove integrated critical local faults are detected within ten seconds and an
   outbound notification attempt occurs within 60 seconds using a controlled test
   transport. Include unreachable/throttled delivery; finance and order processing
   remain independent. Real Discord receipt and sustained availability are Phase 5
@@ -149,6 +152,13 @@ reasoned later-stage allocation for every T-ID, no unresolved applicable safety
 failure, and passing evidence for the specific storage, restore, capacity and
 notification conditions above. Full host-loss recovery, encrypted off-host/WAL
 backups, production RPO/RTO and private exchange semantics remain unproven.
+
+**Current result:** [C3 evidence](phase-4-safety.md) closes the four checked conditions.
+The fourth remains open: the measured 100,000-record replay/report operations exceed
+20 seconds, and 100,000 one-second valuations cover only about 1.16 days. The bounded
+trial is implemented, but sufficient 56-day headroom or a reviewed preservation/archive
+path has not been established. C3 and G2 are not passed. This is the existing capacity
+condition, not an added work package.
 
 This package does **not** introduce a generic backup-gap importer or a second
 backup architecture. Existing paper reconciliation is used where authoritative
@@ -258,7 +268,8 @@ No positive gate or observation-start decision is made here.
 ## Change control and stop condition
 
 P4-C1 and P4-C2 are complete with their linked acceptance evidence. The next
-implementation task is **P4-C3**; P4-C4 follows its integrated safety results.
+implementation task is **P4-C3 condition 4**, the measured capacity/retention failure;
+P4-C4 follows its resolution and integrated safety results.
 Before adding a Phase 4 blocker,
 record the original requirement, the concrete unsafe/missing behaviour and the
 acceptance condition. An optional enhancement or later readiness measurement must
