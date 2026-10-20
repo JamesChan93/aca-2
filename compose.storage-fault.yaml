@@ -25,7 +25,10 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     healthcheck:
-      disable: true
+      test: [CMD, python, -c, "import os; os.kill(1, 0)"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
     mem_limit: 64m
     pids_limit: 16
 volumes:
