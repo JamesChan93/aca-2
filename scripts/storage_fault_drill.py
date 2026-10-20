@@ -8,6 +8,7 @@ Host Python 3.9+, standard library only. Diagnostics remain private.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import time
@@ -41,6 +42,7 @@ class StorageDrill(Drill):
         super().__init__(directory, identifier)
         self.source += ["-f", "compose.storage-fault.yaml"]
         self.worker_name = "aca-storage-" + identifier + "-watch"
+        self.phase = "build"
 
     def run(self) -> dict[str, Any]:
         self.call([*self.source, "build", "db", "restore-worker"])
@@ -64,6 +66,7 @@ class StorageDrill(Drill):
         with log_path.open("xb") as log:
             log_path.chmod(0o600)
             try:
+                self.phase = "fixture_start"
                 process = subprocess.Popen(
                     [
                         *self.source,
@@ -86,6 +89,7 @@ class StorageDrill(Drill):
                 )
                 session = SnapshotSession(process)
                 ready = session.receive("ready")
+                self.phase = "fill_bounded_volume"
                 # This dd can allocate at most 384 MiB, entirely in the verified tmpfs.
                 self.call(
                     [
@@ -107,6 +111,7 @@ class StorageDrill(Drill):
                 # Force allocation at the actual WAL boundary. No WAL/history file
                 # is removed; only this drill's filler is subsequently deleted.
                 wal_failed = False
+                self.phase = "force_wal_allocation"
                 fault_started = time.monotonic()
                 for _ in range(8):
                     try:
@@ -139,6 +144,7 @@ class StorageDrill(Drill):
                     or b"pg_wal" not in logs
                 ):
                     raise DrillError("no PostgreSQL WAL ENOSPC evidence")
+                self.phase = "stop_failed_database"
                 # Keep PostgreSQL offline until the worker has proved dispatch and
                 # the integrated supervisor fail closed. Holder preserves the RAM FS.
                 self.call([*self.source, "stop", "db"])
@@ -152,6 +158,7 @@ class StorageDrill(Drill):
                     raise DrillError("storage fault detection exceeded ten seconds")
                 if process.wait(timeout=10) or blocked.get("venue_commands") != 0:
                     raise DrillError("storage failure did not block commands")
+                self.phase = "remove_owned_filler"
                 self.call(
                     [
                         *self.source,
@@ -164,6 +171,7 @@ class StorageDrill(Drill):
                     ]
                 )
                 self.call([*self.source, "up", "-d", "--wait", "db"])
+                self.phase = "recover_committed_state"
                 raw = self.call(
                     [
                         *self.source,
@@ -183,6 +191,7 @@ class StorageDrill(Drill):
                     raise DrillError("committed paper state changed across ENOSPC/restart")
                 if recovered.get("disarmed") is not True or recovered.get("venue_commands") != 0:
                     raise DrillError("storage recovery was not disarmed")
+                self.phase = "notify_after_recovery"
                 notified = json.loads(
                     self.call(
                         [
@@ -261,8 +270,20 @@ def main() -> int:
         report.update(drill.run())
     except (OSError, ValueError, subprocess.SubprocessError, DrillError) as error:
         report["error_type"] = type(error).__name__
+        report["phase"] = drill.phase
+        report["command_number"] = drill.counter
         if isinstance(error, DrillError):
             report["failure"] = str(error)
+        # Only trusted fixture frame locations, never SQL, secrets or exception text.
+        frames = []
+        for path in directory.glob("*.log"):
+            frames.extend(
+                re.findall(
+                    r"(?m)^storage_fault_fixture\.py:[0-9]+:[A-Za-z_<>]+$",
+                    path.read_text(errors="replace"),
+                )
+            )
+        report["fixture_frames"] = frames
     finally:
         report["cleanup_complete"] = drill.cleanup()
         report["elapsed_seconds"] = round(time.monotonic() - began, 3)
@@ -270,6 +291,7 @@ def main() -> int:
             report["status"] = "failed"
         private_write(directory / "manifest.json", (json.dumps(report, indent=2) + "\n").encode())
     print("Storage drill " + str(report["status"]) + ": " + str(directory))
+    print(json.dumps(report, sort_keys=True))
     return 0 if report["status"] == "passed" else 1
 
 

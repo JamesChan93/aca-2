@@ -3,6 +3,7 @@
 import asyncio
 import json
 import sys
+import traceback
 from time import monotonic
 from typing import Any
 from uuid import UUID
@@ -159,4 +160,11 @@ async def run() -> None:
 
 if __name__ == "__main__":
     structlog.configure(logger_factory=structlog.PrintLoggerFactory(file=sys.stderr))
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    except Exception as error:
+        print("storage fixture failed: " + type(error).__name__, file=sys.stderr)
+        for frame in traceback.extract_tb(error.__traceback__):
+            if frame.filename.endswith("storage_fault_fixture.py"):
+                print(f"storage_fault_fixture.py:{frame.lineno}:{frame.name}", file=sys.stderr)
+        raise SystemExit(1) from None

@@ -28,12 +28,12 @@ jobs:
           ruff check src tests scripts
           ruff format --check src tests scripts
           mypy
+      - name: Bounded PostgreSQL WAL ENOSPC and disarmed recovery
+        run: python scripts/storage_fault_drill.py
       - name: Real PostgreSQL integration and unit tests on Linux musl
         run: python scripts/ci_database.py --linux
       - name: Restore an exported snapshot during controlled paper commits
         run: python scripts/restore_drill.py
-      - name: Bounded PostgreSQL WAL ENOSPC and disarmed recovery
-        run: python scripts/storage_fault_drill.py
       - name: Measure bounded paper capacity (does not approve C3 or G2)
         run: python scripts/capacity_trial.py
       - name: Dependency audit
