@@ -4,14 +4,22 @@ services:
   db:
     restart: "no"
     volumes:
-      - storage_fault_data:/var/lib/postgresql
+      - type: volume
+        source: storage_fault_data
+        target: /var/lib/postgresql
+        volume:
+          nocopy: true
     command: [postgres, -c, shared_buffers=32MB, -c, max_connections=30, -c, timezone=UTC, -c, wal_recycle=off]
   storage-holder:
     image: aca-restore-tests:0.4.12
     user: "70:70"
     command: [python, -c, "import time; time.sleep(900)"]
     volumes:
-      - storage_fault_data:/held
+      - type: volume
+        source: storage_fault_data
+        target: /held
+        volume:
+          nocopy: true
     read_only: true
     network_mode: none
     cap_drop: [ALL]

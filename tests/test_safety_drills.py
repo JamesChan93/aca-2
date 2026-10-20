@@ -24,7 +24,7 @@ def test_storage_helper_rejects_any_non_generated_identity(tmp_path: Path, ident
         StorageDrill(tmp_path, identifier)
 
 
-@pytest.mark.parametrize("change", ["driver", "size", "mount"])
+@pytest.mark.parametrize("change", ["driver", "size", "mount", "copy"])
 def test_storage_fill_never_runs_for_an_unverified_bounded_volume(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -45,12 +45,16 @@ def test_storage_fill_never_runs_for_an_unverified_bounded_volume(
             "db": {"volumes": [{"target": "/var/lib/postgresql", "source": "storage_fault_data"}]}
         },
     }
+    config["services"]["db"]["volumes"][0]["volume"] = {"nocopy": True}
+    config["services"]["storage-holder"] = {"volumes": [{"volume": {"nocopy": True}}]}
     if change == "driver":
         config["volumes"]["storage_fault_data"]["driver_opts"]["type"] = "ext4"
     elif change == "size":
         config["volumes"]["storage_fault_data"]["driver_opts"]["o"] = "size=40g"
-    else:
+    elif change == "mount":
         config["services"]["db"]["volumes"][0]["source"] = "retained"
+    else:
+        config["services"]["storage-holder"]["volumes"][0]["volume"]["nocopy"] = False
 
     def capture(self: Drill, command: list[str], **kwargs: object) -> bytes:
         calls.append(command)

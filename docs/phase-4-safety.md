@@ -35,6 +35,10 @@ that the database mount selects it. Tests reject changed filesystem type, size,
 mount and non-generated project identities.
 
 A holder container keeps that RAM volume mounted across PostgreSQL restart.
+Both mounts disable Docker's image-directory copy-up. The helper starts the holder
+first and verifies actual UID/GID 70 and 384 MiB capacity before starting PostgreSQL,
+so database initialization cannot depend on parallel container creation order.
+This uses Docker's documented [volume copy-up control](https://docs.docker.com/engine/storage/volumes/).
 After committing an account, opening funding and a reserved but unconsumed order,
 the fixture fills only its bounded volume. A small explicit WAL message followed
 by WAL rotation forces real allocation. PostgreSQL reports `PANIC` and
@@ -168,7 +172,10 @@ packaged image passes accounting/CLI recovery across an actual container restart
 its package source hash matches the checkout and wheel. The populated restore
 compared 29 tables for six accounts and passed in 64.385 seconds. Actual WAL fault
 detection took at most 0.323 seconds, with a controlled HTTP attempt after recovery
-within 6.536 seconds. None of those results closes the open capacity condition.
+within 6.536 seconds. A subsequent holder-first/copy-up regression run passed with
+actual mount ownership/size verified, detection within 0.246 seconds and notification
+within 7.098 seconds. The supplemental helper guard suite passed 34 cases, including
+rejection of copy-up on the shared volume. None of those results closes the capacity condition.
 
 Critical financial properties retain 1,000 deterministic Hypothesis examples, and
 the lifecycle test retains 10,000 generated sequences. `derandomize=True`, locked

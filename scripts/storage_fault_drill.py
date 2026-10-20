@@ -60,7 +60,32 @@ class StorageDrill(Drill):
         )
         if mount["source"] != "storage_fault_data":
             raise DrillError("refusing storage fault on another database volume")
-        self.call([*self.source, "up", "-d", "--wait", "db", "storage-holder"])
+        holder_mount = config["services"]["storage-holder"]["volumes"][0]
+        if not all(v.get("volume", {}).get("nocopy") is True for v in (mount, holder_mount)):
+            raise DrillError("refusing image copy-up into the shared bounded volume")
+        # Deliberately mount the holder first; initialization must not depend
+        # on Compose's parallel creation order or image-directory copy-up.
+        self.phase = "start_storage_holder"
+        self.call([*self.source, "up", "-d", "--wait", "storage-holder"])
+        self.phase = "verify_bounded_mount"
+        mounted = json.loads(
+            self.call(
+                [
+                    *self.source,
+                    "exec",
+                    "-T",
+                    "storage-holder",
+                    "python",
+                    "-c",
+                    "import os,json; p='/held'; s=os.stat(p); v=os.statvfs(p); "
+                    "print(json.dumps({'uid':s.st_uid,'gid':s.st_gid,'bytes':v.f_frsize*v.f_blocks}))",
+                ]
+            )
+        )
+        if mounted != {"uid": 70, "gid": 70, "bytes": 384 * 1024 * 1024}:
+            raise DrillError("bounded volume ownership or actual capacity differs")
+        self.phase = "start_bounded_database"
+        self.call([*self.source, "up", "-d", "--wait", "db"])
         log_path = self.directory / "watch.log"
         process = None
         with log_path.open("xb") as log:
@@ -218,6 +243,8 @@ class StorageDrill(Drill):
                     "kind": "bounded_tmpfs_postgresql_wal_enospc",
                     "status": "passed",
                     "tmpfs_limit_bytes": 384 * 1024 * 1024,
+                    "verified_mount": mounted,
+                    "holder_started_first": True,
                     "wal_enospc_observed": True,
                     "ready": ready,
                     "blocked": blocked,
@@ -274,6 +301,21 @@ def main() -> int:
         report["command_number"] = drill.counter
         if isinstance(error, DrillError):
             report["failure"] = str(error)
+        if drill.phase in {
+            "start_storage_holder",
+            "verify_bounded_mount",
+            "start_bounded_database",
+        }:
+            # Only Docker startup stderr, before the fixture/SQL commands. Scrub
+            # every mounted credential before taking a bounded diagnostic tail.
+            path = directory / f"command-{drill.counter:02d}.log"
+            if path.exists():
+                diagnostic = path.read_text(errors="replace")
+                for name in ("admin_password", "runtime_password", "migration_password"):
+                    secret = (ROOT / ".secrets" / name).read_text().strip()
+                    if secret:
+                        diagnostic = diagnostic.replace(secret, "[REDACTED]")
+                report["startup_diagnostic"] = diagnostic[-3000:]
         # Only trusted fixture frame locations, never SQL, secrets or exception text.
         frames = []
         for path in directory.glob("*.log"):
