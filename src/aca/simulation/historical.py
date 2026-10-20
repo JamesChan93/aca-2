@@ -34,6 +34,7 @@ from aca.storage.replay import public_events, valuations
 from aca.storage.reserves import for_event
 
 EMPTY_HASH = "0" * 64
+AUDIT_PAGE = 256
 CONTROL_KINDS = (
     "cash_flow",
     "asset_transfer",
@@ -163,7 +164,7 @@ class HistoricalReplay:
                             valuations.c.number > number,
                         )
                         .order_by(valuations.c.number)
-                        .limit(64)
+                        .limit(AUDIT_PAGE)
                     )
                 )
                 .mappings()
@@ -226,7 +227,7 @@ class HistoricalReplay:
                     source_index += 1
                 last, number, previous = value, value.number, row["fingerprint"]
                 yield row, value
-            if len(rows) < 64:
+            if len(rows) < AUDIT_PAGE:
                 break
         if last is None or last.number != cursor:
             raise ValueError(

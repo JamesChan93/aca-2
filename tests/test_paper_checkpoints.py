@@ -174,6 +174,72 @@ async def test_corrupt_checkpoint_never_grants_writer_ownership(
 
 
 @pytest.mark.integration
+async def test_journal_free_forgery_cannot_hide_behind_a_restored_final_balance(
+    database_settings: Settings,
+) -> None:
+    engine = create_engine(database_settings)
+    store = PaperStore(engine, uuid4())
+    try:
+        async with PaperWriter(store) as owner:
+            service = PaperExecution(owner, PaperExchange(store))
+            original = await service.initialise(AT)
+            original = await service.cashflow("opening", D(250), AT)
+            async with owner.transaction() as c:
+                previous = await c.scalar(
+                    select(events.c.fingerprint).where(
+                        events.c.account_id == store.account_id,
+                        events.c.version == original.version,
+                    )
+                )
+                state = original
+                # Correctly hashed state changes invent then remove inventory.
+                # The final projection/SQL ledger agree, so only checking that
+                # final state would miss the intermediate journal-free creation.
+                for forged in (True, False):
+                    changed = state.model_copy(
+                        update={
+                            "version": state.version + 1,
+                            "balances": tuple(
+                                Balance(asset="BTC", quantity=D(1), cost_gbp=D(10))
+                                if forged and b.asset == "BTC"
+                                else b
+                                for b in original.balances
+                            ),
+                        }
+                    )
+                    document = delta(state, changed, None)
+                    source = f"forged-no-journal:{changed.version}"
+                    hashed = fingerprint(
+                        {
+                            "previous": previous,
+                            "version": changed.version,
+                            "kind": "valuation",
+                            "source": source,
+                            "state": document,
+                        }
+                    )
+                    await c.execute(
+                        events.insert().values(
+                            account_id=store.account_id,
+                            version=changed.version,
+                            id=uuid4(),
+                            source=source,
+                            kind="valuation",
+                            at=AT,
+                            previous_hash=previous,
+                            fingerprint=hashed,
+                            document=document,
+                        )
+                    )
+                    previous, state = hashed, changed
+                assert await store.ledger_balances(c) == state.balances
+                with pytest.raises(ValueError, match="journal and incremental projection differ"):
+                    await store.audit(c)
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.integration
 async def test_legacy_full_state_prefix_gets_first_checkpoint_without_rewrite(
     database_settings: Settings,
 ) -> None:

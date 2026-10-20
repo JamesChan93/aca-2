@@ -20,13 +20,9 @@ from aca.domain.trading import (
     fingerprint,
 )
 from aca.domain.values import FINANCIAL_CONTEXT, utc_datetime
-from aca.operations.config import RiskPolicy
 from aca.portfolio.state import market_exposure, unit_price
-from aca.reporting.historical import _budget, _report
-from aca.simulation.historical import HistoricalReplay
-from aca.simulation.paper import PaperExchange
+from aca.reporting.historical import read_performance
 from aca.storage.paper import PaperStore, events, journals, outbox
-from aca.storage.replay import valuations
 
 metadata = MetaData(schema="aca")
 notices = Table(
@@ -119,10 +115,8 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
 
     start = datetime.combine(day, time(), UTC)
     end = start + timedelta(days=1)
-    await _budget(c, store)
-    state = await store.audit(c)
-    if state is None:
-        raise ValueError("paper account not initialised")
+    history = await read_performance(c, store, day=day)
+    state = history.financial
     if state.accounting_invalidated:
         result: dict[str, object] = {
             "day": day.isoformat(),
@@ -182,50 +176,20 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
             | (outbox.c.document["incident"].as_string().is_not(None)),
         )
     )
-    reader = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
-    # The bounded report audit validates source coverage and financial identity.
-    first = last = None
-    opening = closing_boundary = None
-    number = -1
-    while True:
-        rows = (
-            (
-                await c.execute(
-                    select(valuations)
-                    .where(
-                        valuations.c.account_id == store.account_id,
-                        valuations.c.number > number,
-                    )
-                    .order_by(valuations.c.number)
-                    .limit(64)
-                )
-            )
-            .mappings()
-            .all()
-        )
-        for row in rows:
-            value = reader.restore(row)
-            number = value.number
-            if value.day_boundary is not None:
-                if value.day_boundary.at == start:
-                    opening = value.day_boundary
-                if value.day_boundary.at == end:
-                    closing_boundary = value.day_boundary
-            if start <= value.state.as_of < end:
-                first = row if first is None else first
-                last = row
-        if len(rows) < 64:
-            break
+    window = history.calendar
+    if window is None:
+        raise ValueError("daily summary requires a calendar window")
+    first, closing = window.first, window.last
+    opening, closing_boundary = window.opening, window.closing
     observed = None
-    if first is not None and last is not None:
-        report = await _report(c, store, first["number"], last["number"])
-        period = report["period"]
-        if not isinstance(period, dict):
+    if first is not None and closing is not None:
+        report = history.report
+        if report is None or not isinstance(report["period"], dict):
             raise ValueError("invalid observed performance report")
-        closing = reader.restore(last)
+        period = report["period"]
         with localcontext(FINANCIAL_CONTEXT):
             observed = {
-                "start": reader.restore(first).state.as_of.isoformat(),
+                "start": first.state.as_of.isoformat(),
                 "end": closing.state.as_of.isoformat(),
                 "nav_gbp": str(closing.nav_gbp) if closing.nav_gbp is not None else None,
                 "pnl_gbp": period["pnl_gbp"],
@@ -242,17 +206,15 @@ async def daily_summary(c: AsyncConnection, store: PaperStore, day: date) -> dic
                 if closing.nav_gbp is not None
                 else None,
                 "valuation_complete": period["valuation_complete"],
-                "source_start": first["number"],
-                "source_end": last["number"],
+                "source_start": first.number,
+                "source_end": closing.number,
                 "report_hash": report["report_hash"],
             }
     daily_pnl = daily_twr = None
     boundary_evidence = None
     if opening is not None and closing_boundary is not None:
-        # Audits every source, financial movement and the embedded boundary
-        # anchors. An earlier coverage failure remains sticky, never repaired by
-        # simply receiving a fresh price at the next boundary.
-        await _report(c, store, opening.previous_source, closing_boundary.following_source)
+        # The shared read already checked every source, financial movement and
+        # embedded boundary against its prefix, including after this UTC day.
         if opening.incomplete_since is None and closing_boundary.incomplete_since is None:
             with localcontext(FINANCIAL_CONTEXT):
                 daily_pnl = str(

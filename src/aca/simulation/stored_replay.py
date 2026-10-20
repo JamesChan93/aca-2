@@ -18,7 +18,7 @@ from aca.domain.values import utc_datetime
 from aca.execution.paper import PaperExecution
 from aca.portfolio.state import unit_price
 from aca.simulation.day_boundary import DayBoundary
-from aca.simulation.historical import HistoricalReplay, HistoricalValuation
+from aca.simulation.historical import AUDIT_PAGE, HistoricalReplay, HistoricalValuation
 from aca.simulation.paper import PaperExchange
 from aca.storage.models import MarketReceipt
 from aca.storage.paper import fills
@@ -193,7 +193,7 @@ class StoredReplay:
                                 cursors.c.number > number,
                             )
                             .order_by(cursors.c.number)
-                            .limit(64)
+                            .limit(AUDIT_PAGE)
                         )
                     )
                     .mappings()
@@ -218,7 +218,7 @@ class StoredReplay:
                         if anchors.get(last.number) != last.source_hash:
                             raise ValueError("replay cursor source anchor mismatch")
                     number, previous = last.number, row["fingerprint"]
-                if len(rows) < 64:
+                if len(rows) < AUDIT_PAGE:
                     break
             if last is None:
                 raise ValueError("paper account must explicitly enrol before replay")

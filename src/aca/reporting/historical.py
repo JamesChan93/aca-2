@@ -2,7 +2,7 @@
 
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal, localcontext
 from uuid import UUID
 
@@ -12,13 +12,14 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from aca import __version__
 from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
 from aca.accounting.operations import flow_from_journal, flow_journal, flow_marks, investment_amount
-from aca.domain.trading import ZERO, Asset, Fill, Journal, fingerprint
+from aca.domain.trading import ZERO, Asset, Fill, Journal, PortfolioSnapshot, fingerprint
 from aca.domain.values import FINANCIAL_CONTEXT
 from aca.operations.config import RiskPolicy
 from aca.portfolio.reserves import TaxReserveRecord
 from aca.portfolio.state import flow_units, unit_price
 from aca.reporting.returns import MAX_RETURN_FLOWS, investor_return
-from aca.simulation.historical import EMPTY_HASH, HistoricalReplay, HistoricalValuation
+from aca.simulation.day_boundary import DayBoundary
+from aca.simulation.historical import AUDIT_PAGE, EMPTY_HASH, HistoricalReplay, HistoricalValuation
 from aca.simulation.paper import PaperExchange
 from aca.simulation.stored_replay import ReplayCursor
 from aca.storage.paper import PaperStore, checkpoints, events, fills, journals, venue_events
@@ -29,7 +30,7 @@ MAX_REPORT_VALUES = 100000
 MAX_REPORT_EVENTS = 100000
 MAX_REPORT_JOURNALS = 10000
 MAX_REPORT_FILLS = 4096
-PAGE = 64
+PAGE = AUDIT_PAGE
 
 
 @dataclass
@@ -71,6 +72,35 @@ class Evidence:
     flows: deque[tuple[int, Journal]]
     trades: deque[tuple[int, Fill, Journal]]
     reserves: deque[TaxReserveRecord]
+
+
+@dataclass
+class CalendarWindow:
+    start: datetime
+    end: datetime
+    first: HistoricalValuation | None = None
+    last: HistoricalValuation | None = None
+    opening: DayBoundary | None = None
+    closing: DayBoundary | None = None
+
+    def observe(self, value: HistoricalValuation) -> bool:
+        if value.day_boundary is not None:
+            if value.day_boundary.at == self.start:
+                self.opening = value.day_boundary
+            if value.day_boundary.at == self.end:
+                self.closing = value.day_boundary
+        selected = self.start <= value.state.as_of < self.end
+        if selected:
+            self.first = self.first or value
+            self.last = value
+        return selected
+
+
+@dataclass
+class PerformanceRead:
+    financial: PortfolioSnapshot
+    report: dict[str, object] | None
+    calendar: CalendarWindow | None
 
 
 async def _budget(c: AsyncConnection, store: PaperStore) -> None:
@@ -416,9 +446,27 @@ class Period:
             }
 
 
-async def _report(
-    c: AsyncConnection, store: PaperStore, start_source: int | None, end_source: int | None
-) -> dict[str, object]:
+async def read_performance(
+    c: AsyncConnection,
+    store: PaperStore,
+    start_source: int | None = None,
+    end_source: int | None = None,
+    *,
+    day: date | None = None,
+) -> PerformanceRead:
+    """One complete audited pass, optionally selecting a UTC calendar window.
+
+    Daily summaries get the financial snapshot, selected observed period and both
+    midnight anchors from this same pass. Calendar selection never restricts the
+    validated prefix: even evidence after the selected day must be checked.
+    The caller supplies a read-only REPEATABLE READ database transaction.
+    """
+    calendar = None
+    if day is not None:
+        if start_source is not None or end_source is not None:
+            raise ValueError("calendar and source ranges cannot be combined")
+        begin = datetime.combine(day, time(), UTC)
+        calendar = CalendarWindow(begin, begin + timedelta(days=1))
     await _budget(c, store)
     financial = await store.audit(c)
     if financial is None:
@@ -445,7 +493,9 @@ async def _report(
             "tax_report_final": False,
             "live_execution_available": False,
         }
-        return {**invalid, "report_hash": fingerprint(invalid)}
+        return PerformanceRead(
+            financial, {**invalid, "report_hash": fingerprint(invalid)}, calendar
+        )
     reader = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
     head = await reader.latest(c)
     cursor = (
@@ -461,7 +511,10 @@ async def _report(
         .one_or_none()
     )
     if head is None or cursor is None:
+        if calendar is not None and head is None and cursor is None:
+            return PerformanceRead(financial, None, calendar)
         raise ValueError("performance requires explicit historical enrolment")
+    head_value = reader.restore(head)
     if (
         fingerprint({"previous": cursor["previous_hash"], "cursor": cursor["document"]})
         != cursor["fingerprint"]
@@ -471,7 +524,7 @@ async def _report(
     if (
         current_cursor.account_id != store.account_id
         or current_cursor.number != cursor["number"]
-        or current_cursor.source_hash != reader.restore(head).source_hash
+        or current_cursor.source_hash != head_value.source_hash
     ):
         raise ValueError("performance cursor identity mismatch")
     first = (
@@ -506,24 +559,32 @@ async def _report(
     if end_row is None:
         raise ValueError("performance endpoint must name an exact recorded source")
     end = reader.restore(end_row)
-    evidence = await _evidence(c, store, baseline, end)
+    evidence = await _evidence(c, store, baseline, head_value if calendar else end)
     previous, period = baseline, None
     # Exhaust the full audited prefix even for a report ending in the past.
     # Arithmetic uses already validated values; an invalid later record or a
     # missing suffix still prevents returning any accepted report.
     async for row, value in reader.audited_values(c, current_cursor.number):
-        if value.number > upper:
+        selected = (
+            calendar.observe(value)
+            if calendar
+            else value.number == lower or (period is not None and value.number <= upper)
+        )
+        if not calendar and value.number > upper:
             continue
-        totals = period.totals if period else Totals()
+        totals = period.totals if selected and period else Totals()
         dated = _advance(previous, value, evidence, totals)
-        if value.number == lower:
-            period = Period(value, row["fingerprint"])
-        elif period is not None and len(period.flows) <= MAX_RETURN_FLOWS:
-            period.flows.extend(dated)
-        if period:
+        if selected:
+            if period is None:
+                period = Period(value, row["fingerprint"])
+            elif len(period.flows) <= MAX_RETURN_FLOWS:
+                period.flows.extend(dated)
             period.observe(value)
+            end, end_row = value, row
         previous = value
     if period is None:
+        if calendar is not None:
+            return PerformanceRead(financial, None, calendar)
         raise ValueError("performance start must name an exact recorded source")
     financial_hash = await c.scalar(
         select(events.c.fingerprint).where(
@@ -557,7 +618,7 @@ async def _report(
             .where(
                 events.c.account_id == store.account_id,
                 events.c.kind.in_(("cash_flow", "asset_transfer")),
-                events.c.version > reader.restore(head).control_version,
+                events.c.version > head_value.control_version,
             )
         ),
         "period": period.finish(end, end_row["fingerprint"]),
@@ -568,7 +629,16 @@ async def _report(
         "tax_report_final": False,
         "live_execution_available": False,
     }
-    return {**result, "report_hash": fingerprint(result)}
+    return PerformanceRead(financial, {**result, "report_hash": fingerprint(result)}, calendar)
+
+
+async def _report(
+    c: AsyncConnection, store: PaperStore, start_source: int | None, end_source: int | None
+) -> dict[str, object]:
+    result = await read_performance(c, store, start_source, end_source)
+    if result.report is None:
+        raise ValueError("performance requires an observed period")
+    return result.report
 
 
 async def historical_performance(

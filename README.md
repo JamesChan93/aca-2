@@ -20,6 +20,9 @@ the [C3 safety results and measured capacity blocker](docs/phase-4-safety.md), C
 and the separate research, observation and readiness gates.
 The [capacity increment](docs/phase-4-capacity.md) improves audit/report cost while
 keeping the outstanding 56-day retention condition explicit.
+The [daily-summary capacity work](docs/phase-4-summary-capacity.md) shares one
+audited financial/valuation pass; the measured deadlines and retention condition
+remain explicit.
 
 ## Start locally
 

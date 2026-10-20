@@ -235,7 +235,7 @@ class PaperStore:
                             events.c.version <= head,
                         )
                         .order_by(events.c.version)
-                        .limit(CHECKPOINT_INTERVAL)
+                        .limit(4 * CHECKPOINT_INTERVAL)
                     )
                 )
                 .mappings()
@@ -273,8 +273,28 @@ class PaperStore:
                 )
                 if not checkpoint_rows:
                     break
+                anchors = {
+                    row["version"]: row
+                    for row in (
+                        (
+                            await connection.execute(
+                                select(events).where(
+                                    events.c.account_id == self.account_id,
+                                    events.c.version.in_(
+                                        [row["version"] for row in checkpoint_rows]
+                                    ),
+                                )
+                            )
+                        )
+                        .mappings()
+                        .all()
+                    )
+                }
                 for checkpoint_row in checkpoint_rows:
-                    await self._checkpoint(connection, checkpoint_row)
+                    anchor = anchors.get(checkpoint_row["version"])
+                    if anchor is None:
+                        raise ValueError("paper checkpoint anchor missing")
+                    self._restore_checkpoint(checkpoint_row, anchor)
                     checkpoint_cursor = checkpoint_row["version"]
         return state
 
@@ -299,7 +319,21 @@ class PaperStore:
             if journal.occurred_at > state.as_of:
                 raise ValueError("paper journal occurs after its event")
             history.append(journal)
-        if state.balances != apply_journals(old.balances if old else (), history):
+        # Both snapshots have just passed typed restoration. An empty journal
+        # batch cannot change canonical balances; reuse that exact tuple rather
+        # than reconstructing and revalidating the same six Decimal fields for
+        # every maintenance observation. Noncanonical legacy prefixes still use
+        # the original reconstruction, including its GBP quantity/cost check.
+        if (
+            not history
+            and old is not None
+            and tuple(balance.asset for balance in old.balances) == ("GBP", "BTC", "ETH")
+            and old.quantity("GBP") == old.cost("GBP")
+        ):
+            expected_balances = old.balances
+        else:
+            expected_balances = apply_journals(old.balances if old else (), history)
+        if state.balances != expected_balances:
             raise ValueError("journal and incremental projection differ")
         from aca.storage.accounting import verify_operation
 
@@ -311,11 +345,6 @@ class PaperStore:
             raise ValueError("tax cash reserve changed without a decision")
 
     async def _checkpoint(self, connection: AsyncConnection, row: RowMapping) -> PortfolioSnapshot:
-        doc = row["document"]
-        if not isinstance(doc, dict) or fingerprint(doc) != row["state_hash"]:
-            raise ValueError("corrupt paper checkpoint")
-        state = PortfolioSnapshot.restore(doc)
-        state_document(state)
         anchor = (
             (
                 await connection.execute(
@@ -327,6 +356,14 @@ class PaperStore:
             .mappings()
             .one()
         )
+        return self._restore_checkpoint(row, anchor)
+
+    def _restore_checkpoint(self, row: RowMapping, anchor: RowMapping) -> PortfolioSnapshot:
+        doc = row["document"]
+        if not isinstance(doc, dict) or fingerprint(doc) != row["state_hash"]:
+            raise ValueError("corrupt paper checkpoint")
+        state = PortfolioSnapshot.restore(doc)
+        state_document(state)
         envelope = anchor["document"]
         if (
             state.account_id != self.account_id
