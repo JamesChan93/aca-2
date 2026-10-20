@@ -18,6 +18,8 @@ See the [current milestone status](docs/status.md) and
 [fixed Phase 4 completion checklist](docs/phase-4-completion.md) for completed C1/C2,
 the [C3 safety results and measured capacity blocker](docs/phase-4-safety.md), C4 closeout
 and the separate research, observation and readiness gates.
+The [capacity increment](docs/phase-4-capacity.md) improves audit/report cost while
+keeping the outstanding 56-day retention condition explicit.
 
 ## Start locally
 

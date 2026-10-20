@@ -76,6 +76,9 @@ def main() -> int:
                 {
                     key: report.get(key)
                     for key in (
+                        "application_version",
+                        "package_source_sha256",
+                        "certifi_version",
                         "record_limits",
                         "operations",
                         "one_second_loop",

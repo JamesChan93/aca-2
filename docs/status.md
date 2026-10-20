@@ -1,7 +1,7 @@
 # Implementation status
 
 Updated 20 October 2026 for P4-C3, following the scope review merged in PR #17.
-Application candidate: 0.4.12; schema `0014_accounting_operations`. This register separates
+Application candidate: 0.4.13; schema `0014_accounting_operations`. This register separates
 engineering completion from research eligibility, extended paper observation and later deployment/live gates.
 
 **C3 now has four of five conditions covered. Its capacity condition remains open:**
@@ -10,6 +10,12 @@ and no demonstrated 56-day retention/headroom. See the [C3 safety report](phase-
 and [T00–T32/result evidence](evidence/phase-4-safety.json). The actual bounded WAL
 ENOSPC recovery, populated restore/gap blocking and controlled alert timings pass.
 Passing CI does not approve C3 or G2 in the presence of that named failure.
+
+The [capacity increment](phase-4-capacity.md) batches audit source queries, combines
+report calculation with the validated valuation stream and removes repeated Decimal
+quantization from boundary checks. It adds measurement of the actual replay and
+scheduled-summary deadlines. The acceptance budgets, record limits and retention
+blocker remain explicit; this increment does not close condition 4.
 
 **Phase 4 is incomplete. C1 and C2 are complete; C3–C4 remain in the fixed packages in the
 [completion checklist](phase-4-completion.md). The Phase 5 qualifying observation
@@ -28,7 +34,10 @@ approves no research, observation-start or release gate. The retained local stac
 | Notifications | Opt-in Discord worker, durable retries, provisional daily summaries, critical repeats, cached health/metrics and exact-event failure reviews |
 | Operations | Local health/metrics, private upgrade backups, runbooks and a [disposable logical restore with controlled concurrent commits](phase-4-local-restore.md) |
 
-The C3 full Linux run passed **578 tests**, with Ruff and strict Mypy checks passing.
+The current 0.4.13 Linux/PostgreSQL regression passed **596 tests** with the patched
+certificate bundle; Ruff, strict Mypy, package build, advisory audits and packaged
+CLI/restart checks pass. Its [capacity results](phase-4-capacity.md) still do not
+pass condition 4. The original 0.4.12 C3 full Linux run passed **578 tests**.
 The [C3 report](phase-4-safety.md) records actual WAL failure, populated restore,
 timing and the explicitly unsuccessful capacity condition. The
 [C2 report](phase-4-accounting.md) retains its accounting/invalidation and packaged

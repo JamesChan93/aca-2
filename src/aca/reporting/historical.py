@@ -474,7 +474,6 @@ async def _report(
         or current_cursor.source_hash != reader.restore(head).source_hash
     ):
         raise ValueError("performance cursor identity mismatch")
-    await reader.audit(c, current_cursor.number)
     first = (
         (
             await c.execute(
@@ -508,37 +507,22 @@ async def _report(
         raise ValueError("performance endpoint must name an exact recorded source")
     end = reader.restore(end_row)
     evidence = await _evidence(c, store, baseline, end)
-    previous, number, period = baseline, baseline.number - 1, None
-    while True:
-        rows = (
-            (
-                await c.execute(
-                    select(valuations)
-                    .where(
-                        valuations.c.account_id == store.account_id,
-                        valuations.c.number > number,
-                        valuations.c.number <= upper,
-                    )
-                    .order_by(valuations.c.number)
-                    .limit(PAGE)
-                )
-            )
-            .mappings()
-            .all()
-        )
-        for row in rows:
-            value = reader.restore(row)
-            totals = period.totals if period else Totals()
-            dated = _advance(previous, value, evidence, totals)
-            if value.number == lower:
-                period = Period(value, row["fingerprint"])
-            elif period is not None and len(period.flows) <= MAX_RETURN_FLOWS:
-                period.flows.extend(dated)
-            if period:
-                period.observe(value)
-            previous, number = value, value.number
-        if len(rows) < PAGE:
-            break
+    previous, period = baseline, None
+    # Exhaust the full audited prefix even for a report ending in the past.
+    # Arithmetic uses already validated values; an invalid later record or a
+    # missing suffix still prevents returning any accepted report.
+    async for row, value in reader.audited_values(c, current_cursor.number):
+        if value.number > upper:
+            continue
+        totals = period.totals if period else Totals()
+        dated = _advance(previous, value, evidence, totals)
+        if value.number == lower:
+            period = Period(value, row["fingerprint"])
+        elif period is not None and len(period.flows) <= MAX_RETURN_FLOWS:
+            period.flows.extend(dated)
+        if period:
+            period.observe(value)
+        previous = value
     if period is None:
         raise ValueError("performance start must name an exact recorded source")
     financial_hash = await c.scalar(

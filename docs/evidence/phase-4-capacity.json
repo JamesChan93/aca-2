@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-20",
+  "application_version": "0.4.13",
+  "schema_revision": "0014_accounting_operations",
+  "checklist_id": "P4-C3-condition-4",
+  "condition_status": "open",
+  "phase_4_complete": false,
+  "g2_approved": false,
+  "qualifying_days": 0,
+  "qualifying_episodes": 0,
+  "live_execution_available": false,
+  "source": {
+    "files": 108,
+    "algorithm": "sorted package-relative UTF-8 path + NUL + file bytes; SHA-256",
+    "sha256": "530beed29b0fa2184a5ee9b0d68dee24c01c6ecb7d681777437059b08c958c88",
+    "wheel_package_source_sha256": "530beed29b0fa2184a5ee9b0d68dee24c01c6ecb7d681777437059b08c958c88",
+    "runtime_package_source_sha256": "530beed29b0fa2184a5ee9b0d68dee24c01c6ecb7d681777437059b08c958c88",
+    "wheel_sha256": "3aa20213da24a3693f2e685e1c5323316ca51ee8b181f422cf5eb048f1bcee32",
+    "local_runtime_image": "sha256:5fea1b48d669dc2165ab71eea3b73740e88d3733a1b0ad9896494f06d0200071"
+  },
+  "verification": {
+    "linux_postgresql": {
+      "command": ".venv/bin/python scripts/ci_database.py --linux -q",
+      "passed": 596,
+      "seconds": 98.7,
+      "patched_certifi": true
+    },
+    "ruff": "passed; 161 files formatted",
+    "mypy": "passed; 139 files",
+    "distribution_build": "passed",
+    "pip_check": "passed",
+    "financial_properties": {
+      "new_decimal_quantization_equivalence_examples": 1000,
+      "existing_critical_examples_each": 1000,
+      "deterministic": true,
+      "failure_blob": true
+    },
+    "lifecycle_fault_sequences": 10000,
+    "paged_audit_regressions": {
+      "file": "tests/test_audit_capacity.py",
+      "cases": 5,
+      "observations_in_query_count_case": 146,
+      "replay_source_queries_maximum": 6,
+      "report_source_queries_maximum": 4,
+      "includes_rehashed_gap_and_anchor_at_page_boundary": true,
+      "old_endpoint_does_not_hide_invalid_later_chain": true,
+      "missing_tail_rejected": true
+    },
+    "packaged_cli_restart": {
+      "project": "aca-c3-capacity-smoke-fedd350bcc3e",
+      "account_id": "09a1fbc7-ad1f-4f94-b107-70daa6025ce4",
+      "passed": true,
+      "state_survived_container_restart": true,
+      "retained_container_identities_unchanged": true,
+      "owned_project_removed": true
+    },
+    "hosted_ci": "Exact-head push and pull-request workflow links/results are appended to the pull request after completion; this file records local evidence."
+  },
+  "dependency_security": {
+    "advisory": "GHSA-6q48-6c7w-9gw2",
+    "url": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+    "old_certifi": "2026.7.22",
+    "new_certifi": "2026.10.19",
+    "wheel_sha256": "42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b",
+    "bundle_sha256": "50f79f98dac192b20dbf73f35c56f0b0c557ab267ff5199d1117cc1180b70785",
+    "runtime_CA_context_loaded": true,
+    "license": "MPL-2.0",
+    "python_requires": ">=3.7",
+    "other_package_pins_unchanged": true,
+    "audits": {
+      "runtime": "No known vulnerabilities found",
+      "research": "No known vulnerabilities found",
+      "development": "No known vulnerabilities found"
+    },
+    "adr": "A16 amendment; docs/architecture.md",
+    "retained_stack_redeployed": false
+  },
+  "capacity_trial": {
+    "status": "measured",
+    "56_day_headroom_demonstrated": false,
+    "application_version": "0.4.13",
+    "bulk_seed_is_ingestion_measurement": false,
+    "certifi_version": "2026.10.19",
+    "configured_budget_bytes": 2000000000,
+    "cpu.max": "75000 100000",
+    "cpu_seconds": 118.82848867300001,
+    "database_bytes": 500782783,
+    "elapsed_seconds": 177.21956916300405,
+    "global_source_head": 99999,
+    "live_execution_available": false,
+    "max_rss_kib": 117324,
+    "measured_boundary_failures": [
+      "scheduled_daily_summary"
+    ],
+    "memory.max": "805306368",
+    "memory.peak": "101560320",
+    "observations_per_56_days_at_1hz": 4838400,
+    "one_second_loop": {
+      "elapsed_seconds": 19.302473842006293,
+      "financial_events_before_startup": 100000,
+      "healthy_ticks": 20,
+      "max_tick_seconds": 0.1681673330022022,
+      "mean_tick_seconds": 0.06103662704845192,
+      "ticks": 20,
+      "venue_commands": 0
+    },
+    "operations": {
+      "financial_writer_startup": {
+        "deadline_seconds": 30,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 9.991504338002414
+      },
+      "historical_report": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 19.0236334670044
+      },
+      "replay_audit_after_writer_acquisition": {
+        "deadline_seconds": 10,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 9.412481502993614
+      },
+      "replay_startup_audit": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 19.50125842599664
+      },
+      "scheduled_daily_summary": {
+        "deadline_seconds": 15,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "deadline_exceeded",
+        "seconds": 35.078889016003814
+      }
+    },
+    "package_source_sha256": "530beed29b0fa2184a5ee9b0d68dee24c01c6ecb7d681777437059b08c958c88",
+    "promotion_evidence": false,
+    "record_limits": {
+      "events": 100000,
+      "public_receipts": 99999,
+      "valuations": 100000
+    },
+    "relations": [
+      {
+        "bytes": 24576,
+        "n_live_tup": 1,
+        "relname": "alembic_version"
+      },
+      {
+        "bytes": 32768,
+        "n_live_tup": 0,
+        "relname": "audit_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "configuration_versions"
+      },
+      {
+        "bytes": 36208640,
+        "n_live_tup": 99999,
+        "relname": "market_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_accounting_operations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_accounts"
+      },
+      {
+        "bytes": 65536,
+        "n_live_tup": 5,
+        "relname": "paper_alerts"
+      },
+      {
+        "bytes": 1982464,
+        "n_live_tup": 1564,
+        "relname": "paper_checkpoints"
+      },
+      {
+        "bytes": 123633664,
+        "n_live_tup": 200006,
+        "relname": "paper_events"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_fills"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 4,
+        "relname": "paper_journal_lines"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 2,
+        "relname": "paper_journals"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_movements"
+      },
+      {
+        "bytes": 8192,
+        "n_live_tup": 0,
+        "relname": "paper_notice_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_notices"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_notification_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_notification_reviews"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_order_identities"
+      },
+      {
+        "bytes": 62644224,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_cursors"
+      },
+      {
+        "bytes": 208969728,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_valuations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_decisions"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_results"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_selections"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_tax_reserves"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 0,
+        "relname": "paper_venue_events"
+      },
+      {
+        "bytes": 58048512,
+        "n_live_tup": 99999,
+        "relname": "public_replay_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "public_trades"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "research_artifacts"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "research_events"
+      }
+    ],
+    "seed_seconds": 37.402502434008056,
+    "value_limit_days_at_1hz": 1.1574074074074074,
+    "cleanup_complete": true
+  },
+  "remaining_same_condition": [
+    "Unresolved measured deadline failures remain failures even when an operation finishes diagnostically.",
+    "100,000 valuation rows cover 1.1574 days at 1 Hz; 56 days require 4,838,400, and real public receipt rates can be higher.",
+    "No implemented/reviewed hot-history archive reader or demonstrated 56-day headroom.",
+    "Loaded orders/journals/fills and full public-capture throughput remain unproven under this capacity condition."
+  ],
+  "unchanged_boundaries": {
+    "runtime_timeouts_raised": false,
+    "record_limits_raised": false,
+    "container_resources_raised": false,
+    "database_schema_changed": false,
+    "financial_history_pruned": false,
+    "retained_stack_upgraded": false,
+    "research_promoted": false,
+    "holdout_opened": false,
+    "new_C_package_added": false
+  }
+}

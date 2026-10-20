@@ -1,5 +1,6 @@
 """Original-observation paper economics, independent of financial import time."""
 
+from collections.abc import AsyncIterator
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -142,7 +143,15 @@ class HistoricalReplay:
         )
         await self.save(c, value, EMPTY_HASH)
 
-    async def audit(self, c: AsyncConnection, cursor: int) -> HistoricalValuation:
+    async def audited_values(
+        self, c: AsyncConnection, cursor: int
+    ) -> AsyncIterator[tuple[RowMapping, HistoricalValuation]]:
+        """Validate every observation and source in bounded pages.
+
+        Consumers must exhaust this iterator before accepting a result: the tail
+        check also detects a missing valuation suffix. Reports use this same pass
+        for their arithmetic instead of restoring every observation twice.
+        """
         number, previous, last = -1, EMPTY_HASH, None
         while True:
             rows = (
@@ -160,6 +169,24 @@ class HistoricalReplay:
                 .mappings()
                 .all()
             )
+            # The source sequence can have gaps (rolled-back allocations), so
+            # compare the actual ordered source rows, never number + 1. A page
+            # fetch replaces two round trips per observation without omitting
+            # either an anchor or a coverage check, including across pages.
+            sources = []
+            if rows:
+                lower = last.number + 1 if last is not None else max(1, rows[0]["number"])
+                sources = list(
+                    (
+                        await c.execute(
+                            select(public_events.c.number, public_events.c.fingerprint)
+                            .where(public_events.c.number >= lower)
+                            .order_by(public_events.c.number)
+                            .limit(len(rows))
+                        )
+                    ).all()
+                )
+            source_index = 0
             for row in rows:
                 value = self.restore(row, previous)
                 if value.day_boundary is not None:
@@ -192,29 +219,26 @@ class HistoricalReplay:
                 ):
                     raise ValueError("historical valuation regressed")
                 if value.number:
-                    if last is not None:
-                        next_source = await c.scalar(
-                            select(public_events.c.number)
-                            .where(public_events.c.number > last.number)
-                            .order_by(public_events.c.number)
-                            .limit(1)
-                        )
-                        if next_source != value.number:
-                            raise ValueError("historical valuation source coverage gap")
-                    anchor = await c.scalar(
-                        select(public_events.c.fingerprint).where(
-                            public_events.c.number == value.number
-                        )
-                    )
-                    if anchor != value.source_hash:
+                    if source_index >= len(sources) or sources[source_index].number != value.number:
+                        raise ValueError("historical valuation source coverage gap")
+                    if sources[source_index].fingerprint != value.source_hash:
                         raise ValueError("historical valuation source anchor mismatch")
+                    source_index += 1
                 last, number, previous = value, value.number, row["fingerprint"]
+                yield row, value
             if len(rows) < 64:
                 break
         if last is None or last.number != cursor:
             raise ValueError(
                 "historical valuation baseline/cursor missing; flat enrolment required"
             )
+
+    async def audit(self, c: AsyncConnection, cursor: int) -> HistoricalValuation:
+        last = None
+        async for _, value in self.audited_values(c, cursor):
+            last = value
+        if last is None:  # audited_values already rejects an empty history.
+            raise ValueError("historical valuation baseline missing")
         return last
 
     async def controls(self, c: AsyncConnection, version: int) -> list[RowMapping]:

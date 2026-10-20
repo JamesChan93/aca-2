@@ -59,6 +59,14 @@ cannot activate trading. The provisional policy is configuration, not a risk eng
 | A19 | Derive PostgreSQL from the official 18.6 Alpine 3.24 image, pinned by digest, and remove unused gosu because the entrypoint starts as postgres. Scan both runtime images. Move existing local data by verified logical backup/restore into a separate volume; never mount a glibc cluster directly into musl. Keep the original volume for rollback. |
 | A20 | Verify the built application wheel instead of an editable install. Clean Linux testing exposed an unlocked editable-install helper. Installing the packaged wheel also validates packaged migrations without adding a new dependency. |
 
+**A16 amendment, 20 October 2026:** constrain the shared transitive certificate
+bundle to `certifi==2026.10.19` following
+[GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2).
+Regenerate only that package's pin/hashes in the runtime, development and research
+locks, inspect the upstream wheel, and rerun advisory, clean Linux and container
+checks. Do not ignore the advisory or disable TLS verification. This changes no
+direct dependency candidate, database schema or running deployment.
+
 No direct dependency candidate substitution was required. Version/digest observations and
 verification limits are recorded in the milestone report. Changes to these decisions
 must be reviewed rather than inferred from a successful health check.

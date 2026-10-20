@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta, timezone
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation, localcontext
 from pathlib import Path
 
 import pytest
@@ -7,7 +7,13 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 from pydantic import BaseModel, ValidationError
 
-from aca.domain.values import FinancialDecimal, UtcDateTime, parse_decimal, utc_datetime
+from aca.domain.values import (
+    FINANCIAL_CONTEXT,
+    FinancialDecimal,
+    UtcDateTime,
+    parse_decimal,
+    utc_datetime,
+)
 from aca.operations.cli import main
 from aca.operations.config import ConfigurationError, RiskPolicy, Settings, load_settings
 
@@ -130,6 +136,56 @@ def test_decimal_round_trip_is_exact(value: Decimal) -> None:
 def test_every_float_is_rejected(value: float) -> None:
     with pytest.raises(ValueError):
         parse_decimal(value)
+
+
+@settings(max_examples=1000, derandomize=True, print_blob=True)
+@given(
+    sign=st.integers(0, 1),
+    digits=st.lists(st.integers(0, 9), min_size=1, max_size=200),
+    exponent=st.integers(-200, 200),
+)
+def test_decimal_representation_check_matches_independent_quantization(
+    sign: int, digits: list[int], exponent: int
+) -> None:
+    value = Decimal((sign, tuple(digits), exponent))
+    with localcontext(FINANCIAL_CONTEXT):
+        try:
+            valid = abs(value) < Decimal("1e20") and value == value.quantize(Decimal("1e-18"))
+        except InvalidOperation:
+            valid = False
+    # The result does not depend on the ambient precision or exponent limits.
+    with localcontext() as ambient:
+        ambient.prec = 3
+        ambient.Emin, ambient.Emax = -9, 9
+        if valid:
+            assert parse_decimal(value).as_tuple() == value.as_tuple()
+            assert parse_decimal(str(value)).as_tuple() == value.as_tuple()
+        else:
+            with pytest.raises(ValueError):
+                parse_decimal(value)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "99999999999999999999.9999999999999999990000",
+        "-99999999999999999999.9999999999999999990000",
+        "0e-999999999",
+        "-0e999999999",
+        "1000e-21",
+    ],
+)
+def test_decimal_range_accepts_exact_trailing_zeroes_without_rounding(text: str) -> None:
+    assert parse_decimal(text).as_tuple() == Decimal(text).as_tuple()
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["1e999999999", "1e-999999999", "1.0000000000000000001", "-1e20", "NaN", "sNaN"],
+)
+def test_decimal_range_rejects_extreme_or_inexact_representations(text: str) -> None:
+    with pytest.raises(ValueError):
+        parse_decimal(text)
 
 
 def test_domain_validation_rejects_naive_time_and_normalises_aware_time() -> None:

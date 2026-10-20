@@ -154,11 +154,16 @@ notification conditions above. Full host-loss recovery, encrypted off-host/WAL
 backups, production RPO/RTO and private exchange semantics remain unproven.
 
 **Current result:** [C3 evidence](phase-4-safety.md) closes the four checked conditions.
-The fourth remains open: the measured 100,000-record replay/report operations exceed
-20 seconds, and 100,000 one-second valuations cover only about 1.16 days. The bounded
+The fourth remains open: the initial 0.4.12 100,000-record replay/report operations
+exceeded 20 seconds, and 100,000 one-second valuations cover only about 1.16 days. The bounded
 trial is implemented, but sufficient 56-day headroom or a reviewed preservation/archive
 path has not been established. C3 and G2 are not passed. This is the existing capacity
 condition, not an added work package.
+
+The [0.4.13 capacity increment](phase-4-capacity.md) reduces audit/report overhead
+and measures the actual runner/summary deadlines. It preserves the record ceilings
+and full validation requirements. Its evidence does not establish 56-day retention
+or close this condition.
 
 This package does **not** introduce a generic backup-gap importer or a second
 backup architecture. Existing paper reconciliation is used where authoritative

@@ -6,6 +6,7 @@ does not pretend bulk INSERT speed measures the actual execution writer.
 
 import asyncio
 import hashlib
+import importlib.metadata
 import json
 import resource
 import sys
@@ -20,9 +21,11 @@ from process_worker import AT
 from restore_fixture import NoCommands, create_database, settings_for
 from sqlalchemy import func, insert, select, text
 
+import aca
 from aca.app.paper_supervisor import PaperSupervisor, SupervisorMetrics, SupervisorStatus
 from aca.domain.trading import fingerprint
 from aca.execution.paper import PaperExecution
+from aca.observability.notices import daily_summary
 from aca.reporting.historical import MAX_REPORT_EVENTS, MAX_REPORT_VALUES, historical_performance
 from aca.simulation.stored_replay import ReplayCursor, ReplayReceipt, StoredReplay
 from aca.storage.database import create_engine
@@ -98,7 +101,16 @@ async def run() -> None:
     await migrate(settings)
     engine = create_engine(settings)
     store = PaperStore(engine, uuid4())
+    package = Path(aca.__file__).parent
+    source_hash = hashlib.sha256()
+    for path in sorted(package.rglob("*.py")):
+        source_hash.update(
+            path.relative_to(package).as_posix().encode() + b"\0" + path.read_bytes()
+        )
     result: dict[str, Any] = {
+        "application_version": aca.__version__,
+        "package_source_sha256": source_hash.hexdigest(),
+        "certifi_version": importlib.metadata.version("certifi"),
         "live_execution_available": False,
         "promotion_evidence": False,
         "bulk_seed_is_ingestion_measurement": False,
@@ -229,16 +241,24 @@ async def run() -> None:
 
         async def measure(name: str, operation: Any, deadline: float) -> None:
             started = monotonic()
+            completed = False
             try:
-                async with asyncio.timeout(deadline):
+                # Keep the acceptance deadline unchanged, but allow a bounded
+                # diagnostic tail so an overrun records its actual duration.
+                # An operation finishing after its budget still fails it.
+                async with asyncio.timeout(60):
                     await operation()
-                outcome = "completed"
+                completed = True
             except TimeoutError:
-                outcome = "deadline_exceeded"
+                pass
+            seconds = monotonic() - started
+            outcome = "completed" if completed and seconds <= deadline else "deadline_exceeded"
             result["operations"][name] = {
-                "seconds": monotonic() - started,
+                "seconds": seconds,
                 "deadline_seconds": deadline,
                 "outcome": outcome,
+                "operation_finished": completed,
+                "measurement_timeout_seconds": 60,
             }
 
         async def startup() -> None:
@@ -254,6 +274,23 @@ async def run() -> None:
         await measure("financial_writer_startup", startup, 30)
         await measure("replay_startup_audit", history_audit, 20)
         await measure("historical_report", lambda: historical_performance(store), 20)
+        async with PaperWriter(store) as owner:
+            replay_reader = StoredReplay(
+                PaperExecution(owner, NoCommands(store)), NoCommands(store)
+            )
+            # The supervisor's existing ten-second startup timeout begins after
+            # financial writer acquisition, unlike the combined measurement.
+            await measure("replay_audit_after_writer_acquisition", replay_reader.audit, 10)
+
+        async def summary() -> None:
+            async with engine.connect() as c:
+                await c.execution_options(
+                    isolation_level="REPEATABLE READ", postgresql_readonly=True
+                )
+                await daily_summary(c, store, AT.date())
+
+        # The notification owner's existing summary budget is 15 seconds.
+        await measure("scheduled_daily_summary", summary, 15)
         # Finite real one-second loop, including actual maintenance writes, with
         # no invented feed health/market fills. Use the non-replay loop separately.
         tick_store = PaperStore(engine, uuid4())
