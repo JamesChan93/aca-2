@@ -3,3 +3,5 @@ platformdirs==4.13.3
 # Build tools must be pinned and hashed too; pip-tools otherwise labels these unsafe.
 pip==26.2.1
 setuptools==84.0.0
+# GHSA-6q48-6c7w-9gw2: remove the compromised emSign trust path.
+certifi==2026.10.19

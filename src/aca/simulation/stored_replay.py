@@ -199,15 +199,23 @@ class StoredReplay:
                     .mappings()
                     .all()
                 )
+                anchors = (
+                    dict(
+                        (
+                            await c.execute(
+                                select(public_events.c.number, public_events.c.fingerprint).where(
+                                    public_events.c.number.in_([row["number"] for row in rows])
+                                )
+                            )
+                        ).all()
+                    )
+                    if rows
+                    else {}
+                )
                 for row in rows:
                     last = self._cursor(row, previous)
                     if last.number:
-                        anchor = await c.scalar(
-                            select(public_events.c.fingerprint).where(
-                                public_events.c.number == last.number
-                            )
-                        )
-                        if anchor != last.source_hash:
+                        if anchors.get(last.number) != last.source_hash:
                             raise ValueError("replay cursor source anchor mismatch")
                     number, previous = last.number, row["fingerprint"]
                 if len(rows) < 64:

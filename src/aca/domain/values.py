@@ -1,7 +1,7 @@
 """Financial inputs never pass through binary floating point."""
 
 from datetime import UTC, datetime
-from decimal import Context, Decimal, InvalidOperation, localcontext
+from decimal import Context, Decimal, InvalidOperation
 from typing import Annotated
 
 from pydantic import BeforeValidator, ValidationInfo
@@ -19,9 +19,18 @@ def parse_decimal(value: object) -> Decimal:
         raise ValueError("invalid decimal value") from exc
     if not result.is_finite():
         raise ValueError("financial values must be finite")
-    with localcontext(FINANCIAL_CONTEXT):
-        if abs(result) >= Decimal("1e20") or result != result.quantize(Decimal("1e-18")):
-            raise ValueError("financial value exceeds exact NUMERIC(38,18) storage")
+    # NUMERIC(38,18) permits at most 20 integer digits and no nonzero
+    # coefficient digits below 1e-18. Inspect the exact representation; repeated
+    # context creation/quantization during prefix audits is unnecessary. Trailing
+    # fractional zeroes (including zero with a very small exponent) remain valid.
+    representation = result.as_tuple()
+    exponent = representation.exponent
+    if not isinstance(exponent, int):  # finite Decimals always have an integer exponent.
+        raise ValueError("financial values must be finite")
+    if (result and result.adjusted() >= 20) or (
+        exponent < -18 and any(representation.digits[-(-18 - exponent) :])
+    ):
+        raise ValueError("financial value exceeds exact NUMERIC(38,18) storage")
     return result
 
 

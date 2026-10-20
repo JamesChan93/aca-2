@@ -1,5 +1,19 @@
 # Phase 1 dependency and supply-chain review
 
+**Security update, 20 October 2026 (0.4.13):** the current advisory audit identified
+[GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)
+in the previously locked `certifi==2026.7.22`. The maintainer initially patched
+`2026.10.18`; the [updated advisory database](https://github.com/advisories/GHSA-6q48-6c7w-9gw2)
+and current audit recommend `2026.10.19` or later. ADR A16 is amended
+to constrain `2026.10.19` in all three affected locks. The pure Python wheel's
+published SHA-256 is
+`42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b`;
+its MPL-2.0 licence and Python >=3.7 requirement are recorded by
+[PyPI](https://pypi.org/project/certifi/2026.10.19/).
+Other package pins, base-image digests and Actions pins are unchanged. Earlier
+dated audit results below describe those releases, not this new advisory.
+The retained 0.4.8 stack has not been redeployed by this source update.
+
 Observed 17 October 2026. Direct candidates match the approved plan and their installed
 package metadata. Runtime is CPython 3.14.8, standard GIL build. PostgreSQL native tests
 use official 18.6 source, verified SHA-256
