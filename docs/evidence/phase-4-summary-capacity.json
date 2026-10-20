@@ -1,0 +1,336 @@
+{
+  "application_version": "0.4.14",
+  "capacity_interpretation": {
+    "all_original_operation_deadlines_passed": false,
+    "archive_reader_implemented": false,
+    "cash_only_bulk_seed_is_full_market_or_strategy_load": false,
+    "headroom_56_days_demonstrated": false,
+    "local_measurement_id": "capacity-trial-6a64cf1b7272",
+    "measurement_job_success_is_capacity_gate": false,
+    "next_work": "Same C3 condition: bounded verified preservation/read path and resolution of the measured deadlines; C4 follows.",
+    "observations_required_at_1hz": 4838400,
+    "remaining_failures": [
+      "replay_startup_audit",
+      "historical_report",
+      "replay_audit_after_writer_acquisition",
+      "scheduled_daily_summary"
+    ],
+    "retained_stack_redeployed": false,
+    "reviewed_retention_path_established": false
+  },
+  "capacity_trial": {
+    "56_day_headroom_demonstrated": false,
+    "application_version": "0.4.14",
+    "bulk_seed_is_ingestion_measurement": false,
+    "certifi_version": "2026.10.19",
+    "cleanup_complete": true,
+    "configured_budget_bytes": 2000000000,
+    "cpu.max": "75000 100000",
+    "cpu_seconds": 152.60429818699998,
+    "database_bytes": 500717247,
+    "elapsed_seconds": 228.2548370630102,
+    "global_source_head": 99999,
+    "live_execution_available": false,
+    "max_rss_kib": 120452,
+    "measured_boundary_failures": [
+      "replay_startup_audit",
+      "historical_report",
+      "replay_audit_after_writer_acquisition",
+      "scheduled_daily_summary"
+    ],
+    "memory.max": "805306368",
+    "memory.peak": "105201664",
+    "observations_per_56_days_at_1hz": 4838400,
+    "one_second_loop": {
+      "elapsed_seconds": 19.30460621700331,
+      "financial_events_before_startup": 100000,
+      "healthy_ticks": 20,
+      "max_tick_seconds": 0.07711104200279806,
+      "mean_tick_seconds": 0.03220295005157823,
+      "ticks": 20,
+      "venue_commands": 0
+    },
+    "operations": {
+      "financial_writer_startup": {
+        "deadline_seconds": 30,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 9.364055337995524
+      },
+      "historical_report": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "deadline_exceeded",
+        "seconds": 21.476385258996743
+      },
+      "replay_audit_after_writer_acquisition": {
+        "deadline_seconds": 10,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "deadline_exceeded",
+        "seconds": 16.095147339990945
+      },
+      "replay_startup_audit": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "deadline_exceeded",
+        "seconds": 30.943459764006548
+      },
+      "scheduled_daily_summary": {
+        "deadline_seconds": 15,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "deadline_exceeded",
+        "seconds": 21.159232509002322
+      }
+    },
+    "package_source_sha256": "a22523852785f02c2a4997d856a771837378bafeb562346579375dc1496f5166",
+    "promotion_evidence": false,
+    "record_limits": {
+      "events": 100000,
+      "public_receipts": 99999,
+      "valuations": 100000
+    },
+    "relations": [
+      {
+        "bytes": 24576,
+        "n_live_tup": 1,
+        "relname": "alembic_version"
+      },
+      {
+        "bytes": 32768,
+        "n_live_tup": 0,
+        "relname": "audit_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "configuration_versions"
+      },
+      {
+        "bytes": 36052992,
+        "n_live_tup": 99999,
+        "relname": "market_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_accounting_operations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_accounts"
+      },
+      {
+        "bytes": 65536,
+        "n_live_tup": 5,
+        "relname": "paper_alerts"
+      },
+      {
+        "bytes": 1982464,
+        "n_live_tup": 1564,
+        "relname": "paper_checkpoints"
+      },
+      {
+        "bytes": 123813888,
+        "n_live_tup": 200006,
+        "relname": "paper_events"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_fills"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 4,
+        "relname": "paper_journal_lines"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 2,
+        "relname": "paper_journals"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_movements"
+      },
+      {
+        "bytes": 8192,
+        "n_live_tup": 0,
+        "relname": "paper_notice_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_notices"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_notification_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_notification_reviews"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_order_identities"
+      },
+      {
+        "bytes": 62644224,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_cursors"
+      },
+      {
+        "bytes": 208969728,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_valuations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_decisions"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_results"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_selections"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_tax_reserves"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 0,
+        "relname": "paper_venue_events"
+      },
+      {
+        "bytes": 57892864,
+        "n_live_tup": 99999,
+        "relname": "public_replay_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "public_trades"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "research_artifacts"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "research_events"
+      }
+    ],
+    "seed_seconds": 70.22052986599738,
+    "status": "measured",
+    "value_limit_days_at_1hz": 1.1574074074074074
+  },
+  "changes": {
+    "bounded_financial_audit_page_rows": 512,
+    "bounded_valuation_and_cursor_page_rows": 256,
+    "calendar_selection_preserves_full_prefix_and_economic_validation": true,
+    "checkpoint_anchor_batch_rows": 16,
+    "decimal_text_cache_maximum_characters": 128,
+    "decimal_text_cache_maximum_entries": 1024,
+    "dependency_pins_or_base_images_changed": false,
+    "journal_free_balance_reconstruction": "compare already typed canonical balances; GBP quantity must equal GBP cost; all other operation/reserve/SQL ledger checks remain",
+    "record_limits_increased": false,
+    "resource_limits_increased": false,
+    "schema_migration_added": false,
+    "shared_read_only_repeatable_read_financial_and_valuation_pass": true,
+    "timeouts_increased": false,
+    "unchanged_financial_checkpoint_interval": 128
+  },
+  "checklist": {
+    "completed": 12,
+    "open": 5,
+    "total": 17
+  },
+  "checklist_id": "P4-C3-condition-4",
+  "condition_closed": false,
+  "condition_status": "open",
+  "date": "2026-10-20",
+  "g2_approved": false,
+  "live_execution_available": false,
+  "original_prompt_sha256": "4e4f70158d261d54f99204045d1e1c33d1bc0871e8850213aedceb3b67eadc01",
+  "parent_evidence": [
+    "docs/evidence/phase-4-capacity.json",
+    "docs/evidence/phase-4-safety.json"
+  ],
+  "phase_4_complete": false,
+  "qualifying_days": 0,
+  "qualifying_episodes": 0,
+  "schema_revision": "0014_accounting_operations",
+  "schema_version": 1,
+  "source": {
+    "algorithm": "sorted package-relative UTF-8 path + NUL + file bytes; SHA-256",
+    "files": 108,
+    "local_runtime_image": "sha256:24daf32cce42b08784c50557d5665c7f5165b414635fb4eab8e68181750385a8",
+    "runtime_package_source_sha256": "a22523852785f02c2a4997d856a771837378bafeb562346579375dc1496f5166",
+    "sha256": "a22523852785f02c2a4997d856a771837378bafeb562346579375dc1496f5166",
+    "wheel_package_source_sha256": "a22523852785f02c2a4997d856a771837378bafeb562346579375dc1496f5166",
+    "wheel_sha256": "3952c6cc0099ff214f553c21cb541abd2e05b685948db5fc2ed4262f589c44b8"
+  },
+  "verification": {
+    "advisory_audits": {
+      "development": "No known vulnerabilities found",
+      "research": "No known vulnerabilities found",
+      "runtime": "No known vulnerabilities found"
+    },
+    "critical_financial_examples_each": 1000,
+    "deterministic_seeds_and_failure_blobs": true,
+    "distribution_build": "wheel and sdist passed",
+    "hosted_ci": "Exact-head push and pull-request workflow links/results are appended to the PR after completion; this file records local evidence.",
+    "lifecycle_fault_sequences": 10000,
+    "linux_postgresql": {
+      "command": ".venv/bin/python scripts/ci_database.py --linux -q",
+      "passed": 598,
+      "seconds": 104.59
+    },
+    "mypy": "passed; 139 files",
+    "packaged_cli_restart": {
+      "account_id": "068383a8-9c6d-4195-a743-a5d6dd5abc5e",
+      "owned_project_removed": true,
+      "passed": true,
+      "project": "aca-c3-summary-smoke-1e57ad9dd343",
+      "retained_container_identities_unchanged": true,
+      "state_survived_container_restart": true
+    },
+    "pip_check": "passed",
+    "regressions": {
+      "connected_midnight_boundary_and_investment_flow_regressions": "passed in full suite",
+      "corrupt_suffix_rejected_for_old_endpoint_and_empty_day": true,
+      "daily_financial_audits": 1,
+      "daily_observed_report_hash_matches_explicit_report": true,
+      "daily_or_report_source_queries_maximum": 4,
+      "financial_forgery_rejected_for_empty_day": true,
+      "journal_free_invented_then_reversed_inventory_rejected": true,
+      "query_case_observations": 530,
+      "rehashed_gap_and_source_anchor_at_page_boundary_rejected": true,
+      "repeated_financial_text_scale_signed_zero_and_binary_inputs_checked": true,
+      "replay_source_queries_maximum": 6,
+      "source_queries_scale_by_page": true
+    },
+    "ruff": "passed; 161 files formatted"
+  }
+}

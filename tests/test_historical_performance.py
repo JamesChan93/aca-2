@@ -370,6 +370,13 @@ async def test_corrupt_but_rehashed_projection_does_not_pass_financial_reconstru
         await runner._save(c, updated, cursor["fingerprint"])
     with pytest.raises(ValueError, match="balances/units do not reconstruct"):
         await report(runner)
+    from aca.observability.notices import daily_summary
+
+    # A later-day financial forgery cannot be hidden by selecting an empty day.
+    async with runner.store.engine.connect() as c:
+        await c.execution_options(isolation_level="REPEATABLE READ", postgresql_readonly=True)
+        with pytest.raises(ValueError, match="balances/units do not reconstruct"):
+            await daily_summary(c, runner.store, (AT - timedelta(days=1)).date())
 
 
 async def test_financial_decimal_precision_survives_report_and_flow_reconstruction(

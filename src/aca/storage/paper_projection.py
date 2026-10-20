@@ -72,11 +72,14 @@ def restore_event(
         combined = previous.document() if previous else {}
         combined.update(changes)
         state = PortfolioSnapshot.restore(combined)
-        if fingerprint(state.document()) != document["state_hash"]:
+        # Render/size-check the validated state once; its exact same document
+        # supplies the hash. Do not serialize the whole portfolio twice.
+        if fingerprint(state_document(state)) != document["state_hash"]:
             raise ValueError("paper delta state hash mismatch")
         ident = document["journal_id"]
         if ident is not None and (not isinstance(ident, str) or str(UUID(ident)) != ident):
             raise ValueError("invalid journal link")
         journal_links(document)
-    state_document(state)
+    if "format" not in document:
+        state_document(state)
     return state

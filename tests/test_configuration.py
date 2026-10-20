@@ -215,3 +215,19 @@ def test_no_live_command_registered() -> None:
     with pytest.raises(SystemExit) as error:
         main(["live"])
     assert error.value.code == 2
+
+
+def test_repeated_financial_text_preserves_scale_and_rejects_equal_binary_inputs() -> None:
+    texts = ("1", "1.00", "0", "-0.000", "1E-18", "0." + "0" * 150)
+    with localcontext(FINANCIAL_CONTEXT):
+        expected = {text: Decimal(text).as_tuple() for text in texts}
+    for _ in range(2):
+        with localcontext() as context:
+            context.prec = 2
+            context.Emax, context.Emin = 2, -2
+            for text in texts:
+                assert parse_decimal(text).as_tuple() == expected[text]
+                assert parse_decimal(Decimal(text)).as_tuple() == expected[text]
+            for invalid in (True, False, 0, 1, 0.0, 1.0, "NaN", "1.0000000000000000001"):
+                with pytest.raises(ValueError):
+                    parse_decimal(invalid)

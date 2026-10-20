@@ -7,7 +7,9 @@ import pytest
 from sqlalchemy import event, select
 from test_stored_replay import AT, Feed
 
+from aca.observability.notices import daily_summary
 from aca.reporting.historical import historical_performance
+from aca.simulation.historical import AUDIT_PAGE
 from aca.simulation.stored_replay import StoredReplay
 from aca.storage.replay import public_events
 
@@ -26,12 +28,15 @@ async def test_audit_source_queries_scale_by_page_not_observation(
     replay: tuple[StoredReplay, Feed],
 ) -> None:
     runner, feed = replay
-    await prefix(runner, feed, 140)
+    await prefix(runner, feed, 2 * AUDIT_PAGE + 12)
     queries: list[str] = []
+    financial_heads: list[str] = []
 
     def capture(c: Any, cursor: Any, statement: str, *args: Any) -> None:
         if "FROM aca.public_replay_events" in statement:
             queries.append(statement)
+        if "max(aca.paper_events.version)" in statement:
+            financial_heads.append(statement)
 
     event.listen(runner.store.engine.sync_engine, "before_cursor_execute", capture)
     try:
@@ -39,8 +44,17 @@ async def test_audit_source_queries_scale_by_page_not_observation(
         assert len(queries) <= 6  # Three cursor pages and three valuation pages.
         queries.clear()
         result = await historical_performance(runner.store)
-        assert result["period"]["observations"] == 146  # type: ignore[index]
+        assert result["period"]["observations"] == 2 * AUDIT_PAGE + 18  # type: ignore[index]
         assert len(queries) <= 4  # Three anchor pages plus the unread-source count.
+        queries.clear()
+        financial_heads.clear()
+        async with runner.store.engine.connect() as c:
+            await c.execution_options(isolation_level="REPEATABLE READ", postgresql_readonly=True)
+            summary = await daily_summary(c, runner.store, AT.date())
+        observed = summary["observed"]
+        assert isinstance(observed, dict) and observed["report_hash"] == result["report_hash"]
+        assert len(queries) <= 4
+        assert len(financial_heads) == 1
     finally:
         event.remove(runner.store.engine.sync_engine, "before_cursor_execute", capture)
 
@@ -50,8 +64,8 @@ async def test_report_with_old_endpoint_still_rejects_rehashed_corruption_on_nex
     replay: tuple[StoredReplay, Feed], corrupt: str
 ) -> None:
     runner, feed = replay
-    # Baseline and five bootstrap observations, followed by 58 = one full page.
-    await prefix(runner, feed, 58)
+    # Baseline and five bootstrap observations fill the remainder of the page.
+    await prefix(runner, feed, AUDIT_PAGE - 6)
     async with runner.service.writer.transaction() as c:
         head = await runner.history.latest(c)
         cursor = await runner._latest(c)
@@ -96,6 +110,12 @@ async def test_report_with_old_endpoint_still_rejects_rehashed_corruption_on_nex
         await runner.audit()
     with pytest.raises(ValueError, match=expected):
         await historical_performance(runner.store, end_source=old_endpoint)
+    # Day selection, even a day with no observations, cannot hide corruption.
+    for day in (AT.date(), (AT - timedelta(days=1)).date()):
+        async with runner.store.engine.connect() as c:
+            await c.execution_options(isolation_level="REPEATABLE READ", postgresql_readonly=True)
+            with pytest.raises(ValueError, match=expected):
+                await daily_summary(c, runner.store, day)
 
 
 async def test_cursor_anchor_error_cannot_hide_behind_a_later_valid_anchor(
@@ -140,7 +160,7 @@ async def test_historical_audit_rejects_missing_suffix_after_exhausting_pages(
     replay: tuple[StoredReplay, Feed],
 ) -> None:
     runner, feed = replay
-    await prefix(runner, feed, 58)
+    await prefix(runner, feed, AUDIT_PAGE - 6)
     current = await runner.audit()
     async with runner.service.writer.transaction() as c:
         with pytest.raises(ValueError, match="baseline/cursor missing"):

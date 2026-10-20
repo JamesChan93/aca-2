@@ -165,6 +165,11 @@ and measures the actual runner/summary deadlines. It preserves the record ceilin
 and full validation requirements. Its evidence does not establish 56-day retention
 or close this condition.
 
+The [0.4.14 daily-summary capacity increment](phase-4-summary-capacity.md) shares a
+single financial/valuation audit for the selected day and its boundaries, batches
+checkpoint anchors and reduces repeated validation work. Its measured processing
+deadlines and 56-day preservation requirement remain under this same open condition.
+
 This package does **not** introduce a generic backup-gap importer or a second
 backup architecture. Existing paper reconciliation is used where authoritative
 evidence exists. Missing evidence remains an explicit block; production recovery
