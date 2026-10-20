@@ -256,6 +256,7 @@ class Drill:
         input_file: Path | None = None,
         output_file: Path | None = None,
         expect_failure: bool = False,
+        timeout: float = 180,
     ) -> bytes:
         self.counter += 1
         log = self.directory / f"command-{self.counter:02d}.log"
@@ -272,7 +273,7 @@ class Drill:
                     stdin=source or subprocess.DEVNULL,
                     stdout=destination or subprocess.PIPE,
                     stderr=diagnostics,
-                    timeout=180,
+                    timeout=timeout,
                     check=False,
                 )
             finally:
@@ -284,7 +285,9 @@ class Drill:
             raise DrillError("unexpected child result; inspect private command log")
         return result.stdout or b""
 
-    def worker(self, cluster: list[str], action: str) -> dict[str, Any]:
+    def worker(
+        self, cluster: list[str], action: str, declaration: Path | None = None
+    ) -> dict[str, Any]:
         raw = self.call(
             [
                 *cluster,
@@ -297,7 +300,8 @@ class Drill:
                 "tests/restore_fixture.py",
                 action,
                 self.database,
-            ]
+            ],
+            input_file=declaration,
         )
         try:
             result = json.loads(raw)
@@ -366,6 +370,14 @@ class Drill:
         self.worker(self.target, "permissions")
         if self.worker(self.source, "inspect") != source_after:
             raise DrillError("source changed after controlled snapshot capture")
+        declaration = self.directory / "declared-source-after.json"
+        private_write(declaration, json.dumps(source_after).encode())
+        gap = self.worker(self.target, "gap_check", declaration)
+        if (
+            gap.get("gap_identified") is not True
+            or gap.get("continued_observation_permitted") is not False
+        ):
+            raise DrillError("declared suffix did not block continued observation")
         return {
             "schema_version": 2,
             "kind": "disposable_local_logical_restore",
@@ -385,6 +397,7 @@ class Drill:
             "runtime_permissions_verified": True,
             "repeated_recovery_economics_equal": True,
             "recovery": recovery,
+            "declared_gap": gap,
             "restore_and_verify_seconds": round(restore_and_verify_seconds, 3),
             "production_rpo_proven": False,
             "production_rto_proven": False,

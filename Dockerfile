@@ -12,7 +12,7 @@ RUN python -m build --wheel --no-isolation --outdir /wheels
 FROM builder AS test
 RUN python -m pip install --only-binary=:all: --require-hashes -r requirements/development.lock \
     && python -m pip install --only-binary=:all: --require-hashes -r requirements/research.lock \
-    && python -m pip install --no-deps --no-index /wheels/aca_platform-0.4.11-py3-none-any.whl \
+    && python -m pip install --no-deps --no-index /wheels/aca_platform-0.4.12-py3-none-any.whl \
     && python -m pip check \
     && addgroup -g 10001 aca && adduser -D -u 10001 -G aca -s /sbin/nologin aca
 COPY tests/ tests/
@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=builder /wheels /wheels
 COPY requirements/runtime.lock /tmp/runtime.lock
 RUN python -m pip install --no-index --find-links=/wheels --require-hashes -r /tmp/runtime.lock \
-    && python -m pip install --no-deps --no-index /wheels/aca_platform-0.4.11-py3-none-any.whl \
+    && python -m pip install --no-deps --no-index /wheels/aca_platform-0.4.12-py3-none-any.whl \
     && python -m pip uninstall --yes pip \
     && rm -rf /wheels /tmp/runtime.lock /usr/local/lib/python3.14/ensurepip \
     && addgroup -g 10001 aca && adduser -D -u 10001 -G aca -s /sbin/nologin aca

@@ -14,27 +14,40 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid4
 
+import httpx
 import psycopg
 from process_worker import AT, market, proposal
 from psycopg import sql
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
+from test_notifications import response, webhook
+from test_stored_replay import Feed
 
-from aca.domain.trading import OrderIntent, Valuation, VenueOrder
+from aca.accounting.operations import CorrectionRequest, ExternalFlow, TransferRequest
+from aca.domain.trading import OrderIntent, Valuation, VenueOrder, fingerprint
+from aca.execution.accounting import correct_accounting, external_transfer
 from aca.execution.paper import PaperExecution, SimulatedCrash
+from aca.observability.delivery import NotificationOwner
+from aca.observability.discord import DiscordSender
+from aca.observability.notices import notices, receipts
+from aca.observability.records import history as notification_history
+from aca.observability.reviews import ReviewRequest, read_failures, reviews
 from aca.operations.config import DatabaseSettings, Settings
 from aca.operations.provision import provision_roles
 from aca.operations.secrets import read_secret
 from aca.portfolio.reserves import TaxReserveRequest
-from aca.portfolio.state import reserved_cash
+from aca.portfolio.state import entries_paused, reserved_cash
 from aca.risk.execution import DispatchDenied
 from aca.simulation.paper import PaperExchange
+from aca.simulation.stored_replay import StoredReplay
 from aca.storage.database import FoundationStore, create_engine, verify_runtime
 from aca.storage.migrate import migrate
 from aca.storage.paper import PaperStore, PaperWriter, accounts, fills
+from aca.storage.replay import cursors, public_events, valuations
+from aca.storage.strategy import PaperSelection, select_strategy
 
 CASES = {
     "validated": UUID("a7fb85bd-1565-487c-a0de-5b2b5a705bb1"),
@@ -42,6 +55,13 @@ CASES = {
     "unposted_fill": UUID("a6024018-01e3-4303-9a15-c79cdaeb208a"),
     "hard_halt": UUID("984a5ed3-2d7f-432f-9ea5-bbdcd5f48d87"),
 }
+ORDER_CASES = tuple(CASES)
+CASES.update(
+    {
+        "observed": UUID("149be796-21e8-4dcb-aad9-09f9891858f8"),
+        "corrected": UUID("106014f8-f5b7-43cb-a3f3-dcfab150a256"),
+    }
+)
 PROBE_ROLE = "aca_restore_probe"
 D = Decimal
 
@@ -106,7 +126,8 @@ async def seed(settings: Settings) -> None:
     try:
         await verify_runtime(engine)
         await FoundationStore(engine).record_startup(settings, uuid4())
-        for case, account in CASES.items():
+        for case in ORDER_CASES:
+            account = CASES[case]
             store = PaperStore(engine, account)
             async with PaperWriter(store) as writer:
                 venue = PaperExchange(store)
@@ -178,10 +199,118 @@ async def seed(settings: Settings) -> None:
                 await execution.halt(
                     "Synthetic restore fixture manual halt", AT + timedelta(seconds=1)
                 )
+        await seed_observations(engine)
     finally:
         await engine.dispose()
     with admin(settings) as c:
         c.execute("GRANT SELECT ON aca.paper_fills TO aca_restore_probe")
+
+
+async def seed_observations(engine: Any) -> None:
+    """Real persisted replay, operator records and controlled HTTP receipts."""
+    for case in ("observed", "corrected"):
+        store = PaperStore(engine, CASES[case])
+        async with PaperWriter(store) as writer:
+            venue = PaperExchange(store)
+            service = PaperExecution(writer, venue)
+            at = AT - timedelta(days=1)
+            await service.initialise(at)
+            state = await service.cashflow("observed-opening", D(1000), at)
+            flow = ExternalFlow(
+                kind="transfer",
+                asset="GBP",
+                quantity=D(25),
+                occurred_at=at,
+                valuation=Valuation(
+                    asset="GBP", bid_gbp=D(1), observed_at=at, source="synthetic-owner-transfer"
+                ),
+            )
+            await external_transfer(
+                service,
+                TransferRequest(
+                    request_id=uuid4(),
+                    actor=store.account_id,
+                    expected_version=state.version,
+                    evidence_sha256="3" * 64,
+                    reason="Synthetic populated restore transfer record",
+                    external_reference="restore-transfer",
+                    flow=flow,
+                ),
+            )
+            await select_strategy(
+                writer,
+                PaperSelection(
+                    account_id=store.account_id,
+                    strategy="sma200",
+                    symbol="BTC/GBP",
+                    interval_minutes=240,
+                    selected_at=at,
+                    policy_hash=fingerprint(service.policy.model_dump(mode="json")),
+                ),
+            )
+            replay = StoredReplay(service, venue)
+            await replay.enrol()
+            feed = Feed(replay)
+            await feed.bootstrap(at)
+            # Persist the bridge and its source hashes; no later price values midnight.
+            at = AT - timedelta(seconds=1)
+            await feed.bootstrap(at)
+            await feed.marker("capture_health", AT, {"market_ready": True})
+            await replay.batch(at=AT)
+            await replay.audit()
+            if case == "corrected":
+                async with writer.transaction() as c:
+                    original = next(
+                        j for j in await store.history(c) if j.source == "observed-opening"
+                    )
+                state = await service._state()
+                await correct_accounting(
+                    service,
+                    CorrectionRequest(
+                        request_id=uuid4(),
+                        actor=store.account_id,
+                        expected_version=state.version,
+                        evidence_sha256="4" * 64,
+                        reason="Synthetic correction quarantines restored accounting",
+                        target_journal=original.id,
+                        replacement=flow.model_copy(update={"kind": "cash", "quantity": D(900)}),
+                    ),
+                )
+            else:
+                await service.halt("Synthetic populated restore hard halt", AT)
+        attempts = 0
+
+        def transport(_: httpx.Request) -> httpx.Response:
+            nonlocal attempts
+            attempts += 1
+            return response(400 if attempts == 1 else 200)
+
+        sender = DiscordSender(webhook(), transport=httpx.MockTransport(transport))
+        try:
+            async with NotificationOwner(engine, store.account_id) as owner:
+                await owner.configure(webhook(), AT + timedelta(minutes=10))
+                prepared = await owner.prepare(AT + timedelta(minutes=10))
+                assert prepared["daily_scheduled"] and prepared["critical_active"]
+                assert await owner.tick(sender, AT + timedelta(minutes=10)) == "abandoned"
+                items = cast(
+                    list[dict[str, Any]], (await read_failures(engine, store.account_id))["items"]
+                )
+                item = items[0]
+                await owner.review(
+                    ReviewRequest(
+                        failure_number=item["failure_number"],
+                        failure_hash=item["failure_hash"],
+                        actor=store.account_id,
+                        resolution="delivery_loss_accepted",
+                        evidence_sha256="5" * 64,
+                    )
+                )
+                assert (
+                    await owner.tick(sender, AT + timedelta(minutes=10, seconds=2)) == "delivered"
+                )
+                assert attempts == 2
+        finally:
+            await sender.close()
 
 
 def digest_rows(rows: list[str]) -> str:
@@ -389,6 +518,7 @@ async def economics(settings: Settings, snapshot: str | None = None) -> dict[str
                     "reserved_gbp": str(reserved_cash(state)),
                     "tax_cash_reserve_gbp": str(state.tax_reserve_gbp),
                     "kill": state.kill.document(),
+                    "accounting_invalidated": state.accounting_invalidated,
                     "orders": [
                         {
                             "client_id": str(o.intent.client_id),
@@ -407,6 +537,33 @@ async def economics(settings: Settings, snapshot: str | None = None) -> dict[str
                         )
                     ),
                 }
+                if case in {"observed", "corrected"}:
+                    for table in (
+                        cursors,
+                        valuations,
+                        notices,
+                        receipts,
+                        notification_history,
+                        reviews,
+                    ):
+                        rows = (
+                            (await c.execute(select(table).where(table.c.account_id == account)))
+                            .mappings()
+                            .all()
+                        )
+                        assert rows, table.name
+                        result[case][table.name] = sorted(
+                            (dict(r) for r in rows),
+                            key=lambda r: json.dumps(r, default=str, sort_keys=True),
+                        )
+                    if case == "observed":
+                        from aca.operations.config import RiskPolicy
+                        from aca.simulation.historical import HistoricalReplay
+
+                        cursor = max(r["number"] for r in result[case][cursors.name])
+                        await HistoricalReplay(store, PaperExchange(store), RiskPolicy()).audit(
+                            c, cursor
+                        )
     finally:
         await engine.dispose()
     return result
@@ -433,9 +590,14 @@ async def recover(settings: Settings) -> dict[str, Any]:
             async with PaperWriter(store) as writer:
                 venue = NoCommands(store)
                 execution = PaperExecution(writer, venue)
-                at = AT + timedelta(seconds=3)
+                at = max(AT + timedelta(seconds=3), (await execution._state()).as_of)
                 outcome = await execution.recover(at)
                 state = await execution._state()
+                if case in {"observed", "corrected"}:
+                    assert entries_paused(state, at) and state.kill.hard
+                    assert state.accounting_invalidated == (case == "corrected")
+                    assert not state.orders and venue.attempts == 0
+                    continue
                 original = next(o for o in state.orders if o.intent.purpose == "entry")
                 try:
                     await execution.dispatch(original.intent.client_id, market(at), at)
@@ -466,6 +628,8 @@ async def recover(settings: Settings) -> dict[str, Any]:
         assert after[case]["balances"] == before[case]["balances"]
         assert after[case]["fills"] == before[case]["fills"]
         assert after[case]["journals"] == before[case]["journals"]
+    for case in ("observed", "corrected"):
+        assert after[case] == before[case]
     filled = after["unposted_fill"]
     assert len(filled["fills"]) == 1 and len(filled["journals"]) == 2
     fill = filled["fills"][0]
@@ -478,6 +642,57 @@ async def recover(settings: Settings) -> dict[str, Any]:
         children = [o for o in after[case]["orders"] if o["purpose"] == "protection"]
         assert len(children) == 1 and children[0]["state"] == "OPEN"
     return {"live_execution_available": False, "economics": after, "venue_commands": 0}
+
+
+async def gap_check(settings: Settings, expected: dict[str, Any]) -> dict[str, Any]:
+    """A separate source-head declaration proves absence, never invents rows."""
+    if expected.get("live_execution_available") is not False:
+        raise ValueError("invalid declared source evidence")
+    engine = create_engine(settings)
+    try:
+        actual = await economics(settings)
+        restored = actual["validated"]
+        authoritative = expected["economics"]["validated"]
+        assert len(authoritative["journals"]) - len(restored["journals"]) == 32
+        assert authoritative["balances"] != restored["balances"]
+        async with engine.connect() as c:
+            head = await c.scalar(
+                select(public_events.c.number).order_by(public_events.c.number.desc()).limit(1)
+            )
+        expected_head = expected["sequence_row_maxima"]["public_replay_events_number_seq"]
+        assert expected_head > head
+        blocked = []
+        for case in CASES:
+            store = PaperStore(engine, CASES[case])
+            async with PaperWriter(store) as writer:
+                venue = NoCommands(store)
+                service = PaperExecution(writer, venue)
+                at = max(AT + timedelta(seconds=4), (await service._state()).as_of)
+                await service.halt(
+                    "Declared restore suffix missing; reconcile and review before use", at
+                )
+                try:
+                    await service.queue(proposal(at), market(at), at)
+                except DispatchDenied, ValueError:
+                    blocked.append(case)
+                else:
+                    raise AssertionError("declared backup gap allowed an entry")
+                assert venue.attempts == 0 and (await service._state()).kill.hard
+        return {
+            "live_execution_available": False,
+            "gap_identified": True,
+            "restored_source_head": head,
+            "declared_source_head": expected_head,
+            "missing_investment_flows": 32,
+            "missing_investment_gbp": "32",
+            "accounts_halted": blocked,
+            "venue_commands": 0,
+            "continued_observation_permitted": False,
+            "qualifying_days": 0,
+            "recovered_absent_evidence": False,
+        }
+    finally:
+        await engine.dispose()
 
 
 async def permissions(settings: Settings) -> None:
@@ -528,14 +743,20 @@ async def main() -> None:
     elif action == "permissions":
         await permissions(settings)
     elif action == "recover":
-        print(json.dumps(await recover(settings), sort_keys=True))
+        print(json.dumps(await recover(settings), sort_keys=True, default=str))
+        return
+    elif action == "gap_check":
+        raw = sys.stdin.buffer.read(512 * 1024 + 1)
+        if len(raw) > 512 * 1024:
+            raise ValueError("declared restore source exceeds budget")
+        print(json.dumps(await gap_check(settings, json.loads(raw)), sort_keys=True, default=str))
         return
     elif action not in {"inspect", "inspect_empty"}:
         raise ValueError("unknown restore fixture action")
     result = {"live_execution_available": False, **database_snapshot(settings)}
     if action in {"inspect", "seed"}:
         result["economics"] = await economics(settings)
-    print(json.dumps(result, sort_keys=True))
+    print(json.dumps(result, sort_keys=True, default=str))
 
 
 if __name__ == "__main__":

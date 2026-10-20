@@ -1,0 +1,5 @@
+# Local C3 measurement only; match the application resource ceiling.
+services:
+  restore-worker:
+    mem_limit: 768m
+    cpus: 0.75

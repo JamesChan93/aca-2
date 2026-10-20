@@ -575,7 +575,7 @@ async def test_accounting_cli_strict_json_and_audit(
         await command("transfer", input=file)
 
 
-@settings(max_examples=1000, derandomize=True, deadline=None)
+@settings(max_examples=1000, derandomize=True, deadline=None, print_blob=True)
 @given(asset=st.sampled_from(["BTC", "ETH"]), q=st.integers(1, 100000), p=st.integers(1, 100000))
 def test_generated_transfer_no_gain_at_same_price_and_no_quantity_creation(
     asset: Asset, q: int, p: int

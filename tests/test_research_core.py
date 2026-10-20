@@ -126,7 +126,7 @@ def test_strategy_import_boundaries() -> None:
                     assert all(item.name.split(".")[0] in allowed for item in node.names)
 
 
-@settings(max_examples=1000, derandomize=True)
+@settings(max_examples=1000, derandomize=True, print_blob=True)
 @given(
     equity=st.integers(100, 100_000),
     price=st.integers(100, 100_000),

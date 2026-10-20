@@ -1,8 +1,15 @@
 # Implementation status
 
-Updated 19 October 2026 for P4-C2, following the scope review merged in PR #17.
-Application candidate: 0.4.11; schema `0014_accounting_operations`. This register separates
+Updated 20 October 2026 for P4-C3, following the scope review merged in PR #17.
+Application candidate: 0.4.12; schema `0014_accounting_operations`. This register separates
 engineering completion from research eligibility, extended paper observation and later deployment/live gates.
+
+**C3 now has four of five conditions covered. Its capacity condition remains open:**
+the bounded trial found replay audit/report deadlines exceeded at 100,000 records
+and no demonstrated 56-day retention/headroom. See the [C3 safety report](phase-4-safety.md)
+and [T00–T32/result evidence](evidence/phase-4-safety.json). The actual bounded WAL
+ENOSPC recovery, populated restore/gap blocking and controlled alert timings pass.
+Passing CI does not approve C3 or G2 in the presence of that named failure.
 
 **Phase 4 is incomplete. C1 and C2 are complete; C3–C4 remain in the fixed packages in the
 [completion checklist](phase-4-completion.md). The Phase 5 qualifying observation
@@ -21,10 +28,11 @@ approves no research, observation-start or release gate. The retained local stac
 | Notifications | Opt-in Discord worker, durable retries, provisional daily summaries, critical repeats, cached health/metrics and exact-event failure reviews |
 | Operations | Local health/metrics, private upgrade backups, runbooks and a [disposable logical restore with controlled concurrent commits](phase-4-local-restore.md) |
 
-The C2 full Linux run passed **566 tests**, including 29 focused accounting cases;
-Ruff and strict Mypy checks pass. The [C2 report](phase-4-accounting.md) and
-[evidence](evidence/phase-4-accounting.json) record its scope, invalidation boundary
-and packaged CLI/restore results. C1 retains its earlier linked evidence.
+The C3 full Linux run passed **578 tests**, with Ruff and strict Mypy checks passing.
+The [C3 report](phase-4-safety.md) records actual WAL failure, populated restore,
+timing and the explicitly unsuccessful capacity condition. The
+[C2 report](phase-4-accounting.md) retains its accounting/invalidation and packaged
+CLI evidence; C1 retains its earlier linked evidence.
 Passing tests for these increments do not prove every original T-group or gate is complete.
 
 ## Phase 4 closure register
@@ -33,14 +41,14 @@ Passing tests for these increments do not prove every original T-group or gate i
 | --- | --- | --- |
 | P4-C1 | Continuous strategy-to-paper workflow, including warm-up, finalised decisions, restart deduplication and UTC-day integration | Complete: all five conditions linked to [implementation and evidence](phase-4-continuous-paper.md); operational experiments only |
 | P4-C2 | Supported-account transfers and audited corrections/invalidation | Complete: all three conditions linked to [implementation and evidence](phase-4-accounting.md); corrected units/history are explicitly invalidated and the account remains quarantined |
-| P4-C3 | Named local safety gaps and integrated regression | Open: isolated actual storage-write failure, populated replay/notice restore and declared-gap blocking, bounded capacity trial, integrated fault/notification timing and T00–T32 coverage review |
+| P4-C3 | Named local safety gaps and integrated regression | Partial: conditions 1/2/3/5 have [linked evidence](phase-4-safety.md). Condition 4 remains open: measured replay/report capacity and 56-day retention/headroom have not passed |
 | P4-C4 | Local handoff and explicit engineering/G2 review | Open: packaged runbook smoke, linked C1–C3 evidence, applicable safety decision and separate research/observation status |
 
 The [checklist](phase-4-completion.md) supplies the source sections, acceptance
 conditions, existing test references for all 33 IDs and change-control rule. The
 four packages are an engineering allocation of the user's specification, not four
 additional requirements or a promise of four PRs. C1 and C2 are complete; the next
-implementation is C3.
+implementation is C3 condition 4; C4 follows its resolution.
 Standalone backup/notification enhancements do not automatically become blockers.
 
 ## Separate later work and gates

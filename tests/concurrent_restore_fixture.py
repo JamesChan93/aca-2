@@ -41,7 +41,7 @@ def command(expected: str) -> None:
 
 
 def emit(value: dict[str, Any]) -> None:
-    print(json.dumps(value, sort_keys=True), flush=True)
+    print(json.dumps(value, sort_keys=True, default=str), flush=True)
 
 
 async def view(settings: Settings, snapshot: str | None = None) -> dict[str, Any]:
