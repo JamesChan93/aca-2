@@ -16,7 +16,7 @@ from aca.domain.market import MarketTrade
 from aca.domain.trading import fingerprint
 from aca.domain.values import utc_datetime
 from aca.storage.models import MarketReceipt, PublicTradeRecord
-from aca.storage.replay import PUBLIC_REPLAY_LOCK, public_events
+from aca.storage.replay import NORMALIZED_REPLAY_CHANNELS, PUBLIC_REPLAY_LOCK, public_events
 
 
 class MarketStore:
@@ -140,18 +140,6 @@ class MarketStore:
                         },
                     )
                 )
-            replay_channels = {
-                "epoch_started",
-                "instrument_rules",
-                "capture_health",
-                "status",
-                "book",
-                "trade",
-                "capture_fault",
-                "capture_stopped",
-                "quarantine",
-                "coverage_gap",
-            }
             replay_document = {
                 "schema_version": 1,
                 "receipt_id": str(receipt_id),
@@ -160,7 +148,7 @@ class MarketStore:
                 "channel": channel,
                 "valid": valid,
                 "payload_hash": hashlib.sha256(payload.encode()).hexdigest(),
-                "normalized": (normalized or {}) if channel in replay_channels else {},
+                "normalized": (normalized or {}) if channel in NORMALIZED_REPLAY_CHANNELS else {},
                 # Only first-seen updates, in original frame order. Historical
                 # snapshots/REST recovery never imply executable liquidity.
                 "trades": [t.model_dump(mode="json") for t in added]

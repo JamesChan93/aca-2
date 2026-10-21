@@ -1,7 +1,7 @@
 """Bounded, commit-ordered public replay. No strategy or real exchange writer."""
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from datetime import UTC, datetime, time, timedelta
 from decimal import Decimal
 from typing import Any, Self
@@ -75,6 +75,20 @@ class ReplayBatch(Record):
     live_execution_available: bool = False
 
 
+def restore_cursor(
+    row: Mapping[Any, Any], account_id: UUID, previous: str | None = None
+) -> ReplayCursor:
+    document = row["document"]
+    if fingerprint({"previous": row["previous_hash"], "cursor": document}) != row[
+        "fingerprint"
+    ] or (previous is not None and previous != row["previous_hash"]):
+        raise ValueError("corrupt replay cursor chain")
+    cursor = ReplayCursor.restore(document)
+    if cursor.number != row["number"] or cursor.account_id != account_id:
+        raise ValueError("replay cursor identity mismatch")
+    return cursor
+
+
 class StoredReplay:
     def __init__(
         self,
@@ -88,15 +102,7 @@ class StoredReplay:
         self.fault = fault or (lambda point: None)
 
     def _cursor(self, row: RowMapping, previous: str | None = None) -> ReplayCursor:
-        document = row["document"]
-        if fingerprint({"previous": row["previous_hash"], "cursor": document}) != row[
-            "fingerprint"
-        ] or (previous is not None and previous != row["previous_hash"]):
-            raise ValueError("corrupt replay cursor chain")
-        cursor = ReplayCursor.restore(document)
-        if cursor.number != row["number"] or cursor.account_id != self.store.account_id:
-            raise ValueError("replay cursor identity mismatch")
-        return cursor
+        return restore_cursor(row, self.store.account_id, previous)
 
     async def _latest(self, c: AsyncConnection) -> RowMapping | None:
         return (

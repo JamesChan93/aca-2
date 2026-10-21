@@ -91,6 +91,7 @@ def main() -> int:
                         "cleanup_complete",
                         "56_day_headroom_demonstrated",
                         "measured_boundary_failures",
+                        "replay_preservation",
                     )
                 },
                 sort_keys=True,

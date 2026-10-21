@@ -13,6 +13,7 @@ import sys
 from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from time import monotonic, process_time
 from typing import Any
 from uuid import uuid4
@@ -27,6 +28,7 @@ from aca.domain.trading import fingerprint
 from aca.execution.paper import PaperExecution
 from aca.observability.notices import daily_summary
 from aca.reporting.historical import MAX_REPORT_EVENTS, MAX_REPORT_VALUES, historical_performance
+from aca.reporting.replay_archive import export_archive, verify_archive
 from aca.simulation.stored_replay import ReplayCursor, ReplayReceipt, StoredReplay
 from aca.storage.database import create_engine
 from aca.storage.migrate import migrate
@@ -354,6 +356,27 @@ async def run() -> None:
                 ).mappings()
             ]
             result["global_source_head"] = await c.scalar(select(func.max(public_events.c.number)))
+        # Preservation-format evidence only. Runtime readers continue using the
+        # original database prefix; exporting a file does not close any deadline.
+        with TemporaryDirectory(prefix="aca-replay-preservation-") as temporary:
+            path = Path(temporary) / "replay.aca"
+            archive_start = monotonic()
+            async with asyncio.timeout(300):
+                exported = await export_archive(store, path)
+            export_seconds = monotonic() - archive_start
+            verify_start = monotonic()
+            verified = verify_archive(path, str(exported["archive_sha256"]))
+            verify_seconds = monotonic() - verify_start
+            if not verified["integrity_verified"] or verified["usable_as_operational_prefix"]:
+                raise ValueError("archive verification/capability mismatch")
+            result["replay_preservation"] = {
+                "export_seconds": export_seconds,
+                "independent_verify_seconds": verify_seconds,
+                "archive": verified,
+                "pruned_records": 0,
+                "operational_read_path_uses_archive": False,
+                "cold_storage_capacity_demonstrated": False,
+            }
         result["cpu_seconds"] = process_time() - cpu
         result["max_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         for filename in ("memory.peak", "memory.max", "cpu.max"):

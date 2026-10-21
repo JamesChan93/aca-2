@@ -87,10 +87,12 @@ jobs:
           python -c 'import json; d=json.load(open("/tmp/aca-paper-decisions.json")); assert d["selection"]["operational_only"] is True; assert d["decisions"] == []; assert d["promotion_evidence"] is False'
           docker compose exec -T app python - < tests/accounting_cli_worker.py > /tmp/aca-accounting-smoke.json
           python -c 'import json; d=json.load(open("/tmp/aca-accounting-smoke.json")); assert d["passed"] is True; assert d["after"]["state"]["accounting_invalidated"] is True; assert d["qualifying_days"] == d["qualifying_episodes"] == 0; assert d["live_execution_available"] is False'
+          docker compose exec -T app python - < tests/replay_archive_cli_worker.py > /tmp/aca-archive-smoke.json
+          python -c 'import json; d=json.load(open("/tmp/aca-archive-smoke.json")); assert d["passed"] is True; assert d["offline_verification_without_credentials"] is True; assert d["database_mutations"] == d["qualifying_days"] == d["qualifying_episodes"] == 0; assert d["live_execution_available"] is False'
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.14
+          image-ref: aca-foundation:0.4.15
           version: v0.76.0
           scanners: vuln,secret
           format: table

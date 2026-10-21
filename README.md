@@ -133,6 +133,9 @@ records the local-paper restore checks still needed for Phase 4.
 
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
+The [replay preservation format](docs/phase-4-replay-preservation.md) adds lossless
+export and offline verification. It leaves operational history in PostgreSQL;
+the C3 capacity/retention condition remains open.
 Local Docker functional checks and both runtime image scans pass. The full Linux
 suite passes on arm64 and on amd64 under emulation. Hosted GitHub Actions results
 are recorded in the milestone report; see the [image security review](docs/image-review.md).

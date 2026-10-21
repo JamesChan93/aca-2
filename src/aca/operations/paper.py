@@ -21,6 +21,7 @@ from aca.operations.config import RiskPolicy, Settings
 from aca.portfolio.reserves import TaxReserveRequest
 from aca.reporting.historical import historical_performance
 from aca.reporting.paper import performance
+from aca.reporting.replay_archive import export_archive, verify_archive
 from aca.research.artifacts import read_json
 from aca.simulation.historical import HistoricalReplay
 from aca.simulation.paper import PaperExchange
@@ -62,6 +63,8 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "transfer",
         "correct",
         "accounting",
+        "archive-export",
+        "archive-verify",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -76,6 +79,11 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         if name == "accounting":
             parser.add_argument("--after-version", type=int, default=0)
             parser.add_argument("--limit", type=int, default=20, choices=range(1, 101))
+        if name == "archive-export":
+            parser.add_argument("--output", type=Path, required=True)
+        if name == "archive-verify":
+            parser.add_argument("--input", type=Path, required=True)
+            parser.add_argument("--sha256", required=True)
         if name in {"supervise", "run"}:
             parser.add_argument("--duration", type=int, default=300, metavar="SECONDS")
         if name == "supervise":
@@ -119,6 +127,12 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
+    if args.action == "archive-verify":
+        verified = verify_archive(args.input, args.sha256)
+        context = verified["context"]
+        if not isinstance(context, dict) or context["account_id"] != str(args.account):
+            raise ValueError("archive does not belong to the requested account")
+        return verified
     if args.action in {"supervise", "run"}:
         return await supervise(
             settings,
@@ -131,6 +145,8 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     store = PaperStore(engine, args.account)
     try:
         await verify_runtime(engine)
+        if args.action == "archive-export":
+            return await export_archive(store, args.output)
         if args.action in {"decisions", "daily", "accounting"}:
             from sqlalchemy import text
 
