@@ -170,6 +170,12 @@ single financial/valuation audit for the selected day and its boundaries, batche
 checkpoint anchors and reduces repeated validation work. Its measured processing
 deadlines and 56-day preservation requirement remain under this same open condition.
 
+The [0.4.15 replay preservation format](phase-4-replay-preservation.md) adds audited,
+lossless export and independent verification of replay/source evidence. It retains
+all PostgreSQL records and supplies no operational prefix acceptance or pruning.
+It is part of condition 4's preservation implementation, not evidence that the
+processing deadlines or 56-day headroom have passed.
+
 This package does **not** introduce a generic backup-gap importer or a second
 backup architecture. Existing paper reconciliation is used where authoritative
 evidence exists. Missing evidence remains an explicit block; production recovery

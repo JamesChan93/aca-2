@@ -1,6 +1,6 @@
 """Original-observation paper economics, independent of financial import time."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -61,41 +61,47 @@ class HistoricalValuation(Record):
     live_execution_available: bool = False
 
 
+def restore_valuation(
+    row: Mapping[Any, Any], account_id: UUID, policy_hash: str, previous: str | None = None
+) -> HistoricalValuation:
+    document = row["document"]
+    if fingerprint({"previous": row["previous_hash"], "valuation": document}) != row[
+        "fingerprint"
+    ] or (previous is not None and previous != row["previous_hash"]):
+        raise ValueError("corrupt historical valuation chain")
+    value = HistoricalValuation.restore(document)
+    if (
+        value.number != row["number"]
+        or value.state.account_id != account_id
+        or value.state.orders
+        or value.policy_hash != policy_hash
+        or value.promotion_evidence
+        or value.live_execution_available
+    ):
+        raise ValueError("historical valuation identity/policy mismatch")
+    if value.nav_gbp is not None and nav(value.state, value.state.as_of) != value.nav_gbp:
+        raise ValueError("historical NAV does not match its evidence")
+    if value.day_boundary is not None:
+        boundary = value.day_boundary
+        boundary.validate_economics()
+        if (
+            boundary.state.account_id != account_id
+            or boundary.following_source != value.number
+            or boundary.following_source_hash != value.source_hash
+            or value.source_received_at is None
+            or not 0 <= (value.source_received_at - boundary.at).total_seconds() <= 5
+        ):
+            raise ValueError("UTC boundary source mismatch")
+    return value
+
+
 class HistoricalReplay:
     def __init__(self, store: PaperStore, venue: PaperExchange, policy: RiskPolicy) -> None:
         self.store, self.venue, self.policy = store, venue, policy
         self.policy_hash = fingerprint(policy.model_dump(mode="json"))
 
     def restore(self, row: RowMapping, previous: str | None = None) -> HistoricalValuation:
-        document = row["document"]
-        if fingerprint({"previous": row["previous_hash"], "valuation": document}) != row[
-            "fingerprint"
-        ] or (previous is not None and previous != row["previous_hash"]):
-            raise ValueError("corrupt historical valuation chain")
-        value = HistoricalValuation.restore(document)
-        if (
-            value.number != row["number"]
-            or value.state.account_id != self.store.account_id
-            or value.state.orders
-            or value.policy_hash != self.policy_hash
-            or value.promotion_evidence
-            or value.live_execution_available
-        ):
-            raise ValueError("historical valuation identity/policy mismatch")
-        if value.nav_gbp is not None and nav(value.state, value.state.as_of) != value.nav_gbp:
-            raise ValueError("historical NAV does not match its evidence")
-        if value.day_boundary is not None:
-            boundary = value.day_boundary
-            boundary.validate_economics()
-            if (
-                boundary.state.account_id != self.store.account_id
-                or boundary.following_source != value.number
-                or boundary.following_source_hash != value.source_hash
-                or value.source_received_at is None
-                or not 0 <= (value.source_received_at - boundary.at).total_seconds() <= 5
-            ):
-                raise ValueError("UTC boundary source mismatch")
-        return value
+        return restore_valuation(row, self.store.account_id, self.policy_hash, previous)
 
     async def latest(self, c: AsyncConnection) -> RowMapping | None:
         return (

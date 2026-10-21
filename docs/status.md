@@ -1,7 +1,7 @@
 # Implementation status
 
-Updated 20 October 2026 for P4-C3, following the scope review merged in PR #17.
-Application candidate: 0.4.14; schema `0014_accounting_operations`. This register separates
+Updated 21 October 2026 for P4-C3, following the scope review merged in PR #17.
+Application candidate: 0.4.15; schema `0014_accounting_operations`. This register separates
 engineering completion from research eligibility, extended paper observation and later deployment/live gates.
 
 **C3 now has four of five conditions covered. Its capacity condition remains open:**
@@ -22,6 +22,11 @@ Its local 100,000-row combined startup, historical report, replay audit and summ
 still exceed their original deadlines. Those failures and the 56-day preservation
 requirement remain within the same open condition.
 
+The [0.4.15 preservation format](phase-4-replay-preservation.md) adds a lossless,
+segmented replay/source export and offline verification. It leaves PostgreSQL
+records and runtime readers unchanged. The files cannot authorise pruning or
+prefix substitution; the original capacity and retention condition remains open.
+
 **Phase 4 is incomplete. C1 and C2 are complete; C3–C4 remain in the fixed packages in the
 [completion checklist](phase-4-completion.md). The Phase 5 qualifying observation
 period has not started.** The new runner is an opt-in operational experiment. It
@@ -39,9 +44,13 @@ approves no research, observation-start or release gate. The retained local stac
 | Notifications | Opt-in Discord worker, durable retries, provisional daily summaries, critical repeats, cached health/metrics and exact-event failure reviews |
 | Operations | Local health/metrics, private upgrade backups, runbooks and a [disposable logical restore with controlled concurrent commits](phase-4-local-restore.md) |
 
-The current 0.4.14 Linux/PostgreSQL regression passed **598 tests**; Ruff, strict
-Mypy, package build, advisory audits and packaged CLI/restart checks pass. Its [capacity results](phase-4-summary-capacity.md) still do not
-pass condition 4. The original 0.4.12 C3 full Linux run passed **578 tests**.
+The 0.4.15 Linux/PostgreSQL regression passed **639 tests**; Ruff, strict Mypy,
+package build, advisory audits and packaged archive CLI/restart checks pass.
+Its [preservation/capacity results](phase-4-replay-preservation.md) retain an actual
+daily-summary deadline failure and no implemented operational archive/read path.
+Condition 4 remains open. The earlier 0.4.14 run passed 598 tests and its
+[capacity results](phase-4-summary-capacity.md) remain historical evidence.
+The original 0.4.12 C3 full Linux run passed **578 tests**.
 The [C3 report](phase-4-safety.md) records actual WAL failure, populated restore,
 timing and the explicitly unsuccessful capacity condition. The
 [C2 report](phase-4-accounting.md) retains its accounting/invalidation and packaged

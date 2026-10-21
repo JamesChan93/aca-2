@@ -5,6 +5,21 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 metadata = MetaData(schema="aca")
 PUBLIC_REPLAY_LOCK = 72149386100511831
+# Other channels retain their raw receipt but do not supply executable context.
+NORMALIZED_REPLAY_CHANNELS = frozenset(
+    {
+        "epoch_started",
+        "instrument_rules",
+        "capture_health",
+        "status",
+        "book",
+        "trade",
+        "capture_fault",
+        "capture_stopped",
+        "quarantine",
+        "coverage_gap",
+    }
+)
 public_events = Table(
     "public_replay_events",
     metadata,

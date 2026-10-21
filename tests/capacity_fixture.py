@@ -13,6 +13,7 @@ import sys
 from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from time import monotonic, process_time
 from typing import Any
 from uuid import uuid4
@@ -27,6 +28,7 @@ from aca.domain.trading import fingerprint
 from aca.execution.paper import PaperExecution
 from aca.observability.notices import daily_summary
 from aca.reporting.historical import MAX_REPORT_EVENTS, MAX_REPORT_VALUES, historical_performance
+from aca.reporting.replay_archive import export_archive, verify_archive
 from aca.simulation.stored_replay import ReplayCursor, ReplayReceipt, StoredReplay
 from aca.storage.database import create_engine
 from aca.storage.migrate import migrate
@@ -94,6 +96,9 @@ async def seed_events(writer: PaperWriter, state: Any) -> None:
 
 
 async def run() -> None:
+    if sys.argv[2:] not in ([], ["--preservation"]):
+        raise ValueError("unsupported capacity fixture mode")
+    preservation_only = sys.argv[2:] == ["--preservation"]
     if not (1 <= MAX_REPORT_EVENTS <= 100000 and 1 <= MAX_REPORT_VALUES <= 100000):
         raise ValueError("capacity fixture requires review above 100,000 records")
     settings = settings_for(sys.argv[1])
@@ -109,6 +114,8 @@ async def run() -> None:
         )
     result: dict[str, Any] = {
         "application_version": aca.__version__,
+        "trial_mode": "preservation" if preservation_only else "operations",
+        "operational_budgets_exercised": not preservation_only,
         "package_source_sha256": source_hash.hexdigest(),
         "certifi_version": importlib.metadata.version("certifi"),
         "live_execution_available": False,
@@ -239,105 +246,107 @@ async def run() -> None:
         }
         result["operations"] = {}
 
-        async def measure(name: str, operation: Any, deadline: float) -> None:
-            started = monotonic()
-            completed = False
-            try:
-                # Keep the acceptance deadline unchanged, but allow a bounded
-                # diagnostic tail so an overrun records its actual duration.
-                # An operation finishing after its budget still fails it.
-                async with asyncio.timeout(60):
-                    await operation()
-                completed = True
-            except TimeoutError:
-                pass
-            seconds = monotonic() - started
-            outcome = "completed" if completed and seconds <= deadline else "deadline_exceeded"
-            result["operations"][name] = {
-                "seconds": seconds,
-                "deadline_seconds": deadline,
-                "outcome": outcome,
-                "operation_finished": completed,
-                "measurement_timeout_seconds": 60,
-            }
+        if not preservation_only:
 
-        async def startup() -> None:
-            async with PaperWriter(store):
-                pass
+            async def measure(name: str, operation: Any, deadline: float) -> None:
+                started = monotonic()
+                completed = False
+                try:
+                    # Keep the acceptance deadline unchanged, but allow a bounded
+                    # diagnostic tail so an overrun records its actual duration.
+                    # An operation finishing after its budget still fails it.
+                    async with asyncio.timeout(60):
+                        await operation()
+                    completed = True
+                except TimeoutError:
+                    pass
+                seconds = monotonic() - started
+                outcome = "completed" if completed and seconds <= deadline else "deadline_exceeded"
+                result["operations"][name] = {
+                    "seconds": seconds,
+                    "deadline_seconds": deadline,
+                    "outcome": outcome,
+                    "operation_finished": completed,
+                    "measurement_timeout_seconds": 60,
+                }
 
-        async def history_audit() -> None:
+            async def startup() -> None:
+                async with PaperWriter(store):
+                    pass
+
+            async def history_audit() -> None:
+                async with PaperWriter(store) as owner:
+                    await StoredReplay(
+                        PaperExecution(owner, NoCommands(store)), NoCommands(store)
+                    ).audit()
+
+            await measure("financial_writer_startup", startup, 30)
+            await measure("replay_startup_audit", history_audit, 20)
+            await measure("historical_report", lambda: historical_performance(store), 20)
             async with PaperWriter(store) as owner:
-                await StoredReplay(
+                replay_reader = StoredReplay(
                     PaperExecution(owner, NoCommands(store)), NoCommands(store)
-                ).audit()
-
-        await measure("financial_writer_startup", startup, 30)
-        await measure("replay_startup_audit", history_audit, 20)
-        await measure("historical_report", lambda: historical_performance(store), 20)
-        async with PaperWriter(store) as owner:
-            replay_reader = StoredReplay(
-                PaperExecution(owner, NoCommands(store)), NoCommands(store)
-            )
-            # The supervisor's existing ten-second startup timeout begins after
-            # financial writer acquisition, unlike the combined measurement.
-            await measure("replay_audit_after_writer_acquisition", replay_reader.audit, 10)
-
-        async def summary() -> None:
-            async with engine.connect() as c:
-                await c.execution_options(
-                    isolation_level="REPEATABLE READ", postgresql_readonly=True
                 )
-                await daily_summary(c, store, AT.date())
+                # The supervisor's existing ten-second startup timeout begins after
+                # financial writer acquisition, unlike the combined measurement.
+                await measure("replay_audit_after_writer_acquisition", replay_reader.audit, 10)
 
-        # The notification owner's existing summary budget is 15 seconds.
-        await measure("scheduled_daily_summary", summary, 15)
-        # Finite real one-second loop, including actual maintenance writes, with
-        # no invented feed health/market fills. Use the non-replay loop separately.
-        tick_store = PaperStore(engine, uuid4())
-        async with PaperWriter(tick_store) as seed_writer:
-            seed_service = PaperExecution(seed_writer, NoCommands(tick_store))
-            await seed_service.initialise(AT)
-            seed_state = await seed_service.cashflow("loop-opening", Decimal(1000), AT)
-            await seed_events(seed_writer, seed_state)
-        stop, health, metrics = asyncio.Event(), SupervisorStatus(), SupervisorMetrics()
-        async with PaperWriter(tick_store) as owner:
-            venue = NoCommands(tick_store)
-            service = PaperExecution(owner, venue)
+            async def summary() -> None:
+                async with engine.connect() as c:
+                    await c.execution_options(
+                        isolation_level="REPEATABLE READ", postgresql_readonly=True
+                    )
+                    await daily_summary(c, store, AT.date())
 
-            async def marks(at: Any) -> tuple[()]:
-                return ()
+            # The notification owner's existing summary budget is 15 seconds.
+            await measure("scheduled_daily_summary", summary, 15)
+            # Finite real one-second loop, including actual maintenance writes, with
+            # no invented feed health/market fills. Use the non-replay loop separately.
+            tick_store = PaperStore(engine, uuid4())
+            async with PaperWriter(tick_store) as seed_writer:
+                seed_service = PaperExecution(seed_writer, NoCommands(tick_store))
+                await seed_service.initialise(AT)
+                seed_state = await seed_service.cashflow("loop-opening", Decimal(1000), AT)
+                await seed_events(seed_writer, seed_state)
+            stop, health, metrics = asyncio.Event(), SupervisorStatus(), SupervisorMetrics()
+            async with PaperWriter(tick_store) as owner:
+                venue = NoCommands(tick_store)
+                service = PaperExecution(owner, venue)
 
-            async def capacity() -> None:
-                pass
+                async def marks(at: Any) -> tuple[()]:
+                    return ()
 
-            durations = []
+                async def capacity() -> None:
+                    pass
 
-            class MeasuredSupervisor(PaperSupervisor):
-                async def tick(self) -> None:
-                    tick = monotonic()
-                    await super().tick()
-                    durations.append(monotonic() - tick)
-                    if len(durations) >= TICKS:
-                        stop.set()
+                durations = []
 
-            start = monotonic()
-            supervisor = MeasuredSupervisor(
-                service,
-                health,
-                marks=marks,
-                capacity=capacity,
-                clock=lambda: AT + timedelta(seconds=monotonic() - start),
-            )
-            await supervisor.run(stop, metrics)
-            result["one_second_loop"] = {
-                "financial_events_before_startup": MAX_REPORT_EVENTS,
-                "ticks": len(durations),
-                "elapsed_seconds": monotonic() - start,
-                "max_tick_seconds": max(durations),
-                "mean_tick_seconds": sum(durations) / len(durations),
-                "healthy_ticks": health.healthy_ticks,
-                "venue_commands": venue.attempts,
-            }
+                class MeasuredSupervisor(PaperSupervisor):
+                    async def tick(self) -> None:
+                        tick = monotonic()
+                        await super().tick()
+                        durations.append(monotonic() - tick)
+                        if len(durations) >= TICKS:
+                            stop.set()
+
+                start = monotonic()
+                supervisor = MeasuredSupervisor(
+                    service,
+                    health,
+                    marks=marks,
+                    capacity=capacity,
+                    clock=lambda: AT + timedelta(seconds=monotonic() - start),
+                )
+                await supervisor.run(stop, metrics)
+                result["one_second_loop"] = {
+                    "financial_events_before_startup": MAX_REPORT_EVENTS,
+                    "ticks": len(durations),
+                    "elapsed_seconds": monotonic() - start,
+                    "max_tick_seconds": max(durations),
+                    "mean_tick_seconds": sum(durations) / len(durations),
+                    "healthy_ticks": health.healthy_ticks,
+                    "venue_commands": venue.attempts,
+                }
         async with engine.connect() as c:
             result["database_bytes"] = await c.scalar(
                 text("SELECT pg_database_size(current_database())")
@@ -354,6 +363,28 @@ async def run() -> None:
                 ).mappings()
             ]
             result["global_source_head"] = await c.scalar(select(func.max(public_events.c.number)))
+        # Preservation-format evidence only. Runtime readers continue using the
+        # original database prefix; exporting a file does not close any deadline.
+        if preservation_only:
+            with TemporaryDirectory(prefix="aca-replay-preservation-") as temporary:
+                path = Path(temporary) / "replay.aca"
+                archive_start = monotonic()
+                async with asyncio.timeout(600):
+                    exported = await export_archive(store, path)
+                export_seconds = monotonic() - archive_start
+                verify_start = monotonic()
+                verified = verify_archive(path, str(exported["archive_sha256"]))
+                verify_seconds = monotonic() - verify_start
+                if not verified["integrity_verified"] or verified["usable_as_operational_prefix"]:
+                    raise ValueError("archive verification/capability mismatch")
+                result["replay_preservation"] = {
+                    "export_seconds": export_seconds,
+                    "independent_verify_seconds": verify_seconds,
+                    "archive": verified,
+                    "pruned_records": 0,
+                    "operational_read_path_uses_archive": False,
+                    "cold_storage_capacity_demonstrated": False,
+                }
         result["cpu_seconds"] = process_time() - cpu
         result["max_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         for filename in ("memory.peak", "memory.max", "cpu.max"):
