@@ -119,6 +119,18 @@ replay audit and daily summary at the same 20/20/10/15-second budgets. Its origi
 into passes. No child-harness or operational deadline is increased. Green CI means
 that the measurements completed, not that their capacity results passed.
 
+The first hosted `verify` jobs reached their **20-minute outer CI wall limit**
+during packaged smoke, after regression, restore, capacity, dependency audits and
+build had passed. Security scans were therefore skipped. The verify job now has a
+30-minute CI wall limit so all required checks can finish; the separate preservation
+job retains 20 minutes. The original 600/900-second child harness bounds, 60-second
+diagnostic bounds and every operational acceptance deadline are unchanged. This
+CI scheduling adjustment does not make a capacity failure pass. The initial
+hosted archive report/startup/summary measurements each hit the 60-second diagnostic
+limit; replay after acquisition was unexercised. Those runners did not establish
+completed financial report equivalence. Final exact-head results are recorded in
+the PR separately from the local evidence below.
+
 The final Linux/PostgreSQL regression passed **663 tests in 120.50 seconds**.
 An additional 88 focused native tests passed; Ruff/check/format (168 files), strict
 Mypy (146 files), dependency consistency, wheel/sdist build and all three advisory
