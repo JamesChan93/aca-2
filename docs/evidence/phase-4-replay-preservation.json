@@ -29,7 +29,7 @@
     "remaining": "Reviewed bounded preservation/read integration for replay and financial prefixes, followed by original deadline/retention evidence; C4 follows C3."
   },
   "hosted_ci": "Exact-head push and pull-request completion, archive measurement and packaged smoke are recorded in the PR after both workflows finish; no hosted result is inferred from this local report.",
-  "local_capacity_trial": {
+  "initial_combined_local_trial": {
     "private_manifest": ".secrets/backups/capacity-trial-94f48975ffaf/manifest.json",
     "result": {
       "56_day_headroom_demonstrated": false,
@@ -302,6 +302,488 @@
       "value_limit_days_at_1hz": 1.1574074074074074
     }
   },
+  "initial_hosted_harness_result": {
+    "head": "b4f04c567ce85f929c78b01be2c1297ffc6ed4a6",
+    "pull_request": {
+      "conclusion": "failure",
+      "failed_step": "combined capacity trial",
+      "old_child_harness_seconds": 600,
+      "private_error_type_not_printed_by_old_wrapper": true,
+      "run": 39569017534,
+      "step_seconds": 605,
+      "test_seconds": 332.0,
+      "tests_passed": 639
+    },
+    "push": {
+      "conclusion": "success",
+      "run": 39568951792,
+      "test_seconds": 199.11,
+      "tests_passed": 639
+    },
+    "resolution": "Separate offline export into its own job/mode; preserve all original operational deadlines and resource ceilings. Print safe error type/cleanup status on failed trials."
+  },
+  "local_operational_trial": {
+    "private_manifest": ".secrets/backups/capacity-trial-44db66da1826/manifest.json",
+    "result": {
+      "56_day_headroom_demonstrated": false,
+      "application_version": "0.4.15",
+      "bulk_seed_is_ingestion_measurement": false,
+      "certifi_version": "2026.10.19",
+      "cleanup_complete": true,
+      "configured_budget_bytes": 2000000000,
+      "cpu.max": "75000 100000",
+      "cpu_seconds": 89.002045911,
+      "database_bytes": 497161919,
+      "elapsed_seconds": 137.73710185599998,
+      "global_source_head": 99999,
+      "live_execution_available": false,
+      "max_rss_kib": 120304,
+      "measured_boundary_failures": [
+        "scheduled_daily_summary"
+      ],
+      "memory.max": "805306368",
+      "memory.peak": "103165952",
+      "observations_per_56_days_at_1hz": 4838400,
+      "one_second_loop": {
+        "elapsed_seconds": 19.31291846800002,
+        "financial_events_before_startup": 100000,
+        "healthy_ticks": 20,
+        "max_tick_seconds": 0.07205549999991945,
+        "mean_tick_seconds": 0.033082772999983946,
+        "ticks": 20,
+        "venue_commands": 0
+      },
+      "operational_budgets_exercised": true,
+      "operations": {
+        "financial_writer_startup": {
+          "deadline_seconds": 30,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 6.518860544000063
+        },
+        "historical_report": {
+          "deadline_seconds": 20,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 14.664510132000032
+        },
+        "replay_audit_after_writer_acquisition": {
+          "deadline_seconds": 10,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 8.654287171000078
+        },
+        "replay_startup_audit": {
+          "deadline_seconds": 20,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 15.185950882000043
+        },
+        "scheduled_daily_summary": {
+          "deadline_seconds": 15,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "deadline_exceeded",
+          "seconds": 15.378860215000032
+        }
+      },
+      "package_source_sha256": "9673fc3703b9b297a15a85bb1dd39f1dcc1b5439cb202a3f04f6780c3186549e",
+      "promotion_evidence": false,
+      "record_limits": {
+        "events": 100000,
+        "public_receipts": 99999,
+        "valuations": 100000
+      },
+      "relations": [
+        {
+          "bytes": 24576,
+          "n_live_tup": 1,
+          "relname": "alembic_version"
+        },
+        {
+          "bytes": 32768,
+          "n_live_tup": 0,
+          "relname": "audit_events"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "configuration_versions"
+        },
+        {
+          "bytes": 36052992,
+          "n_live_tup": 99999,
+          "relname": "market_receipts"
+        },
+        {
+          "bytes": 40960,
+          "n_live_tup": 0,
+          "relname": "paper_accounting_operations"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 2,
+          "relname": "paper_accounts"
+        },
+        {
+          "bytes": 65536,
+          "n_live_tup": 5,
+          "relname": "paper_alerts"
+        },
+        {
+          "bytes": 1949696,
+          "n_live_tup": 1564,
+          "relname": "paper_checkpoints"
+        },
+        {
+          "bytes": 120397824,
+          "n_live_tup": 200006,
+          "relname": "paper_events"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_fills"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 4,
+          "relname": "paper_journal_lines"
+        },
+        {
+          "bytes": 49152,
+          "n_live_tup": 2,
+          "relname": "paper_journals"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 2,
+          "relname": "paper_movements"
+        },
+        {
+          "bytes": 8192,
+          "n_live_tup": 0,
+          "relname": "paper_notice_receipts"
+        },
+        {
+          "bytes": 40960,
+          "n_live_tup": 0,
+          "relname": "paper_notices"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_notification_events"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_notification_reviews"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_order_identities"
+        },
+        {
+          "bytes": 62644224,
+          "n_live_tup": 100000,
+          "relname": "paper_replay_cursors"
+        },
+        {
+          "bytes": 208969728,
+          "n_live_tup": 100000,
+          "relname": "paper_replay_valuations"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_strategy_decisions"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_strategy_results"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_strategy_selections"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_tax_reserves"
+        },
+        {
+          "bytes": 49152,
+          "n_live_tup": 0,
+          "relname": "paper_venue_events"
+        },
+        {
+          "bytes": 57892864,
+          "n_live_tup": 99999,
+          "relname": "public_replay_events"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "public_trades"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "research_artifacts"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "research_events"
+        }
+      ],
+      "seed_seconds": 36.142432267000004,
+      "status": "measured",
+      "trial_mode": "operations",
+      "value_limit_days_at_1hz": 1.1574074074074074
+    }
+  },
+  "local_preservation_trial": {
+    "private_manifest": ".secrets/backups/capacity-trial-97153af9d49c/manifest.json",
+    "result": {
+      "56_day_headroom_demonstrated": false,
+      "application_version": "0.4.15",
+      "bulk_seed_is_ingestion_measurement": false,
+      "certifi_version": "2026.10.19",
+      "cleanup_complete": true,
+      "configured_budget_bytes": 2000000000,
+      "cpu.max": "75000 100000",
+      "cpu_seconds": 84.240099928,
+      "database_bytes": 435902143,
+      "elapsed_seconds": 219.60364234999997,
+      "global_source_head": 99999,
+      "live_execution_available": false,
+      "max_rss_kib": 121004,
+      "measured_boundary_failures": [],
+      "memory.max": "805306368",
+      "memory.peak": "127762432",
+      "observations_per_56_days_at_1hz": 4838400,
+      "operational_budgets_exercised": false,
+      "operations": {},
+      "package_source_sha256": "9673fc3703b9b297a15a85bb1dd39f1dcc1b5439cb202a3f04f6780c3186549e",
+      "promotion_evidence": false,
+      "record_limits": {
+        "events": 100000,
+        "public_receipts": 99999,
+        "valuations": 100000
+      },
+      "relations": [
+        {
+          "bytes": 24576,
+          "n_live_tup": 1,
+          "relname": "alembic_version"
+        },
+        {
+          "bytes": 32768,
+          "n_live_tup": 0,
+          "relname": "audit_events"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "configuration_versions"
+        },
+        {
+          "bytes": 36110336,
+          "n_live_tup": 99999,
+          "relname": "market_receipts"
+        },
+        {
+          "bytes": 40960,
+          "n_live_tup": 0,
+          "relname": "paper_accounting_operations"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 1,
+          "relname": "paper_accounts"
+        },
+        {
+          "bytes": 65536,
+          "n_live_tup": 1,
+          "relname": "paper_alerts"
+        },
+        {
+          "bytes": 999424,
+          "n_live_tup": 782,
+          "relname": "paper_checkpoints"
+        },
+        {
+          "bytes": 60178432,
+          "n_live_tup": 100000,
+          "relname": "paper_events"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_fills"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 2,
+          "relname": "paper_journal_lines"
+        },
+        {
+          "bytes": 49152,
+          "n_live_tup": 1,
+          "relname": "paper_journals"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 1,
+          "relname": "paper_movements"
+        },
+        {
+          "bytes": 8192,
+          "n_live_tup": 0,
+          "relname": "paper_notice_receipts"
+        },
+        {
+          "bytes": 40960,
+          "n_live_tup": 0,
+          "relname": "paper_notices"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_notification_events"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_notification_reviews"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_order_identities"
+        },
+        {
+          "bytes": 62636032,
+          "n_live_tup": 100000,
+          "relname": "paper_replay_cursors"
+        },
+        {
+          "bytes": 208961536,
+          "n_live_tup": 100000,
+          "relname": "paper_replay_valuations"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_strategy_decisions"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_strategy_results"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "paper_strategy_selections"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "paper_tax_reserves"
+        },
+        {
+          "bytes": 49152,
+          "n_live_tup": 0,
+          "relname": "paper_venue_events"
+        },
+        {
+          "bytes": 57950208,
+          "n_live_tup": 99999,
+          "relname": "public_replay_events"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "public_trades"
+        },
+        {
+          "bytes": 16384,
+          "n_live_tup": 0,
+          "relname": "research_artifacts"
+        },
+        {
+          "bytes": 24576,
+          "n_live_tup": 0,
+          "relname": "research_events"
+        }
+      ],
+      "replay_preservation": {
+        "archive": {
+          "archive_bytes": 23799404,
+          "archive_sha256": "378b2519abb0e184a76377f8375cb46f32218a1f2742eccb85e0f75e0a4e7b26",
+          "context": {
+            "account_id": "4c7f234d-8a3a-44c3-89e0-930277e0c819",
+            "application_version": "0.4.15",
+            "baseline_number": 0,
+            "created_at": "2026-10-21T09:06:35.106778Z",
+            "cursor_count": 100000,
+            "database_audit_report_hash": "fa281403dd6503c91bb97aa33dbae51ec40bb6f07cb70e8a3350aeac2c7ac0f5",
+            "database_semantics_checked_at_export": true,
+            "financial_hash": "97b39cdb0480f39003af039b07dffe93378a2edbae78ff5b60d32f5970b6caba",
+            "financial_state_hash": "0f89fc1eb878fad31f8e4ed10f9d6182e8b85167b8c9fd1f9857cb59f137969c",
+            "financial_version": 100000,
+            "head_cursor_hash": "1c77121478b1d715ef8ac9651bb278d7d74056e3461d668504b2e35fdf6b883c",
+            "head_number": 99999,
+            "head_valuation_hash": "7ccdec8188d1f7aaba4a6b6c5ed7146907473ba9d4eb98b476700b6d44900de0",
+            "kind": "replay-preservation-v1",
+            "live_execution_available": false,
+            "opening_cursor_previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+            "promotion_evidence": false,
+            "pruning_authorised": false,
+            "schema_version": 1,
+            "usable_as_operational_prefix": false,
+            "valuation_count": 100000
+          },
+          "database_semantics_rechecked": false,
+          "decoded_segment_bytes": 298786135,
+          "financial_records_included": false,
+          "integrity_verified": true,
+          "live_execution_available": false,
+          "promotion_evidence": false,
+          "pruning_authorised": false,
+          "schema_version": 1,
+          "segments": 1563,
+          "source_bindings_verified": true,
+          "usable_as_operational_prefix": false
+        },
+        "cold_storage_capacity_demonstrated": false,
+        "export_seconds": 167.62202895099995,
+        "independent_verify_seconds": 17.03342834199998,
+        "operational_read_path_uses_archive": false,
+        "pruned_records": 0
+      },
+      "seed_seconds": 34.874971808000055,
+      "status": "measured",
+      "trial_mode": "preservation",
+      "value_limit_days_at_1hz": 1.1574074074074074
+    }
+  },
+  "measurement_harness": {
+    "compose.capacity.yaml": "1884663076be9af4531ea2b4d64f944cc4d4bb9f2244f2ba58dce61f8f116a53",
+    "scripts/capacity_trial.py": "c5d29d43f73fbe41abec5437274060b29b03d3cdbab84c20ccb8508707a1c788",
+    "tests/capacity_fixture.py": "e1f845048c73f0bd8dec347e396afc79af97b79771f02cbea0c03c23d74e9357"
+  },
   "package_identity": {
     "algorithm": "SHA256 of sorted package-relative UTF-8 Python paths, NUL and exact file bytes",
     "python_files": 110,
@@ -374,6 +856,10 @@
       "command": ".venv/bin/python -m build --no-isolation",
       "wheel_and_sdist": true
     },
+    "capacity_commands": [
+      "python3 scripts/capacity_trial.py",
+      "python3 scripts/capacity_trial.py --preservation"
+    ],
     "critical_financial_property_minimum": 1000,
     "dependency_audits": {
       "development": "no known vulnerabilities found",

@@ -1,6 +1,7 @@
 """C3 bounded, repeatable capacity experiment on a new disposable database.
 
-No target arguments. Writes a measurement, including failures; a completed trial
+No target arguments. --preservation selects the separate offline export trial.
+Writes a measurement, including failures; a completed trial
 does not grant the 56-day capacity or operational acceptance gate. Host Python 3.9+.
 """
 
@@ -29,9 +30,10 @@ except ModuleNotFoundError:
 
 
 def main() -> int:
-    if sys.argv[1:]:
-        print("Usage: python3 scripts/capacity_trial.py (no arguments)", file=sys.stderr)
+    if sys.argv[1:] not in ([], ["--preservation"]):
+        print("Usage: python3 scripts/capacity_trial.py [--preservation]", file=sys.stderr)
         return 2
+    preservation_only = sys.argv[1:] == ["--preservation"]
     require_docker()
     prepare_secrets()
     identifier = uuid4().hex[:12]
@@ -42,7 +44,10 @@ def main() -> int:
     directory.mkdir(mode=0o700)
     drill = Drill(directory, identifier)
     drill.source += ["-f", "compose.capacity.yaml"]
-    report: dict[str, Any] = {"status": "failed"}
+    report: dict[str, Any] = {
+        "status": "failed",
+        "trial_mode": "preservation" if preservation_only else "operations",
+    }
     try:
         drill.call([*drill.source, "build", "db", "restore-worker"])
         drill.call([*drill.source, "up", "-d", "--wait", "db"])
@@ -57,8 +62,9 @@ def main() -> int:
                 "python",
                 "tests/capacity_fixture.py",
                 drill.database,
+                *(["--preservation"] if preservation_only else []),
             ],
-            timeout=600,
+            timeout=900 if preservation_only else 600,
         )
         report.update(json.loads(raw))
         report["status"] = "measured"
@@ -77,6 +83,8 @@ def main() -> int:
                     key: report.get(key)
                     for key in (
                         "application_version",
+                        "trial_mode",
+                        "operational_budgets_exercised",
                         "package_source_sha256",
                         "certifi_version",
                         "record_limits",
@@ -93,6 +101,18 @@ def main() -> int:
                         "measured_boundary_failures",
                         "replay_preservation",
                     )
+                },
+                sort_keys=True,
+            )
+        )
+    else:
+        print(
+            json.dumps(
+                {
+                    "status": report["status"],
+                    "trial_mode": report["trial_mode"],
+                    "error_type": report.get("error_type"),
+                    "cleanup_complete": report["cleanup_complete"],
                 },
                 sort_keys=True,
             )

@@ -47,7 +47,7 @@ approves no research, observation-start or release gate. The retained local stac
 The 0.4.15 Linux/PostgreSQL regression passed **639 tests**; Ruff, strict Mypy,
 package build, advisory audits and packaged archive CLI/restart checks pass.
 Its [preservation/capacity results](phase-4-replay-preservation.md) retain an actual
-replay-audit deadline failure and no implemented operational archive/read path.
+daily-summary deadline failure and no implemented operational archive/read path.
 Condition 4 remains open. The earlier 0.4.14 run passed 598 tests and its
 [capacity results](phase-4-summary-capacity.md) remain historical evidence.
 The original 0.4.12 C3 full Linux run passed **578 tests**.

@@ -124,31 +124,50 @@ the project's private data/evidence policy.
 
 The [machine-readable report](evidence/phase-4-replay-preservation.json) records
 the package identity, final regression and bounded capacity/export measurements.
-The full capacity trial now exports its 100,000-value synthetic prefix, verifies
-the published file again and records sizes, elapsed times and explicit capability
-limits under the existing resource ceilings. It does not substitute those numbers
-for the startup/report deadlines or label the cold-storage path complete.
+The original operational trial and the new offline export trial run separately:
 
-Local synthetic trial `capacity-trial-94f48975ffaf` completed with the unchanged
+```sh
+python3 scripts/capacity_trial.py
+python3 scripts/capacity_trial.py --preservation
+```
+
+Both create disposable 100,000-value prefixes under the existing resource ceilings.
+The first exercises all original startup/report deadlines and the one-second loop.
+The second exports and independently verifies the full file and explicitly marks
+`operational_budgets_exercised=false`. It supplies no operational deadline result.
+Each mode accepts no database/account/project target arguments.
+
+The initial combined PR workflow failed at the 600-second child-harness boundary;
+the push workflow completed the combined measurement. The offline work now has a
+separate CI job and a 900-second child bound, including a 600-second offline export
+bound. The operational trial retains its original 600-second harness bound and
+30/20/20/10/15-second acceptance deadlines. Separating those measurements supplies
+no additional headroom or cold-storage acceptance claim. Safe error type and
+cleanup status are now printed for a failed harness as well as written privately.
+
+Final separate trials `capacity-trial-44db66da1826` (operations) and
+`capacity-trial-97153af9d49c` (preservation) completed with the unchanged
 0.75-CPU/768-MiB worker and 0.75-CPU/1-GiB database. Its archive held **100,000
-valuations and 100,000 cursors** in 1,563 segments. The file used **23,797,268 bytes**
+valuations and 100,000 cursors** in 1,563 segments. The file used **23,799,404 bytes**
 for 298,786,135 decoded segment bytes. Auditing, exporting and verifying before
-publication took **183.33 seconds**; a further independent verification took
-**17.40 seconds**. The file was removed with the disposable trial. Its root and
+publication took **167.62 seconds**; a further independent verification took
+**17.03 seconds**. The file was removed with the disposable trial. Its root and
 metadata remain in the evidence report; no test archive is treated as retained
 operational history.
 
 | Existing operation | Local duration | Unchanged deadline | Result |
 | --- | ---: | ---: | --- |
-| Financial writer startup | 6.81 s | 30 s | Pass locally |
-| Combined financial/replay startup | 15.54 s | 20 s | Pass locally |
-| Historical report | 15.01 s | 20 s | Pass locally |
-| Replay audit after writer acquisition | 10.09 s | 10 s | **Fail** |
-| Scheduled daily summary | 14.83 s | 15 s | Pass locally, narrow margin |
+| Financial writer startup | 6.52 s | 30 s | Pass locally |
+| Combined financial/replay startup | 15.19 s | 20 s | Pass locally |
+| Historical report | 14.66 s | 20 s | Pass locally |
+| Replay audit after writer acquisition | 8.65 s | 10 s | Pass locally |
+| Scheduled daily summary | 15.38 s | 15 s | **Fail** |
 
-All 20 one-second maintenance ticks were healthy; the maximum tick took 0.056
-seconds and there were zero venue commands. The database used 500,545,215 bytes.
-Worker peak cgroup memory, including export, was 133,107,712 bytes. All owned
+All 20 one-second maintenance ticks were healthy; the maximum tick took 0.073
+seconds and there were zero venue commands. The operational database used
+497,161,919 bytes; its worker peak cgroup memory was 103,165,952 bytes. The
+separate export database used 435,902,143 bytes and its worker peak was 127,762,432
+bytes. Its empty operational-result map is explicitly unexercised, not a pass. All owned
 containers/volumes and temporary archive files were removed. This cash-only bulk
 fixture does not establish market throughput, a fully loaded strategy workload or
 elapsed reliability. Hosted exact-head results are recorded in the PR and take
