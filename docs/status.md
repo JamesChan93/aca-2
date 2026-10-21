@@ -1,7 +1,7 @@
 # Implementation status
 
 Updated 21 October 2026 for P4-C3, following the scope review merged in PR #17.
-Application candidate: 0.4.15; schema `0014_accounting_operations`. This register separates
+Application candidate: 0.4.16; schema `0014_accounting_operations`. This register separates
 engineering completion from research eligibility, extended paper observation and later deployment/live gates.
 
 **C3 now has four of five conditions covered. Its capacity condition remains open:**
@@ -24,8 +24,11 @@ requirement remain within the same open condition.
 
 The [0.4.15 preservation format](phase-4-replay-preservation.md) adds a lossless,
 segmented replay/source export and offline verification. It leaves PostgreSQL
-records and runtime readers unchanged. The files cannot authorise pruning or
-prefix substitution; the original capacity and retention condition remains open.
+records unchanged and originally supplied no runtime reader. The
+[0.4.16 archive input](phase-4-archive-input.md) now reads that prefix against
+retained database anchors, reconstructs the full financial history and continues
+into the SQL suffix. File faults block the invocation/current writer. No record
+pruning or bounded financial-prefix audit is implemented; condition 4 remains open.
 
 **Phase 4 is incomplete. C1 and C2 are complete; C3–C4 remain in the fixed packages in the
 [completion checklist](phase-4-completion.md). The Phase 5 qualifying observation
@@ -44,10 +47,19 @@ approves no research, observation-start or release gate. The retained local stac
 | Notifications | Opt-in Discord worker, durable retries, provisional daily summaries, critical repeats, cached health/metrics and exact-event failure reviews |
 | Operations | Local health/metrics, private upgrade backups, runbooks and a [disposable logical restore with controlled concurrent commits](phase-4-local-restore.md) |
 
+The 0.4.16 frozen-source Linux/PostgreSQL regression passed **663 tests**; all
+static checks, package build, advisory audits and packaged CLI/restart checks pass.
+The [archive-input results](phase-4-archive-input.md) show local SQL operations
+within their original deadlines, but **all four online archive operations fail**
+those budgets. Financial history is still audited in full, all SQL records remain,
+and 56-day headroom is false. The fixed checklist remains **12/17**. Hosted
+exact-head results are recorded in the PR; green measurements do not approve C3.
+
 The 0.4.15 Linux/PostgreSQL regression passed **639 tests**; Ruff, strict Mypy,
 package build, advisory audits and packaged archive CLI/restart checks pass.
 Its [preservation/capacity results](phase-4-replay-preservation.md) retain an actual
-daily-summary deadline failure and no implemented operational archive/read path.
+daily-summary deadline failure; the subsequent 0.4.16 online read-path evidence is
+recorded separately in the [current increment](phase-4-archive-input.md).
 Condition 4 remains open. The earlier 0.4.14 run passed 598 tests and its
 [capacity results](phase-4-summary-capacity.md) remain historical evidence.
 The original 0.4.12 C3 full Linux run passed **578 tests**.

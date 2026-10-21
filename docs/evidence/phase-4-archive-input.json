@@ -1,0 +1,1375 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "component": "P4-C3 condition 4: anchored archive input",
+  "application_version": "0.4.16",
+  "database_revision": "0014_accounting_operations",
+  "source": {
+    "base_commit": "415d04085808645a9c66111e988f6a486fa42e39",
+    "python_files": 111,
+    "package_sha256": "04965b12cdc9b06db649ebaba3f9ec5684ec07371f48ba9876d3af5dc4f56bdf",
+    "wheel_sha256": "d58c1294478d63a466776c425b9f546c53f02f1fe4d32934be508a592c933498"
+  },
+  "validation": {
+    "linux_postgresql": {
+      "passed": 663,
+      "seconds": 120.5,
+      "log_sha256": "2d97111cec050da557ff8e3d847bd004af0ff450f41d39f6a3f8915531d32647"
+    },
+    "native_focused": {
+      "passed": 88,
+      "seconds": 20.81
+    },
+    "ruff_check": "passed",
+    "ruff_formatted_files": 168,
+    "mypy_checked_files": 146,
+    "pip_check": "passed",
+    "wheel_and_sdist_build": "passed",
+    "advisory_audits": {
+      "runtime": "no known vulnerabilities",
+      "research": "no known vulnerabilities",
+      "development": "no known vulnerabilities"
+    },
+    "packaged_smoke": {
+      "project": "aca-c3-archive-read-smoke-6756337e7747",
+      "at": "2026-10-21T21:07:13.059386+00:00",
+      "demo": {
+        "account_id": "6e04530b-9382-418d-9a24-331672f4016b",
+        "blocked_steps": 0,
+        "kind": "synthetic_paper_replay_report",
+        "live_execution_available": false,
+        "performance": {
+          "as_of": "2026-10-18T00:00:00.700000+00:00",
+          "drawdown": "0.001101356870400000",
+          "exposure_gbp": "0E-18",
+          "fees_gbp": "0.259135167600000000",
+          "free_cash_gbp": "249.724660782400000000",
+          "inception_drawdown": "0.001101356870400000",
+          "live_execution_available": false,
+          "manual_tax_cash_reserve_gbp": "0",
+          "mode": "paper",
+          "mwr": null,
+          "nav_gbp": "249.724660782400000000",
+          "net_investment_flows_gbp": "250.000000000000000000",
+          "pnl_gbp": "-0.275339217600000000",
+          "provisional": false,
+          "reconciliation_issue": null,
+          "reserved_planned_loss_gbp": "0E-18",
+          "schema_version": 1,
+          "synthetic_replay_counts_toward_promotion": false,
+          "tax_report_final": false,
+          "tax_reserve_estimate_gbp": null,
+          "twr_since_inception": "-0.001101356870400000",
+          "unit_price": "0.998898643129600000"
+        },
+        "promotion_evidence": false,
+        "schema_version": 1,
+        "state": {
+          "account_evidence_at": "2026-10-18T00:00:00.700000Z",
+          "account_id": "6e04530b-9382-418d-9a24-331672f4016b",
+          "as_of": "2026-10-18T00:00:00.700000Z",
+          "balances": [
+            {
+              "asset": "GBP",
+              "cost_gbp": "249.724660782400000000",
+              "quantity": "249.724660782400000000",
+              "schema_version": 1
+            },
+            {
+              "asset": "BTC",
+              "cost_gbp": "0E-18",
+              "quantity": "0E-8",
+              "schema_version": 1
+            },
+            {
+              "asset": "ETH",
+              "cost_gbp": "0",
+              "quantity": "0",
+              "schema_version": 1
+            }
+          ],
+          "daily_day": "2026-10-18",
+          "daily_unit_price": "1",
+          "high_water": "1",
+          "inception_high_water": "1",
+          "incident": null,
+          "kill": {
+            "actor": "risk",
+            "daily_day": null,
+            "hard": false,
+            "latched_at": null,
+            "policy_epoch": "901a2a37-9a64-43b7-937d-e5e72852cb31",
+            "reason": null,
+            "schema_version": 1,
+            "soft": false
+          },
+          "last_unit_price": "0.998898643129600000",
+          "marks": [
+            {
+              "asset": "BTC",
+              "bid_gbp": "999",
+              "observed_at": "2026-10-18T00:00:00.700000Z",
+              "schema_version": 1,
+              "source": "synthetic-replay-book"
+            }
+          ],
+          "orders": [
+            {
+              "approval": {
+                "allowed": true,
+                "approved_at": "2026-10-18T00:00:00Z",
+                "expires_at": "2026-10-18T00:00:02Z",
+                "id": "27ef9506-3594-413d-9bed-5d3c745b1c5a",
+                "intent_hash": "9713e5425b2c49a33c7d37b694053c0f12a086dfdf0bf86ec2753861c9527c5d",
+                "intent_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "planned_loss": "1.249999861860000000",
+                "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+                "reasons": [],
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "state_version": 5
+              },
+              "filled": "0.016204050000000000",
+              "intent": {
+                "allowance_per_unit": "2.002000000000000000",
+                "client_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "created_at": "2026-10-18T00:00:00Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2026-10-18T00:00:02Z",
+                "fee_bound": "0.008",
+                "id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "limit_price": "1001.0",
+                "operator_reason": null,
+                "parent_id": null,
+                "protective_limit": "941.4",
+                "purpose": "entry",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "buy",
+                "stop_trigger": "950.9",
+                "strategy_version": "slow-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "FOK"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "FILLED",
+              "submitted_at": "2026-10-18T00:00:00Z",
+              "triggered": false,
+              "venue_id": "paper-626758c4-c7f0-444f-97b7-4c7cb4e3a3ea"
+            },
+            {
+              "approval": null,
+              "filled": "0",
+              "intent": {
+                "allowance_per_unit": "0",
+                "client_id": "f82c9141-b180-56a0-a748-9bb4bd25d535",
+                "created_at": "2026-10-18T00:00:00.300000Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2036-10-15T00:00:00.300000Z",
+                "fee_bound": "0.008",
+                "id": "f82c9141-b180-56a0-a748-9bb4bd25d535",
+                "limit_price": "941.4",
+                "operator_reason": null,
+                "parent_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "protective_limit": "0",
+                "purpose": "protection",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "sell",
+                "stop_trigger": "950.9",
+                "strategy_version": "safety-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "GTC"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "CANCELLED",
+              "submitted_at": "2026-10-18T00:00:00.300000Z",
+              "triggered": false,
+              "venue_id": "paper-f82c9141-b180-56a0-a748-9bb4bd25d535"
+            },
+            {
+              "approval": null,
+              "filled": "0.016204050000000000",
+              "intent": {
+                "allowance_per_unit": "0",
+                "client_id": "97b5568c-8117-4d44-b307-a927c390713d",
+                "created_at": "2026-10-18T00:00:00.400000Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2026-10-18T00:00:02.400000Z",
+                "fee_bound": "0.008",
+                "id": "97b5568c-8117-4d44-b307-a927c390713d",
+                "limit_price": "997.1",
+                "operator_reason": null,
+                "parent_id": null,
+                "protective_limit": "0",
+                "purpose": "exit",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "sell",
+                "stop_trigger": "0",
+                "strategy_version": "safety-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "IOC"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "FILLED",
+              "submitted_at": "2026-10-18T00:00:00.400000Z",
+              "triggered": false,
+              "venue_id": "paper-97b5568c-8117-4d44-b307-a927c390713d"
+            }
+          ],
+          "ready": true,
+          "reconciled_at": "2026-10-18T00:00:00.700000Z",
+          "schema_version": 1,
+          "tax_reserve_gbp": "0",
+          "units": "250.000000000000000000",
+          "version": 22
+        },
+        "steps": 4
+      },
+      "before_restart": {
+        "as_of": "2026-10-21T21:07:37.249723+00:00",
+        "live_execution_available": false,
+        "mode": "paper",
+        "performance": {
+          "as_of": "2026-10-21T21:07:37.249723+00:00",
+          "drawdown": "0.001101356870400000",
+          "exposure_gbp": "0E-18",
+          "fees_gbp": "0.259135167600000000",
+          "free_cash_gbp": "249.724660782400000000",
+          "inception_drawdown": "0.001101356870400000",
+          "live_execution_available": false,
+          "manual_tax_cash_reserve_gbp": "0",
+          "mode": "paper",
+          "mwr": "-0.098528915137663819",
+          "nav_gbp": "249.724660782400000000",
+          "net_investment_flows_gbp": "250.000000000000000000",
+          "pnl_gbp": "-0.275339217600000000",
+          "provisional": false,
+          "reconciliation_issue": null,
+          "reserved_planned_loss_gbp": "0E-18",
+          "schema_version": 1,
+          "synthetic_replay_counts_toward_promotion": false,
+          "tax_report_final": false,
+          "tax_reserve_estimate_gbp": null,
+          "twr_since_inception": "-0.001101356870400000",
+          "unit_price": "0.998898643129600000"
+        },
+        "schema_version": 1,
+        "state": {
+          "account_evidence_at": "2026-10-18T00:00:00.700000Z",
+          "account_id": "6e04530b-9382-418d-9a24-331672f4016b",
+          "as_of": "2026-10-18T00:00:00.700000Z",
+          "balances": [
+            {
+              "asset": "GBP",
+              "cost_gbp": "249.724660782400000000",
+              "quantity": "249.724660782400000000",
+              "schema_version": 1
+            },
+            {
+              "asset": "BTC",
+              "cost_gbp": "0E-18",
+              "quantity": "0E-8",
+              "schema_version": 1
+            },
+            {
+              "asset": "ETH",
+              "cost_gbp": "0",
+              "quantity": "0",
+              "schema_version": 1
+            }
+          ],
+          "daily_day": "2026-10-18",
+          "daily_unit_price": "1",
+          "high_water": "1",
+          "inception_high_water": "1",
+          "incident": null,
+          "kill": {
+            "actor": "risk",
+            "daily_day": null,
+            "hard": false,
+            "latched_at": null,
+            "policy_epoch": "901a2a37-9a64-43b7-937d-e5e72852cb31",
+            "reason": null,
+            "schema_version": 1,
+            "soft": false
+          },
+          "last_unit_price": "0.998898643129600000",
+          "marks": [
+            {
+              "asset": "BTC",
+              "bid_gbp": "999",
+              "observed_at": "2026-10-18T00:00:00.700000Z",
+              "schema_version": 1,
+              "source": "synthetic-replay-book"
+            }
+          ],
+          "orders": [
+            {
+              "approval": {
+                "allowed": true,
+                "approved_at": "2026-10-18T00:00:00Z",
+                "expires_at": "2026-10-18T00:00:02Z",
+                "id": "27ef9506-3594-413d-9bed-5d3c745b1c5a",
+                "intent_hash": "9713e5425b2c49a33c7d37b694053c0f12a086dfdf0bf86ec2753861c9527c5d",
+                "intent_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "planned_loss": "1.249999861860000000",
+                "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+                "reasons": [],
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "state_version": 5
+              },
+              "filled": "0.016204050000000000",
+              "intent": {
+                "allowance_per_unit": "2.002000000000000000",
+                "client_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "created_at": "2026-10-18T00:00:00Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2026-10-18T00:00:02Z",
+                "fee_bound": "0.008",
+                "id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "limit_price": "1001.0",
+                "operator_reason": null,
+                "parent_id": null,
+                "protective_limit": "941.4",
+                "purpose": "entry",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "buy",
+                "stop_trigger": "950.9",
+                "strategy_version": "slow-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "FOK"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "FILLED",
+              "submitted_at": "2026-10-18T00:00:00Z",
+              "triggered": false,
+              "venue_id": "paper-626758c4-c7f0-444f-97b7-4c7cb4e3a3ea"
+            },
+            {
+              "approval": null,
+              "filled": "0",
+              "intent": {
+                "allowance_per_unit": "0",
+                "client_id": "f82c9141-b180-56a0-a748-9bb4bd25d535",
+                "created_at": "2026-10-18T00:00:00.300000Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2036-10-15T00:00:00.300000Z",
+                "fee_bound": "0.008",
+                "id": "f82c9141-b180-56a0-a748-9bb4bd25d535",
+                "limit_price": "941.4",
+                "operator_reason": null,
+                "parent_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "protective_limit": "0",
+                "purpose": "protection",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "sell",
+                "stop_trigger": "950.9",
+                "strategy_version": "safety-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "GTC"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "CANCELLED",
+              "submitted_at": "2026-10-18T00:00:00.300000Z",
+              "triggered": false,
+              "venue_id": "paper-f82c9141-b180-56a0-a748-9bb4bd25d535"
+            },
+            {
+              "approval": null,
+              "filled": "0.016204050000000000",
+              "intent": {
+                "allowance_per_unit": "0",
+                "client_id": "97b5568c-8117-4d44-b307-a927c390713d",
+                "created_at": "2026-10-18T00:00:00.400000Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2026-10-18T00:00:02.400000Z",
+                "fee_bound": "0.008",
+                "id": "97b5568c-8117-4d44-b307-a927c390713d",
+                "limit_price": "997.1",
+                "operator_reason": null,
+                "parent_id": null,
+                "protective_limit": "0",
+                "purpose": "exit",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "sell",
+                "stop_trigger": "0",
+                "strategy_version": "safety-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "IOC"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "FILLED",
+              "submitted_at": "2026-10-18T00:00:00.400000Z",
+              "triggered": false,
+              "venue_id": "paper-97b5568c-8117-4d44-b307-a927c390713d"
+            }
+          ],
+          "ready": true,
+          "reconciled_at": "2026-10-18T00:00:00.700000Z",
+          "schema_version": 1,
+          "tax_reserve_gbp": "0",
+          "units": "250.000000000000000000",
+          "version": 22
+        },
+        "strategy": {
+          "decisions": [],
+          "promotion_evidence": false,
+          "qualifying_days": 0,
+          "qualifying_episodes": 0,
+          "selection": null
+        }
+      },
+      "archive_cli": {
+        "application_version": "0.4.16",
+        "archive": {
+          "archive_bytes": 1421,
+          "archive_sha256": "f58fad6ac8941a37ca516a68a7d14b9ca09718ea46625fba650ab160f2d993f9",
+          "context": {
+            "account_id": "6e04530b-9382-418d-9a24-331672f4016b",
+            "application_version": "0.4.16",
+            "baseline_number": 0,
+            "created_at": "2026-10-21T21:07:38.715411Z",
+            "cursor_count": 1,
+            "database_audit_report_hash": "82a60178fa9deaf9729fe9e9700b6e5cedb521bbbd619b34a34ded3ea1f72e5a",
+            "database_semantics_checked_at_export": true,
+            "financial_hash": "c7d25397373a8d169016e7e9e2d8c92c796b0207f01337293a073cabe83e7d7b",
+            "financial_state_hash": "da4ed066a497367b1a793db15c0e23f271b2b737612255de577977aafe2da34f",
+            "financial_version": 22,
+            "head_cursor_hash": "3326aeaad761024736d38847243f35f27f293a5d35b69004c0adddea8b9eb10f",
+            "head_number": 0,
+            "head_valuation_hash": "cba657fce95715852b6f3641e9f5f69935092ff268056233abac0496c88316d6",
+            "kind": "replay-preservation-v1",
+            "live_execution_available": false,
+            "opening_cursor_previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+            "promotion_evidence": false,
+            "pruning_authorised": false,
+            "schema_version": 1,
+            "usable_as_operational_prefix": false,
+            "valuation_count": 1
+          },
+          "database_semantics_rechecked": false,
+          "decoded_segment_bytes": 3356,
+          "financial_records_included": false,
+          "integrity_verified": true,
+          "live_execution_available": false,
+          "promotion_evidence": false,
+          "pruning_authorised": false,
+          "schema_version": 1,
+          "segments": 1,
+          "source_bindings_verified": true,
+          "usable_as_operational_prefix": false
+        },
+        "corrupt_archive_blocks_online_report": true,
+        "database_mutations": 0,
+        "live_execution_available": false,
+        "offline_verification_without_credentials": true,
+        "online_archived_report_matches_sql": true,
+        "online_daily_report_checked": true,
+        "package_source_sha256": "04965b12cdc9b06db649ebaba3f9ec5684ec07371f48ba9876d3af5dc4f56bdf",
+        "passed": true,
+        "promotion_evidence": false,
+        "qualifying_days": 0,
+        "qualifying_episodes": 0,
+        "temporary_files_removed": true,
+        "truncated_archive_rejected": true,
+        "wrong_account_rejected": true
+      },
+      "after_restart": {
+        "as_of": "2026-10-21T21:07:51.007204+00:00",
+        "live_execution_available": false,
+        "mode": "paper",
+        "performance": {
+          "as_of": "2026-10-21T21:07:51.007204+00:00",
+          "drawdown": "0.001101356870400000",
+          "exposure_gbp": "0E-18",
+          "fees_gbp": "0.259135167600000000",
+          "free_cash_gbp": "249.724660782400000000",
+          "inception_drawdown": "0.001101356870400000",
+          "live_execution_available": false,
+          "manual_tax_cash_reserve_gbp": "0",
+          "mode": "paper",
+          "mwr": "-0.098525078164437769",
+          "nav_gbp": "249.724660782400000000",
+          "net_investment_flows_gbp": "250.000000000000000000",
+          "pnl_gbp": "-0.275339217600000000",
+          "provisional": false,
+          "reconciliation_issue": null,
+          "reserved_planned_loss_gbp": "0E-18",
+          "schema_version": 1,
+          "synthetic_replay_counts_toward_promotion": false,
+          "tax_report_final": false,
+          "tax_reserve_estimate_gbp": null,
+          "twr_since_inception": "-0.001101356870400000",
+          "unit_price": "0.998898643129600000"
+        },
+        "schema_version": 1,
+        "state": {
+          "account_evidence_at": "2026-10-18T00:00:00.700000Z",
+          "account_id": "6e04530b-9382-418d-9a24-331672f4016b",
+          "as_of": "2026-10-18T00:00:00.700000Z",
+          "balances": [
+            {
+              "asset": "GBP",
+              "cost_gbp": "249.724660782400000000",
+              "quantity": "249.724660782400000000",
+              "schema_version": 1
+            },
+            {
+              "asset": "BTC",
+              "cost_gbp": "0E-18",
+              "quantity": "0E-8",
+              "schema_version": 1
+            },
+            {
+              "asset": "ETH",
+              "cost_gbp": "0",
+              "quantity": "0",
+              "schema_version": 1
+            }
+          ],
+          "daily_day": "2026-10-18",
+          "daily_unit_price": "1",
+          "high_water": "1",
+          "inception_high_water": "1",
+          "incident": null,
+          "kill": {
+            "actor": "risk",
+            "daily_day": null,
+            "hard": false,
+            "latched_at": null,
+            "policy_epoch": "901a2a37-9a64-43b7-937d-e5e72852cb31",
+            "reason": null,
+            "schema_version": 1,
+            "soft": false
+          },
+          "last_unit_price": "0.998898643129600000",
+          "marks": [
+            {
+              "asset": "BTC",
+              "bid_gbp": "999",
+              "observed_at": "2026-10-18T00:00:00.700000Z",
+              "schema_version": 1,
+              "source": "synthetic-replay-book"
+            }
+          ],
+          "orders": [
+            {
+              "approval": {
+                "allowed": true,
+                "approved_at": "2026-10-18T00:00:00Z",
+                "expires_at": "2026-10-18T00:00:02Z",
+                "id": "27ef9506-3594-413d-9bed-5d3c745b1c5a",
+                "intent_hash": "9713e5425b2c49a33c7d37b694053c0f12a086dfdf0bf86ec2753861c9527c5d",
+                "intent_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "planned_loss": "1.249999861860000000",
+                "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+                "reasons": [],
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "state_version": 5
+              },
+              "filled": "0.016204050000000000",
+              "intent": {
+                "allowance_per_unit": "2.002000000000000000",
+                "client_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "created_at": "2026-10-18T00:00:00Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2026-10-18T00:00:02Z",
+                "fee_bound": "0.008",
+                "id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "limit_price": "1001.0",
+                "operator_reason": null,
+                "parent_id": null,
+                "protective_limit": "941.4",
+                "purpose": "entry",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "buy",
+                "stop_trigger": "950.9",
+                "strategy_version": "slow-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "FOK"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "FILLED",
+              "submitted_at": "2026-10-18T00:00:00Z",
+              "triggered": false,
+              "venue_id": "paper-626758c4-c7f0-444f-97b7-4c7cb4e3a3ea"
+            },
+            {
+              "approval": null,
+              "filled": "0",
+              "intent": {
+                "allowance_per_unit": "0",
+                "client_id": "f82c9141-b180-56a0-a748-9bb4bd25d535",
+                "created_at": "2026-10-18T00:00:00.300000Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2036-10-15T00:00:00.300000Z",
+                "fee_bound": "0.008",
+                "id": "f82c9141-b180-56a0-a748-9bb4bd25d535",
+                "limit_price": "941.4",
+                "operator_reason": null,
+                "parent_id": "626758c4-c7f0-444f-97b7-4c7cb4e3a3ea",
+                "protective_limit": "0",
+                "purpose": "protection",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "sell",
+                "stop_trigger": "950.9",
+                "strategy_version": "safety-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "GTC"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "CANCELLED",
+              "submitted_at": "2026-10-18T00:00:00.300000Z",
+              "triggered": false,
+              "venue_id": "paper-f82c9141-b180-56a0-a748-9bb4bd25d535"
+            },
+            {
+              "approval": null,
+              "filled": "0.016204050000000000",
+              "intent": {
+                "allowance_per_unit": "0",
+                "client_id": "97b5568c-8117-4d44-b307-a927c390713d",
+                "created_at": "2026-10-18T00:00:00.400000Z",
+                "episode_id": "277260a7-ec49-4ede-b5ba-385bae9ff946",
+                "expires_at": "2026-10-18T00:00:02.400000Z",
+                "fee_bound": "0.008",
+                "id": "97b5568c-8117-4d44-b307-a927c390713d",
+                "limit_price": "997.1",
+                "operator_reason": null,
+                "parent_id": null,
+                "protective_limit": "0",
+                "purpose": "exit",
+                "quantity": "0.01620405",
+                "rules_hash": "1e12924bc442c25b32ec0c64c5f4a7e8b5592053522f780ef302130967acbd59",
+                "schema_version": 1,
+                "side": "sell",
+                "stop_trigger": "0",
+                "strategy_version": "safety-v1",
+                "symbol": "BTC/GBP",
+                "time_in_force": "IOC"
+              },
+              "pending_operation": null,
+              "schema_version": 1,
+              "state": "FILLED",
+              "submitted_at": "2026-10-18T00:00:00.400000Z",
+              "triggered": false,
+              "venue_id": "paper-97b5568c-8117-4d44-b307-a927c390713d"
+            }
+          ],
+          "ready": true,
+          "reconciled_at": "2026-10-18T00:00:00.700000Z",
+          "schema_version": 1,
+          "tax_reserve_gbp": "0",
+          "units": "250.000000000000000000",
+          "version": 22
+        },
+        "strategy": {
+          "decisions": [],
+          "promotion_evidence": false,
+          "qualifying_days": 0,
+          "qualifying_episodes": 0,
+          "selection": null
+        }
+      },
+      "retained_containers_unchanged": true,
+      "image_id": "sha256:1ad8496d8281560d88198e45dd08ec51b0aae3531c18eb945f84b21e210e043c",
+      "passed": true
+    }
+  },
+  "measurement_protocol": {
+    "original_operational_budgets_seconds": {
+      "financial_writer_startup": 30,
+      "replay_startup_audit": 20,
+      "historical_report": 20,
+      "replay_audit_after_writer_acquisition": 10,
+      "scheduled_daily_summary": 15
+    },
+    "archive_subset_budgets_seconds": {
+      "historical_report": 20,
+      "combined_writer_startup": 20,
+      "replay_audit_after_writer_acquisition": 10,
+      "scheduled_daily_summary": 15
+    },
+    "operations_child_timeout_seconds": 600,
+    "preservation_child_timeout_seconds": 900,
+    "offline_export_timeout_seconds": 600,
+    "diagnostic_operation_timeout_seconds": 60,
+    "file_input_does_not_replace_original_trial": true,
+    "cash_only_fixture_is_not_full_loaded_strategy_or_ingestion_evidence": true
+  },
+  "harness_sha256": {
+    "scripts/capacity_trial.py": "43667b7109fd7a3a87eb538e6a4fb9263e2dbd6ea95cf615943c894b135a8050",
+    "tests/capacity_fixture.py": "240e45d059b1ba9f687df2b0510130c114daab36b8652bf06f9eefc07571aabb",
+    ".github/workflows/ci.yaml": "44b70e4210deff210aedcffa0749a84d3edc518c9177f4181545729fe49af02a"
+  },
+  "operations_trial": {
+    "status": "measured",
+    "trial_mode": "operations",
+    "56_day_headroom_demonstrated": false,
+    "application_version": "0.4.16",
+    "bulk_seed_is_ingestion_measurement": false,
+    "certifi_version": "2026.10.19",
+    "configured_budget_bytes": 2000000000,
+    "cpu.max": "75000 100000",
+    "cpu_seconds": 92.77669515999999,
+    "database_bytes": 500823743,
+    "elapsed_seconds": 143.38640969,
+    "global_source_head": 99999,
+    "live_execution_available": false,
+    "max_rss_kib": 120640,
+    "measured_boundary_failures": [],
+    "memory.max": "805306368",
+    "memory.peak": "104910848",
+    "observations_per_56_days_at_1hz": 4838400,
+    "one_second_loop": {
+      "elapsed_seconds": 19.446760632999997,
+      "financial_events_before_startup": 100000,
+      "healthy_ticks": 20,
+      "max_tick_seconds": 0.07953683300002012,
+      "mean_tick_seconds": 0.035860922949999006,
+      "ticks": 20,
+      "venue_commands": 0
+    },
+    "operational_budgets_exercised": true,
+    "operations": {
+      "financial_writer_startup": {
+        "deadline_seconds": 30,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 6.7328971279999905
+      },
+      "historical_report": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 15.505656090000002
+      },
+      "replay_audit_after_writer_acquisition": {
+        "deadline_seconds": 10,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 8.81804375400003
+      },
+      "replay_startup_audit": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 17.082351717000023
+      },
+      "scheduled_daily_summary": {
+        "deadline_seconds": 15,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 14.682513631000006
+      }
+    },
+    "package_source_sha256": "04965b12cdc9b06db649ebaba3f9ec5684ec07371f48ba9876d3af5dc4f56bdf",
+    "promotion_evidence": false,
+    "record_limits": {
+      "events": 100000,
+      "public_receipts": 99999,
+      "valuations": 100000
+    },
+    "relations": [
+      {
+        "bytes": 24576,
+        "n_live_tup": 1,
+        "relname": "alembic_version"
+      },
+      {
+        "bytes": 32768,
+        "n_live_tup": 0,
+        "relname": "audit_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "configuration_versions"
+      },
+      {
+        "bytes": 36143104,
+        "n_live_tup": 99999,
+        "relname": "market_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_accounting_operations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_accounts"
+      },
+      {
+        "bytes": 65536,
+        "n_live_tup": 5,
+        "relname": "paper_alerts"
+      },
+      {
+        "bytes": 1974272,
+        "n_live_tup": 1564,
+        "relname": "paper_checkpoints"
+      },
+      {
+        "bytes": 123854848,
+        "n_live_tup": 200006,
+        "relname": "paper_events"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_fills"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 4,
+        "relname": "paper_journal_lines"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 2,
+        "relname": "paper_journals"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_movements"
+      },
+      {
+        "bytes": 8192,
+        "n_live_tup": 0,
+        "relname": "paper_notice_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_notices"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_notification_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_notification_reviews"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_order_identities"
+      },
+      {
+        "bytes": 62644224,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_cursors"
+      },
+      {
+        "bytes": 208969728,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_valuations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_decisions"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_results"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_selections"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_tax_reserves"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 0,
+        "relname": "paper_venue_events"
+      },
+      {
+        "bytes": 57982976,
+        "n_live_tup": 99999,
+        "relname": "public_replay_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "public_trades"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "research_artifacts"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "research_events"
+      }
+    ],
+    "seed_seconds": 36.052497224999996,
+    "value_limit_days_at_1hz": 1.1574074074074074,
+    "cleanup_complete": true
+  },
+  "preservation_and_input_trial": {
+    "status": "measured",
+    "trial_mode": "preservation",
+    "56_day_headroom_demonstrated": false,
+    "application_version": "0.4.16",
+    "archive_input": {
+      "economic_equivalence_verified": true,
+      "financial_history_still_audited_in_full": true,
+      "measured_boundary_failures": [
+        "historical_report",
+        "combined_writer_startup",
+        "replay_audit_after_writer_acquisition",
+        "scheduled_daily_summary"
+      ],
+      "measurements": {
+        "combined_writer_startup": {
+          "deadline_seconds": 20,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "deadline_exceeded",
+          "seconds": 25.267597553000087
+        },
+        "historical_report": {
+          "deadline_seconds": 20,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "deadline_exceeded",
+          "seconds": 26.254607302999943
+        },
+        "replay_audit_after_writer_acquisition": {
+          "deadline_seconds": 10,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "deadline_exceeded",
+          "seconds": 20.181186217999993
+        },
+        "scheduled_daily_summary": {
+          "deadline_seconds": 15,
+          "measurement_timeout_seconds": 60,
+          "operation_finished": true,
+          "outcome": "deadline_exceeded",
+          "seconds": 30.339898888999983
+        }
+      },
+      "prefix_pruning_available": false,
+      "retained_rows_removed": 0
+    },
+    "bulk_seed_is_ingestion_measurement": false,
+    "certifi_version": "2026.10.19",
+    "configured_budget_bytes": 2000000000,
+    "cpu.max": "75000 100000",
+    "cpu_seconds": 164.545054923,
+    "database_bytes": 436074175,
+    "elapsed_seconds": 343.04208819900003,
+    "global_source_head": 99999,
+    "live_execution_available": false,
+    "max_rss_kib": 121268,
+    "measured_boundary_failures": [],
+    "memory.max": "805306368",
+    "memory.peak": "129892352",
+    "observations_per_56_days_at_1hz": 4838400,
+    "operational_budgets_exercised": false,
+    "operations": {},
+    "package_source_sha256": "04965b12cdc9b06db649ebaba3f9ec5684ec07371f48ba9876d3af5dc4f56bdf",
+    "promotion_evidence": false,
+    "record_limits": {
+      "events": 100000,
+      "public_receipts": 99999,
+      "valuations": 100000
+    },
+    "relations": [
+      {
+        "bytes": 24576,
+        "n_live_tup": 1,
+        "relname": "alembic_version"
+      },
+      {
+        "bytes": 32768,
+        "n_live_tup": 0,
+        "relname": "audit_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "configuration_versions"
+      },
+      {
+        "bytes": 36118528,
+        "n_live_tup": 99999,
+        "relname": "market_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_accounting_operations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 1,
+        "relname": "paper_accounts"
+      },
+      {
+        "bytes": 65536,
+        "n_live_tup": 1,
+        "relname": "paper_alerts"
+      },
+      {
+        "bytes": 999424,
+        "n_live_tup": 782,
+        "relname": "paper_checkpoints"
+      },
+      {
+        "bytes": 60334080,
+        "n_live_tup": 100000,
+        "relname": "paper_events"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_fills"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 2,
+        "relname": "paper_journal_lines"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 1,
+        "relname": "paper_journals"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 1,
+        "relname": "paper_movements"
+      },
+      {
+        "bytes": 8192,
+        "n_live_tup": 0,
+        "relname": "paper_notice_receipts"
+      },
+      {
+        "bytes": 40960,
+        "n_live_tup": 0,
+        "relname": "paper_notices"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_notification_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_notification_reviews"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_order_identities"
+      },
+      {
+        "bytes": 62636032,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_cursors"
+      },
+      {
+        "bytes": 208961536,
+        "n_live_tup": 100000,
+        "relname": "paper_replay_valuations"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_decisions"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_results"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "paper_strategy_selections"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "paper_tax_reserves"
+      },
+      {
+        "bytes": 49152,
+        "n_live_tup": 0,
+        "relname": "paper_venue_events"
+      },
+      {
+        "bytes": 57958400,
+        "n_live_tup": 99999,
+        "relname": "public_replay_events"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "public_trades"
+      },
+      {
+        "bytes": 16384,
+        "n_live_tup": 0,
+        "relname": "research_artifacts"
+      },
+      {
+        "bytes": 24576,
+        "n_live_tup": 0,
+        "relname": "research_events"
+      }
+    ],
+    "replay_preservation": {
+      "archive": {
+        "archive_bytes": 23802435,
+        "archive_sha256": "8eaea689af7521e0cd8e4d0c54daddb6120612b0931f6e46154e6595aa628cf0",
+        "context": {
+          "account_id": "52ad3964-164d-45d7-ac41-2d10a0cfb030",
+          "application_version": "0.4.16",
+          "baseline_number": 0,
+          "created_at": "2026-10-21T22:41:01.308273Z",
+          "cursor_count": 100000,
+          "database_audit_report_hash": "044606944fa45fb7d6d98752d4ebe7f27d19ac039c59fa2f2a405b5ba6f45d27",
+          "database_semantics_checked_at_export": true,
+          "financial_hash": "aa1e07fc042b32cc1277ebbee56f58611b857b2ebd08b9abe65330e703377b72",
+          "financial_state_hash": "c1fd2f7914957b07f270cf73a6ada7ecdf60fe4fa7da34a75f61b8a922257080",
+          "financial_version": 100000,
+          "head_cursor_hash": "82751b76be95de33b8bf8531eb5b68078b841b243cb5446e4a2ebaac2285d957",
+          "head_number": 99999,
+          "head_valuation_hash": "c48959ff3915d801428143a2fd046626fc51a9f2fbf37d7019a185d73897f1f6",
+          "kind": "replay-preservation-v1",
+          "live_execution_available": false,
+          "opening_cursor_previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+          "promotion_evidence": false,
+          "pruning_authorised": false,
+          "schema_version": 1,
+          "usable_as_operational_prefix": false,
+          "valuation_count": 100000
+        },
+        "database_semantics_rechecked": false,
+        "decoded_segment_bytes": 298786135,
+        "financial_records_included": false,
+        "integrity_verified": true,
+        "live_execution_available": false,
+        "promotion_evidence": false,
+        "pruning_authorised": false,
+        "schema_version": 1,
+        "segments": 1563,
+        "source_bindings_verified": true,
+        "usable_as_operational_prefix": false
+      },
+      "cold_storage_capacity_demonstrated": false,
+      "export_seconds": 187.65542579400005,
+      "independent_verify_seconds": 16.405907383,
+      "operational_read_path_uses_archive": true,
+      "pruned_records": 0
+    },
+    "seed_seconds": 36.90682393399999,
+    "value_limit_days_at_1hz": 1.1574074074074074,
+    "cleanup_complete": true
+  },
+  "trust": {
+    "export_claim_is_not_audit_authority": true,
+    "retained_database_anchors_required": true,
+    "complete_file_and_sources_verified": true,
+    "financial_history_reconstructed": true,
+    "sql_tail_reconstructed": true,
+    "current_writer_file_fault_latched": true,
+    "independent_audit_certificate_implemented": false,
+    "financial_prefix_archive_implemented": false,
+    "pruning_authorised": false,
+    "records_pruned": 0
+  },
+  "retained_installation": {
+    "application_version": "0.4.8",
+    "database_revision": "0011_notification_reviews",
+    "app_container": "d3a2ecbb4031",
+    "database_container": "96adb63d0930",
+    "upgraded": false,
+    "migrated": false,
+    "full_database_fingerprint_compared": false
+  },
+  "decision": {
+    "closed_conditions": [],
+    "fixed_checklist_complete": 12,
+    "fixed_checklist_total": 17,
+    "C3_condition_4": "open",
+    "C4": "open",
+    "G2": "not approved",
+    "56_day_headroom_demonstrated": false,
+    "qualifying_days": 0,
+    "qualifying_episodes": 0,
+    "qualifying_observation_started": false,
+    "research_candidates_rejected": 20,
+    "holdout_opened": false,
+    "live_execution_available": false,
+    "hosted_exact_head_results": "recorded in the pull request after completion"
+  },
+  "ci_followup": {
+    "date": "2026-10-22",
+    "initial_head": "e9fe618948fd7bc494424f3faf8f286dab11996d",
+    "initial_push_run": 39689062745,
+    "initial_pr_run": 39689084372,
+    "outcome": "Both verify jobs reached their 20-minute outer CI wall limit during packaged smoke; security scans were skipped. Both separate archive jobs completed.",
+    "verify_job_timeout_minutes_before": 20,
+    "verify_job_timeout_minutes_after": 30,
+    "preservation_job_timeout_minutes": 20,
+    "child_and_operational_deadlines_changed": false,
+    "runtime_source_changed": false,
+    "package_source_sha256": "04965b12cdc9b06db649ebaba3f9ec5684ec07371f48ba9876d3af5dc4f56bdf",
+    "workflow_sha256": "d98e2eca9cd13ee896d73a42df0fb5c3ded0d4a9189068216d29ba0ecbdcb694",
+    "hosted_archive_result": "Report, writer acquisition and summary hit their 60-second diagnostic limits; replay-after-acquisition was unexercised. Equivalence was not established on those runners; local equivalence evidence remains separate.",
+    "local_strategy_and_archive_cli_smoke": {
+      "project": "aca-c3-archive-run-smoke-96027319a1e5",
+      "image_id": "sha256:68b338132a38bd7a6885b985b3d49d4044ac6daaf6311727bd4c40ac14d5506c",
+      "passed": true,
+      "strategy": {
+        "account_id": "c0e44fce-9604-4484-86ad-21ddd063ec75",
+        "database_ready": false,
+        "fill_replay_enabled": true,
+        "foundation_ready": false,
+        "healthy_ticks": 0,
+        "incomplete_safety_requirements": [
+          "authenticated_account_reads_not_implemented",
+          "local_paper_safety_review_not_complete",
+          "extended_paper_validation_not_complete",
+          "research_promotion_gate_not_passed",
+          "live_reconciliation_not_implemented",
+          "live_execution_not_implemented"
+        ],
+        "kind": "paper_strategy_runner_v1",
+        "last_tick_seconds": 0.048156625000046915,
+        "live_execution_available": false,
+        "market_ready": false,
+        "mode": "paper",
+        "operational_only": true,
+        "phase": 4,
+        "promotion_evidence": false,
+        "qualifying_days": 0,
+        "qualifying_episodes": 0,
+        "reason": "paper_supervisor_stopped",
+        "reconciled": false,
+        "replay_archive_sha256": null,
+        "replay_cursor": 0,
+        "replay_processed": 0,
+        "replay_skipped_trades": 0,
+        "schema_ready": false,
+        "strategy_decisions_this_process": 0,
+        "strategy_dispatch_enabled": true,
+        "strategy_reason": null,
+        "strategy_watermark": null,
+        "supervision_ready": false,
+        "ticks": 3,
+        "trading_ready": false
+      },
+      "archive_cli": {
+        "application_version": "0.4.16",
+        "archive": {
+          "archive_bytes": 1422,
+          "archive_sha256": "7ea7f0902665b1bc473aace03f1f5b0870096bc1fd9ddfa4f7a2c28f5ba3bcd7",
+          "context": {
+            "account_id": "6e04530b-9382-418d-9a24-331672f4016b",
+            "application_version": "0.4.16",
+            "baseline_number": 0,
+            "created_at": "2026-10-21T23:10:45.076293Z",
+            "cursor_count": 1,
+            "database_audit_report_hash": "465941ad8f5af1810e16475487b7c920fc166065badd0db885bf2d11cf05beec",
+            "database_semantics_checked_at_export": true,
+            "financial_hash": "43152873fdc7cb090cb10c81536b47600f9c122197a8121ad2044e60832f7312",
+            "financial_state_hash": "f2a703d10cacbffc62381b4c2200410813479aeda47e23d2b3c267c0037b5e7a",
+            "financial_version": 22,
+            "head_cursor_hash": "3326aeaad761024736d38847243f35f27f293a5d35b69004c0adddea8b9eb10f",
+            "head_number": 0,
+            "head_valuation_hash": "5bc80ea93a4626c104fc909917a7d348edd172c6f2bf5ca62db9b171b9bb7057",
+            "kind": "replay-preservation-v1",
+            "live_execution_available": false,
+            "opening_cursor_previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+            "promotion_evidence": false,
+            "pruning_authorised": false,
+            "schema_version": 1,
+            "usable_as_operational_prefix": false,
+            "valuation_count": 1
+          },
+          "database_semantics_rechecked": false,
+          "decoded_segment_bytes": 3356,
+          "financial_records_included": false,
+          "integrity_verified": true,
+          "live_execution_available": false,
+          "promotion_evidence": false,
+          "pruning_authorised": false,
+          "schema_version": 1,
+          "segments": 1,
+          "source_bindings_verified": true,
+          "usable_as_operational_prefix": false
+        },
+        "corrupt_archive_blocks_online_report": true,
+        "database_mutations": 0,
+        "live_execution_available": false,
+        "offline_verification_without_credentials": true,
+        "online_archived_report_matches_sql": true,
+        "online_daily_report_checked": true,
+        "package_source_sha256": "04965b12cdc9b06db649ebaba3f9ec5684ec07371f48ba9876d3af5dc4f56bdf",
+        "passed": true,
+        "promotion_evidence": false,
+        "qualifying_days": 0,
+        "qualifying_episodes": 0,
+        "temporary_files_removed": true,
+        "truncated_archive_rejected": true,
+        "wrong_account_rejected": true
+      },
+      "retained_container_ids_unchanged": true
+    }
+  }
+}

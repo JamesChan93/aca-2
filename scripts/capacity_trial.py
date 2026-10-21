@@ -1,6 +1,6 @@
 """C3 bounded, repeatable capacity experiment on a new disposable database.
 
-No target arguments. --preservation selects the separate offline export trial.
+No target arguments. --preservation selects export, verification and online input measurements.
 Writes a measurement, including failures; a completed trial
 does not grant the 56-day capacity or operational acceptance gate. Host Python 3.9+.
 """
@@ -100,6 +100,7 @@ def main() -> int:
                         "56_day_headroom_demonstrated",
                         "measured_boundary_failures",
                         "replay_preservation",
+                        "archive_input",
                     )
                 },
                 sort_keys=True,

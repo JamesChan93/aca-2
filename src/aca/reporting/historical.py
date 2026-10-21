@@ -1,9 +1,12 @@
 """Read-only, source-bounded GBP performance from sealed paper evidence."""
 
 from collections import deque
+from collections.abc import Mapping
+from contextlib import aclosing
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal, localcontext
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, select, text
@@ -478,7 +481,7 @@ async def read_performance(
             "schema_version": 1,
             "report_type": "historical_paper_performance",
             "application_version": __version__,
-            "calculation_version": "historical-performance-v2",
+            "calculation_version": "historical-performance-v3",
             "account_id": str(store.account_id),
             "financial_head_version": financial.version,
             "requested_start_source": start_source,
@@ -545,7 +548,7 @@ async def read_performance(
     upper = head["number"] if end_source is None else end_source
     if lower < baseline.number or upper < lower or upper > head["number"]:
         raise ValueError("performance source range outside recorded history")
-    end_row = (
+    end_row: Mapping[Any, Any] | None = (
         (
             await c.execute(
                 select(valuations).where(
@@ -559,29 +562,28 @@ async def read_performance(
     if end_row is None:
         raise ValueError("performance endpoint must name an exact recorded source")
     end = reader.restore(end_row)
-    evidence = await _evidence(c, store, baseline, head_value if calendar else end)
+    evidence = await _evidence(c, store, baseline, head_value)
     previous, period = baseline, None
     # Exhaust the full audited prefix even for a report ending in the past.
     # Arithmetic uses already validated values; an invalid later record or a
     # missing suffix still prevents returning any accepted report.
-    async for row, value in reader.audited_values(c, current_cursor.number):
-        selected = (
-            calendar.observe(value)
-            if calendar
-            else value.number == lower or (period is not None and value.number <= upper)
-        )
-        if not calendar and value.number > upper:
-            continue
-        totals = period.totals if selected and period else Totals()
-        dated = _advance(previous, value, evidence, totals)
-        if selected:
-            if period is None:
-                period = Period(value, row["fingerprint"])
-            elif len(period.flows) <= MAX_RETURN_FLOWS:
-                period.flows.extend(dated)
-            period.observe(value)
-            end, end_row = value, row
-        previous = value
+    async with aclosing(reader.audited_values(c, current_cursor.number)) as values:
+        async for row, value in values:
+            selected = (
+                calendar.observe(value)
+                if calendar
+                else value.number == lower or (period is not None and value.number <= upper)
+            )
+            totals = period.totals if selected and period else Totals()
+            dated = _advance(previous, value, evidence, totals)
+            if selected:
+                if period is None:
+                    period = Period(value, row["fingerprint"])
+                elif len(period.flows) <= MAX_RETURN_FLOWS:
+                    period.flows.extend(dated)
+                period.observe(value)
+                end, end_row = value, row
+            previous = value
     if period is None:
         if calendar is not None:
             return PerformanceRead(financial, None, calendar)
@@ -595,7 +597,7 @@ async def read_performance(
         "schema_version": 1,
         "report_type": "historical_paper_performance",
         "application_version": __version__,
-        "calculation_version": "historical-performance-v2",
+        "calculation_version": "historical-performance-v3",
         "account_id": str(store.account_id),
         "mode": "paper",
         "scope": "recorded_historical_baseline_forward",
@@ -607,6 +609,7 @@ async def read_performance(
         "historical_head_source": head["number"],
         "historical_head_hash": head["fingerprint"],
         "cursor_hash": cursor["fingerprint"],
+        "replay_archive_sha256": store.replay_archive.sha256 if store.replay_archive else None,
         "unread_public_sources": await c.scalar(
             select(func.count())
             .select_from(public_events)

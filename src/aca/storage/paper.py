@@ -28,6 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from aca.accounting.ledger import apply_journals
 from aca.domain.trading import ZERO, Balance, Journal, PortfolioSnapshot, fingerprint
 from aca.portfolio.reserves import TaxReserveRecord, validate_reserve_transition
+from aca.storage.archive_format import ArchiveReference, FileIdentity
 from aca.storage.paper_projection import (
     CHECKPOINT_INTERVAL,
     delta,
@@ -142,8 +143,16 @@ class WriterUnavailable(RuntimeError):
 
 
 class PaperStore:
-    def __init__(self, engine: AsyncEngine, account_id: UUID) -> None:
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        account_id: UUID,
+        *,
+        replay_archive: ArchiveReference | None = None,
+    ) -> None:
         self.engine, self.account_id = engine, account_id
+        self.replay_archive = replay_archive
+        self.archive_identity: FileIdentity | None = None
 
     def _restore_row(
         self,
@@ -624,6 +633,8 @@ class PaperWriter:
         self.connection: AsyncConnection | None = None
         self.pid: int | None = None
         self.mutex = asyncio.Lock()
+        self.archive_checked = False
+        self.archive_faulted = False
 
     async def __aenter__(self) -> PaperWriter:
         connection = await self.store.engine.connect()
@@ -637,7 +648,20 @@ class PaperWriter:
             await connection.commit()
             self.connection = connection
             async with self.transaction() as c:
-                await self.store.audit(c)
+                if self.store.replay_archive is None:
+                    await self.store.audit(c)
+                else:
+                    # File integrity alone cannot authorise commands. Reconstruct
+                    # balances/units/flows against the complete financial history
+                    # before granting this writer to its caller.
+                    from aca.reporting.historical import read_performance
+
+                    read = await read_performance(c, self.store)
+                    if read.financial.accounting_invalidated or self.store.archive_identity is None:
+                        raise WriterUnavailable(
+                            "archive writer requires valid historical accounting"
+                        )
+            self.archive_checked = self.store.replay_archive is not None
             return self
         except BaseException:
             await connection.invalidate()
@@ -651,6 +675,7 @@ class PaperWriter:
             await self.connection.invalidate()
             await self.connection.close()
         self.connection = None
+        self.archive_checked = False
 
     @asynccontextmanager
     async def transaction(self) -> AsyncIterator[AsyncConnection]:
@@ -658,6 +683,18 @@ class PaperWriter:
             connection = self.connection
             if connection is None or connection.closed or connection.invalidated:
                 raise WriterUnavailable("paper writer connection unavailable")
+            if self.archive_faulted:
+                raise WriterUnavailable("required replay archive fault is latched for this writer")
+            if self.archive_checked:
+                reference, identity = self.store.replay_archive, self.store.archive_identity
+                if reference is None or identity is None:
+                    self.archive_faulted = True
+                    raise WriterUnavailable("required replay archive has not been verified")
+                try:
+                    reference.check_identity(identity)
+                except ValueError, OSError:
+                    self.archive_faulted = True
+                    raise
             async with connection.begin():
                 if await connection.scalar(text("SELECT pg_backend_pid()")) != self.pid:
                     raise WriterUnavailable("paper writer connection changed")
