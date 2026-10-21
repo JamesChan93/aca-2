@@ -434,7 +434,7 @@ async def test_historical_restore_rejects_inconsistent_nav_even_with_valid_hash(
             fingerprint=fingerprint({"previous": row["previous_hash"], "valuation": document}),
         )
         with pytest.raises(ValueError, match="NAV does not match"):
-            runner.history.restore(corrupt)  # type: ignore[arg-type]
+            runner.history.restore(corrupt)
 
 
 async def test_midnight_baseline_propagates_without_replacing_operator_halt_reason(

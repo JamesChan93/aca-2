@@ -5,6 +5,11 @@ paper-only foundation and opt-in, credential-free Kraken market capture for BTC/
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
 
+The [anchored archive reader](docs/phase-4-archive-input.md) can supply an explicit
+preserved replay prefix to reports and replay-enabled startup. It still requires
+retained database anchors and a complete financial audit. The fixed C3 capacity
+and retention condition remains open; this does not start qualifying paper observation.
+
 The [original project prompt and implementation context](docs/context/README.md)
 are preserved in the repository for future contributors.
 

@@ -101,7 +101,7 @@ class EvidenceValidator:
         self.cursor_number: int | None = None
         self.count = self.cursor_count = 0
 
-    def observe(self, observation: Observation) -> None:
+    def observe(self, observation: Observation) -> HistoricalValuation:
         context, row = self.context, observation.valuation
         if row.account_id != context.account_id:
             raise ValueError("archive valuation account mismatch")
@@ -176,6 +176,7 @@ class EvidenceValidator:
             self.cursor_hash, self.cursor_number = cursor.fingerprint, cursor.number
         self.previous, self.value_hash = value, row.fingerprint
         self.count += 1
+        return value
 
     def finish(self) -> None:
         c = self.context

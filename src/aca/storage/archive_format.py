@@ -13,6 +13,7 @@ import struct
 import tempfile
 import zlib
 from collections.abc import Generator
+from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO, Self, cast
 
@@ -29,6 +30,32 @@ MAX_ARCHIVE_BYTES = 2_000_000_000
 MAX_DECODED_BYTES = 8_000_000_000
 MAX_SEGMENTS = 100000
 EMPTY_HASH = "0" * 64
+type FileIdentity = tuple[int, int, int, int, int]
+
+
+def file_identity(info: os.stat_result) -> FileIdentity:
+    return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+
+@dataclass(frozen=True)
+class ArchiveReference:
+    """Explicit input for one process, never an archive acceptance certificate."""
+
+    path: Path
+    sha256: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.path, Path) or re.fullmatch(r"[a-f0-9]{64}", self.sha256) is None:
+            raise ValueError("archive path and independently retained lowercase SHA256 required")
+
+    def check_identity(self, expected: FileIdentity) -> None:
+        fd = os.open(self.path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or file_identity(info) != expected:
+                raise ValueError("required replay archive changed after validation")
+        finally:
+            os.close(fd)
 
 
 def object_from_bytes(data: bytes) -> dict[str, object]:
@@ -152,9 +179,11 @@ class ArchiveReader:
         self.manifest: dict[str, object] | None = None
         self.verified = False
         self.bytes_read = self.decoded_bytes = 0
+        self.identity: FileIdentity | None = None
 
     def rows(self) -> Generator[dict[str, object]]:
         self.manifest, self.verified = None, False
+        self.identity = None
         self.bytes_read = self.decoded_bytes = 0
         fd = os.open(self.path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
         with os.fdopen(fd, "rb") as stream:
@@ -196,8 +225,13 @@ class ArchiveReader:
                         or not isinstance(manifest["context"], dict)
                     ):
                         raise ValueError("archive manifest does not match its segments")
-                    if stream.read(1) or hasher.hexdigest() != self.expected:
+                    if (
+                        stream.read(1)
+                        or hasher.hexdigest() != self.expected
+                        or file_identity(os.fstat(stream.fileno())) != file_identity(info)
+                    ):
                         raise ValueError("archive suffix or expected SHA256 mismatch")
+                    self.identity = file_identity(info)
                     self.manifest, self.verified = manifest, True
                     return
                 if kind != 1 or not 0 < size <= MAX_COMPRESSED_BYTES or segments >= MAX_SEGMENTS:

@@ -176,6 +176,12 @@ all PostgreSQL records and supplies no operational prefix acceptance or pruning.
 It is part of condition 4's preservation implementation, not evidence that the
 processing deadlines or 56-day headroom have passed.
 
+The [0.4.16 anchored archive reader](phase-4-archive-input.md) supplies that prefix
+to online reports/startup only after checking retained database anchors and
+reconstructing financial economics. It retains every SQL record and leaves the
+financial audit proportional to the full prefix. It closes no checklist condition;
+capacity/retention measurements and remaining work stay under condition 4.
+
 This package does **not** introduce a generic backup-gap importer or a second
 backup architecture. Existing paper reconciliation is used where authoritative
 evidence exists. Missing evidence remains an explicit block; production recovery

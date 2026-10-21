@@ -28,6 +28,7 @@ from aca.simulation.paper import PaperExchange
 from aca.simulation.replay import ReplayPlan, demo_plan, run_replay
 from aca.simulation.stored_replay import StoredReplay
 from aca.storage.accounting import accounting_status
+from aca.storage.archive_format import ArchiveReference
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter, read_alerts
 from aca.storage.reserves import read_reserves
@@ -68,6 +69,9 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
+        if name in {"performance", "daily", "consume", "run", "supervise"}:
+            parser.add_argument("--archive", type=Path, help="explicit retained replay input")
+            parser.add_argument("--archive-sha256", help="independently retained file SHA256")
         if name in {"halt", "review"}:
             parser.add_argument("--reason", required=True)
         if name == "replay":
@@ -127,6 +131,17 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
+    archive_path, archive_hash = (
+        getattr(args, "archive", None),
+        getattr(args, "archive_sha256", None),
+    )
+    if (archive_path is None) != (archive_hash is None):
+        raise ValueError("--archive and --archive-sha256 must be supplied together")
+    archive = (
+        ArchiveReference(archive_path, archive_hash)
+        if archive_path is not None and archive_hash is not None
+        else None
+    )
     if args.action == "archive-verify":
         verified = verify_archive(args.input, args.sha256)
         context = verified["context"]
@@ -140,9 +155,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             args.duration,
             replay_enabled=args.action == "run" or args.replay,
             strategy_enabled=args.action == "run",
+            replay_archive=archive,
         )
     engine = create_engine(settings)
-    store = PaperStore(engine, args.account)
+    store = PaperStore(engine, args.account, replay_archive=archive)
     try:
         await verify_runtime(engine)
         if args.action == "archive-export":

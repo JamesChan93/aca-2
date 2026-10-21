@@ -15,7 +15,7 @@ from decimal import Decimal
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import monotonic, process_time
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 from process_worker import AT
@@ -30,6 +30,7 @@ from aca.observability.notices import daily_summary
 from aca.reporting.historical import MAX_REPORT_EVENTS, MAX_REPORT_VALUES, historical_performance
 from aca.reporting.replay_archive import export_archive, verify_archive
 from aca.simulation.stored_replay import ReplayCursor, ReplayReceipt, StoredReplay
+from aca.storage.archive_format import ArchiveReference
 from aca.storage.database import create_engine
 from aca.storage.migrate import migrate
 from aca.storage.models import MarketReceipt
@@ -246,29 +247,32 @@ async def run() -> None:
         }
         result["operations"] = {}
 
-        if not preservation_only:
+        async def measure(
+            name: str,
+            operation: Any,
+            deadline: float,
+            target: dict[str, Any] | None = None,
+        ) -> Any:
+            started, completed, returned = monotonic(), False, None
+            try:
+                # Diagnostic headroom never changes an acceptance deadline.
+                async with asyncio.timeout(60):
+                    returned = await operation()
+                completed = True
+            except TimeoutError:
+                pass
+            seconds = monotonic() - started
+            outcome = "completed" if completed and seconds <= deadline else "deadline_exceeded"
+            (result["operations"] if target is None else target)[name] = {
+                "seconds": seconds,
+                "deadline_seconds": deadline,
+                "outcome": outcome,
+                "operation_finished": completed,
+                "measurement_timeout_seconds": 60,
+            }
+            return returned
 
-            async def measure(name: str, operation: Any, deadline: float) -> None:
-                started = monotonic()
-                completed = False
-                try:
-                    # Keep the acceptance deadline unchanged, but allow a bounded
-                    # diagnostic tail so an overrun records its actual duration.
-                    # An operation finishing after its budget still fails it.
-                    async with asyncio.timeout(60):
-                        await operation()
-                    completed = True
-                except TimeoutError:
-                    pass
-                seconds = monotonic() - started
-                outcome = "completed" if completed and seconds <= deadline else "deadline_exceeded"
-                result["operations"][name] = {
-                    "seconds": seconds,
-                    "deadline_seconds": deadline,
-                    "outcome": outcome,
-                    "operation_finished": completed,
-                    "measurement_timeout_seconds": 60,
-                }
+        if not preservation_only:
 
             async def startup() -> None:
                 async with PaperWriter(store):
@@ -363,8 +367,9 @@ async def run() -> None:
                 ).mappings()
             ]
             result["global_source_head"] = await c.scalar(select(func.max(public_events.c.number)))
-        # Preservation-format evidence only. Runtime readers continue using the
-        # original database prefix; exporting a file does not close any deadline.
+        # The original operational trial still uses PostgreSQL. The separately
+        # exported prefix also exercises the explicit online input path; these
+        # subset measurements cannot stand in for the full C3 workload.
         if preservation_only:
             with TemporaryDirectory(prefix="aca-replay-preservation-") as temporary:
                 path = Path(temporary) / "replay.aca"
@@ -382,8 +387,74 @@ async def run() -> None:
                     "independent_verify_seconds": verify_seconds,
                     "archive": verified,
                     "pruned_records": 0,
-                    "operational_read_path_uses_archive": False,
+                    "operational_read_path_uses_archive": True,
                     "cold_storage_capacity_demonstrated": False,
+                }
+                reference = ArchiveReference(path, str(exported["archive_sha256"]))
+                online_store = PaperStore(engine, store.account_id, replay_archive=reference)
+                measurements: dict[str, Any] = {}
+                online_report = await measure(
+                    "historical_report",
+                    lambda: historical_performance(online_store),
+                    20,
+                    measurements,
+                )
+                same = None
+                if online_report is not None:
+                    sql_document = {
+                        **{k: v for k, v in online_report.items() if k != "report_hash"},
+                        "replay_archive_sha256": None,
+                    }
+                    same = (
+                        fingerprint(sql_document)
+                        == cast(dict[str, Any], exported["context"])["database_audit_report_hash"]
+                    )
+                    if not same:
+                        raise ValueError("archived report differs from the audited export snapshot")
+                archive_owner = PaperWriter(online_store)
+                acquired = False
+
+                async def archive_startup() -> None:
+                    nonlocal acquired
+                    await archive_owner.__aenter__()
+                    acquired = True
+
+                try:
+                    await measure("combined_writer_startup", archive_startup, 20, measurements)
+                    if acquired:
+                        archive_venue = NoCommands(online_store)
+                        archive_replay = StoredReplay(
+                            PaperExecution(archive_owner, archive_venue), archive_venue
+                        )
+                        await measure(
+                            "replay_audit_after_writer_acquisition",
+                            archive_replay.audit,
+                            10,
+                            measurements,
+                        )
+                finally:
+                    if acquired:
+                        await archive_owner.__aexit__()
+
+                async def archived_summary() -> None:
+                    async with engine.connect() as c:
+                        await c.execution_options(
+                            isolation_level="REPEATABLE READ", postgresql_readonly=True
+                        )
+                        await daily_summary(c, online_store, AT.date())
+
+                await measure("scheduled_daily_summary", archived_summary, 15, measurements)
+                result["archive_input"] = {
+                    "measurements": measurements,
+                    "economic_equivalence_verified": same,
+                    "financial_history_still_audited_in_full": online_report is not None,
+                    "prefix_pruning_available": False,
+                    "retained_rows_removed": 0,
+                    "measured_boundary_failures": [
+                        key
+                        for key, value in measurements.items()
+                        if value["outcome"] != "completed"
+                    ],
                 }
         result["cpu_seconds"] = process_time() - cpu
         result["max_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss

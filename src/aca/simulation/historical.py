@@ -1,6 +1,7 @@
 """Original-observation paper economics, independent of financial import time."""
 
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncGenerator, Mapping
+from contextlib import aclosing
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -100,7 +101,7 @@ class HistoricalReplay:
         self.store, self.venue, self.policy = store, venue, policy
         self.policy_hash = fingerprint(policy.model_dump(mode="json"))
 
-    def restore(self, row: RowMapping, previous: str | None = None) -> HistoricalValuation:
+    def restore(self, row: Mapping[Any, Any], previous: str | None = None) -> HistoricalValuation:
         return restore_valuation(row, self.store.account_id, self.policy_hash, previous)
 
     async def latest(self, c: AsyncConnection) -> RowMapping | None:
@@ -150,16 +151,21 @@ class HistoricalReplay:
         )
         await self.save(c, value, EMPTY_HASH)
 
-    async def audited_values(
+    async def _values(
         self, c: AsyncConnection, cursor: int
-    ) -> AsyncIterator[tuple[RowMapping, HistoricalValuation]]:
-        """Validate every observation and source in bounded pages.
-
-        Consumers must exhaust this iterator before accepting a result: the tail
-        check also detects a missing valuation suffix. Reports use this same pass
-        for their arithmetic instead of restoring every observation twice.
-        """
+    ) -> AsyncGenerator[tuple[Mapping[Any, Any], HistoricalValuation]]:
+        """Read one explicit archived prefix, then the chained PostgreSQL suffix."""
         number, previous, last = -1, EMPTY_HASH, None
+        if self.store.replay_archive is not None:
+            from aca.reporting.archive_input import archived_values
+
+            archived = archived_values(c, self)
+            try:
+                async for row, value in archived:
+                    last, number, previous = value, value.number, row["fingerprint"]
+                    yield row, value
+            finally:
+                await archived.aclose()
         while True:
             rows = (
                 (
@@ -196,6 +202,30 @@ class HistoricalReplay:
             source_index = 0
             for row in rows:
                 value = self.restore(row, previous)
+                if value.number:
+                    if source_index >= len(sources) or sources[source_index].number != value.number:
+                        raise ValueError("historical valuation source coverage gap")
+                    if sources[source_index].fingerprint != value.source_hash:
+                        raise ValueError("historical valuation source anchor mismatch")
+                    source_index += 1
+                last, number, previous = value, value.number, row["fingerprint"]
+                yield row, value
+            if len(rows) < AUDIT_PAGE:
+                break
+
+    async def audited_values(
+        self, c: AsyncConnection, cursor: int
+    ) -> AsyncGenerator[tuple[Mapping[Any, Any], HistoricalValuation]]:
+        """Exhaust before acceptance, including file EOF and the complete SQL tail.
+
+        The same boundary/control/chronology validation applies to both sources.
+        No archive claim replaces the financial reconstruction done by reports
+        and archive-enabled writer acquisition.
+        """
+        previous, last = EMPTY_HASH, None
+        iterator = self._values(c, cursor)
+        try:
+            async for row, value in iterator:
                 if value.day_boundary is not None:
                     boundary = value.day_boundary
                     if (
@@ -225,25 +255,20 @@ class HistoricalReplay:
                     or (last.incomplete_since and value.incomplete_since != last.incomplete_since)
                 ):
                     raise ValueError("historical valuation regressed")
-                if value.number:
-                    if source_index >= len(sources) or sources[source_index].number != value.number:
-                        raise ValueError("historical valuation source coverage gap")
-                    if sources[source_index].fingerprint != value.source_hash:
-                        raise ValueError("historical valuation source anchor mismatch")
-                    source_index += 1
-                last, number, previous = value, value.number, row["fingerprint"]
+                last, previous = value, row["fingerprint"]
                 yield row, value
-            if len(rows) < AUDIT_PAGE:
-                break
-        if last is None or last.number != cursor:
-            raise ValueError(
-                "historical valuation baseline/cursor missing; flat enrolment required"
-            )
+            if last is None or last.number != cursor:
+                raise ValueError(
+                    "historical valuation baseline/cursor missing; flat enrolment required"
+                )
+        finally:
+            await iterator.aclose()
 
     async def audit(self, c: AsyncConnection, cursor: int) -> HistoricalValuation:
         last = None
-        async for _, value in self.audited_values(c, cursor):
-            last = value
+        async with aclosing(self.audited_values(c, cursor)) as values:
+            async for _, value in values:
+                last = value
         if last is None:  # audited_values already rejects an empty history.
             raise ValueError("historical valuation baseline missing")
         return last

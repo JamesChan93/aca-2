@@ -4,6 +4,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -57,12 +58,31 @@ def main() -> None:
         assert verified["source_bindings_verified"] is True
         assert verified["database_semantics_rechecked"] is False
         assert verified["usable_as_operational_prefix"] is verified["pruning_authorised"] is False
+        reference_args = [
+            "--account",
+            ACCOUNT,
+            "--archive",
+            str(path),
+            "--archive-sha256",
+            str(exported["archive_sha256"]),
+        ]
+        sql = run("paper", "performance", "--account", ACCOUNT)
+        online = run("paper", "performance", *reference_args)
+        assert online["replay_archive_sha256"] == exported["archive_sha256"]
+        assert {
+            k: v for k, v in sql.items() if k not in {"report_hash", "replay_archive_sha256"}
+        } == {k: v for k, v in online.items() if k not in {"report_hash", "replay_archive_sha256"}}
+        daily = run(
+            "paper", "daily", *reference_args, "--day", datetime.now(UTC).date().isoformat()
+        )
+        assert daily["financial_head_version"] == online["financial_head_version"]
         wrong_account = list(args)
         wrong_account[5] = str(uuid4())
         run(*wrong_account, success=False)
         original = path.read_bytes()
         path.write_bytes(original[:-1])
         run(*args, success=False)
+        run("paper", "performance", *reference_args, success=False)
     print(
         json.dumps(
             {
@@ -74,6 +94,9 @@ def main() -> None:
                 "offline_verification_without_credentials": True,
                 "wrong_account_rejected": True,
                 "truncated_archive_rejected": True,
+                "online_archived_report_matches_sql": True,
+                "online_daily_report_checked": True,
+                "corrupt_archive_blocks_online_report": True,
                 "temporary_files_removed": True,
                 "promotion_evidence": False,
                 "qualifying_days": 0,
