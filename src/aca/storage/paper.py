@@ -3,7 +3,8 @@
 import asyncio
 import hashlib
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import aclosing, asynccontextmanager
+from typing import TYPE_CHECKING, cast
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -37,6 +38,9 @@ from aca.storage.paper_projection import (
     state_document,
 )
 from aca.storage.reserves import for_event, insert_record
+
+if TYPE_CHECKING:
+    from aca.reporting.history_prefix import HistoryCertificate
 
 metadata = MetaData(schema="aca")
 accounts = Table(
@@ -150,10 +154,16 @@ class PaperStore:
         *,
         replay_archive: ArchiveReference | None = None,
         audit_prefix: UUID | None = None,
+        history_prefix: UUID | None = None,
     ) -> None:
         self.engine, self.account_id = engine, account_id
+        if replay_archive is not None and history_prefix is not None:
+            raise ValueError(
+                "file replay input and compacted history certificate cannot be combined"
+            )
         self.replay_archive = replay_archive
         self.audit_prefix = audit_prefix
+        self.history_prefix = history_prefix
         self.archive_identity: FileIdentity | None = None
 
     def _restore_row(
@@ -237,6 +247,10 @@ class PaperStore:
         previous = "0" * 64
         state: PortfolioSnapshot | None = None
         cursor = 0
+        if self.history_prefix is not None and not full:
+            from aca.reporting.history_prefix import required_history
+
+            await required_history(connection, self)
         if self.audit_prefix is not None and not full:
             from aca.storage.audit_prefix import read_prefix
 
@@ -255,6 +269,22 @@ class PaperStore:
 
             if (head or 0) - prefix_version > MAX_AUDIT_SUFFIX_EVENTS:
                 raise ValueError("financial audit suffix exceeds budget; renew the operator audit")
+        from aca.storage.history_blocks import all_rows, has_blocks
+
+        compacted = await has_blocks(connection, self.account_id)
+        if compacted and not full and self.history_prefix is None:
+            raise ValueError("compacted account requires an explicit historical certificate")
+        if compacted:
+            async with aclosing(
+                all_rows(connection, self.account_id, "financial", cursor, head)
+            ) as history:
+                async for item in history:
+                    row = cast(RowMapping, item)
+                    before = state
+                    state, previous = self._restore_row(row, previous, cursor + 1, before)
+                    if row["document"].get("format") in {"paper_delta_v1", "paper_delta_v2"}:
+                        await self._verify_increment(connection, before, state, row)
+                    cursor += 1
         while cursor < (head or 0):
             rows = (
                 (
@@ -657,6 +687,7 @@ class PaperWriter:
         self.mutex = asyncio.Lock()
         self.archive_checked = False
         self.archive_faulted = False
+        self.accepted_history: HistoryCertificate | None = None
 
     async def __aenter__(self) -> PaperWriter:
         connection = await self.store.engine.connect()
@@ -670,7 +701,7 @@ class PaperWriter:
             await connection.commit()
             self.connection = connection
             async with self.transaction() as c:
-                if self.store.replay_archive is None:
+                if self.store.replay_archive is None and self.store.history_prefix is None:
                     await self.store.audit(c)
                 else:
                     # File integrity alone cannot authorise commands. Reconstruct
@@ -679,7 +710,14 @@ class PaperWriter:
                     from aca.reporting.historical import read_performance
 
                     read = await read_performance(c, self.store)
-                    if read.financial.accounting_invalidated or self.store.archive_identity is None:
+                    if self.store.history_prefix is not None:
+                        from aca.reporting.history_prefix import required_history
+
+                        self.accepted_history = await required_history(c, self.store)
+                    if read.financial.accounting_invalidated or (
+                        self.store.replay_archive is not None
+                        and self.store.archive_identity is None
+                    ):
                         raise WriterUnavailable(
                             "archive writer requires valid historical accounting"
                         )
@@ -698,6 +736,7 @@ class PaperWriter:
             await self.connection.close()
         self.connection = None
         self.archive_checked = False
+        self.accepted_history = None
 
     @asynccontextmanager
     async def transaction(self) -> AsyncIterator[AsyncConnection]:

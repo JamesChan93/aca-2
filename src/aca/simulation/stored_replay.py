@@ -189,6 +189,17 @@ class StoredReplay:
         """Owner-start full cursor chain check in bounded pages, with source anchors."""
         async with self.service.writer.transaction() as c:
             number, previous, last = -1, EMPTY_HASH, None
+            if self.store.history_prefix is not None:
+                from aca.reporting.historical import read_performance
+                from aca.reporting.history_prefix import required_history
+
+                accepted = await required_history(c, self.store)
+                number, previous, last = (
+                    accepted.cursor.number,
+                    accepted.cursor_hash,
+                    accepted.cursor,
+                )
+                await read_performance(c, self.store)
             while True:
                 rows = (
                     (

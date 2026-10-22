@@ -16,6 +16,14 @@ installed code/policy and retained SQL anchors; full suffix/journal validation
 remains. Ordinary runtime checkpoints cannot create this authority. No pruning,
 historical-aggregate certificate or trading activation is granted.
 
+[A31 — bounded paper history](phase-4-bounded-history.md) adds separately authorised,
+lossless PostgreSQL compaction and protected historical economic summaries. Online
+readers require the explicit current certificate and validate every new suffix
+record; full audits reconstruct original history. Runtime cannot create certificates
+or remove rows. The supported suffix and stopped-worker maintenance requirements
+are explicit. The [paper handoff](phase-4-paper-release.md) records current acceptance
+and the separate research, deployment and live boundaries.
+
 ## System boundary
 
 One Python modular monolith, PostgreSQL operational authority, GBP reporting, BTC/GBP

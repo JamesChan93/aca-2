@@ -1,0 +1,978 @@
+{
+  "schema_version": 1,
+  "kind": "phase_4_bounded_local_paper_release",
+  "review_date": "2026-10-22",
+  "application_version": "0.4.18",
+  "database_schema": "0016_history_segments",
+  "git_base": "aca45556149dd46c9dca3395b8743155c402535b",
+  "branch": "feat/bounded-paper-history",
+  "phase_4_engineering_complete": true,
+  "fixed_conditions_complete": 17,
+  "fixed_conditions_total": 17,
+  "conditions": {
+    "P4-C1": {
+      "complete": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "evidence": "docs/phase-4-continuous-paper.md"
+    },
+    "P4-C2": {
+      "complete": [
+        1,
+        2,
+        3
+      ],
+      "evidence": "docs/phase-4-accounting.md"
+    },
+    "P4-C3": {
+      "complete": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "capacity_option": "reviewed lossless retention path and measured bounded operations; 56-day headroom not demonstrated",
+      "evidence": "docs/phase-4-bounded-history.md"
+    },
+    "P4-C4": {
+      "complete": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "evidence": "docs/phase-4-paper-release.md"
+    }
+  },
+  "applicable_local_paper_g2": {
+    "decision": "pass within documented bounded local-paper applicability",
+    "unresolved_applicable_safety_failures": [],
+    "independent_external_review_claimed": false,
+    "full_specification_g2_or_t25_passed": false,
+    "later_boundaries_retained": true
+  },
+  "g3_g4_g5_g6_approved": false,
+  "research_candidates_rejected": 20,
+  "holdout_opened": false,
+  "qualifying_observation_started": false,
+  "qualifying_days": 0,
+  "qualifying_episodes": 0,
+  "promotion_evidence": false,
+  "live_execution_available": false,
+  "retained_stack_upgraded": false,
+  "retained_database_migrated_or_compacted": false,
+  "source": {
+    "python_files": 118,
+    "package_sha256": "4a8e92759b83c38ad1183c41bd829e159c285c2e00b7a4164d61cd85ef8f4fb9",
+    "algorithm": "sorted package-relative UTF-8 path, NUL, then file bytes",
+    "original_prompt_sha256": "4e4f70158d261d54f99204045d1e1c33d1bc0871e8850213aedceb3b67eadc01",
+    "wheel_sha256": "c01114134ccf561e78ad2c2db3f6e92de042793deedf1e4d542f54bb9c731317"
+  },
+  "environment": {
+    "python": "3.14.8",
+    "postgresql": "18.6",
+    "local_architecture": "Linux arm64 Docker Desktop on Apple Silicon",
+    "dependency_locks_changed": false,
+    "base_image_digests_changed": false,
+    "lock_sha256": {
+      "build.lock": "1f8898507c564ae5f697d65dd852361febd648e7006eacaea6d77823b74d101d",
+      "development.lock": "8b1a76a785a84a2067c6a816b1c7bf82202c6582f805f1d5bb56104c8c915789",
+      "research.lock": "77736b45c406f5278cdac2ee80ae7074682370b6f5db385856c4389e4eb88f1b",
+      "runtime.lock": "259a44e070ec7b8509d6a1ad314de2344732b5ef1ea41726eec4a4fd6d85f3cf"
+    }
+  },
+  "checks": {
+    "linux": {
+      "command": "python3 scripts/ci_database.py --linux",
+      "passed": 702,
+      "seconds": 171.23,
+      "output_sha256": "a3136539a98947eef9cbe875067095c3c3a405f9390019fc9b887e420068987d"
+    },
+    "ruff_lint": "passed",
+    "ruff_formatted_files": 180,
+    "strict_mypy_checked_files": 155,
+    "pip_check": "passed in clean installed-wheel test build",
+    "advisory_audits": [
+      "runtime passed",
+      "research passed",
+      "development passed"
+    ],
+    "hypothesis": {
+      "financial_max_examples": 1000,
+      "lifecycle_max_examples": 10000,
+      "derandomize": true,
+      "print_blob": true,
+      "failure_trace_retention": "pytest logs with minimized example/replay blob; locked versions and exact source"
+    },
+    "hosted_exact_head": "recorded separately in the PR; bounded-history acceptance enforces original measured budgets",
+    "clean_wheel_and_sdist_build": {
+      "migration_packaged": true,
+      "package_source_sha256": "4a8e92759b83c38ad1183c41bd829e159c285c2e00b7a4164d61cd85ef8f4fb9",
+      "pip_check_passed": true,
+      "python_files": 118,
+      "sdist_build_passed": true,
+      "secret_paths_absent": true
+    }
+  },
+  "coverage": [
+    {
+      "id": "T00",
+      "paper_assertion": "Economic, flow and performance arithmetic",
+      "test_files": [
+        "tests/test_research_core.py",
+        "tests/test_historical_performance.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Full household and owner-wide tax scenarios remain later reporting work.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T01",
+      "paper_assertion": "Duplicate trade volume, candle receipts and decisions",
+      "test_files": [
+        "tests/test_market_storage.py",
+        "tests/test_stored_replay.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "No private-stream identity claim.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T02",
+      "paper_assertion": "Late data, past-only warm-up, decision watermarks",
+      "test_files": [
+        "tests/test_market_processor.py",
+        "tests/test_stored_replay.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Historical point-in-time availability remains a dataset qualification input.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T03",
+      "paper_assertion": "Disconnect invalidation, snapshots and runner veto",
+      "test_files": [
+        "tests/test_market_storage.py",
+        "tests/test_paper_supervisor.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Sustained external connectivity is Phase 5.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T04",
+      "paper_assertion": "Checksum, stale book and independent dispatch veto",
+      "test_files": [
+        "tests/test_market_contracts.py",
+        "tests/test_paper_supervisor.py",
+        "tests/test_paper_execution.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "No live submission tested.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T05",
+      "paper_assertion": "Lost acknowledgement remains unknown, never automatically resent",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_integrated_safety.py"
+      ],
+      "later_or_limit": "Actual Kraken mutating HTTP recovery belongs to a separately approved writer.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T06",
+      "paper_assertion": "Read budgets, retry deadlines, throttled notification and blocked entries",
+      "test_files": [
+        "tests/test_market_rest.py",
+        "tests/test_notifications.py",
+        "tests/test_integrated_safety.py"
+      ],
+      "later_or_limit": "Private REST/matching-engine budgets and cancellation priority under venue throttles remain later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T07",
+      "paper_assertion": "Consumed-before-send and durable strategy decision crash boundaries",
+      "test_files": [
+        "tests/test_process_recovery.py",
+        "tests/test_paper_execution.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Real exchange evidence is later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T08",
+      "paper_assertion": "Accepted command crash and two-process recovery without replay",
+      "test_files": [
+        "tests/test_process_recovery.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Real exchange open/closed history is later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T09",
+      "paper_assertion": "One fill/fee posting, immutable correction identity and populated restore",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_notifications.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "REST/private-stream ID equivalence remains unverified.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T10",
+      "paper_assertion": "Partial fills, cancel races, inventory and protective quantities",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_process_recovery.py",
+        "tests/test_stored_replay.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Actual Kraken conditional-close partial fills remain a live gate.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T11",
+      "paper_assertion": "Actual asset fee economics, quantity movements and GBP transfer basis",
+      "test_files": [
+        "tests/test_paper_finance.py",
+        "tests/test_paper_execution.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Authenticated fee assets remain later evidence.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T12",
+      "paper_assertion": "Generated sizing, financial Decimal boundaries and exact dispatch economics",
+      "test_files": [
+        "tests/test_research_core.py",
+        "tests/test_configuration.py",
+        "tests/test_paper_strategy.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Current rules are not historical metadata evidence.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T13",
+      "paper_assertion": "Changed minimums reject without increasing risk",
+      "test_files": [
+        "tests/test_market_rest.py",
+        "tests/test_research_core.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Future account eligibility remains unresolved.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T14",
+      "paper_assertion": "Unavailable GBP valuations, gaps and invalidated correction reports",
+      "test_files": [
+        "tests/test_paper_finance.py",
+        "tests/test_historical_replay.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_paper_strategy.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "No implicit FX or stablecoin parity is supported.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T15",
+      "paper_assertion": "Investment flows preserve unit price and loss latches",
+      "test_files": [
+        "tests/test_paper_finance.py",
+        "tests/test_historical_replay.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Owner-wide tax pools and final reporting remain later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T16",
+      "paper_assertion": "Exact equality thresholds precede another entry",
+      "test_files": [
+        "tests/test_paper_finance.py",
+        "tests/test_paper_strategy.py",
+        "tests/test_tax_cash_reserves.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Loss thresholds are not guaranteed loss bounds.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T17",
+      "paper_assertion": "Unsafe portfolios, unknown orders and invalid accounting block entry",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_integrated_safety.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "No live state assertion.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T18",
+      "paper_assertion": "Transaction/backend loss and actual bounded WAL ENOSPC block dispatch",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_process_recovery.py",
+        "tests/test_safety_drills.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "The storage_fault_drill command provides actual ENOSPC evidence; production host recovery remains later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T19",
+      "paper_assertion": "Real bounded ENOSPC plus measured capacity ceiling",
+      "test_files": [
+        "tests/test_paper_supervisor.py",
+        "tests/test_safety_drills.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Local WAL ENOSPC and bounded operation/retention-path assertions pass. Real-feed growth, 56-day reliability and production storage/backup remain later; no 56-day headroom claim.",
+      "local_result": "capacity_condition_open",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary",
+      "supporting_commands": [
+        "python3 scripts/storage_fault_drill.py",
+        "python3 scripts/capacity_trial.py --compaction"
+      ]
+    },
+    {
+      "id": "T20",
+      "paper_assertion": "Redacted secrets and bounded private-destination rejection",
+      "test_files": [
+        "tests/test_logging_and_secrets.py",
+        "tests/test_notifications.py"
+      ],
+      "later_or_limit": "Invalid Kraken credentials/private key inspection remain later because no private adapter is enabled.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T21",
+      "paper_assertion": "Maintenance and changed pair status veto scheduled entries",
+      "test_files": [
+        "tests/test_market_processor.py",
+        "tests/test_stored_replay.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Authenticated/exchange outage recovery remains later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T22",
+      "paper_assertion": "Local outstanding orders, holds, fills and protection recover before use",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_process_recovery.py",
+        "tests/test_restore_drill.py",
+        "tests/test_restore_snapshot.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Outstanding real account orders are not tested; populated restore is supplied by restore_drill.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T23",
+      "paper_assertion": "Strict wrong/nonfinite/short/stale inputs and bounded runner decisions",
+      "test_files": [
+        "tests/test_configuration.py",
+        "tests/test_research_core.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Only BTC/ETH GBP canonical spot contracts are admitted.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T24",
+      "paper_assertion": "Critical fault timing, unreachable and 429 delivery leave finance independent",
+      "test_files": [
+        "tests/test_notifications.py",
+        "tests/test_scheduled_notifications.py",
+        "tests/test_notification_reviews.py",
+        "tests/test_integrated_safety.py"
+      ],
+      "later_or_limit": "Real Discord receipt and sustained availability remain Phase 5 measurements.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T25",
+      "paper_assertion": "Populated logical restore, duplicate recovery and declared suffix block",
+      "test_files": [
+        "tests/test_restore_drill.py",
+        "tests/test_restore_snapshot.py",
+        "tests/test_safety_drills.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Full T25 OPEN: encrypted off-host/WAL, host loss, fencing, deployed gap reconciliation and RPO/RTO remain later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary",
+      "supporting_commands": [
+        "python3 scripts/restore_drill.py"
+      ]
+    },
+    {
+      "id": "T26",
+      "paper_assertion": "Canonical strategy inputs and fake second venue contracts",
+      "test_files": [
+        "tests/test_research_core.py",
+        "tests/test_paper_execution.py",
+        "tests/test_paper_strategy.py"
+      ],
+      "later_or_limit": "Actual second venue implementation is deferred.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T27",
+      "paper_assertion": "Halt preserves protective exits; missing protection and stop gaps block",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_stored_replay.py",
+        "tests/test_process_recovery.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Actual small-fill conditional stops and any global-cancel evaluation remain later; DMS stays disabled.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T28",
+      "paper_assertion": "Strict paper-only configuration, no live CLI or writer and container capability smoke",
+      "test_files": [
+        "tests/test_configuration.py",
+        "tests/test_service.py",
+        "tests/test_bootstrap.py"
+      ],
+      "later_or_limit": "Signed permit/account/image/activation replay tests belong to a separately approved live implementation.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T29",
+      "paper_assertion": "Running UTC boundaries, missing-boundary suspension and immutable latches",
+      "test_files": [
+        "tests/test_paper_finance.py",
+        "tests/test_paper_strategy.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Deposits, restarts and corrections cannot clear latches.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T30",
+      "paper_assertion": "Permanent identities, unknown outcomes, cancel races and restart decisions",
+      "test_files": [
+        "tests/test_paper_execution.py",
+        "tests/test_process_recovery.py",
+        "tests/test_paper_strategy.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Actual Kraken closed client-ID recovery remains later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T31",
+      "paper_assertion": "Clock discontinuities, expiry/finalisation and redacted errors",
+      "test_files": [
+        "tests/test_paper_supervisor.py",
+        "tests/test_paper_strategy.py",
+        "tests/test_logging_and_secrets.py"
+      ],
+      "later_or_limit": "Private-key nonce persistence is unimplemented and later.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary"
+    },
+    {
+      "id": "T32",
+      "paper_assertion": "Restricted roles, migrations, packaging and paper CLI contracts",
+      "test_files": [
+        "tests/test_database.py",
+        "tests/test_bootstrap.py",
+        "tests/test_tax_reserve_upgrade.py",
+        "tests/test_accounting_operations.py",
+        "tests/test_safety_drills.py",
+        "tests/test_history_segments.py"
+      ],
+      "later_or_limit": "Packaged C4 local handoff, schema/permissions, invalid authority and required certificates pass. Live packaging/activation is not implemented.",
+      "local_result": "applicable_integrated_tests_passed_with_stated_boundary",
+      "current_release_result": "applicable assertions reverified in the 702-test integrated release; retain explicit later boundary",
+      "supporting_commands": [
+        "python3 scripts/paper_release_smoke.py"
+      ]
+    }
+  ],
+  "capacity": {
+    "status": "measured",
+    "trial_mode": "compaction",
+    "56_day_headroom_demonstrated": false,
+    "application_version": "0.4.18",
+    "bulk_seed_is_ingestion_measurement": false,
+    "certifi_version": "2026.10.19",
+    "configured_budget_bytes": 2000000000,
+    "cpu.max": "75000 100000",
+    "cpu_seconds": 110.301500123,
+    "database_bytes": 564672191,
+    "elapsed_seconds": 182.240372707,
+    "global_source_head": 104095,
+    "live_execution_available": false,
+    "max_rss_kib": 147428,
+    "measured_boundary_failures": [],
+    "memory.max": "805306368",
+    "memory.peak": "130232320",
+    "observations_per_56_days_at_1hz": 4838400,
+    "one_second_loop": {
+      "elapsed_seconds": 19.268791008000107,
+      "financial_events_before_startup": 100000,
+      "healthy_ticks": 20,
+      "max_tick_seconds": 0.08999954099999741,
+      "mean_tick_seconds": 0.020923470849993464,
+      "ticks": 20,
+      "venue_commands": 0
+    },
+    "operational_budgets_exercised": true,
+    "operations": {
+      "financial_writer_startup": {
+        "deadline_seconds": 30,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 0.7004354170001079
+      },
+      "historical_report": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 0.7643320839999888
+      },
+      "replay_audit_after_writer_acquisition": {
+        "deadline_seconds": 10,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 1.0916740839998056
+      },
+      "replay_startup_audit": {
+        "deadline_seconds": 20,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 1.9405679589999636
+      },
+      "scheduled_daily_summary": {
+        "deadline_seconds": 15,
+        "measurement_timeout_seconds": 60,
+        "operation_finished": true,
+        "outcome": "completed",
+        "seconds": 0.8464774999999918
+      }
+    },
+    "package_source_sha256": "4a8e92759b83c38ad1183c41bd829e159c285c2e00b7a4164d61cd85ef8f4fb9",
+    "promotion_evidence": false,
+    "record_limits": {
+      "events": 100000,
+      "public_receipts": 99999,
+      "valuations": 100000
+    },
+    "seed_seconds": 39.193776809000155,
+    "value_limit_days_at_1hz": 1.1574074074074074,
+    "cleanup_complete": true,
+    "compaction": {
+      "bounded_suffix_records": 4096,
+      "certificate_fingerprint": "97ee8d238fbac4163e92892944f4361e8aec8ad4debb9150441f49bcb78c432e",
+      "full_report_economics_match": true,
+      "journals_or_ids_removed": 0,
+      "live_execution_available": false,
+      "lossless": true,
+      "moved_rows": {
+        "cursor": 99998,
+        "financial": 99089,
+        "raw_receipt": 99998,
+        "source": 99998,
+        "valuation": 99998
+      },
+      "promotion_evidence": false,
+      "seconds": 78.53516086800005,
+      "certificate_binding": {
+        "id": "63e0f552-b5c4-4ec9-906e-c7370692c728",
+        "account_id": "fd488aa9-c4e6-48e7-b878-40a6623e1cc0",
+        "format": "paper-history-v1",
+        "application_version": "0.4.18",
+        "package_sha256": "4a8e92759b83c38ad1183c41bd829e159c285c2e00b7a4164d61cd85ef8f4fb9",
+        "environment_hash": "804a0d7660354596c3be58d16fda003e94f837f39bdea43676c77dffa6162649",
+        "policy_hash": "882269ee6eff52fefafcd875c74e8ef6b2cc5901ebb783a72d8ff145123ea596",
+        "financial_prefix": "f20c146e-8209-4fd2-92d3-e5bd6aaedf50",
+        "catalogue_hash": "fc422d31c28456f3d1b7e0cab52d60a2af623ad8185e1656adfa487486207fa1",
+        "catalogue_count": 1952,
+        "storage_compaction_authorised": true,
+        "original_financial_history_preserved": true,
+        "permanent_order_ids_preserved": true
+      }
+    },
+    "private_run": "capacity-trial-afd693ea1304",
+    "manifest_sha256": "caaeb514fb7cbfb7f68fab5ca37c975cbe5bb704716faf2ec4f3d6a4b6cc4f7d",
+    "command": "python3 scripts/capacity_trial.py --compaction"
+  },
+  "restore": {
+    "status": "passed",
+    "dump": {
+      "bytes": 216531,
+      "sha256": "e4a24468098f4849ea937f9a6caa5d90f90c8396bbe95694bde0074a3aa782e4",
+      "format": "custom"
+    },
+    "restored_transactional_view_equal": true,
+    "sequence_bounds_verified": true,
+    "exported_snapshot_stable_after_writes": true,
+    "post_snapshot_changes_excluded": true,
+    "commits_while_dump_waited": 96,
+    "failed_restore_rolled_back": true,
+    "runtime_permissions_verified": true,
+    "repeated_recovery_economics_equal": true,
+    "declared_gap": {
+      "accounts_halted": [
+        "validated",
+        "uncertain",
+        "unposted_fill",
+        "hard_halt",
+        "observed",
+        "corrected"
+      ],
+      "continued_observation_permitted": false,
+      "declared_source_head": 118,
+      "gap_identified": true,
+      "live_execution_available": false,
+      "missing_investment_flows": 32,
+      "missing_investment_gbp": "32",
+      "qualifying_days": 0,
+      "recovered_absent_evidence": false,
+      "restored_source_head": 86,
+      "venue_commands": 0
+    },
+    "production_rpo_proven": false,
+    "production_rto_proven": false,
+    "off_host_backup": false,
+    "wal_recovery": false,
+    "cleanup_complete": true,
+    "elapsed_seconds": 35.68,
+    "private_run": "restore-drill-d249680e8eff",
+    "manifest_sha256": "3ec6464ae771f4ac3a4a912a63767ee641f830a859da0ec51901a1bd96922647",
+    "command": "python3 scripts/restore_drill.py",
+    "synthetic_accounts": 6,
+    "application_tables_compared": 32,
+    "table_contents": {
+      "alembic_version": {
+        "rows": 1,
+        "sha256": "1cf587ac50d741d149e9205086fedbac84b1b0c690e57fb30e352d76248209be"
+      },
+      "audit_events": {
+        "rows": 1,
+        "sha256": "db56f1188883a531c42d28a8aa8f768581cf8f7ce628a3e64883df370c8df191"
+      },
+      "configuration_versions": {
+        "rows": 1,
+        "sha256": "6e0e7a07608733f2a8e5cbf3276b814e19a470bfc7f7d61b6d6815acdb141685"
+      },
+      "market_receipts": {
+        "rows": 76,
+        "sha256": "dc803f92fb314f94bdfa7320ec032e7e9f4c99d7fc92dfc9a5d2ebff61e90745"
+      },
+      "paper_accounting_operations": {
+        "rows": 3,
+        "sha256": "9676c7b897ece29e92e81184fa8e7185d70455e13936bcba3fe316264c58c9b1"
+      },
+      "paper_accounts": {
+        "rows": 6,
+        "sha256": "d686ec8396b9d5e7dca7f6fd358956ec5cd1fc5cd17eb56fbda6ec9f90244c2a"
+      },
+      "paper_alerts": {
+        "rows": 146,
+        "sha256": "ea7141c52babd5741fe8ba97171dc19e6b75bdc2f9cb500ceef394e54abd142e"
+      },
+      "paper_checkpoints": {
+        "rows": 8,
+        "sha256": "af6d53599d01699a9295c3914f9d875a09bd7992ea2d69f2ce948044306f89f4"
+      },
+      "paper_events": {
+        "rows": 303,
+        "sha256": "525ea0f3e514be03d388637d8b8f36c0863cf6da40b993ca0883c6a3d0df8fdd"
+      },
+      "paper_fills": {
+        "rows": 1,
+        "sha256": "73152f524fae7ab1c88d242015eee7bf7393f4dc74746d7c9463dca412750854"
+      },
+      "paper_financial_audits": {
+        "rows": 7,
+        "sha256": "8ccd294cfba9720ac5a910e7eb6c861184493ae33ebef0a56228346b8a914033"
+      },
+      "paper_history_blocks": {
+        "rows": 4,
+        "sha256": "2849adb516a8f50a227d128d7cd91e648cce7258b59c996529b3e6fe43b5fa9f"
+      },
+      "paper_history_certificates": {
+        "rows": 1,
+        "sha256": "3c59088212b3fed77f68a871f773ba8719452333595441a94b9a4fd0b85701b1"
+      },
+      "paper_journal_lines": {
+        "rows": 152,
+        "sha256": "f93c6e6e7b2fd1a8c51509a0d582a93ac8fd0f9ac5a209c31cdb4320f70e596b"
+      },
+      "paper_journals": {
+        "rows": 75,
+        "sha256": "cc5f61f1f9841d8f6d47e79fab2f31dd9e557da4ccd765d73996ac759e228252"
+      },
+      "paper_movements": {
+        "rows": 77,
+        "sha256": "401afbc8c2c286154f873d33d2579afad0b5246e657d25a6a1fdd182d4b1b17e"
+      },
+      "paper_notice_receipts": {
+        "rows": 4,
+        "sha256": "f018649309e7da759313b366b5c367652fa031707f5bb6f1efa0a6a487e53d12"
+      },
+      "paper_notices": {
+        "rows": 4,
+        "sha256": "5c3f4276b9c2a214a48968e84d314f55a40cf8184f67be40c405ac852188b1e2"
+      },
+      "paper_notification_events": {
+        "rows": 10,
+        "sha256": "a16dca850a61f76e57199e7bc2635606d0862495a5effc19a6310d3c134e9719"
+      },
+      "paper_notification_reviews": {
+        "rows": 2,
+        "sha256": "e13b7d0c4132d43dfd63259fe99772ce2cab2b7f1906e9d2e2fdfac219ccb11e"
+      },
+      "paper_order_identities": {
+        "rows": 5,
+        "sha256": "212e262cb52de412bef96a24262149e201e044b2c84dc16b316aee2312f82794"
+      },
+      "paper_replay_cursors": {
+        "rows": 6,
+        "sha256": "1de4d3380d1ce1f4b351793ce52f26f99dbb216e38d08354c9f1124ee5e8c480"
+      },
+      "paper_replay_valuations": {
+        "rows": 14,
+        "sha256": "8e0c3e630d4c305243a8404ad1ee2825da24a1391d1e574d5d6cfac73af102f5"
+      },
+      "paper_strategy_decisions": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "paper_strategy_results": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "paper_strategy_selections": {
+        "rows": 2,
+        "sha256": "f4dd0f7724e05e608220baef1dfa19265652a516eee874dd6786eda6413e5df7"
+      },
+      "paper_tax_reserves": {
+        "rows": 65,
+        "sha256": "00983788613bbfe047fc569b4e40be2cfd13bf09deb0e27e40279906e820d8ee"
+      },
+      "paper_venue_events": {
+        "rows": 10,
+        "sha256": "a8e2a0dd725266880971e6d8aaf88bc9c5bceacf929a4e830be9bb12d0a099f4"
+      },
+      "public_replay_events": {
+        "rows": 76,
+        "sha256": "810d95e9cd175e797252e1dfba03634511f0175349ffd04d823baa47eb7fee1c"
+      },
+      "public_trades": {
+        "rows": 64,
+        "sha256": "b2d225a3ba3e16ec1d99b3ee34f28230692d37eabbdc2b319f4507e60f09e7df"
+      },
+      "research_artifacts": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "research_events": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "catalogue_sha256": {
+      "columns": "f7bd744d0ce8c9adaccb34846efdad0e0fafac3b562805b4c2e3e4ec54b1d00d",
+      "constraints": "e7c88c021dea854d00d66fbcc9f1e2049c711e9f0c9837757269235e2310b111",
+      "database_privileges": "519e544e0ce1f2e1892b53660bae58dd29369999d1787d739fdff8bf10acdac7",
+      "default_privileges": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": "f45315b87630a637e96b9c954c2f2980b3e7439233c2e233f098221435295351",
+      "indexes": "0a62bf90e8cee046860ef0e9e4ab3c36f6a31a1da4edcc067d0b2fbe4f998a16",
+      "relations": "ef7c129160a9fdc8d9f87ba6d741ee3cb2db9d69f11496f3b21f47e67234941b",
+      "roles": "62e4337ab73e4d87068af027daa6b171d5e31d1c843922e08dc33a5defc3718b",
+      "schema": "0f07aebd66b1629e392af0668179f6b1365474eb717a5d6ba57456ea38352cbc",
+      "sequence_definitions": "cd7de79a7b1a8587c071255b7977082205943967359648d54525c0315348c60b",
+      "triggers": "a545e505e1436401f1189f83fa0baaef1bc8831829b0ed3bd35a29dbf19d1f10"
+    },
+    "venue_commands_per_recovery": 0
+  },
+  "storage": {
+    "status": "passed",
+    "started_at": "2026-10-22T11:50:52.920402+00:00",
+    "kind": "bounded_tmpfs_postgresql_wal_enospc",
+    "tmpfs_limit_bytes": 402653184,
+    "verified_mount": {
+      "uid": 70,
+      "gid": 70,
+      "bytes": 402653184
+    },
+    "holder_started_first": true,
+    "wal_enospc_observed": true,
+    "ready": {
+      "balances": [
+        {
+          "asset": "GBP",
+          "cost_gbp": "1000",
+          "quantity": "1000",
+          "schema_version": 1
+        },
+        {
+          "asset": "BTC",
+          "cost_gbp": "0",
+          "quantity": "0",
+          "schema_version": 1
+        },
+        {
+          "asset": "ETH",
+          "cost_gbp": "0",
+          "quantity": "0",
+          "schema_version": 1
+        }
+      ],
+      "phase": "ready",
+      "reserved_gbp": "65.400064329600000000",
+      "state_hash": "130ddfe41c1f13ead460e07c54c5be5774cf0ed969357bd870430e240e3ea9f5"
+    },
+    "blocked": {
+      "detected_seconds": 0.009599832999811042,
+      "phase": "blocked",
+      "unhealthy": true,
+      "venue_commands": 0,
+      "fault_to_unhealthy_upper_bound_seconds": 0.29309754199999993
+    },
+    "recovered": {
+      "before_reserved_gbp": "65.400064329600000000",
+      "before_state_hash": "130ddfe41c1f13ead460e07c54c5be5774cf0ed969357bd870430e240e3ea9f5",
+      "disarmed": true,
+      "fills": 0,
+      "journals": 1,
+      "phase": "recovered",
+      "venue_commands": 0
+    },
+    "notified_after_database_recovery": {
+      "controlled_http_attempts": 1,
+      "live_execution_available": false,
+      "phase": "notified",
+      "fault_to_attempt_upper_bound_seconds": 6.186870792000001
+    },
+    "retained_volume_used": false,
+    "live_execution_available": false,
+    "promotion_evidence": false,
+    "cleanup_complete": true,
+    "elapsed_seconds": 18.197,
+    "private_run": "storage-drill-2aca6e7b9df3",
+    "manifest_sha256": "942439383d2741bab0ff14a62937e68c0bc7158cb2b3dad8680032764e87d7e9",
+    "command": "python3 scripts/storage_fault_drill.py"
+  },
+  "packaged_handoff": {
+    "passed": true,
+    "live_execution_available": false,
+    "collector_input": "deterministic local public fixtures; no network capture",
+    "compaction_cli_without_migration_secret_rejected": true,
+    "created_funded_selected_enrolled": true,
+    "financial_reports_equivalent": true,
+    "full_audit_passed": true,
+    "health_observed": true,
+    "manual_halt_survived_recovery": true,
+    "orders_created": 0,
+    "package_source_sha256": "4a8e92759b83c38ad1183c41bd829e159c285c2e00b7a4164d61cd85ef8f4fb9",
+    "packaged_runner_ticks": 5,
+    "qualifying_days": 0,
+    "qualifying_episodes": 0,
+    "required_bad_certificate_rejected": true,
+    "cleanup_complete": true,
+    "private_run": "paper-release-smoke-4de7bcf4b3bb",
+    "manifest_sha256": "717adfe4004d4ae9f4e2cc7c68ab5ee04dd03cd1a01e54adb486f5bfc035209e",
+    "command": "python3 scripts/paper_release_smoke.py"
+  },
+  "critical_notification_assertions": {
+    "test": "tests/test_integrated_safety.py",
+    "transports": [
+      "delivered",
+      "unreachable",
+      "throttled"
+    ],
+    "all_three_passed_current_release": true,
+    "detection_deadline_seconds": 10,
+    "attempt_deadline_seconds": 60,
+    "financial_writer_progress_during_blocked_http_verified": true,
+    "real_discord_request_sent": false
+  },
+  "supported_profile": {
+    "enrolled_accounts": 1,
+    "online_financial_suffix": 4096,
+    "online_observation_suffix": 4096,
+    "new_entry_financial_headroom": 32,
+    "maintenance": "stop workers and perform explicit full operator re-audit/lossless compaction before suffix exhaustion; pass returned current certificate UUID",
+    "maintenance_minutes_at_one_observation_per_second": 68.26666666666667,
+    "database_limit_bytes": 2000000000,
+    "free_disk_stop_percent": 15,
+    "original_order_fill_journal_limits_unchanged": true,
+    "uncompacted_entry_capacity_check": true,
+    "unselected_receipts_normalized_trades_and_venue_evidence_pruned": false,
+    "56_day_headroom_demonstrated": false,
+    "bulk_seed_is_ingestion_throughput_measurement": false,
+    "simultaneous_maximum_order_journal_fill_load_demonstrated": false
+  },
+  "later_evidence": [
+    "G3 qualifying research and full OOS/uncertainty acceptance",
+    "G4 authorised 56-day/10-episode observation, measured fill calibration, health and positive economics",
+    "Actual feed storage growth, stopped-worker maintenance availability and authorised deployment",
+    "Encrypted off-host/WAL, host loss, fencing, deployed gap recovery and production RPO/RTO; full T25 remains open",
+    "Owner-wide opening tax inventory and final reporting",
+    "Separately authorised private Kraken writer, security/activation and real protection/canary evidence"
+  ]
+}

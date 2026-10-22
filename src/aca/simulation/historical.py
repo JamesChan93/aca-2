@@ -156,6 +156,44 @@ class HistoricalReplay:
     ) -> AsyncGenerator[tuple[Mapping[Any, Any], HistoricalValuation]]:
         """Read one explicit archived prefix, then the chained PostgreSQL suffix."""
         number, previous, last = -1, EMPTY_HASH, None
+        from aca.storage.history_blocks import all_rows, blocks
+
+        if self.store.history_prefix is not None:
+            from aca.reporting.history_prefix import required_history
+
+            accepted = await required_history(c, self.store)
+            number, previous, last = accepted.head.number, accepted.head_hash, accepted.head
+        elif (
+            await c.scalar(
+                select(blocks.c.first).where(blocks.c.account_id == self.store.account_id).limit(1)
+            )
+            is not None
+        ):
+            if self.store.replay_archive is not None:
+                raise ValueError(
+                    "compacted history requires its certificate, not file replay input"
+                )
+            source_rows = all_rows(c, self.store.account_id, "source")
+            source = await anext(source_rows, None)
+            try:
+                async with aclosing(
+                    all_rows(c, self.store.account_id, "valuation")
+                ) as complete_rows:
+                    async for complete_row in complete_rows:
+                        value = self.restore(complete_row, previous)
+                        while source is not None and source["number"] < value.number:
+                            source = await anext(source_rows, None)
+                        if value.number and (
+                            source is None
+                            or source["number"] != value.number
+                            or source["fingerprint"] != value.source_hash
+                        ):
+                            raise ValueError("historical valuation source coverage/anchor mismatch")
+                        previous = complete_row["fingerprint"]
+                        yield complete_row, value
+            finally:
+                await source_rows.aclose()
+            return
         if self.store.replay_archive is not None:
             from aca.reporting.archive_input import archived_values
 
@@ -223,6 +261,11 @@ class HistoricalReplay:
         and archive-enabled writer acquisition.
         """
         previous, last = EMPTY_HASH, None
+        if self.store.history_prefix is not None:
+            from aca.reporting.history_prefix import required_history
+
+            accepted = await required_history(c, self.store)
+            previous, last = accepted.head_hash, accepted.head
         iterator = self._values(c, cursor)
         try:
             async for row, value in iterator:
@@ -266,6 +309,10 @@ class HistoricalReplay:
 
     async def audit(self, c: AsyncConnection, cursor: int) -> HistoricalValuation:
         last = None
+        if self.store.history_prefix is not None:
+            from aca.reporting.history_prefix import required_history
+
+            last = (await required_history(c, self.store)).head
         async with aclosing(self.audited_values(c, cursor)) as values:
             async for _, value in values:
                 last = value

@@ -1,122 +1,88 @@
 # Implementation status
 
-Updated 22 October 2026 for P4-C3, following the scope review merged in PR #17.
-Application candidate: 0.4.17; schema `0015_financial_audits`. This register separates
-engineering completion from research eligibility, extended paper observation and later deployment/live gates.
+Updated 22 October 2026. Application **0.4.18**, schema `0016_history_segments`.
 
-**C3 now has four of five conditions covered. Its capacity condition remains open:**
-the bounded trial found replay audit/report deadlines exceeded at 100,000 records
-and no demonstrated 56-day retention/headroom. See the [C3 safety report](phase-4-safety.md)
-and [T00–T32/result evidence](evidence/phase-4-safety.json). The actual bounded WAL
-ENOSPC recovery, populated restore/gap blocking and controlled alert timings pass.
-Passing CI does not approve C3 or G2 in the presence of that named failure.
+**The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
+C1–C4 are linked in the [completion register](phase-4-completion.md). The
+[consolidated paper release handoff](phase-4-paper-release.md) records the applicable
+local-paper G2 decision, supported operating profile, commands and exceptions.
+Its [machine-readable evidence](evidence/phase-4-paper-release.json) contains all
+33 T-ID allocations and the frozen-source release checks. This supersedes earlier
+12/17 status reports without changing their historical results.
 
-The [protected financial audit increment](phase-4-financial-prefix.md) adds an
-operator-owned result of complete financial reconstruction and an explicitly
-selected suffix audit. Runtime credentials cannot issue that authority. It retains
-all SQL evidence and complete historical economic checks; this is no retention,
-pruning or 56-day approval. The fixed checklist stays **12/17**. Its financial-only
-measurement is distinct from the original integrated replay/report trial.
-The [0.4.17 evidence](evidence/phase-4-financial-prefix.json) records **685 passing
-Linux/PostgreSQL tests**, a six-seal/30-table restore, installed CLI acceptance,
-and 100,000-event full/protected financial startup of 7.498/0.044 seconds locally.
-Complete/protected financial states agree. This subset does not exercise the
-integrated replay/report or 56-day workload and closes no condition.
+The capacity condition closes through its **reviewed lossless retention path**,
+not a claim of 56-day headroom. Operator-only compaction preserves original rows,
+financial postings and permanent order identities. Online startup/reports require
+an explicit code/policy-bound certificate and validate the complete new suffix.
+At 100,000 original events/observations plus 4,096 new records, all five existing
+operation budgets passed; complete and indexed report economics agreed. The
+[A31 decision](phase-4-bounded-history.md) documents authority, rollback, limits and
+what is retained. Uncertified accounts cannot bypass entry-capacity checks.
 
-The [capacity increment](phase-4-capacity.md) batches audit source queries, combines
-report calculation with the validated valuation stream and removes repeated Decimal
-quantization from boundary checks. It adds measurement of the actual replay and
-scheduled-summary deadlines. The acceptance budgets, record limits and retention
-blocker remain explicit; this increment does not close condition 4. The
-[0.4.14 summary increment](phase-4-summary-capacity.md) shares one audited snapshot
-for daily reporting, batches checkpoint anchors and reduces repeated validation.
-Its local 100,000-row combined startup, historical report, replay audit and summary
-still exceed their original deadlines. Those failures and the 56-day preservation
-requirement remain within the same open condition.
+This is a bounded local-paper release: one enrolled account, stopped-worker
+maintenance before 4,096 new financial events/observations, existing 2 GB/disk and
+order/journal/fill ceilings. At one observation per second the suffix lasts about
+68 minutes, less at higher input rates. Unselected capture receipts, normalized
+trades and venue evidence still consume storage. Actual feed growth, maintenance
+availability and eight-week reliability remain unproven deployment/Phase 5 inputs.
 
-The [0.4.15 preservation format](phase-4-replay-preservation.md) adds a lossless,
-segmented replay/source export and offline verification. It leaves PostgreSQL
-records unchanged and originally supplied no runtime reader. The
-[0.4.16 archive input](phase-4-archive-input.md) now reads that prefix against
-retained database anchors, reconstructs the full financial history and continues
-into the SQL suffix. File faults block the invocation/current writer. No record
-pruning or bounded financial-prefix audit is implemented; condition 4 remains open.
+The release passed **702 Linux/PostgreSQL tests**, including 1,000-example financial
+properties and 10,000 generated lifecycle sequences, strict typing, formatting and
+all three dependency audits. The populated restore compares 32 tables including
+compacted history, preserves permissions and completes two recoveries without venue
+commands. A real bounded PostgreSQL WAL ENOSPC drill preserves reservations and
+recovers disarmed. The installed CLI handoff exercises setup, runner health, halt,
+compaction, required-authority rejection, recovery and equal reports. All are
+disposable synthetic tests with zero qualifying days/episodes.
 
-**Phase 4 is incomplete. C1 and C2 are complete; C3–C4 remain in the fixed packages in the
-[completion checklist](phase-4-completion.md). The Phase 5 qualifying observation
-period has not started.** The new runner is an opt-in operational experiment. It
-approves no research, observation-start or release gate. The retained local stack has not been upgraded.
+**The qualifying Phase 5 observation clock has not started.** All 20 research
+candidates remain rejected and the holdout is closed. Local-paper engineering can
+finish without a profitable research result. Research rejection does not add new
+Phase 4 coding requirements. Engineering completion does not qualify a candidate,
+open its holdout or approve observation, hosting or live operation.
+
+The retained workstation stack has not been upgraded, migrated or compacted by
+this release. Its existing image/schema is not this release's deployed evidence.
+Use the reviewed upgrade procedure before changing retained state.
+
+## Phase 4 closure register
+
+| ID | Evidence | Result |
+| --- | --- | --- |
+| P4-C1 | [Continuous strategy-to-paper workflow](phase-4-continuous-paper.md), reverified in the current regression | Complete, 5/5; operational experiments only |
+| P4-C2 | [Transfers, immutable corrections and invalidation](phase-4-accounting.md), reverified in the current regression | Complete, 3/3; corrected historical accounting stays quarantined |
+| P4-C3 | [Original safety review](phase-4-safety.md), [bounded history](phase-4-bounded-history.md) and [current integrated results](evidence/phase-4-paper-release.json) | Complete, 5/5 for applicable local-paper assertions; retention-path option used |
+| P4-C4 | [Packaged runbook, coverage review and gate decision](phase-4-paper-release.md) | Complete, 4/4; later gates explicitly separate |
+
+No applicable local-paper safety failure remains unresolved in this release packet.
+The G2 decision covers the stated local-paper assertions only. Full T25, private
+Kraken semantics and production recovery are not marked passed or waived. Earlier
+capacity runs failed their budgets and remain preserved in their increment reports;
+only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 
 ## Existing implementation
 
 | Area | Implemented and recorded evidence |
 | --- | --- |
 | Foundation/data | Paper-only package, restricted PostgreSQL roles, migrations, containers, public Kraken metadata/books/trades/candles, provenance and ordered replay |
-| Research | Shared deterministic indicators/strategies, audited datasets, cost-aware simulation and recorded trials; all 20 evaluated candidates rejected, final holdout closed |
-| Accounting/risk | GBP journal and quantity movements, contributions/withdrawals, [GBP/BTC/ETH transfers and immutable corrections](phase-4-accounting.md), unitisation, reservations, Decimal sizing, independent dispatch controls, durable loss latches and [manual tax-cash earmarks](phase-4-tax-cash-reserve.md) |
-| Paper execution | [Continuous operational runner](phase-4-continuous-paper.md), explicit immutable selection, finalised candle decisions, restart deduplication, entry/exit dispatch and UTC boundary accounting; durable local venue, partial fills, cancellation races, protective sells, uncertainty/recovery, public replay and [separate-process crash tests](phase-4-process-recovery.md) |
-| Reports | Audited original-time valuations, bounded historical performance, flow-neutral TWR and bounded MWR; incomplete evidence is explicitly provisional |
-| Notifications | Opt-in Discord worker, durable retries, provisional daily summaries, critical repeats, cached health/metrics and exact-event failure reviews |
-| Operations | Local health/metrics, private upgrade backups, runbooks and a [disposable logical restore with controlled concurrent commits](phase-4-local-restore.md) |
-
-The 0.4.16 frozen-source Linux/PostgreSQL regression passed **663 tests**; all
-static checks, package build, advisory audits and packaged CLI/restart checks pass.
-The [archive-input results](phase-4-archive-input.md) show local SQL operations
-within their original deadlines, but **all four online archive operations fail**
-those budgets. Financial history is still audited in full, all SQL records remain,
-and 56-day headroom is false. The fixed checklist remains **12/17**. Hosted
-exact-head results are recorded in the PR; green measurements do not approve C3.
-
-The 0.4.15 Linux/PostgreSQL regression passed **639 tests**; Ruff, strict Mypy,
-package build, advisory audits and packaged archive CLI/restart checks pass.
-Its [preservation/capacity results](phase-4-replay-preservation.md) retain an actual
-daily-summary deadline failure; the subsequent 0.4.16 online read-path evidence is
-recorded separately in the [current increment](phase-4-archive-input.md).
-Condition 4 remains open. The earlier 0.4.14 run passed 598 tests and its
-[capacity results](phase-4-summary-capacity.md) remain historical evidence.
-The original 0.4.12 C3 full Linux run passed **578 tests**.
-The [C3 report](phase-4-safety.md) records actual WAL failure, populated restore,
-timing and the explicitly unsuccessful capacity condition. The
-[C2 report](phase-4-accounting.md) retains its accounting/invalidation and packaged
-CLI evidence; C1 retains its earlier linked evidence.
-Passing tests for these increments do not prove every original T-group or gate is complete.
-
-## Phase 4 closure register
-
-| ID | Remaining work | Status / observable exit |
-| --- | --- | --- |
-| P4-C1 | Continuous strategy-to-paper workflow, including warm-up, finalised decisions, restart deduplication and UTC-day integration | Complete: all five conditions linked to [implementation and evidence](phase-4-continuous-paper.md); operational experiments only |
-| P4-C2 | Supported-account transfers and audited corrections/invalidation | Complete: all three conditions linked to [implementation and evidence](phase-4-accounting.md); corrected units/history are explicitly invalidated and the account remains quarantined |
-| P4-C3 | Named local safety gaps and integrated regression | Partial: conditions 1/2/3/5 have [linked evidence](phase-4-safety.md). Condition 4 remains open: measured replay/report capacity and 56-day retention/headroom have not passed |
-| P4-C4 | Local handoff and explicit engineering/G2 review | Open: packaged runbook smoke, linked C1–C3 evidence, applicable safety decision and separate research/observation status |
-
-The [checklist](phase-4-completion.md) supplies the source sections, acceptance
-conditions, existing test references for all 33 IDs and change-control rule. The
-four packages are an engineering allocation of the user's specification, not four
-additional requirements or a promise of four PRs. C1 and C2 are complete; the next
-implementation is C3 condition 4; C4 follows its resolution.
-Standalone backup/notification enhancements do not automatically become blockers.
+| Research | Shared deterministic indicators/strategies, audited datasets, cost-aware simulation and recorded trials; 20 rejected candidates, final holdout closed |
+| Accounting/risk | GBP journal/movements, owner flows, supported transfers/corrections, unitisation, reservations, Decimal sizing, independent dispatch controls, durable loss latches and manual tax-cash earmarks |
+| Paper execution | Explicit versioned strategy selection, past-only finalised candles, durable decisions, local entry/exit lifecycle, protection, uncertainty/recovery and UTC boundaries |
+| Reports/history | Original-time GBP valuations, reconciled TWR and bounded MWR, lossless blocks, protected summaries and full suffix validation; incomplete evidence stays provisional |
+| Notifications | Opt-in outbound worker, durable bounded retries, daily summaries, critical repeats, health and exact-event failure review |
+| Operations | CLI, private health/metrics, packaged handoff, bounded storage-fault and populated logical-restore drills |
 
 ## Separate later work and gates
 
 | Stage | Work / decision still required |
 | --- | --- |
-| Research / G3 | Required history and OOS coverage, complete trials, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; current candidates remain rejected |
-| Phase 5 / G4 | At least 56 calendar days and 10 completed signal-driven paper episodes, measured fill/latency calibration, 99.5% healthy observations under the specified dependency condition, real notification integration, recovery exercises and positive economics |
-| Deployment/readiness / G4–G5 | Authorised hosting/service setup, encrypted off-host/WAL backups, backup-gap reconciliation and host-loss/fencing drills, measured production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |
-| Tax/reporting readiness | Owner-wide opening inventory, matching, estimates/payments and household reporting; manual earmarks are not tax estimates and existing reports remain provisional |
+| Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; all current candidates rejected |
+| Phase 5 / G4 | Authorised observation start; at least 56 calendar days and 10 completed signal-driven episodes; measured fills/latency, 99.5% healthy observations under the specified dependency condition, real destination integration, recovery exercises and positive economics |
+| Deployment/readiness / G4–G5 | Authorised hosting/service setup, actual capture growth and maintenance planning, encrypted off-host/WAL backups, gap reconciliation, host-loss/fencing drills, production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |
+| Tax/reporting readiness | Owner-wide opening inventory, matching, estimates/payments and household reporting; manual earmarks are not tax estimates and reports remain provisional |
 | Optional live implementation / G6 | Separately authorised Kraken writer and release tests, signed limited permit, fresh reconciliation and human-approved canary/protection evidence |
 
-Local paper engineering can be completed without a profitable research result.
-Research rejection does not create unlimited additional Phase 4 work. Conversely,
-engineering completion does not qualify a strategy, open its holdout or approve
-an observation start. Operational test selections and synthetic replay receive
-zero qualifying paper-day/episode credit.
-
-G2–G6 remain incomplete. The local restore is partial T25 evidence; moving deployed
-disaster recovery into its proper stage does not pass or waive full T25. The gate
-review must record applicability and outstanding later evidence explicitly.
-
-No contribution, test count, elapsed time or restart authorises trading. Private
-Kraken access, paid deployment, live writer implementation and activation retain
-their separate authorisation boundaries. Subsequent milestones require review.
+These later requirements do not reopen the fixed Phase 4 checklist. No contribution,
+test count, elapsed time, restart or configuration flag grants trading permission.
+Private Kraken access, paid deployment, writer implementation and every live order
+retain their separate authorisation boundaries.
