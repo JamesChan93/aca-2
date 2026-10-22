@@ -1,0 +1,435 @@
+{
+  "application_version": "0.4.17",
+  "authority": {
+    "acceptance_always_full_audit": true,
+    "acceptance_role": "aca_migrator",
+    "acceptance_uses_readonly_runtime_snapshot": true,
+    "active_writer_blocks_acceptance": true,
+    "all_journal_balances_independently_reconciled": true,
+    "historical_economics_audited_by_seal": false,
+    "historical_report_economics_still_fully_reconstructed": true,
+    "live_permission": false,
+    "missing_or_mismatched_required_prefix_blocks_writer": true,
+    "operator_expected_version_required": true,
+    "pruning_authorised": false,
+    "retained_prefix_membership_checked": true,
+    "runtime_prefix_privileges": [
+      "SELECT"
+    ],
+    "source_policy_python_financial_dependencies_bound": true,
+    "suffix_fully_reconstructed": true
+  },
+  "base_commit": "e3ecb7c1820acab267108761181a578204386ab7",
+  "checklist_complete": 12,
+  "checklist_conditions_closed": [],
+  "checklist_total": 17,
+  "financial_subset_capacity": {
+    "56_day_headroom_demonstrated": false,
+    "application_version": "0.4.17",
+    "certifi_version": "2026.10.19",
+    "cleanup_complete": true,
+    "cpu.max": "75000 100000",
+    "cpu_seconds": 17.064025233000002,
+    "database_bytes": 70563519,
+    "elapsed_seconds": 30.164265471999897,
+    "financial_prefix": {
+      "accepted_event_version": 99984,
+      "flow_neutral_units_and_cash_verified": true,
+      "full_financial_economics_equal": true,
+      "measurements": {
+        "full_financial_writer_startup": {
+          "deadline_seconds": 30,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 6.938167377999889
+        },
+        "protected_financial_writer_startup": {
+          "deadline_seconds": 30,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 0.03033737499936251
+        },
+        "protected_writer_with_sixteen_suffix_events": {
+          "deadline_seconds": 30,
+          "operation_finished": true,
+          "outcome": "completed",
+          "seconds": 0.023929375000079744
+        }
+      },
+      "operator_full_audit_acceptance_seconds": 7.350675254000635,
+      "packaged_acceptance_cli_verified": true,
+      "pruned_records": 0,
+      "replay_and_report_capacity_exercised": false,
+      "retained_financial_events": 100000,
+      "venue_commands": 0
+    },
+    "live_execution_available": false,
+    "max_rss_kib": 115188,
+    "measured_boundary_failures": [],
+    "memory.max": "805306368",
+    "memory.peak": "183640064",
+    "operational_budgets_exercised": false,
+    "operations": {},
+    "package_source_sha256": "79db6dcef858ae0c23bcfe3819c3329af5ed1b19539c48739127f4328ea5ee2e",
+    "promotion_evidence": false,
+    "record_limits": {
+      "events": 100000
+    },
+    "status": "measured",
+    "trial_mode": "financial_prefix"
+  },
+  "g2_approved": false,
+  "hosted_verification": "Exact-head hosted checks and raw capacity outcomes are recorded in the pull request after completion.",
+  "limits": {
+    "combined_replay_startup_seconds": 20,
+    "daily_summary_seconds": 15,
+    "database_budget_bytes": 2000000000,
+    "database_cpu": "75000 100000",
+    "database_memory_bytes": 1073741824,
+    "financial_startup_seconds": 30,
+    "free_disk_percent_required": 15,
+    "historical_report_seconds": 20,
+    "max_financial_audit_suffix_events": 100000,
+    "max_projection_bytes": 2000000,
+    "max_projection_orders": 1024,
+    "max_report_events": 100000,
+    "max_report_fills": 4096,
+    "max_report_journals": 10000,
+    "max_report_values": 100000,
+    "replay_after_acquisition_seconds": 10,
+    "worker_cpu": "75000 100000",
+    "worker_memory_bytes": 805306368
+  },
+  "live_execution_available": false,
+  "package": {
+    "application_version": "0.4.17",
+    "environment_hash": "804a0d7660354596c3be58d16fda003e94f837f39bdea43676c77dffa6162649",
+    "source_sha256": "79db6dcef858ae0c23bcfe3819c3329af5ed1b19539c48739127f4328ea5ee2e",
+    "wheel_bytes": 222471,
+    "wheel_sha256": "c117cdab0f98b6022ce90fb3fe09554da90e5e2f0d91637d32bc98c9947146d9"
+  },
+  "promotion_evidence": false,
+  "qualifying_phase_5_started": false,
+  "recorded_date": "2026-10-22",
+  "remaining_same_condition": [
+    "Integrated replay/report/summary deadlines have not passed.",
+    "The financial-only workload is not the full order/fill/replay or one-second risk-loop capacity trial.",
+    "All SQL history remains; membership counts and journal SQL aggregates still scan retained data.",
+    "No financial-event archive, indexed historical aggregate authority or durable retention catalogue.",
+    "No SQL prefix removal or pruning permission; 56-day headroom remains false."
+  ],
+  "restore": {
+    "cleanup_complete": true,
+    "declared_gap": {
+      "accounts_halted": [
+        "validated",
+        "uncertain",
+        "unposted_fill",
+        "hard_halt",
+        "observed",
+        "corrected"
+      ],
+      "continued_observation_permitted": false,
+      "declared_source_head": 118,
+      "gap_identified": true,
+      "live_execution_available": false,
+      "missing_investment_flows": 32,
+      "missing_investment_gbp": "32",
+      "qualifying_days": 0,
+      "recovered_absent_evidence": false,
+      "restored_source_head": 86,
+      "venue_commands": 0
+    },
+    "elapsed_seconds": 58.371,
+    "exported_snapshot_stable_after_writes": true,
+    "failed_restore_rolled_back": true,
+    "off_host_backup": false,
+    "post_snapshot_changes_excluded": true,
+    "production_rpo_proven": false,
+    "production_rto_proven": false,
+    "repeated_recovery_economics_equal": true,
+    "restored_transactional_view_equal": true,
+    "runtime_permissions_verified": true,
+    "sequence_bounds_verified": true,
+    "status": "passed",
+    "wal_recovery": false
+  },
+  "restore_protected_audit_table": {
+    "rows": 6,
+    "sha256": "91ca7fc102e9db0419e610c9c966240e41ac664c20ada38309d2aab4a1cbc454"
+  },
+  "restore_recovery": {
+    "cases": {
+      "corrected": {
+        "accounting_invalidated": true,
+        "balances": [
+          {
+            "asset": "GBP",
+            "cost_gbp": "925.000000000000000000",
+            "quantity": "925",
+            "schema_version": 1
+          },
+          {
+            "asset": "BTC",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          },
+          {
+            "asset": "ETH",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          }
+        ],
+        "fill_count": 0,
+        "financial_audit_prefix": "bfa00e66-59d2-4af6-b18c-85b70ab2b9ee",
+        "hard_halt": true,
+        "journal_count": 4,
+        "orders": [],
+        "reserved_gbp": "0E-18",
+        "tax_cash_reserve_gbp": "0"
+      },
+      "hard_halt": {
+        "accounting_invalidated": false,
+        "balances": [
+          {
+            "asset": "GBP",
+            "cost_gbp": "934.665270400000000000",
+            "quantity": "934.665270400000000000",
+            "schema_version": 1
+          },
+          {
+            "asset": "BTC",
+            "cost_gbp": "64.816200000000000000",
+            "quantity": "0.06481620",
+            "schema_version": 1
+          },
+          {
+            "asset": "ETH",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          }
+        ],
+        "fill_count": 1,
+        "financial_audit_prefix": "9cd25fab-8bf6-4368-afe0-7119aa96e0d7",
+        "hard_halt": true,
+        "journal_count": 2,
+        "orders": [
+          {
+            "filled": "0",
+            "purpose": "protection",
+            "state": "OPEN"
+          },
+          {
+            "filled": "0.064816200000000000",
+            "purpose": "entry",
+            "state": "FILLED"
+          }
+        ],
+        "reserved_gbp": "0E-18",
+        "tax_cash_reserve_gbp": "0"
+      },
+      "observed": {
+        "accounting_invalidated": false,
+        "balances": [
+          {
+            "asset": "GBP",
+            "cost_gbp": "1025.000000000000000000",
+            "quantity": "1025",
+            "schema_version": 1
+          },
+          {
+            "asset": "BTC",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          },
+          {
+            "asset": "ETH",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          }
+        ],
+        "fill_count": 0,
+        "financial_audit_prefix": "0c15f3c1-95ec-4432-8494-3f2a42cde067",
+        "hard_halt": true,
+        "journal_count": 2,
+        "orders": [],
+        "reserved_gbp": "0E-18",
+        "tax_cash_reserve_gbp": "0"
+      },
+      "uncertain": {
+        "accounting_invalidated": false,
+        "balances": [
+          {
+            "asset": "GBP",
+            "cost_gbp": "1000",
+            "quantity": "1000",
+            "schema_version": 1
+          },
+          {
+            "asset": "BTC",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          },
+          {
+            "asset": "ETH",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          }
+        ],
+        "fill_count": 0,
+        "financial_audit_prefix": "066144a5-d79e-40e1-957a-2e2aa35e2ecd",
+        "hard_halt": false,
+        "journal_count": 1,
+        "orders": [
+          {
+            "filled": "0",
+            "purpose": "entry",
+            "state": "UNKNOWN"
+          }
+        ],
+        "reserved_gbp": "65.400064329600000000",
+        "tax_cash_reserve_gbp": "0"
+      },
+      "unposted_fill": {
+        "accounting_invalidated": false,
+        "balances": [
+          {
+            "asset": "GBP",
+            "cost_gbp": "934.665270400000000000",
+            "quantity": "934.665270400000000000",
+            "schema_version": 1
+          },
+          {
+            "asset": "BTC",
+            "cost_gbp": "64.816200000000000000",
+            "quantity": "0.06481620",
+            "schema_version": 1
+          },
+          {
+            "asset": "ETH",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          }
+        ],
+        "fill_count": 1,
+        "financial_audit_prefix": "95eecf5e-62a2-4262-96a2-edd48facb8c1",
+        "hard_halt": false,
+        "journal_count": 2,
+        "orders": [
+          {
+            "filled": "0",
+            "purpose": "protection",
+            "state": "OPEN"
+          },
+          {
+            "filled": "0.064816200000000000",
+            "purpose": "entry",
+            "state": "FILLED"
+          }
+        ],
+        "reserved_gbp": "0E-18",
+        "tax_cash_reserve_gbp": "0"
+      },
+      "validated": {
+        "accounting_invalidated": false,
+        "balances": [
+          {
+            "asset": "GBP",
+            "cost_gbp": "1064",
+            "quantity": "1064",
+            "schema_version": 1
+          },
+          {
+            "asset": "BTC",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          },
+          {
+            "asset": "ETH",
+            "cost_gbp": "0",
+            "quantity": "0",
+            "schema_version": 1
+          }
+        ],
+        "fill_count": 0,
+        "financial_audit_prefix": "b3ed1842-d037-4634-84cd-43cc8dcfbda6",
+        "hard_halt": false,
+        "journal_count": 65,
+        "orders": [
+          {
+            "filled": "0",
+            "purpose": "entry",
+            "state": "EXPIRED"
+          }
+        ],
+        "reserved_gbp": "0E-18",
+        "tax_cash_reserve_gbp": "100"
+      }
+    },
+    "economics_sha256": "633c2d5b419729ca76d3925dba7631f6781632324449a4b8768447cbd989df15",
+    "venue_commands": 0
+  },
+  "restore_tables_compared": 30,
+  "retained_runtime": {
+    "application_container_id": "d3a2ecbb4031",
+    "application_version": "0.4.8",
+    "audit_prefix_accepted": false,
+    "database_container_id": "96adb63d0930",
+    "deployed": false,
+    "full_database_fingerprint_compared": false,
+    "migrated": false,
+    "rows_pruned": 0,
+    "schema_revision": "0011_notification_reviews"
+  },
+  "schema_revision": "0015_financial_audits",
+  "schema_version": 1,
+  "source_and_harness_files_sha256": {
+    ".github/workflows/ci.yaml": "d452b998978d13be129d17c01b263a8a69024f68846d91e4e3c1abe50fe5d8c4",
+    "Dockerfile": "e644ffae65a7ab0cef667f63b05e7f5b66e8e8a45b9d2c0e4fe95559a75402f6",
+    "scripts/capacity_trial.py": "1929746a47d5ce0e75ed07aa7c0293f6501b69aa9f8faae81f806ba2d4cfd4d5",
+    "src/aca/app/paper_supervisor.py": "a47925936b251e5bba854a79f85116f0680c084eeb303ca4a918415264531ba0",
+    "src/aca/operations/paper.py": "e59e6f16ec608cfb85e54e99a4fb797d64d7ab314b29f8a3c7b99491d793dbc4",
+    "src/aca/reporting/historical.py": "edf559c5602a99e07b0a0af6e6daa08b56cbcc8d74910652dff4f03acbd4c411",
+    "src/aca/reporting/replay_archive.py": "b82f3d483b74016912326607b7ca9bac2285bd3c6f37604a8f58eea8f08222ad",
+    "src/aca/storage/audit_prefix.py": "3c1e82a4df9a85981288b894d5193c332d2664b0579d4cedf9db45f90e5fc667",
+    "src/aca/storage/database.py": "72e31a32b64b3aedea2ad396f2d7490c2c5f02737ed88543aaf9ded81be48186",
+    "src/aca/storage/migrations/versions/0015_financial_audits.py": "2b2e472fbcf2f8d64e29fc2d89fb8066cfe9a832cdde8689db4e4d9a93e4fb2f",
+    "src/aca/storage/paper.py": "084be6338997ff3308f27fe3276dedee2f3cf7c78d2ce8b4ab8f1eef8a29ff55",
+    "tests/capacity_fixture.py": "be442c6f66f2a3dc487e783f8dd047a42b607123734a9e9304fe4f1aa46820be",
+    "tests/financial_prefix_capacity.py": "deb6567cb1643b61be1c82bfdb6459c45ebe9e438588e2141defec268ee8517d",
+    "tests/restore_fixture.py": "3b77e2284946020d634d6bf0a18c135b20db43500aa15b57379b8582bac9f7e5",
+    "tests/test_financial_audit_prefix.py": "a2c56b84cfa92e2947912a81afb0c3943f716d1e40a17c27a30d470b1fea8aa5"
+  },
+  "source_python_files": 113,
+  "validation": {
+    "dependency_advisory_audits": {
+      "development": "No known vulnerabilities found",
+      "research": "No known vulnerabilities found",
+      "runtime": "No known vulnerabilities found"
+    },
+    "dependency_locks_changed": false,
+    "deterministic_properties": true,
+    "financial_generated_examples_per_critical_property": 1000,
+    "installed_linux_wheel_verified": true,
+    "lifecycle_generated_sequences": 10000,
+    "linux_postgresql_tests": {
+      "log_sha256": "beb291c9f7a45ae9e893b7dae190d31148402ca6fa1f1b0025c244988ce3f52a",
+      "passed": 684,
+      "seconds": 123.85
+    },
+    "mypy": "passed",
+    "mypy_source_files": 149,
+    "ruff_check": "passed",
+    "ruff_format_files": 172
+  },
+  "work_package": "P4-C3 condition 4"
+}

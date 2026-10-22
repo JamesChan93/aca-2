@@ -10,6 +10,12 @@ single-writer durable commands, a separate simulated venue and recovery. Runtime
 database privileges remain SELECT/INSERT. No continuous runner or live writer is
 included; historical milestone descriptions below retain their original scope.
 
+[A30 — protected financial audit prefixes](phase-4-financial-prefix.md) adds an
+operator-owned audit attestation with runtime SELECT only. It binds reuse to exact
+installed code/policy and retained SQL anchors; full suffix/journal validation
+remains. Ordinary runtime checkpoints cannot create this authority. No pruning,
+historical-aggregate certificate or trading activation is granted.
+
 ## System boundary
 
 One Python modular monolith, PostgreSQL operational authority, GBP reporting, BTC/GBP

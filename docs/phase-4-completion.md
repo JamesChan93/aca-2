@@ -182,6 +182,12 @@ reconstructing financial economics. It retains every SQL record and leaves the
 financial audit proportional to the full prefix. It closes no checklist condition;
 capacity/retention measurements and remaining work stay under condition 4.
 
+The [0.4.17 protected financial audit](phase-4-financial-prefix.md) adds an explicit
+operator-owned audit result and suffix reconstruction. Runtime cannot create those
+records. It retains SQL history, complete historical economic validation and the
+same record/operational ceilings. It supplies no retention/pruning authority or
+56-day headroom and closes no checklist condition.
+
 This package does **not** introduce a generic backup-gap importer or a second
 backup architecture. Existing paper reconciliation is used where authoritative
 evidence exists. Missing evidence remains an explicit block; production recovery
