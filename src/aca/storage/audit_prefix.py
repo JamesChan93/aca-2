@@ -158,7 +158,9 @@ async def read_prefix(c: AsyncConnection, store: PaperStore) -> FinancialAuditPr
         or (
             anchor["document"].get("state_hash")
             if "format" in anchor["document"]
-            else fingerprint(anchor["document"])
+            # Legacy full snapshots predate added default fields. Compare their
+            # typed meaning while the envelope below still hashes exact raw bytes.
+            else fingerprint(PortfolioSnapshot.restore(anchor["document"]).document())
         )
         != record.state_hash
         or fingerprint(

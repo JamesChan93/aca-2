@@ -29,9 +29,9 @@
     "certifi_version": "2026.10.19",
     "cleanup_complete": true,
     "cpu.max": "75000 100000",
-    "cpu_seconds": 17.064025233000002,
-    "database_bytes": 70563519,
-    "elapsed_seconds": 30.164265471999897,
+    "cpu_seconds": 19.486758106,
+    "database_bytes": 70653631,
+    "elapsed_seconds": 34.45524893199945,
     "financial_prefix": {
       "accepted_event_version": 99984,
       "flow_neutral_units_and_cash_verified": true,
@@ -41,22 +41,22 @@
           "deadline_seconds": 30,
           "operation_finished": true,
           "outcome": "completed",
-          "seconds": 6.938167377999889
+          "seconds": 7.497582753000643
         },
         "protected_financial_writer_startup": {
           "deadline_seconds": 30,
           "operation_finished": true,
           "outcome": "completed",
-          "seconds": 0.03033737499936251
+          "seconds": 0.04390362499998446
         },
         "protected_writer_with_sixteen_suffix_events": {
           "deadline_seconds": 30,
           "operation_finished": true,
           "outcome": "completed",
-          "seconds": 0.023929375000079744
+          "seconds": 0.024068041999271372
         }
       },
-      "operator_full_audit_acceptance_seconds": 7.350675254000635,
+      "operator_full_audit_acceptance_seconds": 8.437146087000656,
       "packaged_acceptance_cli_verified": true,
       "pruned_records": 0,
       "replay_and_report_capacity_exercised": false,
@@ -64,13 +64,13 @@
       "venue_commands": 0
     },
     "live_execution_available": false,
-    "max_rss_kib": 115188,
+    "max_rss_kib": 115136,
     "measured_boundary_failures": [],
     "memory.max": "805306368",
-    "memory.peak": "183640064",
+    "memory.peak": "183603200",
     "operational_budgets_exercised": false,
     "operations": {},
-    "package_source_sha256": "79db6dcef858ae0c23bcfe3819c3329af5ed1b19539c48739127f4328ea5ee2e",
+    "package_source_sha256": "f6d627f049056dc30e547926296cb63059738d0118bf407d05fa320db548f548",
     "promotion_evidence": false,
     "record_limits": {
       "events": 100000
@@ -80,6 +80,12 @@
   },
   "g2_approved": false,
   "hosted_verification": "Exact-head hosted checks and raw capacity outcomes are recorded in the pull request after completion.",
+  "legacy_regression": {
+    "default_fields_normalised_for_typed_state_comparison": true,
+    "fixed_raw_envelope_hash_preserved": true,
+    "pre_fix_failure_reproduced": true,
+    "pre_fix_log_sha256": "ae44071e18bfd9075fd0eeafae5294caafc08239b1d0f290c69a5dbc0f3bfc9a"
+  },
   "limits": {
     "combined_replay_startup_seconds": 20,
     "daily_summary_seconds": 15,
@@ -104,9 +110,9 @@
   "package": {
     "application_version": "0.4.17",
     "environment_hash": "804a0d7660354596c3be58d16fda003e94f837f39bdea43676c77dffa6162649",
-    "source_sha256": "79db6dcef858ae0c23bcfe3819c3329af5ed1b19539c48739127f4328ea5ee2e",
-    "wheel_bytes": 222471,
-    "wheel_sha256": "c117cdab0f98b6022ce90fb3fe09554da90e5e2f0d91637d32bc98c9947146d9"
+    "source_sha256": "f6d627f049056dc30e547926296cb63059738d0118bf407d05fa320db548f548",
+    "wheel_bytes": 222564,
+    "wheel_sha256": "6ba59edfcd20495e7507bcce335384ba0d49a9d8ab93a3a2a3d8882abdb5f476"
   },
   "promotion_evidence": false,
   "qualifying_phase_5_started": false,
@@ -140,7 +146,7 @@
       "restored_source_head": 86,
       "venue_commands": 0
     },
-    "elapsed_seconds": 58.371,
+    "elapsed_seconds": 64.677,
     "exported_snapshot_stable_after_writes": true,
     "failed_restore_rolled_back": true,
     "off_host_backup": false,
@@ -156,7 +162,7 @@
   },
   "restore_protected_audit_table": {
     "rows": 6,
-    "sha256": "91ca7fc102e9db0419e610c9c966240e41ac664c20ada38309d2aab4a1cbc454"
+    "sha256": "993af97717a5f9ecfd4f875aff7c7f0b2409d44b91d69f5121f73464ef436b7d"
   },
   "restore_recovery": {
     "cases": {
@@ -183,7 +189,7 @@
           }
         ],
         "fill_count": 0,
-        "financial_audit_prefix": "bfa00e66-59d2-4af6-b18c-85b70ab2b9ee",
+        "financial_audit_prefix": "491270b5-799e-45f8-b4eb-ff070f2dd94f",
         "hard_halt": true,
         "journal_count": 4,
         "orders": [],
@@ -213,7 +219,7 @@
           }
         ],
         "fill_count": 1,
-        "financial_audit_prefix": "9cd25fab-8bf6-4368-afe0-7119aa96e0d7",
+        "financial_audit_prefix": "f89daf5f-9034-4510-9a29-7ec1fd9cecbf",
         "hard_halt": true,
         "journal_count": 2,
         "orders": [
@@ -254,7 +260,7 @@
           }
         ],
         "fill_count": 0,
-        "financial_audit_prefix": "0c15f3c1-95ec-4432-8494-3f2a42cde067",
+        "financial_audit_prefix": "251de66a-62ad-4241-b4f3-3c55cb5918cf",
         "hard_halt": true,
         "journal_count": 2,
         "orders": [],
@@ -284,7 +290,7 @@
           }
         ],
         "fill_count": 0,
-        "financial_audit_prefix": "066144a5-d79e-40e1-957a-2e2aa35e2ecd",
+        "financial_audit_prefix": "8bc5811e-909f-42a8-933f-33a533666d88",
         "hard_halt": false,
         "journal_count": 1,
         "orders": [
@@ -320,7 +326,7 @@
           }
         ],
         "fill_count": 1,
-        "financial_audit_prefix": "95eecf5e-62a2-4262-96a2-edd48facb8c1",
+        "financial_audit_prefix": "bb72e463-5780-48f1-b922-1c00fc31fa5b",
         "hard_halt": false,
         "journal_count": 2,
         "orders": [
@@ -361,7 +367,7 @@
           }
         ],
         "fill_count": 0,
-        "financial_audit_prefix": "b3ed1842-d037-4634-84cd-43cc8dcfbda6",
+        "financial_audit_prefix": "c34b2f69-a43a-4960-910b-98bbf7d12134",
         "hard_halt": false,
         "journal_count": 65,
         "orders": [
@@ -375,7 +381,7 @@
         "tax_cash_reserve_gbp": "100"
       }
     },
-    "economics_sha256": "633c2d5b419729ca76d3925dba7631f6781632324449a4b8768447cbd989df15",
+    "economics_sha256": "2a21b385307de2acde68cf8c7b1e452c4300d48f9714315cee7240b088f68ee3",
     "venue_commands": 0
   },
   "restore_tables_compared": 30,
@@ -400,14 +406,14 @@
     "src/aca/operations/paper.py": "e59e6f16ec608cfb85e54e99a4fb797d64d7ab314b29f8a3c7b99491d793dbc4",
     "src/aca/reporting/historical.py": "edf559c5602a99e07b0a0af6e6daa08b56cbcc8d74910652dff4f03acbd4c411",
     "src/aca/reporting/replay_archive.py": "b82f3d483b74016912326607b7ca9bac2285bd3c6f37604a8f58eea8f08222ad",
-    "src/aca/storage/audit_prefix.py": "3c1e82a4df9a85981288b894d5193c332d2664b0579d4cedf9db45f90e5fc667",
+    "src/aca/storage/audit_prefix.py": "9320b0f2be592e25b9098854bf7c008ecb6791361791e71e831b9d4827a0af90",
     "src/aca/storage/database.py": "72e31a32b64b3aedea2ad396f2d7490c2c5f02737ed88543aaf9ded81be48186",
     "src/aca/storage/migrations/versions/0015_financial_audits.py": "2b2e472fbcf2f8d64e29fc2d89fb8066cfe9a832cdde8689db4e4d9a93e4fb2f",
     "src/aca/storage/paper.py": "084be6338997ff3308f27fe3276dedee2f3cf7c78d2ce8b4ab8f1eef8a29ff55",
     "tests/capacity_fixture.py": "be442c6f66f2a3dc487e783f8dd047a42b607123734a9e9304fe4f1aa46820be",
     "tests/financial_prefix_capacity.py": "deb6567cb1643b61be1c82bfdb6459c45ebe9e438588e2141defec268ee8517d",
     "tests/restore_fixture.py": "3b77e2284946020d634d6bf0a18c135b20db43500aa15b57379b8582bac9f7e5",
-    "tests/test_financial_audit_prefix.py": "a2c56b84cfa92e2947912a81afb0c3943f716d1e40a17c27a30d470b1fea8aa5"
+    "tests/test_financial_audit_prefix.py": "d306415a752711d475c0128125dd77278b3fc8adb920a0430999416f064d361d"
   },
   "source_python_files": 113,
   "validation": {
@@ -422,9 +428,9 @@
     "installed_linux_wheel_verified": true,
     "lifecycle_generated_sequences": 10000,
     "linux_postgresql_tests": {
-      "log_sha256": "beb291c9f7a45ae9e893b7dae190d31148402ca6fa1f1b0025c244988ce3f52a",
-      "passed": 684,
-      "seconds": 123.85
+      "log_sha256": "db847373acd1a53ff4775be1afa72599855a6ba87bae61e48dda5f3e687cb28e",
+      "passed": 685,
+      "seconds": 140.23
     },
     "mypy": "passed",
     "mypy_source_files": 149,

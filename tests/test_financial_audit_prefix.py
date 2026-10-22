@@ -26,7 +26,7 @@ from aca.simulation.stored_replay import StoredReplay
 from aca.storage import audit_prefix
 from aca.storage.audit_prefix import FinancialAuditPrefix, accept_prefix, prefixes
 from aca.storage.database import DatabaseSafetyError, create_engine, verify_runtime
-from aca.storage.paper import PaperStore, PaperWriter, checkpoints, events, journals
+from aca.storage.paper import PaperStore, PaperWriter, accounts, checkpoints, events, journals
 from aca.storage.paper_projection import delta
 from aca.storage.replay import public_events
 
@@ -308,6 +308,70 @@ async def test_rehashed_prefix_state_must_still_match_its_original_event_anchor(
             await read(wrong)
     finally:
         await authority.dispose()
+        await store.engine.dispose()
+
+
+async def test_legacy_full_snapshot_prefix_normalises_added_defaults_without_rewriting(
+    database_settings: Settings,
+) -> None:
+    from test_paper_checkpoints import opening
+
+    state = opening()
+    store = PaperStore(create_engine(database_settings), state.account_id)
+    document = state.document()
+    document.pop("tax_reserve_gbp")  # Before 0012 this default field did not exist.
+    hashed = fingerprint(
+        {
+            "previous": "0" * 64,
+            "version": 1,
+            "kind": "opening",
+            "source": "legacy-full-snapshot",
+            "state": document,
+        }
+    )
+    try:
+        async with store.engine.begin() as c:
+            await c.execute(
+                accounts.insert().values(
+                    id=store.account_id,
+                    created_at=AT,
+                    mode="paper",
+                )
+            )
+            await c.execute(
+                events.insert().values(
+                    account_id=store.account_id,
+                    version=1,
+                    id=uuid4(),
+                    source="legacy-full-snapshot",
+                    kind="opening",
+                    at=AT,
+                    previous_hash="0" * 64,
+                    fingerprint=hashed,
+                    document=document,
+                )
+            )
+        fast = await accept(database_settings, store, 1)
+        assert await read(fast) == state
+        async with PaperWriter(fast) as owner:
+            service = PaperExecution(owner, PaperExchange(fast))
+            end = await service.cashflow("after-legacy", Decimal(1000), AT)
+        assert await read(fast) == end and await read(fast, full=True) == end
+        async with store.engine.connect() as c:
+            original = (
+                (
+                    await c.execute(
+                        select(events).where(
+                            events.c.account_id == store.account_id,
+                            events.c.version == 1,
+                        )
+                    )
+                )
+                .mappings()
+                .one()
+            )
+            assert original["document"] == document and original["fingerprint"] == hashed
+    finally:
         await store.engine.dispose()
 
 

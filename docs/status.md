@@ -17,9 +17,9 @@ selected suffix audit. Runtime credentials cannot issue that authority. It retai
 all SQL evidence and complete historical economic checks; this is no retention,
 pruning or 56-day approval. The fixed checklist stays **12/17**. Its financial-only
 measurement is distinct from the original integrated replay/report trial.
-The [0.4.17 evidence](evidence/phase-4-financial-prefix.json) records **684 passing
+The [0.4.17 evidence](evidence/phase-4-financial-prefix.json) records **685 passing
 Linux/PostgreSQL tests**, a six-seal/30-table restore, installed CLI acceptance,
-and 100,000-event full/protected financial startup of 6.938/0.030 seconds locally.
+and 100,000-event full/protected financial startup of 7.498/0.044 seconds locally.
 Complete/protected financial states agree. This subset does not exercise the
 integrated replay/report or 56-day workload and closes no condition.
 

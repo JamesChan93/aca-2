@@ -67,6 +67,12 @@ Sealing uncertainty or invalidated accounting preserves it and cannot rearm it.
 Code/policy or Python/financial-dependency changes require a new full audit and explicitly selected seal.
 Restarts may reuse a seal only when all bindings and the new suffix pass.
 
+Legacy full snapshots compare their restored typed state, including subsequently
+added default fields, with the sealed state hash. The original event envelope is
+still checked against its exact raw document hash. A regression reproduces the
+older missing-tax-reserve-field case, follows it through a new cash flow, and
+verifies the original document/fingerprint were never rewritten.
+
 ## Explicit operator workflow
 
 Use a reviewed local paper database at schema 0015. Keep a private operator
@@ -134,21 +140,21 @@ unchanged. This subset has no replay workload, populated order/fill load or 56-d
 claim. Original combined replay/startup, historical-report and daily-summary
 measurements remain separate. A green measurement job cannot approve C3/G2.
 
-The final local run passed **684 tests in 123.85 seconds**, Ruff checks/formatting,
+The final local run passed **685 tests in 140.23 seconds**, Ruff checks/formatting,
 strict Mypy on 149 source files, and all three dependency advisory audits. The
 installed wheel and all final workers use Python-source SHA-256
-`79db6dcef858ae0c23bcfe3819c3329af5ed1b19539c48739127f4328ea5ee2e`.
-The six-account restore compared 30 tables and passed in 58.371 seconds, with six
+`f6d627f049056dc30e547926296cb63059738d0118bf407d05fa320db548f548`.
+The six-account restore compared 30 tables and passed in 64.677 seconds, with six
 protected audit records, unchanged permissions and zero recovery venue commands.
 
 | Financial-only operation | Local seconds | Existing budget |
 | --- | ---: | ---: |
-| Full financial writer startup | 6.938 | 30 s |
-| Protected-prefix writer startup | 0.030 | 30 s |
+| Full financial writer startup | 7.498 | 30 s |
+| Protected-prefix writer startup | 0.044 | 30 s |
 | Protected startup after 16 new events | 0.024 | 30 s |
 
-The separate full audit/acceptance CLI took 7.351 seconds. Database size was
-70,563,519 bytes; worker peak cgroup memory was 183,640,064 bytes under its
+The separate full audit/acceptance CLI took 8.437 seconds. Database size was
+70,653,631 bytes; worker peak cgroup memory was 183,603,200 bytes under its
 805,306,368-byte limit. All 100,000 events remain. Full/protected states match,
 the cancelling flows preserve the independently expected £1,000 cash/units,
 and owned-project cleanup passed. These are Linux aarch64/Docker Desktop subset
