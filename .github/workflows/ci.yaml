@@ -94,7 +94,7 @@ jobs:
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.16
+          image-ref: aca-foundation:0.4.17
           version: v0.76.0
           scanners: vuln,secret
           format: table
@@ -125,3 +125,14 @@ jobs:
           persist-credentials: false
       - name: Measure export, verification and online archive reads (not a C3 approval)
         run: python3 scripts/capacity_trial.py --preservation
+
+  financial-prefix:
+    name: Protected financial audit measurement
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Measure protected financial audit reuse (not a C3 approval)
+        run: python3 scripts/capacity_trial.py --financial-prefix

@@ -21,7 +21,7 @@ import httpx
 import psycopg
 from process_worker import AT, market, proposal
 from psycopg import sql
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.exc import DBAPIError
 from test_notifications import response, webhook
 from test_stored_replay import Feed
@@ -45,7 +45,7 @@ from aca.simulation.paper import PaperExchange
 from aca.simulation.stored_replay import StoredReplay
 from aca.storage.database import FoundationStore, create_engine, verify_runtime
 from aca.storage.migrate import migrate
-from aca.storage.paper import PaperStore, PaperWriter, accounts, fills
+from aca.storage.paper import PaperStore, PaperWriter, accounts, events, fills
 from aca.storage.replay import cursors, public_events, valuations
 from aca.storage.strategy import PaperSelection, select_strategy
 
@@ -200,6 +200,21 @@ async def seed(settings: Settings) -> None:
                     "Synthetic restore fixture manual halt", AT + timedelta(seconds=1)
                 )
         await seed_observations(engine)
+        from aca.storage.audit_prefix import accept_prefix
+
+        for account in CASES.values():
+            async with engine.connect() as c:
+                version = await c.scalar(
+                    select(func.max(events.c.version)).where(events.c.account_id == account)
+                )
+            assert isinstance(version, int)
+            await accept_prefix(
+                settings,
+                account,
+                account,
+                "Synthetic protected financial audit restore fixture",
+                version,
+            )
     finally:
         await engine.dispose()
     with admin(settings) as c:
@@ -513,7 +528,16 @@ async def economics(settings: Settings, snapshot: str | None = None) -> dict[str
                 store = PaperStore(engine, account)
                 state = await store.audit(c)
                 assert state is not None
+                from aca.storage.audit_prefix import prefixes
+
+                audit_id = await c.scalar(
+                    select(prefixes.c.id).where(prefixes.c.account_id == account)
+                )
+                assert audit_id is not None
+                protected = PaperStore(engine, account, audit_prefix=audit_id)
+                assert await protected.audit(c) == state
                 result[case] = {
+                    "financial_audit_prefix": str(audit_id),
                     "balances": [b.model_dump(mode="json") for b in state.balances],
                     "reserved_gbp": str(reserved_cash(state)),
                     "tax_cash_reserve_gbp": str(state.tax_reserve_gbp),
@@ -586,7 +610,9 @@ async def recover(settings: Settings) -> dict[str, Any]:
     engine = create_engine(settings)
     try:
         for case, account in CASES.items():
-            store = PaperStore(engine, account)
+            store = PaperStore(
+                engine, account, audit_prefix=UUID(before[case]["financial_audit_prefix"])
+            )
             async with PaperWriter(store) as writer:
                 venue = NoCommands(store)
                 execution = PaperExecution(writer, venue)

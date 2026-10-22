@@ -13,7 +13,7 @@ from aca.operations.config import Settings
 from aca.operations.secrets import read_secret
 from aca.storage.models import AuditEvent, ConfigurationRecord
 
-SCHEMA_REVISION = "0014_accounting_operations"
+SCHEMA_REVISION = "0015_financial_audits"
 
 
 class DatabaseSafetyError(RuntimeError):
@@ -87,6 +87,13 @@ async def verify_runtime(engine: AsyncEngine) -> None:
         revision = await connection.scalar(text("SELECT version_num FROM aca.alembic_version"))
         if revision != SCHEMA_REVISION:
             raise DatabaseSafetyError("database schema revision is not supported")
+        if await connection.scalar(
+            text(
+                "SELECT has_table_privilege('aca.paper_financial_audits', 'INSERT') OR "
+                "has_any_column_privilege('aca.paper_financial_audits', 'INSERT')"
+            )
+        ):
+            raise DatabaseSafetyError("runtime must not create financial audit authority")
 
 
 class FoundationStore:

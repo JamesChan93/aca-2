@@ -1,6 +1,7 @@
 """C3 bounded, repeatable capacity experiment on a new disposable database.
 
-No target arguments. --preservation selects export, verification and online input measurements.
+No target arguments. --preservation selects archive measurements;
+--financial-prefix selects the financial audit subset and packaged acceptance CLI.
 Writes a measurement, including failures; a completed trial
 does not grant the 56-day capacity or operational acceptance gate. Host Python 3.9+.
 """
@@ -30,10 +31,21 @@ except ModuleNotFoundError:
 
 
 def main() -> int:
-    if sys.argv[1:] not in ([], ["--preservation"]):
-        print("Usage: python3 scripts/capacity_trial.py [--preservation]", file=sys.stderr)
+    if sys.argv[1:] not in ([], ["--preservation"], ["--financial-prefix"]):
+        print(
+            "Usage: python3 scripts/capacity_trial.py [--preservation|--financial-prefix]",
+            file=sys.stderr,
+        )
         return 2
     preservation_only = sys.argv[1:] == ["--preservation"]
+    financial_only = sys.argv[1:] == ["--financial-prefix"]
+    mode = (
+        "financial_prefix"
+        if financial_only
+        else "preservation"
+        if preservation_only
+        else "operations"
+    )
     require_docker()
     prepare_secrets()
     identifier = uuid4().hex[:12]
@@ -46,7 +58,7 @@ def main() -> int:
     drill.source += ["-f", "compose.capacity.yaml"]
     report: dict[str, Any] = {
         "status": "failed",
-        "trial_mode": "preservation" if preservation_only else "operations",
+        "trial_mode": mode,
     }
     try:
         drill.call([*drill.source, "build", "db", "restore-worker"])
@@ -60,7 +72,9 @@ def main() -> int:
                 "-T",
                 "restore-worker",
                 "python",
-                "tests/capacity_fixture.py",
+                "tests/financial_prefix_capacity.py"
+                if financial_only
+                else "tests/capacity_fixture.py",
                 drill.database,
                 *(["--preservation"] if preservation_only else []),
             ],
@@ -101,6 +115,7 @@ def main() -> int:
                         "measured_boundary_failures",
                         "replay_preservation",
                         "archive_input",
+                        "financial_prefix",
                     )
                 },
                 sort_keys=True,

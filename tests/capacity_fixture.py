@@ -42,7 +42,7 @@ PAGE = 500
 TICKS = 20
 
 
-async def seed_events(writer: PaperWriter, state: Any) -> None:
+async def seed_events(writer: PaperWriter, state: Any, target: int = MAX_REPORT_EVENTS) -> Any:
     store = writer.store
     async with writer.transaction() as c:
         previous = await c.scalar(
@@ -51,9 +51,9 @@ async def seed_events(writer: PaperWriter, state: Any) -> None:
             )
         )
     # Valid no-economic-change financial events at the report event ceiling.
-    while state.version < MAX_REPORT_EVENTS:
+    while state.version < target:
         batch, anchors = [], []
-        for _ in range(min(PAGE, MAX_REPORT_EVENTS - state.version)):
+        for _ in range(min(PAGE, target - state.version)):
             after = state.model_copy(update={"version": state.version + 1})
             document = delta(state, after, None)
             source = "capacity:" + str(after.version)
@@ -94,6 +94,7 @@ async def seed_events(writer: PaperWriter, state: Any) -> None:
             await c.execute(events.insert(), batch)
             if anchors:
                 await c.execute(checkpoints.insert(), anchors)
+    return state
 
 
 async def run() -> None:

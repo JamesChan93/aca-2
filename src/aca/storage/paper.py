@@ -149,9 +149,11 @@ class PaperStore:
         account_id: UUID,
         *,
         replay_archive: ArchiveReference | None = None,
+        audit_prefix: UUID | None = None,
     ) -> None:
         self.engine, self.account_id = engine, account_id
         self.replay_archive = replay_archive
+        self.audit_prefix = audit_prefix
         self.archive_identity: FileIdentity | None = None
 
     def _restore_row(
@@ -223,16 +225,36 @@ class PaperStore:
             for a in ("GBP", "BTC", "ETH")
         )
 
-    async def audit(self, connection: AsyncConnection) -> PortfolioSnapshot | None:
-        """Explicit full-prefix audit, streamed in bounded pages. Never edits history."""
+    async def audit(
+        self, connection: AsyncConnection, *, full: bool = False
+    ) -> PortfolioSnapshot | None:
+        """Audit all history, or a protected operator-audited prefix and its suffix.
+
+        An explicitly required prefix must validate; it never silently falls back
+        to a different authority. ``full=True`` always reconstructs every event.
+        Journal balance reconciliation remains independent in both paths.
+        """
         previous = "0" * 64
         state: PortfolioSnapshot | None = None
         cursor = 0
+        if self.audit_prefix is not None and not full:
+            from aca.storage.audit_prefix import read_prefix
+
+            accepted = await read_prefix(connection, self)
+            state, previous, cursor = accepted.state, accepted.event_hash, accepted.version
+        prefix_version = cursor
         # Pin a high water so a separate read service cannot accidentally audit
         # a mixture of prefixes while the owner appends new records.
         head = await connection.scalar(
             select(func.max(events.c.version)).where(events.c.account_id == self.account_id)
         )
+        if prefix_version > (head or 0):
+            raise ValueError("financial audit prefix is ahead of retained history")
+        if prefix_version:
+            from aca.storage.audit_prefix import MAX_AUDIT_SUFFIX_EVENTS
+
+            if (head or 0) - prefix_version > MAX_AUDIT_SUFFIX_EVENTS:
+                raise ValueError("financial audit suffix exceeds budget; renew the operator audit")
         while cursor < (head or 0):
             rows = (
                 (
@@ -263,7 +285,7 @@ class PaperStore:
                 raise ValueError("journal and portfolio projection differ")
             # Verify *all* checkpoint anchors, including ones superseded by a
             # newer checkpoint. The fast path relies on this immutable prefix.
-            checkpoint_cursor = 0
+            checkpoint_cursor = prefix_version
             while True:
                 checkpoint_rows = (
                     (

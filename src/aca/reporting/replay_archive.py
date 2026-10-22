@@ -331,6 +331,8 @@ async def export_archive(store: PaperStore, destination: Path) -> dict[str, obje
     Nothing is written to PostgreSQL and no exchange/simulation command is sent.
     A separate verifier checks the completed temporary file before publication.
     """
+    if store.audit_prefix is not None:
+        raise ValueError("archive export requires a full-audit store")
     async with store.engine.connect() as c:
         await c.execution_options(isolation_level="REPEATABLE READ", postgresql_readonly=True)
         read = await read_performance(c, store)

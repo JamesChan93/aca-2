@@ -66,9 +66,37 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "accounting",
         "archive-export",
         "archive-verify",
+        "audit-prefix-accept",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
+        if name in {
+            "status",
+            "journal",
+            "recover",
+            "halt",
+            "review",
+            "supervise",
+            "enrol",
+            "consume",
+            "performance",
+            "tax-reserve",
+            "fund",
+            "select",
+            "run",
+            "daily",
+            "transfer",
+            "correct",
+        }:
+            parser.add_argument(
+                "--audit-prefix",
+                type=UUID,
+                help="explicit operator-sealed financial audit; requires retained SQL evidence",
+            )
+        if name == "audit-prefix-accept":
+            parser.add_argument("--actor", type=UUID, required=True)
+            parser.add_argument("--reason", required=True)
+            parser.add_argument("--expected-version", type=int, required=True)
         if name in {"performance", "daily", "consume", "run", "supervise"}:
             parser.add_argument("--archive", type=Path, help="explicit retained replay input")
             parser.add_argument("--archive-sha256", help="independently retained file SHA256")
@@ -131,6 +159,13 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
+    if args.action == "audit-prefix-accept":
+        from aca.storage.audit_prefix import accept_prefix
+
+        return await accept_prefix(
+            settings, args.account, args.actor, args.reason, args.expected_version
+        )
+    audit_prefix = getattr(args, "audit_prefix", None)
     archive_path, archive_hash = (
         getattr(args, "archive", None),
         getattr(args, "archive_sha256", None),
@@ -156,9 +191,10 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             replay_enabled=args.action == "run" or args.replay,
             strategy_enabled=args.action == "run",
             replay_archive=archive,
+            audit_prefix=audit_prefix,
         )
     engine = create_engine(settings)
-    store = PaperStore(engine, args.account, replay_archive=archive)
+    store = PaperStore(engine, args.account, replay_archive=archive, audit_prefix=audit_prefix)
     try:
         await verify_runtime(engine)
         if args.action == "archive-export":
@@ -224,7 +260,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             async with engine.connect() as c:
                 await c.execution_options(isolation_level="REPEATABLE READ")
                 if args.action == "audit":
-                    state = await store.audit(c)
+                    state = await store.audit(c, full=True)
                     return {
                         "schema_version": 1,
                         "account_id": str(args.account),
@@ -234,7 +270,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                         "version": state.version if state else None,
                         "live_execution_available": False,
                     }
-                state = await store.load(c)
+                state = await store.audit(c) if audit_prefix else await store.load(c)
                 history = await store.history(c)
                 strategy = await strategy_status(c, args.account)
             if args.action == "status":

@@ -46,6 +46,7 @@ class SupervisorStatus(FoundationStatus):
         self.strategy_decisions = 0
         self.strategy_reason: str | None = None
         self.replay_archive_sha256: str | None = None
+        self.financial_audit_prefix: str | None = None
 
     @property
     def supervision_ready(self) -> bool:
@@ -76,6 +77,7 @@ class SupervisorStatus(FoundationStatus):
                 "fill_replay_enabled": self.fill_replay_enabled,
                 "replay_cursor": self.replay_cursor,
                 "replay_archive_sha256": self.replay_archive_sha256,
+                "financial_audit_prefix": self.financial_audit_prefix,
                 "replay_processed": self.replay_processed,
                 "replay_skipped_trades": self.replay_skipped_trades,
                 "promotion_evidence": False,
@@ -334,15 +336,17 @@ async def supervise(
     replay_enabled: bool = False,
     strategy_enabled: bool = False,
     replay_archive: ArchiveReference | None = None,
+    audit_prefix: UUID | None = None,
 ) -> dict[str, object]:
     if not 0 <= duration <= 86400:
         raise ValueError("duration must be 0..86400 seconds")
     if replay_archive is not None and not replay_enabled:
         raise ValueError("an archive input requires ordered replay")
     engine = create_engine(settings)
-    store = PaperStore(engine, account_id, replay_archive=replay_archive)
+    store = PaperStore(engine, account_id, replay_archive=replay_archive, audit_prefix=audit_prefix)
     status, metrics = SupervisorStatus(), SupervisorMetrics()
     status.replay_archive_sha256 = replay_archive.sha256 if replay_archive else None
+    status.financial_audit_prefix = str(audit_prefix) if audit_prefix else None
     server = SupervisorHealthServer(status, metrics)
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()

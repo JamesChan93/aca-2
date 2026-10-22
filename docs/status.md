@@ -1,7 +1,7 @@
 # Implementation status
 
-Updated 21 October 2026 for P4-C3, following the scope review merged in PR #17.
-Application candidate: 0.4.16; schema `0014_accounting_operations`. This register separates
+Updated 22 October 2026 for P4-C3, following the scope review merged in PR #17.
+Application candidate: 0.4.17; schema `0015_financial_audits`. This register separates
 engineering completion from research eligibility, extended paper observation and later deployment/live gates.
 
 **C3 now has four of five conditions covered. Its capacity condition remains open:**
@@ -10,6 +10,18 @@ and no demonstrated 56-day retention/headroom. See the [C3 safety report](phase-
 and [T00–T32/result evidence](evidence/phase-4-safety.json). The actual bounded WAL
 ENOSPC recovery, populated restore/gap blocking and controlled alert timings pass.
 Passing CI does not approve C3 or G2 in the presence of that named failure.
+
+The [protected financial audit increment](phase-4-financial-prefix.md) adds an
+operator-owned result of complete financial reconstruction and an explicitly
+selected suffix audit. Runtime credentials cannot issue that authority. It retains
+all SQL evidence and complete historical economic checks; this is no retention,
+pruning or 56-day approval. The fixed checklist stays **12/17**. Its financial-only
+measurement is distinct from the original integrated replay/report trial.
+The [0.4.17 evidence](evidence/phase-4-financial-prefix.json) records **685 passing
+Linux/PostgreSQL tests**, a six-seal/30-table restore, installed CLI acceptance,
+and 100,000-event full/protected financial startup of 7.498/0.044 seconds locally.
+Complete/protected financial states agree. This subset does not exercise the
+integrated replay/report or 56-day workload and closes no condition.
 
 The [capacity increment](phase-4-capacity.md) batches audit source queries, combines
 report calculation with the validated valuation stream and removes repeated Decimal

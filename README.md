@@ -10,6 +10,11 @@ preserved replay prefix to reports and replay-enabled startup. It still requires
 retained database anchors and a complete financial audit. The fixed C3 capacity
 and retention condition remains open; this does not start qualifying paper observation.
 
+An explicit [operator-sealed financial audit](docs/phase-4-financial-prefix.md)
+can bound repeated financial reconstruction to its new suffix. Runtime credentials
+cannot create that authority. Historical economics and retained SQL evidence remain
+required; this supplies no pruning or 56-day capacity approval.
+
 The [original project prompt and implementation context](docs/context/README.md)
 are preserved in the repository for future contributors.
 
