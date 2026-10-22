@@ -97,9 +97,118 @@ async def seed_events(writer: PaperWriter, state: Any, target: int = MAX_REPORT_
     return state
 
 
+async def seed_values(writer: PaperWriter, replay: StoredReplay, additional: int) -> None:
+    store = writer.store
+    async with writer.transaction() as c:
+        cursor_row = await replay._latest(c)
+        value_row = await replay.history.latest(c)
+        assert cursor_row is not None and value_row is not None
+        previous_cursor, previous_value = (
+            cursor_row["fingerprint"],
+            value_row["fingerprint"],
+        )
+        historical = replay.history.restore(value_row)
+    starting_at = historical.state.as_of
+    epoch = uuid4()
+    count = 1
+    while count <= additional:
+        size = min(PAGE, additional - count + 1)
+        async with writer.transaction() as c:
+            numbers = list(
+                await c.scalars(
+                    text(
+                        "SELECT nextval('aca.public_replay_events_number_seq') "
+                        "FROM generate_series(1,:count)"
+                    ),
+                    {"count": size},
+                )
+            )
+            source_rows, receipt_rows, value_rows, cursor_rows = [], [], [], []
+            for index, number in enumerate(numbers, count):
+                at = starting_at + timedelta(milliseconds=index * 100)
+                receipt = ReplayReceipt(
+                    receipt_id=uuid4(),
+                    epoch=epoch,
+                    received_at=at,
+                    channel="capture_health",
+                    valid=True,
+                    payload_hash=hashlib.sha256(b"{}").hexdigest(),
+                    normalized={},
+                    trades=(),
+                )
+                raw = receipt.document()
+                hashed = fingerprint(raw)
+                receipt_rows.append(
+                    dict(
+                        id=receipt.receipt_id,
+                        schema_version=1,
+                        epoch=epoch,
+                        received_at=at,
+                        channel=receipt.channel,
+                        valid=True,
+                        reason=None,
+                        payload_hash=receipt.payload_hash,
+                        payload="{}",
+                        normalized={},
+                    )
+                )
+                source_rows.append(
+                    dict(
+                        number=number,
+                        receipt_id=receipt.receipt_id,
+                        document=raw,
+                        fingerprint=hashed,
+                        published_at=at,
+                    )
+                )
+                value = replay.history.observe(historical, at, (), "awaiting_new_epoch")
+                value = value.model_copy(
+                    update={
+                        "number": number,
+                        "source_hash": hashed,
+                        "source_received_at": at,
+                    }
+                )
+                document = value.document()
+                value_hash = fingerprint({"previous": previous_value, "valuation": document})
+                value_rows.append(
+                    dict(
+                        account_id=store.account_id,
+                        number=number,
+                        previous_hash=previous_value,
+                        fingerprint=value_hash,
+                        document=document,
+                    )
+                )
+                context = ReplayCursor(
+                    account_id=store.account_id,
+                    number=number,
+                    source_hash=hashed,
+                    last_received=at,
+                )
+                document = context.document()
+                cursor_hash = fingerprint({"previous": previous_cursor, "cursor": document})
+                cursor_rows.append(
+                    dict(
+                        account_id=store.account_id,
+                        number=number,
+                        previous_hash=previous_cursor,
+                        fingerprint=cursor_hash,
+                        document=document,
+                    )
+                )
+                previous_value, previous_cursor, historical = value_hash, cursor_hash, value
+            await c.execute(insert(MarketReceipt), receipt_rows)
+            await c.execute(public_events.insert(), source_rows)
+            await c.execute(valuations.insert(), value_rows)
+            await c.execute(cursors.insert(), cursor_rows)
+        count += size
+
+
 async def run() -> None:
-    if sys.argv[2:] not in ([], ["--preservation"]):
+    if sys.argv[2:] not in ([], ["--preservation"], ["--compaction"]):
         raise ValueError("unsupported capacity fixture mode")
+    compaction = sys.argv[2:] == ["--compaction"]
     preservation_only = sys.argv[2:] == ["--preservation"]
     if not (1 <= MAX_REPORT_EVENTS <= 100000 and 1 <= MAX_REPORT_VALUES <= 100000):
         raise ValueError("capacity fixture requires review above 100,000 records")
@@ -116,7 +225,11 @@ async def run() -> None:
         )
     result: dict[str, Any] = {
         "application_version": aca.__version__,
-        "trial_mode": "preservation" if preservation_only else "operations",
+        "trial_mode": "compaction"
+        if compaction
+        else "preservation"
+        if preservation_only
+        else "operations",
         "operational_budgets_exercised": not preservation_only,
         "package_source_sha256": source_hash.hexdigest(),
         "certifi_version": importlib.metadata.version("certifi"),
@@ -133,113 +246,8 @@ async def run() -> None:
             state = await service.cashflow("capacity-opening", Decimal(1000), AT)
             replay = StoredReplay(service, venue)
             await replay.enrol()
-            async with writer.transaction() as c:
-                cursor_row = await replay._latest(c)
-                value_row = await replay.history.latest(c)
-                assert cursor_row is not None and value_row is not None
-                previous_cursor, previous_value = (
-                    cursor_row["fingerprint"],
-                    value_row["fingerprint"],
-                )
-                historical = replay.history.restore(value_row)
             await seed_events(writer, state)
-            # Subsecond cash-only observations inside one UTC day, at the value ceiling.
-            epoch = uuid4()
-            count = 1
-            while count < MAX_REPORT_VALUES:
-                size = min(PAGE, MAX_REPORT_VALUES - count)
-                async with writer.transaction() as c:
-                    numbers = list(
-                        await c.scalars(
-                            text(
-                                "SELECT nextval('aca.public_replay_events_number_seq') "
-                                "FROM generate_series(1,:count)"
-                            ),
-                            {"count": size},
-                        )
-                    )
-                    source_rows, receipt_rows, value_rows, cursor_rows = [], [], [], []
-                    for index, number in enumerate(numbers, count):
-                        at = AT + timedelta(milliseconds=index * 100)
-                        receipt = ReplayReceipt(
-                            receipt_id=uuid4(),
-                            epoch=epoch,
-                            received_at=at,
-                            channel="capture_health",
-                            valid=True,
-                            payload_hash=hashlib.sha256(b"{}").hexdigest(),
-                            normalized={},
-                            trades=(),
-                        )
-                        raw = receipt.document()
-                        hashed = fingerprint(raw)
-                        receipt_rows.append(
-                            dict(
-                                id=receipt.receipt_id,
-                                schema_version=1,
-                                epoch=epoch,
-                                received_at=at,
-                                channel=receipt.channel,
-                                valid=True,
-                                reason=None,
-                                payload_hash=receipt.payload_hash,
-                                payload="{}",
-                                normalized={},
-                            )
-                        )
-                        source_rows.append(
-                            dict(
-                                number=number,
-                                receipt_id=receipt.receipt_id,
-                                document=raw,
-                                fingerprint=hashed,
-                                published_at=at,
-                            )
-                        )
-                        value = replay.history.observe(historical, at, (), "awaiting_new_epoch")
-                        value = value.model_copy(
-                            update={
-                                "number": number,
-                                "source_hash": hashed,
-                                "source_received_at": at,
-                            }
-                        )
-                        document = value.document()
-                        value_hash = fingerprint(
-                            {"previous": previous_value, "valuation": document}
-                        )
-                        value_rows.append(
-                            dict(
-                                account_id=store.account_id,
-                                number=number,
-                                previous_hash=previous_value,
-                                fingerprint=value_hash,
-                                document=document,
-                            )
-                        )
-                        context = ReplayCursor(
-                            account_id=store.account_id,
-                            number=number,
-                            source_hash=hashed,
-                            last_received=at,
-                        )
-                        document = context.document()
-                        cursor_hash = fingerprint({"previous": previous_cursor, "cursor": document})
-                        cursor_rows.append(
-                            dict(
-                                account_id=store.account_id,
-                                number=number,
-                                previous_hash=previous_cursor,
-                                fingerprint=cursor_hash,
-                                document=document,
-                            )
-                        )
-                        previous_value, previous_cursor, historical = value_hash, cursor_hash, value
-                    await c.execute(insert(MarketReceipt), receipt_rows)
-                    await c.execute(public_events.insert(), source_rows)
-                    await c.execute(valuations.insert(), value_rows)
-                    await c.execute(cursors.insert(), cursor_rows)
-                count += size
+            await seed_values(writer, replay, MAX_REPORT_VALUES - 1)
         result["seed_seconds"] = monotonic() - began
         result["record_limits"] = {
             "events": MAX_REPORT_EVENTS,
@@ -247,6 +255,53 @@ async def run() -> None:
             "public_receipts": MAX_REPORT_VALUES - 1,
         }
         result["operations"] = {}
+        if compaction:
+            from uuid import UUID
+
+            from aca.operations.history import compact_history
+
+            async with engine.connect() as c:
+                expected_version = await c.scalar(
+                    select(func.max(events.c.version)).where(
+                        events.c.account_id == store.account_id
+                    )
+                )
+                expected_source = await c.scalar(
+                    select(func.max(valuations.c.number)).where(
+                        valuations.c.account_id == store.account_id
+                    )
+                )
+            compacting = monotonic()
+            compacted = await compact_history(
+                settings,
+                store.account_id,
+                uuid4(),
+                "Isolated capacity complete-history compaction",
+                expected_version,
+                expected_source,
+            )
+            result["compaction"] = {"seconds": monotonic() - compacting, **compacted}
+            store = PaperStore(
+                engine, store.account_id, history_prefix=UUID(compacted["certificate"]["id"])
+            )
+            from aca.reporting.history_prefix import MAX_ONLINE_SUFFIX
+
+            async with PaperWriter(store) as owner:
+                venue = NoCommands(store)
+                service = PaperExecution(owner, venue)
+                current = await service._state()
+                await seed_events(owner, current, current.version + MAX_ONLINE_SUFFIX)
+                await seed_values(owner, StoredReplay(service, venue), MAX_ONLINE_SUFFIX)
+            indexed_report = await historical_performance(store)
+            full_report = await historical_performance(PaperStore(engine, store.account_id))
+            assert indexed_report["period"] == full_report["period"]
+            assert (
+                cast(dict[str, Any], indexed_report["period"])["observations"]
+                == MAX_REPORT_VALUES + MAX_ONLINE_SUFFIX
+            )
+            assert Decimal(cast(dict[str, Any], indexed_report["period"])["pnl_gbp"]) == 0
+            result["compaction"]["bounded_suffix_records"] = MAX_ONLINE_SUFFIX
+            result["compaction"]["full_report_economics_match"] = True
 
         async def measure(
             name: str,

@@ -31,16 +31,20 @@ except ModuleNotFoundError:
 
 
 def main() -> int:
-    if sys.argv[1:] not in ([], ["--preservation"], ["--financial-prefix"]):
+    if sys.argv[1:] not in ([], ["--preservation"], ["--financial-prefix"], ["--compaction"]):
         print(
-            "Usage: python3 scripts/capacity_trial.py [--preservation|--financial-prefix]",
+            "Usage: python3 scripts/capacity_trial.py "
+            "[--preservation|--financial-prefix|--compaction]",
             file=sys.stderr,
         )
         return 2
+    compaction = sys.argv[1:] == ["--compaction"]
     preservation_only = sys.argv[1:] == ["--preservation"]
     financial_only = sys.argv[1:] == ["--financial-prefix"]
     mode = (
-        "financial_prefix"
+        "compaction"
+        if compaction
+        else "financial_prefix"
         if financial_only
         else "preservation"
         if preservation_only
@@ -76,7 +80,13 @@ def main() -> int:
                 if financial_only
                 else "tests/capacity_fixture.py",
                 drill.database,
-                *(["--preservation"] if preservation_only else []),
+                *(
+                    ["--preservation"]
+                    if preservation_only
+                    else ["--compaction"]
+                    if compaction
+                    else []
+                ),
             ],
             timeout=900 if preservation_only else 600,
         )
@@ -116,6 +126,7 @@ def main() -> int:
                         "replay_preservation",
                         "archive_input",
                         "financial_prefix",
+                        "compaction",
                     )
                 },
                 sort_keys=True,
@@ -133,7 +144,10 @@ def main() -> int:
                 sort_keys=True,
             )
         )
-    return 0 if report["status"] == "measured" and report["cleanup_complete"] else 1
+    passed = report["status"] == "measured" and report["cleanup_complete"]
+    if compaction:
+        passed = passed and not report.get("measured_boundary_failures", ["unmeasured"])
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":

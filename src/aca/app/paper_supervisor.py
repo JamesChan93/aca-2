@@ -47,6 +47,7 @@ class SupervisorStatus(FoundationStatus):
         self.strategy_reason: str | None = None
         self.replay_archive_sha256: str | None = None
         self.financial_audit_prefix: str | None = None
+        self.historical_audit_prefix: str | None = None
 
     @property
     def supervision_ready(self) -> bool:
@@ -78,6 +79,7 @@ class SupervisorStatus(FoundationStatus):
                 "replay_cursor": self.replay_cursor,
                 "replay_archive_sha256": self.replay_archive_sha256,
                 "financial_audit_prefix": self.financial_audit_prefix,
+                "historical_audit_prefix": self.historical_audit_prefix,
                 "replay_processed": self.replay_processed,
                 "replay_skipped_trades": self.replay_skipped_trades,
                 "promotion_evidence": False,
@@ -337,16 +339,24 @@ async def supervise(
     strategy_enabled: bool = False,
     replay_archive: ArchiveReference | None = None,
     audit_prefix: UUID | None = None,
+    history_prefix: UUID | None = None,
 ) -> dict[str, object]:
     if not 0 <= duration <= 86400:
         raise ValueError("duration must be 0..86400 seconds")
     if replay_archive is not None and not replay_enabled:
         raise ValueError("an archive input requires ordered replay")
     engine = create_engine(settings)
-    store = PaperStore(engine, account_id, replay_archive=replay_archive, audit_prefix=audit_prefix)
+    store = PaperStore(
+        engine,
+        account_id,
+        replay_archive=replay_archive,
+        audit_prefix=audit_prefix,
+        history_prefix=history_prefix,
+    )
     status, metrics = SupervisorStatus(), SupervisorMetrics()
     status.replay_archive_sha256 = replay_archive.sha256 if replay_archive else None
     status.financial_audit_prefix = str(audit_prefix) if audit_prefix else None
+    status.historical_audit_prefix = str(history_prefix) if history_prefix else None
     server = SupervisorHealthServer(status, metrics)
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
@@ -359,6 +369,9 @@ async def supervise(
         await verify_runtime(engine)
         async with engine.connect() as c:
             size = await c.scalar(text("SELECT pg_database_size(current_database())"))
+            from aca.reporting.history_prefix import suffix_budget
+
+            await suffix_budget(c, store, owner.accepted_history, new_commitment=True)
         disk = shutil.disk_usage("/")
         if size is None or size >= 2_000_000_000 or disk.free * 100 <= disk.total * 15:
             raise ValueError("paper database/local disk capacity limit")
@@ -366,6 +379,7 @@ async def supervise(
     try:
         await verify_runtime(engine)
         async with PaperWriter(store) as owner:
+            status.financial_audit_prefix = str(store.audit_prefix) if store.audit_prefix else None
             venue = PaperExchange(store)
             service = PaperExecution(owner, venue)
             supervisor = PaperSupervisor(

@@ -106,9 +106,12 @@ def payload(row: dict[str, object], version: int) -> dict[str, object]:
 
 
 class NotificationOwner:
-    def __init__(self, engine: AsyncEngine, account_id: UUID) -> None:
+    def __init__(
+        self, engine: AsyncEngine, account_id: UUID, *, history_prefix: UUID | None = None
+    ) -> None:
         self.engine = engine
         self.account_id = account_id
+        self.history_prefix = history_prefix
         self.connection: AsyncConnection | None = None
         self.pid: int | None = None
         self.mutex = asyncio.Lock()
@@ -342,7 +345,11 @@ class NotificationOwner:
                     try:
                         async with asyncio.timeout(15):
                             summary = await daily_summary(
-                                c, PaperStore(self.engine, self.account_id), day
+                                c,
+                                PaperStore(
+                                    self.engine, self.account_id, history_prefix=self.history_prefix
+                                ),
+                                day,
                             )
                     except ValueError, TimeoutError:
                         unavailable = True

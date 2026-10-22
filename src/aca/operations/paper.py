@@ -67,6 +67,7 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "archive-export",
         "archive-verify",
         "audit-prefix-accept",
+        "history-compact",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -93,10 +94,15 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
                 type=UUID,
                 help="explicit operator-sealed financial audit; requires retained SQL evidence",
             )
-        if name == "audit-prefix-accept":
+            parser.add_argument(
+                "--history-prefix", type=UUID, help="explicit operator-verified compacted history"
+            )
+        if name in {"audit-prefix-accept", "history-compact"}:
             parser.add_argument("--actor", type=UUID, required=True)
             parser.add_argument("--reason", required=True)
             parser.add_argument("--expected-version", type=int, required=True)
+        if name == "history-compact":
+            parser.add_argument("--expected-source", type=int, required=True)
         if name in {"performance", "daily", "consume", "run", "supervise"}:
             parser.add_argument("--archive", type=Path, help="explicit retained replay input")
             parser.add_argument("--archive-sha256", help="independently retained file SHA256")
@@ -159,6 +165,17 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
+    if args.action == "history-compact":
+        from aca.operations.history import compact_history
+
+        return await compact_history(
+            settings,
+            args.account,
+            args.actor,
+            args.reason,
+            args.expected_version,
+            args.expected_source,
+        )
     if args.action == "audit-prefix-accept":
         from aca.storage.audit_prefix import accept_prefix
 
@@ -166,6 +183,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             settings, args.account, args.actor, args.reason, args.expected_version
         )
     audit_prefix = getattr(args, "audit_prefix", None)
+    history_prefix = getattr(args, "history_prefix", None)
     archive_path, archive_hash = (
         getattr(args, "archive", None),
         getattr(args, "archive_sha256", None),
@@ -192,9 +210,16 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             strategy_enabled=args.action == "run",
             replay_archive=archive,
             audit_prefix=audit_prefix,
+            history_prefix=history_prefix,
         )
     engine = create_engine(settings)
-    store = PaperStore(engine, args.account, replay_archive=archive, audit_prefix=audit_prefix)
+    store = PaperStore(
+        engine,
+        args.account,
+        replay_archive=archive,
+        audit_prefix=audit_prefix,
+        history_prefix=history_prefix,
+    )
     try:
         await verify_runtime(engine)
         if args.action == "archive-export":
@@ -270,7 +295,9 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                         "version": state.version if state else None,
                         "live_execution_available": False,
                     }
-                state = await store.audit(c) if audit_prefix else await store.load(c)
+                state = (
+                    await store.audit(c) if audit_prefix or history_prefix else await store.load(c)
+                )
                 history = await store.history(c)
                 strategy = await strategy_status(c, args.account)
             if args.action == "status":

@@ -31,6 +31,8 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     for name in ("configure", "run", "status", "prepare", "notices", "failures", "review"):
         parser = actions.add_parser(name)
         parser.add_argument("--account", required=True, type=UUID)
+        if name in {"prepare", "run"}:
+            parser.add_argument("--history-prefix", type=UUID)
         if name in {"configure", "run"}:
             parser.add_argument("--webhook-file", required=True, type=Path)
         if name == "configure":
@@ -93,7 +95,9 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             if args.action == "review"
             else None
         )
-        async with NotificationOwner(engine, args.account) as owner:
+        async with NotificationOwner(
+            engine, args.account, history_prefix=getattr(args, "history_prefix", None)
+        ) as owner:
             if request is not None:
                 return await owner.review(request)
             if args.action == "prepare":

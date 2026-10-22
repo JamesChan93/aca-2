@@ -1,8 +1,9 @@
 # Phase 4 completion checklist
 
-Scope review, 19 October 2026. Audited baseline: merged PR #16, commit `bafb928`,
-application 0.4.9. This document changes the work register; it implements no runtime
-behaviour and approves no release gate.
+Register introduced by the scope review of 19 October 2026. Its audited baseline
+was merged PR #16, commit `bafb928`, application 0.4.9. Current closure review:
+22 October 2026, application 0.4.18. The linked release packet records the applicable
+local-paper decision; this register alone grants no deployment or live permission.
 
 ## Source and scope
 
@@ -48,15 +49,18 @@ or a release gate is complete.
 
 ## Fixed remaining Phase 4 work
 
-**C1 is complete** in 0.4.10, with [implementation and acceptance evidence](phase-4-continuous-paper.md).
-**C2 is complete** in 0.4.11 with [transfer/correction evidence](phase-4-accounting.md).
-C3 is **partially complete** in 0.4.12, with [safety and capacity evidence](phase-4-safety.md):
-conditions 1, 2, 3 and 5 have evidence; condition 4 remains open because the capacity
-trial did not establish report/audit or 56-day retention headroom. C4 remains **open**.
-Execution order is C1, C2, C3, then C4. C3 tests the
-integrated C1/C2 behaviour as well as existing controls. Implementation may be split
-for review, but every PR must name one of these IDs and the acceptance conditions it
-closes. These are four work packages, not a promise of four PRs or four days.
+**C1–C4 are complete in the 0.4.18 local-paper release: 17/17 conditions.**
+The [consolidated handoff](phase-4-paper-release.md) and
+[current release packet](evidence/phase-4-paper-release.json) record the explicit
+applicable local-paper G2 decision and all T00–T32 allocations. C1's five conditions
+and C2's three retain their original acceptance evidence and pass the current
+regression. C3's final condition uses its reviewed lossless-retention option;
+56-day headroom is not claimed. C4 supplies the packaged runbook and review.
+
+The count closes engineering work only. All 20 research candidates remain rejected,
+qualifying observation has not started, and G3–G6 remain unapproved. Earlier partial
+increments below retain their historical outcomes; they do not describe the current
+release. Changes to this fixed register still require the scope rule below.
 
 ### P4-C1 — Complete the continuous paper workflow
 
@@ -135,7 +139,7 @@ review to T00–T32 and distinguishes paper evidence from future exchange eviden
   resubmitted or fill booked twice. Use a declared missing-suffix case to prove the
   report identifies the gap and continued qualifying observation is blocked pending
   reconciliation/review. Do not claim the archive recovers absent evidence.
-- [ ] Run a bounded capacity trial for the configured local paper workload, covering
+- [x] Run a bounded capacity trial for the configured local paper workload, covering
   the one-second risk loop, startup audit and reports at the documented supported
   record limits. Record CPU/memory/storage growth, backlog and failure thresholds.
   Either demonstrate sufficient headroom for the planned 56-day workload or provide
@@ -153,12 +157,21 @@ failure, and passing evidence for the specific storage, restore, capacity and
 notification conditions above. Full host-loss recovery, encrypted off-host/WAL
 backups, production RPO/RTO and private exchange semantics remain unproven.
 
-**Current result:** [C3 evidence](phase-4-safety.md) closes the four checked conditions.
-The fourth remains open: the initial 0.4.12 100,000-record replay/report operations
-exceeded 20 seconds, and 100,000 one-second valuations cover only about 1.16 days. The bounded
-trial is implemented, but sufficient 56-day headroom or a reviewed preservation/archive
-path has not been established. C3 and G2 are not passed. This is the existing capacity
-condition, not an added work package.
+**Current result:** all five conditions have current integrated evidence in the
+[0.4.18 release packet](evidence/phase-4-paper-release.json). The
+[bounded history decision](phase-4-bounded-history.md) preserves original financial
+and source records in operator-owned lossless blocks, retains permanent identities,
+and measures bounded online work at 100,000 original records plus the complete
+4,096-record suffix. All five unchanged operation deadlines pass. Actual WAL ENOSPC,
+32-table populated restore/two recoveries, fault-alert assertions and generated
+safety suites pass. The applicable local-paper G2 decision is recorded in C4;
+full T25 and private/deployed assertions retain their explicit later allocations.
+
+**Historical capacity results:** the following 0.4.12–0.4.17 increments did not close
+condition 4 individually. Their failures are preserved, not reclassified as passes.
+The original 0.4.12 report/replay calls exceeded 20 seconds; 100,000 one-second
+observations represent only about 1.16 days. The current release uses the reviewed
+retention-path alternative, not a claim that those rows demonstrate 56 days.
 
 The [0.4.13 capacity increment](phase-4-capacity.md) reduces audit/report overhead
 and measures the actual runner/summary deadlines. It preserves the record ceilings
@@ -195,20 +208,23 @@ of that gap stays in the deployment/readiness work below.
 
 ### P4-C4 — Review the paper release and close the phase explicitly
 
+**Completed:** [consolidated local handoff and explicit gate review](phase-4-paper-release.md),
+including its packaged CLI smoke and machine-readable acceptance results.
+
 **Source:** §20 Phase 4 and §21 G2; §§15–16, 22 for the local handoff.
 
-- [ ] Supply one local runbook covering account creation/funding, explicit strategy
+- [x] Supply one local runbook covering account creation/funding, explicit strategy
   selection, collector/runner startup, health, halt, restart, reports and restore.
   Run its smoke path on disposable state with the packaged release and retain the
   result. Include known limits and which workers require opt-in setup.
-- [ ] Publish the completed T00–T32 coverage review, package versions/source revision,
+- [x] Publish the completed T00–T32 coverage review, package versions/source revision,
   reproducible command results, financial reconciliation and unresolved exceptions.
   Record the applicable G2 decision explicitly. A documentation merge or passing
   CI alone is not that decision.
-- [ ] Mark C1–C3 complete only with links to their acceptance evidence. If any named
+- [x] Mark C1–C3 complete only with links to their acceptance evidence. If any named
   condition fails, identify that ID and failure; do not substitute a generic
   "remaining validation" entry or add unrelated improvements.
-- [ ] Report engineering completion separately from G3 research, G4 paper/economics
+- [x] Report engineering completion separately from G3 research, G4 paper/economics
   and G5/G6 readiness/live approval. Record whether a candidate is eligible and
   whether qualifying observation can start. Rejected candidates do not keep an
   otherwise complete engineering checklist open indefinitely.
@@ -220,9 +236,11 @@ named and open; it cannot be relabelled as complete.
 
 ## Safety scenario inventory at the audited baseline
 
-C1 integration gaps and C2 accounting gaps in this baseline inventory are now
-covered by their linked implementation/tests. C3 still reviews the complete integrated release against
-every applicable assertion; the later-stage allocations remain unchanged.
+C1–C3 gaps in this historical baseline inventory are now covered by their linked
+implementation/tests and the current release regression. The completed
+[T00–T32 review](evidence/phase-4-paper-release.json) supplies the current allocation;
+the table below preserves what the original scope review identified. Later-stage
+allocations remain unchanged.
 
 **Evidence** means relevant implementation/tests exist and need review for the
 integrated release. **Gap** names a specific remaining paper assertion. **Later**
@@ -291,14 +309,13 @@ Research eligibility and engineering completion are separate decisions. The
 continuous runner can be completed and tested without finding profitable signals.
 An explicitly labelled operational paper experiment cannot be counted as a
 promoted candidate or qualifying Phase 5 record merely because it runs for 56 days.
-No positive gate or observation-start decision is made here.
+The applicable local-paper G2 decision is recorded in the release handoff. No
+G3–G6 or qualifying observation-start decision is made here.
 
 ## Change control and stop condition
 
-P4-C1 and P4-C2 are complete with their linked acceptance evidence. The next
-implementation task is **P4-C3 condition 4**, the measured capacity/retention failure;
-P4-C4 follows its resolution and integrated safety results.
-Before adding a Phase 4 blocker,
+**P4-C1–C4 are complete with linked acceptance evidence. No named Phase 4 condition
+remains open in this bounded local-paper release.** Before adding a Phase 4 blocker,
 record the original requirement, the concrete unsafe/missing behaviour and the
 acceptance condition. An optional enhancement or later readiness measurement must
 remain in its own stage. A new requirement or scope expansion requires milestone

@@ -235,6 +235,50 @@ def verify_archive(path: Path, expected_sha256: str) -> dict[str, object]:
 async def _observations(
     c: AsyncConnection, store: PaperStore, baseline: int, head: int
 ) -> AsyncIterator[Observation]:
+    from aca.storage.history_blocks import all_rows, has_blocks
+
+    if await has_blocks(c, store.account_id):
+        cursor_rows = all_rows(c, store.account_id, "cursor", baseline - 1, head)
+        source_rows = all_rows(c, store.account_id, "source", baseline - 1, head)
+        cursor, source = await anext(cursor_rows, None), await anext(source_rows, None)
+        try:
+            async for value in all_rows(c, store.account_id, "valuation", baseline - 1, head):
+                number = value["number"]
+                while cursor is not None and cursor["number"] < number:
+                    cursor = await anext(cursor_rows, None)
+                while source is not None and source["number"] < number:
+                    source = await anext(source_rows, None)
+                receipt = None
+                if number and source is not None and source["number"] == number:
+                    if "raw_receipt" in source:
+                        receipt = ReceiptRow.restore(source["raw_receipt"])
+                    else:
+                        raw = (
+                            (
+                                await c.execute(
+                                    select(MarketReceipt.__table__).where(
+                                        MarketReceipt.id == source["receipt_id"]
+                                    )
+                                )
+                            )
+                            .mappings()
+                            .one()
+                        )
+                        receipt = ReceiptRow(**dict(raw))
+                yield Observation(
+                    valuation=ChainRow(**value),
+                    cursor=ChainRow(**cursor)
+                    if cursor is not None and cursor["number"] == number
+                    else None,
+                    source=SourceRow(**{k: v for k, v in source.items() if k != "raw_receipt"})
+                    if number and source is not None and source["number"] == number
+                    else None,
+                    receipt=receipt,
+                )
+        finally:
+            await cursor_rows.aclose()
+            await source_rows.aclose()
+        return
     tables = {"v": valuations, "c": cursors, "s": public_events, "r": MarketReceipt.__table__}
     query = (
         select(
@@ -276,6 +320,35 @@ async def _observations(
 async def _cursor_prefix(
     c: AsyncConnection, store: PaperStore, baseline: int, head: int
 ) -> tuple[str, int, str]:
+    from aca.storage.history_blocks import all_rows, has_blocks
+
+    if await has_blocks(c, store.account_id):
+        previous, opening, number, count = EMPTY_HASH, None, -1, 0
+        sources = all_rows(c, store.account_id, "source")
+        source = await anext(sources, None)
+        try:
+            async for archived_cursor_row in all_rows(c, store.account_id, "cursor"):
+                cursor = restore_cursor(archived_cursor_row, store.account_id, previous)
+                while source is not None and source["number"] < cursor.number:
+                    source = await anext(sources, None)
+                if cursor.number and (
+                    source is None
+                    or source["number"] != cursor.number
+                    or source["fingerprint"] != cursor.source_hash
+                ):
+                    raise ValueError("archive cursor source anchor mismatch")
+                if cursor.number == baseline:
+                    opening = previous
+                if cursor.number >= baseline:
+                    count += 1
+                number, previous = cursor.number, archived_cursor_row["fingerprint"]
+                if count > 100000:
+                    raise ValueError("V1 export exceeds its unchanged evidence budget")
+        finally:
+            await sources.aclose()
+        if opening is None or number != head:
+            raise ValueError("archive cursor baseline/head missing")
+        return opening, count, previous
     number, previous, opening, count, total = -1, EMPTY_HASH, None, 0, 0
     while True:
         rows = (
@@ -331,7 +404,7 @@ async def export_archive(store: PaperStore, destination: Path) -> dict[str, obje
     Nothing is written to PostgreSQL and no exchange/simulation command is sent.
     A separate verifier checks the completed temporary file before publication.
     """
-    if store.audit_prefix is not None:
+    if store.audit_prefix is not None or store.history_prefix is not None:
         raise ValueError("archive export requires a full-audit store")
     async with store.engine.connect() as c:
         await c.execution_options(isolation_level="REPEATABLE READ", postgresql_readonly=True)

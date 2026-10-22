@@ -196,6 +196,27 @@ async def read_prefix(c: AsyncConnection, store: PaperStore) -> FinancialAuditPr
             events.c.version <= record.version,
         )
     )
+    from aca.storage.history_blocks import blocks
+
+    archived = (
+        (
+            await c.execute(
+                select(blocks.c.first, blocks.c.last, blocks.c.count, blocks.c.document).where(
+                    blocks.c.account_id == store.account_id,
+                    blocks.c.kind == "financial",
+                    blocks.c.first <= record.version,
+                )
+            )
+        )
+        .mappings()
+        .all()
+    )
+    count = (count or 0) + sum(
+        row["count"]
+        if row["last"] <= record.version
+        else sum(v <= record.version for v in row["document"]["versions"])
+        for row in archived
+    )
     if count != record.version:
         raise ValueError("financial audit prefix retained event set is incomplete")
     return record

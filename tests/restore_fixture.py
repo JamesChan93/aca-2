@@ -199,7 +199,7 @@ async def seed(settings: Settings) -> None:
                 await execution.halt(
                     "Synthetic restore fixture manual halt", AT + timedelta(seconds=1)
                 )
-        await seed_observations(engine)
+        await seed_observations(engine, settings)
         from aca.storage.audit_prefix import accept_prefix
 
         for account in CASES.values():
@@ -221,7 +221,7 @@ async def seed(settings: Settings) -> None:
         c.execute("GRANT SELECT ON aca.paper_fills TO aca_restore_probe")
 
 
-async def seed_observations(engine: Any) -> None:
+async def seed_observations(engine: Any, settings: Settings) -> None:
     """Real persisted replay, operator records and controlled HTTP receipts."""
     for case in ("observed", "corrected"):
         store = PaperStore(engine, CASES[case])
@@ -293,6 +293,30 @@ async def seed_observations(engine: Any) -> None:
                 )
             else:
                 await service.halt("Synthetic populated restore hard halt", AT)
+        history_id = None
+        if case == "observed":
+            from aca.operations.history import compact_history
+
+            async with engine.connect() as c:
+                version = await c.scalar(
+                    select(func.max(events.c.version)).where(
+                        events.c.account_id == store.account_id
+                    )
+                )
+                source = await c.scalar(
+                    select(func.max(valuations.c.number)).where(
+                        valuations.c.account_id == store.account_id
+                    )
+                )
+            compacted = await compact_history(
+                settings,
+                store.account_id,
+                store.account_id,
+                "Synthetic lossless history restore fixture",
+                version,
+                source,
+            )
+            history_id = UUID(compacted["certificate"]["id"])
         attempts = 0
 
         def transport(_: httpx.Request) -> httpx.Response:
@@ -302,7 +326,9 @@ async def seed_observations(engine: Any) -> None:
 
         sender = DiscordSender(webhook(), transport=httpx.MockTransport(transport))
         try:
-            async with NotificationOwner(engine, store.account_id) as owner:
+            async with NotificationOwner(
+                engine, store.account_id, history_prefix=history_id
+            ) as owner:
                 await owner.configure(webhook(), AT + timedelta(minutes=10))
                 prepared = await owner.prepare(AT + timedelta(minutes=10))
                 assert prepared["daily_scheduled"] and prepared["critical_active"]
@@ -526,18 +552,42 @@ async def economics(settings: Settings, snapshot: str | None = None) -> dict[str
                 raise AssertionError("unexpected fixture accounts")
             for case, account in CASES.items():
                 store = PaperStore(engine, account)
-                state = await store.audit(c)
+                state = await store.audit(c, full=True)
                 assert state is not None
                 from aca.storage.audit_prefix import prefixes
+                from aca.storage.history_blocks import certificates
 
-                audit_id = await c.scalar(
-                    select(prefixes.c.id).where(prefixes.c.account_id == account)
+                history_row = (
+                    (
+                        await c.execute(
+                            select(certificates)
+                            .where(certificates.c.account_id == account)
+                            .order_by(certificates.c.number.desc(), certificates.c.id)
+                            .limit(1)
+                        )
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+                history_id = history_row["id"] if history_row else None
+                audit_id = (
+                    UUID(history_row["document"]["financial_prefix"])
+                    if history_row
+                    else await c.scalar(
+                        select(prefixes.c.id)
+                        .where(prefixes.c.account_id == account)
+                        .order_by(prefixes.c.recorded_at.desc())
+                        .limit(1)
+                    )
                 )
                 assert audit_id is not None
-                protected = PaperStore(engine, account, audit_prefix=audit_id)
+                protected = PaperStore(
+                    engine, account, audit_prefix=audit_id, history_prefix=history_id
+                )
                 assert await protected.audit(c) == state
                 result[case] = {
                     "financial_audit_prefix": str(audit_id),
+                    "historical_audit_prefix": str(history_id) if history_id else None,
                     "balances": [b.model_dump(mode="json") for b in state.balances],
                     "reserved_gbp": str(reserved_cash(state)),
                     "tax_cash_reserve_gbp": str(state.tax_reserve_gbp),
@@ -611,7 +661,12 @@ async def recover(settings: Settings) -> dict[str, Any]:
     try:
         for case, account in CASES.items():
             store = PaperStore(
-                engine, account, audit_prefix=UUID(before[case]["financial_audit_prefix"])
+                engine,
+                account,
+                audit_prefix=UUID(before[case]["financial_audit_prefix"]),
+                history_prefix=UUID(before[case]["historical_audit_prefix"])
+                if before[case]["historical_audit_prefix"]
+                else None,
             )
             async with PaperWriter(store) as writer:
                 venue = NoCommands(store)
@@ -689,7 +744,16 @@ async def gap_check(settings: Settings, expected: dict[str, Any]) -> dict[str, A
         assert expected_head > head
         blocked = []
         for case in CASES:
-            store = PaperStore(engine, CASES[case])
+            from aca.storage.history_blocks import certificates
+
+            async with engine.connect() as c:
+                history_id = await c.scalar(
+                    select(certificates.c.id)
+                    .where(certificates.c.account_id == CASES[case])
+                    .order_by(certificates.c.number.desc())
+                    .limit(1)
+                )
+            store = PaperStore(engine, CASES[case], history_prefix=history_id)
             async with PaperWriter(store) as writer:
                 venue = NoCommands(store)
                 service = PaperExecution(writer, venue)

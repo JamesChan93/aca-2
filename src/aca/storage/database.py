@@ -13,7 +13,7 @@ from aca.operations.config import Settings
 from aca.operations.secrets import read_secret
 from aca.storage.models import AuditEvent, ConfigurationRecord
 
-SCHEMA_REVISION = "0015_financial_audits"
+SCHEMA_REVISION = "0016_history_segments"
 
 
 class DatabaseSafetyError(RuntimeError):
@@ -94,6 +94,11 @@ async def verify_runtime(engine: AsyncEngine) -> None:
             )
         ):
             raise DatabaseSafetyError("runtime must not create financial audit authority")
+        for name in ("paper_history_certificates", "paper_history_blocks"):
+            if await connection.scalar(
+                text(f"SELECT has_any_column_privilege('aca.{name}', 'INSERT')")
+            ):
+                raise DatabaseSafetyError("runtime must not create history audit authority")
 
 
 class FoundationStore:

@@ -104,6 +104,7 @@ class PerformanceRead:
     financial: PortfolioSnapshot
     report: dict[str, object] | None
     calendar: CalendarWindow | None
+    aggregate: Period | None = None
 
 
 async def _budget(c: AsyncConnection, store: PaperStore) -> None:
@@ -193,6 +194,12 @@ async def _evidence(
         )
     ).all()
     sealed = {ident: Journal.restore(doc) for ident, doc in documents}
+    if any(
+        j.kind not in {"contribution", "withdrawal", "trade", "transfer"}
+        and j.occurred_at <= end.state.as_of
+        for j in sealed.values()
+    ):
+        raise ValueError("performance does not support transfers/corrections")
     controls: list[tuple[int, Journal]] = []
     reserve_records: list[TaxReserveRecord] = []
     number = baseline.control_version
@@ -201,7 +208,18 @@ async def _evidence(
             (
                 await c.execute(
                     select(events)
-                    .where(events.c.account_id == store.account_id, events.c.version > number)
+                    .where(
+                        events.c.account_id == store.account_id,
+                        events.c.version > number,
+                        events.c.kind.in_(
+                            (
+                                "cash_flow",
+                                "asset_transfer",
+                                "tax_reserve_set",
+                                "accounting_correction",
+                            )
+                        ),
+                    )
                     .order_by(events.c.version)
                     .limit(PAGE)
                 )
@@ -376,6 +394,7 @@ class Period:
         self.issues: set[str] = set()
         self.count = self.missing = 0
         self.high = ZERO
+        self.low: Decimal | None = None
         self.drawdown = ZERO
 
     def observe(self, value: HistoricalValuation) -> None:
@@ -388,6 +407,7 @@ class Period:
             return
         with localcontext(FINANCIAL_CONTEXT):
             price = unit_price(value.state, value.state.as_of)
+            self.low = price if self.low is None else min(self.low, price)
             self.high = max(self.high, price)
             self.drawdown = max(self.drawdown, 1 - price / self.high)
 
@@ -471,7 +491,15 @@ async def read_performance(
         begin = datetime.combine(day, time(), UTC)
         calendar = CalendarWindow(begin, begin + timedelta(days=1))
     await _budget(c, store)
-    financial = await store.audit(c)
+    accepted = None
+    if store.history_prefix is not None:
+        from aca.reporting.history_prefix import required_history, suffix_budget
+
+        accepted = await required_history(c, store)
+        await suffix_budget(c, store, accepted)
+    financial = await store.audit(
+        c, full=store.history_prefix is None and store.audit_prefix is None
+    )
     if financial is None:
         raise ValueError("paper account not initialised")
     if financial.accounting_invalidated:
@@ -544,7 +572,10 @@ async def read_performance(
         .one()
     )
     baseline = reader.restore(first)
-    await _baseline(c, store, baseline)
+    if accepted is None:
+        await _baseline(c, store, baseline)
+    elif baseline != accepted.baseline or first["fingerprint"] != accepted.baseline_hash:
+        raise ValueError("historical certificate baseline mismatch")
     lower = baseline.number if start_source is None else start_source
     upper = head["number"] if end_source is None else end_source
     if lower < baseline.number or upper < lower or upper > head["number"]:
@@ -560,11 +591,30 @@ async def read_performance(
         .mappings()
         .one_or_none()
     )
-    if end_row is None:
+    if end_row is None and accepted is None:
+        from aca.storage.history_blocks import all_rows
+
+        async with aclosing(
+            all_rows(c, store.account_id, "valuation", upper - 1, upper)
+        ) as matches:
+            end_row = await anext(matches, None)
+    if end_row is None and (accepted is None or upper > accepted.head.number):
         raise ValueError("performance endpoint must name an exact recorded source")
-    end = reader.restore(end_row)
-    evidence = await _evidence(c, store, baseline, head_value)
+    end = reader.restore(end_row) if end_row is not None else baseline
+    evidence = await _evidence(c, store, accepted.head if accepted else baseline, head_value)
     previous, period = baseline, None
+    if accepted is not None:
+        from aca.reporting.history_prefix import prefix_period
+
+        previous = accepted.head
+        period, cached_end = await prefix_period(c, store, reader, accepted, lower, upper, calendar)
+        if cached_end is not None:
+            end, end_row = (
+                reader.restore(cached_end)
+                if "previous_hash" in cached_end
+                else HistoricalValuation.restore(cached_end["document"]),
+                cached_end,
+            )
     # Exhaust the full audited prefix even for a report ending in the past.
     # Arithmetic uses already validated values; an invalid later record or a
     # missing suffix still prevents returning any accepted report.
@@ -589,6 +639,8 @@ async def read_performance(
         if calendar is not None:
             return PerformanceRead(financial, None, calendar)
         raise ValueError("performance start must name an exact recorded source")
+    if end_row is None:
+        raise ValueError("performance endpoint must name an exact recorded source")
     financial_hash = await c.scalar(
         select(events.c.fingerprint).where(
             events.c.account_id == store.account_id, events.c.version == financial.version
@@ -606,6 +658,7 @@ async def read_performance(
         "policy_hash": reader.policy_hash,
         "financial_head_version": financial.version,
         "financial_audit_prefix": str(store.audit_prefix) if store.audit_prefix else None,
+        "historical_audit_prefix": str(store.history_prefix) if store.history_prefix else None,
         "financial_snapshot_as_of": financial.as_of.isoformat(),
         "financial_head_hash": financial_hash,
         "historical_head_source": head["number"],
@@ -634,7 +687,9 @@ async def read_performance(
         "tax_report_final": False,
         "live_execution_available": False,
     }
-    return PerformanceRead(financial, {**result, "report_hash": fingerprint(result)}, calendar)
+    return PerformanceRead(
+        financial, {**result, "report_hash": fingerprint(result)}, calendar, period
+    )
 
 
 async def _report(

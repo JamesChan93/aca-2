@@ -416,6 +416,18 @@ class PaperExecution:
         old = await self._state()
         order = old.order(client_id)
         try:
+            if order.intent.purpose == "entry":
+                from aca.reporting.history_prefix import suffix_budget
+
+                try:
+                    async with self.writer.transaction() as c:
+                        await suffix_budget(
+                            c, self.store, self.writer.accepted_history, new_commitment=True
+                        )
+                except ValueError as error:
+                    raise DispatchDenied(
+                        "history maintenance required before new entries"
+                    ) from error
             execution_guard(old, order, market, self.policy, at)
         except DispatchDenied:
             if order.state == "VALIDATED":

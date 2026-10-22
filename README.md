@@ -1,19 +1,22 @@
 # ACA — Kraken research and local paper execution
 
-Phases 1–3 and the Phase 4 paper core, maintenance, ordered replay and historical risk increments. The application provides a
-paper-only foundation and opt-in, credential-free Kraken market capture for BTC/GBP
+The application provides local paper execution and opt-in, credential-free Kraken market capture for BTC/GBP
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
 
-The [anchored archive reader](docs/phase-4-archive-input.md) can supply an explicit
-preserved replay prefix to reports and replay-enabled startup. It still requires
-retained database anchors and a complete financial audit. The fixed C3 capacity
-and retention condition remains open; this does not start qualifying paper observation.
+Version 0.4.18 closes the fixed **17/17 Phase 4 engineering conditions** for the
+documented bounded local-paper profile. Use the consolidated
+[paper release handoff](docs/phase-4-paper-release.md) for setup, operation,
+maintenance and the applicable local-paper safety decision. The
+[lossless history path](docs/phase-4-bounded-history.md) preserves original evidence
+and bounds online work with an explicit operator certificate. It requires stopped-worker
+maintenance before 4,096 new financial events/observations; this is not proof of
+56-day storage or uptime. Runtime cannot issue certificates or compact history.
 
-An explicit [operator-sealed financial audit](docs/phase-4-financial-prefix.md)
-can bound repeated financial reconstruction to its new suffix. Runtime credentials
-cannot create that authority. Historical economics and retained SQL evidence remain
-required; this supplies no pruning or 56-day capacity approval.
+**Qualifying paper observation has not started.** All 20 evaluated research
+candidates remain rejected, the holdout is closed and operational experiments
+earn zero qualifying days/episodes. Engineering completion does not approve
+research, deployment or live trading. The retained workstation stack has not been upgraded.
 
 The [original project prompt and implementation context](docs/context/README.md)
 are preserved in the repository for future contributors.
@@ -24,15 +27,10 @@ explicit setup. The default stack neither mounts a Discord secret nor sends mess
 extend that optional worker, with [local health and metrics](docs/phase-4-notification-health.md)
 when explicitly run in its own container. [Exact-event operator reviews](docs/phase-4-notification-review.md)
 preserve failed-delivery evidence while allowing notification health to recover.
-See the [current milestone status](docs/status.md) and
-[fixed Phase 4 completion checklist](docs/phase-4-completion.md) for completed C1/C2,
-the [C3 safety results and measured capacity blocker](docs/phase-4-safety.md), C4 closeout
-and the separate research, observation and readiness gates.
-The [capacity increment](docs/phase-4-capacity.md) improves audit/report cost while
-keeping the outstanding 56-day retention condition explicit.
-The [daily-summary capacity work](docs/phase-4-summary-capacity.md) shares one
-audited financial/valuation pass; the measured deadlines and retention condition
-remain explicit.
+See the [current milestone status](docs/status.md),
+[fixed Phase 4 completion checklist](docs/phase-4-completion.md) and
+[release evidence](docs/evidence/phase-4-paper-release.json). Earlier increment reports
+retain their historical failures and scope; the consolidated handoff records the current result.
 
 ## Start locally
 
@@ -41,6 +39,10 @@ Install Docker Engine/Desktop with Docker Compose v2.24 or newer, then run:
 ```sh
 python3 scripts/bootstrap.py
 ```
+
+This command is for a fresh local stack. For an existing deployment, use the
+reviewed backup/upgrade procedure; do not start an older image against schema 0016.
+The handoff uses a separate project name for a fresh review stack.
 
 The bootstrap uses the host Python's standard library only (3.9+). Application code
 runs on CPython 3.14.8 inside the container. It creates local random database secrets,
@@ -111,7 +113,8 @@ sequence. The `supervise` command keeps strategy dispatch disabled. The opt-in
 explicit operational strategy selection to this same replay/risk/execution core.
 It includes finalised candle warm-up, permanent decision identities, entries, exits
 and UTC boundary accounting. It grants zero qualifying paper days or episodes.
-C1 and C2 are complete; Phase 4 and G2 still require C3–C4.
+C1–C4 are complete for the bounded local-paper release; future exchange and deployed
+recovery assertions retain their separate gate allocations in the handoff.
 [Historical paper risk](docs/phase-4-historical-risk.md) now preserves original-time
 NAV, loss latches and investment flows during replay, with an explicit flat-account
 upgrade baseline. `aca paper valuations --account UUID --limit 20` reads its
@@ -122,7 +125,7 @@ fees and P&L, flow-neutral TWR and bounded annualised MWR. Use
 unavailable. The report begins at the explicit historical baseline. [Managed-account transfers and corrections](docs/phase-4-accounting.md) add explicit
 GBP/BTC/ETH owner flows and immutable reversal/replacement. Corrections invalidate
 units/returns and quarantine the account; no unit-history rebuild/rearm is supplied.
-The named local safety checks and closeout remain in the completion checklist. Deployment recovery and sustained reliability
+The named local safety checks and closeout are linked in the completion checklist. Deployment recovery and sustained reliability
 have separate later-stage acceptance. Outbound delivery and scheduled notices are
 opt-in capabilities;
 real destination integration and alert latency qualification remain outstanding.
@@ -139,13 +142,12 @@ captures one exported snapshot while controlled synthetic paper commits advance
 the source, then restores that prefix into a fresh disposable cluster. It checks
 data/permissions, safe sequence counters and recovery without command replay.
 Off-host backups and WAL/disaster recovery remain deployment/readiness work. The completion checklist
-records the local-paper restore checks still needed for Phase 4.
+records the completed local-paper restore checks and the remaining deployed recovery boundary.
 
 See [development](docs/development.md), [operations](docs/operations.md),
 [architecture](docs/architecture.md) and [milestone evidence](docs/phase-1.md).
-The [replay preservation format](docs/phase-4-replay-preservation.md) adds lossless
-export and offline verification. It leaves operational history in PostgreSQL;
-the C3 capacity/retention condition remains open.
+The [replay preservation format](docs/phase-4-replay-preservation.md) also supports
+lossless file export and offline verification within its documented limits.
 Local Docker functional checks and both runtime image scans pass. The full Linux
 suite passes on arm64 and on amd64 under emulation. Hosted GitHub Actions results
 are recorded in the milestone report; see the [image security review](docs/image-review.md).
