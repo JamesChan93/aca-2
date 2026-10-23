@@ -84,6 +84,10 @@ registry. Research runs locally with the optional hash-locked NumPy environment.
 The final year stays reserved until an explicit candidate freeze and holdout command.
 No candidate has qualified for promotion.
 
+The [23 October historical gap review](docs/research-data-audit.md) distinguishes
+2,833 no-trade spans from one disputed BTC trade-ID range. Original prices and
+trial outcomes remain unchanged; no fresh backtest or holdout evaluation is claimed.
+
 The [Phase 4 offline paper core](docs/phase-4.md) adds append-only GBP journals,
 investment units, reservations, independent portfolio/dispatch risk checks, a
 durable local venue and recovery without command replay. A synthetic demonstration
