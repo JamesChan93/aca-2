@@ -1,5 +1,11 @@
 # Phase 3 — historical audit and reproducible research
 
+**Later evidence, 24 October 2026:** the [reviewed-data study](research-reviewed-validation.md)
+consumes the gap audit explicitly. All 300 eligible walk-forward folds complete;
+all 20 original candidates still fail confidence/economic gates. No candidate is
+frozen and the final holdout stays closed. The original milestone report below
+remains historical evidence; Phase 4 subsequently completed at 17/17.
+
 **Later evidence, 23 October 2026:** the [historical gap review](research-data-audit.md)
 classifies the original 2,833 research gap spans as confirmed no-trade intervals,
 using separate hourly/trade evidence. One populated BTC candle has conflicting

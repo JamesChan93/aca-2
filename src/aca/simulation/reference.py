@@ -1,7 +1,7 @@
 """Decimal long/cash bar reference engine. Bar-only history never awards maker fills."""
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import ROUND_DOWN, Decimal, localcontext
 from itertools import pairwise
 
@@ -122,8 +122,19 @@ def simulate(
         raise ValueError("choose one strategy or benchmark")
     if benchmark_allocation is not None and not 0 <= benchmark_allocation <= 1:
         raise ValueError("invalid benchmark allocation")
-    if any(bar.symbol != rules.symbol or not bar.complete for bar in bars):
-        raise ValueError("unqualified bars")
+    for index, bar in enumerate(bars):
+        indicator_only = (
+            not bar.complete
+            and bar.quality == ("confirmed_no_trade",)
+            and bar.volume == 0
+            and bar.trade_count == 0
+            and bar.open == bar.high == bar.low == bar.close
+            and index > 0
+            and bar.close == bars[index - 1].close
+            and bar.observed_at >= bar.end + timedelta(seconds=10)
+        )
+        if bar.symbol != rules.symbol or not (bar.complete or indicator_only):
+            raise ValueError("unqualified bars")
     if any(previous.end != current.start for previous, current in pairwise(bars)):
         raise ValueError("unexplained gaps cannot be simulated")
     if variant is not None and sum(bar.end <= start for bar in bars) < 200:
@@ -173,6 +184,7 @@ def _simulate(
     observations: list[Observation] = []
     episodes: list[Episode] = []
     first = True
+    deferred_benchmark_budget = D(0)
     for index, bar in enumerate(bars):
         if bar.start < start:
             continue
@@ -253,9 +265,12 @@ def _simulate(
             else:
                 skips += 1
         # A benchmark buys once; periodic purchases use the new external contribution.
-        benchmark_buy = (
-            allocation is not None and allocation > 0 and (first or (periodic and new_month))
-        )
+        if allocation is not None and allocation > 0:
+            if first:
+                deferred_benchmark_budget += initial * allocation
+            if periodic and new_month:
+                deferred_benchmark_budget += contribution * allocation
+        benchmark_buy = deferred_benchmark_budget > 0 and bar.complete
         strategy_buy = (
             variant is not None
             and due
@@ -302,7 +317,8 @@ def _simulate(
             else:
                 if allocation is None:
                     raise ValueError("missing benchmark allocation")
-                budget = (initial if first else contribution) * allocation
+                budget = deferred_benchmark_budget
+                deferred_benchmark_budget = D(0)
                 proposed = round_increment(
                     min(cash, budget) / (price * (1 + costs.taker_fee)), rules.quantity_increment
                 )

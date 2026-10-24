@@ -16,6 +16,9 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     fetch.add_argument("--archive", type=Path)
     ingest = actions.add_parser("import")
     ingest.add_argument("--source", type=Path, required=True)
+    ingest.add_argument(
+        "--gap-audit", type=Path, help="Explicit reviewed audit bound by the source's audit_sha256"
+    )
     run = actions.add_parser("run")
     run.add_argument("--dataset", type=Path, required=True)
     run.add_argument("--bootstrap-samples", type=int, default=10000)
@@ -53,7 +56,7 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
     elif args.action == "import":
         from aca.research.datasets import import_dataset
 
-        output = {"dataset": str(import_dataset(args.source, args.root))}
+        output = {"dataset": str(import_dataset(args.source, args.root, gap_audit=args.gap_audit))}
     elif args.action == "register":
         output = asyncio.run(_register(args.root, settings))
     elif args.action == "trials":

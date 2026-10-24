@@ -1,5 +1,11 @@
 # Historical data gap review — 23 October 2026
 
+**Later evidence, 24 October 2026:** the [reviewed-data validation](research-reviewed-validation.md)
+now consumes this audit in the backtester. All 300 walk-forward folds complete;
+all 20 candidates remain rejected for confidence/economic reasons. The disputed
+trade evidence remains quarantined and the holdout stays closed. Statements below
+about the unconsumed sidecar describe the audit milestone before that integration.
+
 The four research series contain **2,833 missing spans comprising 6,653 empty
 intervals**. Official hourly candles and the separately downloaded public trade
 archive corroborate that those intervals contain no recorded trades. They are

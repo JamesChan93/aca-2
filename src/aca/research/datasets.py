@@ -14,6 +14,8 @@ from aca.domain.market import Candle, Symbol
 from aca.domain.values import FINANCIAL_CONTEXT, parse_decimal, utc_datetime
 from aca.operations.config import StrictModel
 from aca.research.artifacts import canonical, digest, file_hash, read_json, write_once
+from aca.research.protocol import months
+from aca.research.reviewed import reviewed_bars, validate_review
 
 
 def instant(value: object) -> datetime:
@@ -66,7 +68,11 @@ class SourceBundle(StrictModel):
 
 
 def source_bundle(path: Path) -> SourceBundle:
-    document = read_json(path)
+    return source_bundle_from_document(read_json(path))
+
+
+def source_bundle_from_document(document: dict[str, object]) -> SourceBundle:
+    document = dict(document)
     files = document.get("files")
     if isinstance(files, list):
         document["files"] = tuple(files)
@@ -129,9 +135,48 @@ class Dataset:
     series: dict[tuple[Symbol, int], tuple[Candle, ...]]
 
 
-def import_dataset(source_path: Path, root: Path) -> Path:
+def _gaps(bars: tuple[Candle, ...], source: SourceFile) -> list[dict[str, str]]:
+    gaps: list[dict[str, str]] = []
+    previous = instant(source.coverage_start)
+    for bar in bars:
+        if bar.start != previous:
+            gaps.append(
+                {
+                    "start": previous.isoformat(),
+                    "end": bar.start.isoformat(),
+                    "classification": "unexplained",
+                }
+            )
+        previous = bar.end
+    if previous != instant(source.coverage_end):
+        gaps.append(
+            {
+                "start": previous.isoformat(),
+                "end": source.coverage_end,
+                "classification": "unexplained",
+            }
+        )
+    return gaps
+
+
+def _review(path: Path, bundle: SourceBundle) -> dict[str, object]:
+    expected = bundle.evidence.get("audit_sha256")
+    if not isinstance(expected, str) or file_hash(path) != expected:
+        raise ValueError("gap audit hash does not match source provenance")
+    document = read_json(path)
+    validate_review(document, bundle.model_dump(mode="json"))
+    return document
+
+
+def import_dataset(source_path: Path, root: Path, *, gap_audit: Path | None = None) -> Path:
     bundle = source_bundle(source_path)
     observed = instant(bundle.retrieved_at)
+    review = _review(gap_audit, bundle) if gap_audit else None
+    if review is not None and gap_audit is not None:
+        write_once(
+            root / "objects" / (str(bundle.evidence["audit_sha256"]) + ".json"),
+            gap_audit.read_bytes(),
+        )
     reports: list[dict[str, object]] = []
     for source in bundle.files:
         path = (source_path.parent / source.path).resolve()
@@ -141,26 +186,10 @@ def import_dataset(source_path: Path, root: Path) -> Path:
             raise ValueError("source hash or size mismatch")
         data = path.read_bytes()
         bars = parse_csv(data, source, observed)
-        gaps: list[dict[str, str]] = []
-        previous = instant(source.coverage_start)
-        for bar in bars:
-            if bar.start != previous:
-                gaps.append(
-                    {
-                        "start": previous.isoformat(),
-                        "end": bar.start.isoformat(),
-                        "classification": "unexplained",
-                    }
-                )
-            previous = bar.end
-        if previous != instant(source.coverage_end):
-            gaps.append(
-                {
-                    "start": previous.isoformat(),
-                    "end": source.coverage_end,
-                    "classification": "unexplained",
-                }
-            )
+        gaps = _gaps(bars, source)
+        raw_rows = len(bars)
+        if review is not None:
+            bars, gaps = reviewed_bars(bars, source.model_dump(mode="json"), review, gaps)
         name = source.sha256 + ".csv"
         write_once(root / "objects" / name, data)
         reports.append(
@@ -168,6 +197,19 @@ def import_dataset(source_path: Path, root: Path) -> Path:
                 "source": source.model_dump(mode="json"),
                 "object": name,
                 "rows": len(bars),
+                **(
+                    {
+                        "raw_rows": raw_rows,
+                        "indicator_only_rows": sum(
+                            bar.quality == ("confirmed_no_trade",) for bar in bars
+                        ),
+                        "quarantined_rows": sum(
+                            "disputed_trade_evidence" in bar.quality for bar in bars
+                        ),
+                    }
+                    if review is not None
+                    else {}
+                ),
                 "first": bars[0].start.isoformat(),
                 "last_end": bars[-1].end.isoformat(),
                 "gaps": gaps,
@@ -175,13 +217,27 @@ def import_dataset(source_path: Path, root: Path) -> Path:
         )
     manifest: dict[str, object] = {
         "schema_version": 1,
-        "transform": "kraken-ohlcvt-audit-v1",
+        "transform": "kraken-reviewed-no-trade-v2" if review else "kraken-ohlcvt-audit-v1",
         "source_bundle": bundle.model_dump(mode="json"),
         "series": reports,
-        "missing_intervals": "unexplained_until_individually_reviewed",
+        "missing_intervals": (
+            "individually_reviewed_zero_liquidity_other_gaps_block"
+            if review
+            else "unexplained_until_individually_reviewed"
+        ),
         "historical_metadata": "reconstructed_current_rules_not_point_in_time",
         "historical_fees": "conservative_planning_bounds_not_account_history",
         "volume_transform": "round_down_18_decimal_places_raw_bytes_retained",
+        **(
+            {
+                "gap_audit_sha256": bundle.evidence["audit_sha256"],
+                "indicator_convention": "past_close_only_zero_volume_no_executable_liquidity",
+                "holdout_start": months(instant(bundle.files[0].coverage_end), -12).isoformat(),
+                "holdout_end": bundle.files[0].coverage_end,
+            }
+            if review
+            else {}
+        ),
     }
     data = canonical(manifest)
     target = root / "datasets" / digest(data) / "manifest.json"
@@ -194,12 +250,19 @@ def load_dataset(path: Path) -> Dataset:
     fingerprint = digest(canonical(manifest))
     if path.parent.name != fingerprint:
         raise ValueError("manifest content hash mismatch")
-    if manifest.get("transform") != "kraken-ohlcvt-audit-v1":
+    if manifest.get("transform") not in {"kraken-ohlcvt-audit-v1", "kraken-reviewed-no-trade-v2"}:
         raise ValueError("unsupported dataset transform")
     bundle = manifest["source_bundle"]
     if not isinstance(bundle, dict) or not isinstance(bundle.get("retrieved_at"), str):
         raise ValueError("missing provenance")
     observed = instant(bundle["retrieved_at"])
+    review = None
+    if manifest["transform"] == "kraken-reviewed-no-trade-v2":
+        reviewed_bundle = source_bundle_from_document(bundle)
+        expected = reviewed_bundle.evidence.get("audit_sha256")
+        if manifest.get("gap_audit_sha256") != expected:
+            raise ValueError("dataset gap audit binding mismatch")
+        review = _review(path.parents[2] / "objects" / (str(expected) + ".json"), reviewed_bundle)
     series: dict[tuple[Symbol, int], tuple[Candle, ...]] = {}
     records = manifest["series"]
     if not isinstance(records, list):
@@ -211,5 +274,11 @@ def load_dataset(path: Path) -> Dataset:
         if object_path.stat().st_size > 32_000_000 or file_hash(object_path) != source.sha256:
             raise ValueError("dataset object hash mismatch")
         bars = parse_csv(object_path.read_bytes(), source, observed)
+        if review is not None:
+            bars, gaps = reviewed_bars(
+                bars, source.model_dump(mode="json"), review, _gaps(bars, source)
+            )
+            if gaps != record["gaps"] or len(bars) != record["rows"]:
+                raise ValueError("reviewed dataset projection mismatch")
         series[(source.symbol, source.interval_minutes)] = bars
     return Dataset(fingerprint, manifest, series)

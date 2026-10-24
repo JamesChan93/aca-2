@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 23 October 2026. Application **0.4.18**, schema `0016_history_segments`.
+Updated 24 October 2026. Application **0.4.19**, schema `0016_history_segments`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -44,8 +44,12 @@ open its holdout or approve observation, hosting or live operation.
 The [historical data review](research-data-audit.md) classifies the 2,833 original
 research gap spans as no-trade intervals using hourly and public trade archives.
 One populated BTC candle on 23 June 2026 has disputed trade-ID evidence; no repair
-is applied. The reviewed data sidecar has not been consumed by a new backtest or
-walk-forward run. Research qualification remains outstanding; Phase 4 stays complete.
+is applied. The [reviewed-data study](research-reviewed-validation.md) now consumes
+the sidecar explicitly: all 300 eligible walk-forward folds complete. None of the
+20 candidates passes the adjusted confidence or fixed-cost gate; 17 meet the
+50-episode minimum. Research review is complete with a no-go result, G3 does not
+pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
+The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
 The retained workstation stack has not been upgraded, migrated or compacted by
 this release. Its existing image/schema is not this release's deployed evidence.
@@ -71,7 +75,7 @@ only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 | Area | Implemented and recorded evidence |
 | --- | --- |
 | Foundation/data | Paper-only package, restricted PostgreSQL roles, migrations, containers, public Kraken metadata/books/trades/candles, provenance and ordered replay |
-| Research | Shared deterministic indicators/strategies, audited datasets, cost-aware simulation and recorded trials; 20 rejected candidates, final holdout closed |
+| Research | Shared deterministic indicators/strategies, hash-bound reviewed no-trade observations and quarantine, cost-aware simulation and recorded trials; 300 complete walk-forward folds, 20 rejected candidates, final holdout closed |
 | Accounting/risk | GBP journal/movements, owner flows, supported transfers/corrections, unitisation, reservations, Decimal sizing, independent dispatch controls, durable loss latches and manual tax-cash earmarks |
 | Paper execution | Explicit versioned strategy selection, past-only finalised candles, durable decisions, local entry/exit lifecycle, protection, uncertainty/recovery and UTC boundaries |
 | Reports/history | Original-time GBP valuations, reconciled TWR and bounded MWR, lossless blocks, protected summaries and full suffix validation; incomplete evidence stays provisional |
