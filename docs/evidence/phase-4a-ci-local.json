@@ -1,0 +1,65 @@
+{
+  "application_version": "0.4.19",
+  "bounded_history": {
+    "ci_job_timeout_minutes": 20,
+    "fixture_timeout_seconds": 900,
+    "operation_deadlines_seconds": {
+      "financial_writer_startup": 30,
+      "historical_report": 20,
+      "replay_audit_after_writer_acquisition": 10,
+      "replay_startup_audit": 20,
+      "scheduled_daily_summary": 15
+    },
+    "progress_private_fields_excluded": true,
+    "timeouts_still_fail": true
+  },
+  "date": "2026-10-24",
+  "dependency_audits": {
+    "development": "passed",
+    "research": "passed",
+    "runtime": "passed"
+  },
+  "helper_safety_tests": {
+    "passed": 36,
+    "seconds": 0.57
+  },
+  "holdout_opened": false,
+  "hosted_checks": "pending_on_next_commit",
+  "kind": "local_ci_repair_verification",
+  "linux_postgresql_regression": {
+    "disposable_resources_cleaned": true,
+    "passed": 738,
+    "seconds": 173.0
+  },
+  "postgres_image_scan": {
+    "architecture": "arm64",
+    "brotli_package": "1.2.1-r0",
+    "high_critical_vulnerabilities": 0,
+    "ignore_unfixed": false,
+    "os": {
+      "Family": "alpine",
+      "Name": "3.24.2"
+    },
+    "report_sha256": "e9690f0446195c1b8b1e90d2fbaddf2503f2a6f6f4c85776fda18a4ec4fa9181",
+    "scanner": "Trivy 0.76.0",
+    "scanner_image": "aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+    "secret_findings": 0
+  },
+  "previous_head": "e6740bf18266ac111cad7eac66c8f5025e0b7789",
+  "promotion_allowed": false,
+  "retained_services_changed": false,
+  "schema_version": 1,
+  "source_files_sha256": {
+    ".github/workflows/ci.yaml": "c715a1edd9371452a0f0711f4c0897388a4c6054f4ce48ef0cfb24baf6021c96",
+    "Dockerfile.postgres": "d21d2d0551ef1f77ff9200d33a0801ee68d256a086accc4c5cb296bd0d690437",
+    "requirements/constraints.in": "db5269cb5e6ca6d29c7e6cc26eb05d310f0e968bd29d01dc12958c89ccadaa3b",
+    "requirements/development.lock": "263e08f9b0005a669fd088f031555b2bbbab74696ed7a382aa36edd56f7adca0",
+    "scripts/capacity_trial.py": "e771fcd79b113ae5c8736874edc31a18b2600710e43a1363a44f8f9e4e01d023",
+    "tests/capacity_fixture.py": "500dc5c9f256cfbb9c753f94695eed26c3aa4a314804fc6957612ca8e1111951",
+    "tests/test_safety_drills.py": "6f8df49aea9bd2c4bb374cae2f539284637e0e24168e2da1b05dfd204aa1cc19"
+  },
+  "strict_mypy": {
+    "passed": true,
+    "source_files": 158
+  }
+}

@@ -7,7 +7,8 @@ into a phase. Baseline: merged PR #28, commit
 schema `0016_history_segments`.
 
 **Status: in progress; 0/19 completion items.** P4A-17 has started with the
-development dependency audit repair requested after PR #29's checks failed.
+development audit, database-image security and fixture-timeout repairs requested
+after PR #29's checks failed.
 The remaining items have not started. This partial repair does not close P4A-17.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.

@@ -9,8 +9,10 @@ does not grant the 56-day capacity or operational acceptance gate. Host Python 3
 from __future__ import annotations
 
 import json
+import math
 import subprocess
 import sys
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -28,6 +30,42 @@ except ModuleNotFoundError:
         DrillError,
         private_write,
     )
+
+
+def last_progress(path: Path) -> dict[str, Any] | None:
+    """Expose only the fixture's allowlisted checkpoint, never private diagnostics."""
+    phases = {
+        "seeded",
+        "compacted",
+        "suffix_seeded",
+        "reports_compared",
+        "measuring_operations",
+        "operations_measured",
+    }
+    latest = None
+    if not path.exists():
+        return None
+    with path.open(errors="replace") as stream:
+        for line in stream:
+            if not line.startswith("ACA_CAPACITY_PROGRESS ") or len(line) > 1024:
+                continue
+            try:
+                value = json.loads(line.removeprefix("ACA_CAPACITY_PROGRESS "))
+            except ValueError:
+                continue
+            if not isinstance(value, dict):
+                continue
+            elapsed = value.get("elapsed_seconds")
+            if (
+                isinstance(value.get("phase"), str)
+                and value["phase"] in phases
+                and isinstance(elapsed, (int, float))
+                and not isinstance(elapsed, bool)
+                and 0 <= elapsed <= 1800
+                and math.isfinite(elapsed)
+            ):
+                latest = {"phase": value["phase"], "elapsed_seconds": elapsed}
+    return latest
 
 
 def main() -> int:
@@ -63,6 +101,9 @@ def main() -> int:
     report: dict[str, Any] = {
         "status": "failed",
         "trial_mode": mode,
+        # Covers seeding, full compaction/audit comparison and measured operations.
+        # Each operation retains its independent, unchanged acceptance deadline.
+        "fixture_timeout_seconds": 900 if preservation_only or compaction else 600,
     }
     try:
         drill.call([*drill.source, "build", "db", "restore-worker"])
@@ -88,7 +129,7 @@ def main() -> int:
                     else []
                 ),
             ],
-            timeout=900 if preservation_only else 600,
+            timeout=report["fixture_timeout_seconds"],
         )
         report.update(json.loads(raw))
         report["status"] = "measured"
@@ -97,6 +138,7 @@ def main() -> int:
         if isinstance(error, DrillError):
             report["failure"] = str(error)
     finally:
+        report["last_progress"] = last_progress(directory / f"command-{drill.counter:02d}.log")
         report["cleanup_complete"] = drill.cleanup()
         private_write(directory / "manifest.json", (json.dumps(report, indent=2) + "\n").encode())
     print("Capacity trial " + str(report["status"]) + ": " + str(directory))
@@ -108,6 +150,8 @@ def main() -> int:
                     for key in (
                         "application_version",
                         "trial_mode",
+                        "fixture_timeout_seconds",
+                        "last_progress",
                         "operational_budgets_exercised",
                         "package_source_sha256",
                         "certifi_version",
@@ -138,6 +182,8 @@ def main() -> int:
                 {
                     "status": report["status"],
                     "trial_mode": report["trial_mode"],
+                    "fixture_timeout_seconds": report["fixture_timeout_seconds"],
+                    "last_progress": report["last_progress"],
                     "error_type": report.get("error_type"),
                     "cleanup_complete": report["cleanup_complete"],
                 },

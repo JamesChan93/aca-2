@@ -76,6 +76,22 @@ to 84.1.0. All three local dependency audits, the clean test-image install, stat
 checks and wheel build pass. Fresh hosted checks must establish the patched-head
 outcome. No runtime/research lock, application code or retained service changes.
 
+The first patched-head CI runs cleared dependency audits, then found
+CVE-2026-111497 in the PostgreSQL image's Brotli package. One overall compaction
+fixture also timed out, while the other run passed all five measured operation
+deadlines. P4A-17 now pins the patched database package and gives the entire
+seed/compaction/comparison fixture 900 seconds within a 20-minute CI job. The
+30/20/20/10/15-second operation limits and failure exit remain unchanged.
+Allowlisted progress checkpoints identify the last completed phase on timeout
+without exposing private child logs. Current patched-image/hosted results must
+still be verified; this remains the same P4A-17 item.
+
+The [P4A-17 repair packet](phase-4a-ci-repair.md) records the concrete fixes and
+local validation: 738 Linux/PostgreSQL tests, helper safety and type checks,
+all dependency audits, and a clean arm64 patched-database scan. Its
+[evidence](evidence/phase-4a-ci-local.json) binds exact changed files; final hosted
+acceptance is tracked on PR #29.
+
 The retained workstation stack has not been upgraded, migrated or compacted by
 this release. Its existing image/schema is not this release's deployed evidence.
 Use the reviewed upgrade procedure before changing retained state.

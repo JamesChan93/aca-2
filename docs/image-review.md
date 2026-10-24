@@ -1,5 +1,21 @@
 # Local image security evidence
 
+**24 October 2026, P4A-17:** after the setuptools audit repair, the next CI runs
+reached the previously skipped runtime scans. Both failed on PostgreSQL's
+`brotli-libs==1.2.0-r1`, CVE-2026-111497. The
+[upstream Brotli 1.2.1 release](https://github.com/google/brotli/releases/tag/v1.2.1)
+contains the security fix. `Dockerfile.postgres` now adds the exact signed Alpine
+`brotli-libs=1.2.1-r0` package to the existing digest-pinned base, retains removal of
+gosu and starts as postgres. The verified build updates only Brotli; no general
+package upgrade or scanner exclusion is introduced. PostgreSQL remains 18.6.
+The rebuilt arm64 image passes the pinned Trivy 0.76.0 vulnerability/secret scan:
+zero HIGH/CRITICAL vulnerabilities and zero secret findings, with unfixed findings
+included. Image inspection confirms `brotli-libs-1.2.1-r0`; the fresh scan uses a
+downloaded vulnerability database and no Docker socket or credential mounts.
+Hosted amd64 scans and PostgreSQL regression must establish integrated acceptance.
+Dated clean results below do not apply to the newly disclosed finding, and no
+retained workstation database is rebuilt or restarted by this source change.
+
 Observed 17 October 2026. Both hardened runtime images pass the HIGH/CRITICAL
 vulnerability and secret checks on arm64 and amd64. No advisory exceptions, ignore
 rules or ignore-unfixed bypasses were added. These are dated scanner results, not a
