@@ -2,14 +2,15 @@
 
 import platform
 import sys
+from collections.abc import Iterator
 from dataclasses import asdict
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from importlib.metadata import version
 from itertools import pairwise
 from pathlib import Path
-from typing import Any
-from uuid import uuid4
+from typing import Any, cast
+from uuid import NAMESPACE_URL, uuid4, uuid5
 
 from aca import __version__
 from aca.domain.market import Candle, InstrumentRules, Symbol
@@ -308,6 +309,106 @@ def run(root: Path, manifest: Path, *, samples: int = 10_000) -> Path:
     except Exception as exc:
         event(root, run_id, "family", "failed", {"error_type": type(exc).__name__})
         raise
+
+
+def run_modular(
+    root: Path,
+    manifest: Path,
+    *,
+    samples: int = 10_000,
+    retry_failed: bool = False,
+) -> Path:
+    """Legacy evaluation semantics, one bounded trial at a time; no corrected S0 run.
+
+    A task is one declared trial, not one fold. An interrupted trial recomputes
+    deterministically; completed/rejected trials are verified and never recomputed.
+    Statistical/execution changes belong to the later Phase 4a items.
+    """
+    from aca.research.bundles import Result, Store, create, execute, seal
+
+    if not 1000 <= samples <= 100_000:
+        raise ValueError("bootstrap samples must be 1000..100000")
+    declaration: dict[str, object] = {
+        "dataset_manifest_sha256": file_hash(manifest),
+        "code_sha256": code_fingerprint(),
+        "trials": [list(trial) for trial in TRIALS],
+        "costs": CostModel().model_dump(mode="json"),
+        "policy": RiskPolicy().model_dump(mode="json"),
+        "seed": 1729,
+        "bootstrap_samples": samples,
+        "family_size": 80,
+        "model": "legacy_flat_window_v2_not_corrected_S0",
+        "runtime": {"aca": __version__, "python": sys.version, "numpy": version("numpy")},
+        "holdout_opened": False,
+    }
+    tasks: dict[str, dict[str, object]] = {
+        f"{symbol}:{interval}:{variant}": {
+            "symbol": symbol,
+            "interval": interval,
+            "variant": variant,
+        }
+        for symbol, interval, variant in TRIALS
+    }
+    path = create(root, declaration, tasks)
+    run_id = str(uuid5(NAMESPACE_URL, path.parent.name))
+    dataset: Dataset | None = None
+    for symbol, interval, variant in TRIALS:
+
+        def work(
+            store: Store,
+            bound_symbol: Symbol = symbol,
+            bound_interval: int = interval,
+            bound_variant: Variant = variant,
+        ) -> Result:
+            nonlocal dataset
+            if version("numpy") != "2.5.4":
+                raise ValueError("research requires the reviewed NumPy 2.5.4 lock")
+            if dataset is None:
+                dataset = load_dataset(manifest)
+            outcome = _trial(
+                root, run_id, dataset, bound_symbol, bound_interval, bound_variant, samples
+            )
+            folds = cast(list[dict[str, Any]], outcome.pop("folds"))
+
+            # Store the original daily values/episodes in independent immutable
+            # pages; fold metadata/metrics and trial inference remain small.
+            def curve_records() -> Iterator[dict[str, object]]:
+                for index, fold in enumerate(folds):
+                    for phase in ("validation", "test"):
+                        section = fold.get(phase, {})
+                        for key in ("daily_candidate", "daily_cash", "daily_passive10"):
+                            for day, value in section.pop(key, {}).items():
+                                yield {
+                                    "fold": index,
+                                    "phase": phase,
+                                    "series": key,
+                                    "day": day,
+                                    "return": value,
+                                }
+
+            def episode_records() -> Iterator[dict[str, object]]:
+                for index, fold in enumerate(folds):
+                    for phase in ("validation", "test"):
+                        for episode in fold.get(phase, {}).pop("episodes", []):
+                            yield {"fold": index, "phase": phase, "episode": episode}
+
+            curves = store.records("curve", curve_records())
+            episodes = store.records("episodes", episode_records())
+            return Result(
+                status="rejected",
+                reason="legacy_model_no_promotion",
+                artifacts=(
+                    store.records("trial", [outcome]),
+                    store.records("fold", folds),
+                    curves,
+                    episodes,
+                ),
+            )
+
+        result = execute(path, f"{symbol}:{interval}:{variant}", work, retry_failed=retry_failed)
+        if result.status == "failed":
+            raise ValueError("previous research task failed; explicit --retry-failed required")
+    return seal(path)
 
 
 def _trial(

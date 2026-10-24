@@ -26,8 +26,11 @@ No candidate is frozen and the final holdout remains closed.
 The [Phase 4a plan](docs/phase-4a.md) turns the
 [research and repository review](docs/research-promotion-review-2026-10-24.md)
 into a fixed **19-item** research-fidelity and promotion-preparation phase.
-It is in progress at **0/19**, with six implementation batches and a bounded study
-budget. P4A-17 has started with the development dependency audit repair.
+It is in progress at **2/19**, with six implementation batches and a bounded study
+budget. P4A-17 closes the release-check repair. Version 0.4.20 adds P4A-18's
+[modular research output and offline restore](docs/phase-4a-artifacts.md): durable
+attempts, bounded pages, deterministic trial resume and a byte-identical archive/
+restore of the original report. No corrected S0/S1/S2 study has run.
 Phase 4 remains closed at 17/17; qualifying observation has not started.
 
 The [original project prompt and implementation context](docs/context/README.md)

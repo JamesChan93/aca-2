@@ -4,6 +4,15 @@
 This increment repairs the failures exposed by [PR #29](https://github.com/JamesChan93/aca-2/pull/29).
 It does not complete the other Phase 4a items or grant research/paper/live approval.
 
+**Final hosted acceptance: P4A-17 complete.** All eight jobs passed on
+`eae9a2b825f5d1ce7615cb4dad9e9addb27917ee` across the
+[push run](https://github.com/JamesChan93/aca-2/actions/runs/40105271037) and
+[PR run](https://github.com/JamesChan93/aca-2/actions/runs/40105275758).
+Both ran all 738 tests, all dependency audits, packaging/container checks,
+both image scans and bounded-history acceptance. PR #29 merged as
+`eefc60d45f3f25e9046b73062df4bac7594707a1`. The earlier failures below remain
+historical evidence; they are not the final repaired outcome.
+
 | Observed failure | Cause | Repair |
 | --- | --- | --- |
 | Initial `verify` runs | Development lock pins setuptools 84.0.0 with GHSA-xmj3-9gf7-h52w | Exact 84.1.0 pin/hashes; upstream metadata/licence/release review; all lock audits retained |
@@ -55,6 +64,6 @@ records describe the exact package updates.
 The [local evidence](evidence/phase-4a-ci-local.json) binds these results to exact
 file hashes and the scanner report hash. Raw local logs/reports remain under
 `/private/tmp/aca-phase4a-*`; they are diagnostics, not a durable backup or
-production evidence. Fresh hosted amd64 regression, compaction and both runtime
-image scans must establish the final PR-head outcome. PR #29 tracks those checks;
-the local packet does not mark them passed in advance.
+production evidence. The final hosted amd64 regression, compaction and runtime
+image scans are linked above; the local packet remains the evidence as recorded
+before those hosted runs completed.
