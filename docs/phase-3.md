@@ -1,5 +1,12 @@
 # Phase 3 — historical audit and reproducible research
 
+**Later evidence, 23 October 2026:** the [historical gap review](research-data-audit.md)
+classifies the original 2,833 research gap spans as confirmed no-trade intervals,
+using separate hourly/trade evidence. One populated BTC candle has conflicting
+trade-ID evidence and remains disputed. This adds a reviewed metadata artifact;
+it does not replace the historical research results below or claim a new run.
+All 20 candidates remain rejected and the final holdout remains unopened.
+
 This milestone adds local research after merged Phase 2. It does not implement the
 Phase 4 accounting ledger, independent execution risk, reservations, order lifecycle,
 paper exchange, reconciliation or operational recovery. Private account access and

@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 22 October 2026. Application **0.4.18**, schema `0016_history_segments`.
+Updated 23 October 2026. Application **0.4.18**, schema `0016_history_segments`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -40,6 +40,12 @@ candidates remain rejected and the holdout is closed. Local-paper engineering ca
 finish without a profitable research result. Research rejection does not add new
 Phase 4 coding requirements. Engineering completion does not qualify a candidate,
 open its holdout or approve observation, hosting or live operation.
+
+The [historical data review](research-data-audit.md) classifies the 2,833 original
+research gap spans as no-trade intervals using hourly and public trade archives.
+One populated BTC candle on 23 June 2026 has disputed trade-ID evidence; no repair
+is applied. The reviewed data sidecar has not been consumed by a new backtest or
+walk-forward run. Research qualification remains outstanding; Phase 4 stays complete.
 
 The retained workstation stack has not been upgraded, migrated or compacted by
 this release. Its existing image/schema is not this release's deployed evidence.

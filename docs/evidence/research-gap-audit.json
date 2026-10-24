@@ -1,0 +1,759 @@
+{
+  "acquisition_script_sha256": "d625e9512787896b9377daea11e1f7c59fb20417d937bc1b5a1898b079de770d",
+  "acquisition_snapshot": {
+    "archives": {
+      "ohlc": {
+        "members": [
+          {
+            "bytes": 240855,
+            "compressed": 103788,
+            "crc32": 607079728,
+            "name": "ETHGBP_1440.csv",
+            "sha256": "85c31bbc071bfc6a65864b100e1b58533046a1fb2e7c9b43da392a3dcea6cfb7"
+          },
+          {
+            "bytes": 1269965,
+            "compressed": 502185,
+            "crc32": 2593054463,
+            "name": "ETHGBP_240.csv",
+            "sha256": "ac285d0f3b5e5283c9200bbf8ddc529813a2464cee3587c0b42dcd60dd6966e3"
+          },
+          {
+            "bytes": 4226663,
+            "compressed": 1571743,
+            "crc32": 3423728258,
+            "name": "ETHGBP_60.csv",
+            "sha256": "c793bc67afc31caabbd9a7d63883e67ba5d6a074f6e421ba9c55a76d37c00a9f"
+          },
+          {
+            "bytes": 360,
+            "compressed": 212,
+            "crc32": 2198564440,
+            "name": "MANIFEST.json",
+            "sha256": "2e3eef939692f2520847674dc2e69b00796f1c230429509cb8c12649458853bd"
+          },
+          {
+            "bytes": 267889,
+            "compressed": 113776,
+            "crc32": 410259560,
+            "name": "XBTGBP_1440.csv",
+            "sha256": "70062b3fcd0e3e63daad2022be0f8ff86444132823f82883da2b0f63ad75745a"
+          },
+          {
+            "bytes": 1409250,
+            "compressed": 552052,
+            "crc32": 3890339008,
+            "name": "XBTGBP_240.csv",
+            "sha256": "5a80d241869d08fab78ef8274064ad15914ff71d27f5fe8a8ed446b6c7bcc972"
+          },
+          {
+            "bytes": 4715287,
+            "compressed": 1740246,
+            "crc32": 469943690,
+            "name": "XBTGBP_60.csv",
+            "sha256": "aefb367a356493a0e78928e09a5429fd67ec3451bd4f60e9b3c3919441a02062"
+          }
+        ],
+        "parts": [
+          {
+            "etag": "\"ca80893857c56a8cd44df4ee3caa398d-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part00"
+          },
+          {
+            "etag": "\"84d0ef1069baaf64411a32a43879d059-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part01"
+          },
+          {
+            "etag": "\"1be9935a090cacbfe3a4c815fa3ab77c-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part02"
+          },
+          {
+            "etag": "\"fee21d7ffc8850bda007640a0ea994c8-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part03"
+          },
+          {
+            "etag": "\"8891beec53b287dc88d555c5ef9103f2-139\"",
+            "size": 1157945626,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part04"
+          }
+        ]
+      },
+      "quarter": {
+        "members": [
+          {
+            "bytes": 6051,
+            "compressed": 2771,
+            "crc32": 3072280433,
+            "name": "ETHGBP_1440.csv",
+            "sha256": "b99b743ec351003de2fdecfd9a4aaff1bfb581d7ad61545094329ac9070ba5c4"
+          },
+          {
+            "bytes": 35562,
+            "compressed": 14790,
+            "crc32": 571660537,
+            "name": "ETHGBP_240.csv",
+            "sha256": "e637de4bfc1ef972cf08963d79cb170cf8fefefbc4a70e858c2a209c3ba19a34"
+          },
+          {
+            "bytes": 138376,
+            "compressed": 52780,
+            "crc32": 4196177057,
+            "name": "ETHGBP_60.csv",
+            "sha256": "93657c7d6d50f6389ff712df9ac2c802c0d45b847725037aa2681217b041d058"
+          },
+          {
+            "bytes": 359,
+            "compressed": 208,
+            "crc32": 3159551599,
+            "name": "MANIFEST.json",
+            "sha256": "89900c5f1873d792ca73b79e26fba153b05b5d59f273942ed91f97560d300486"
+          },
+          {
+            "bytes": 6088,
+            "compressed": 2770,
+            "crc32": 3621378895,
+            "name": "XBTGBP_1440.csv",
+            "sha256": "22c565dea5cd2d082ada3ef7284a0c3e3fc61a09d164d1aa08aa431af53d73fa"
+          },
+          {
+            "bytes": 35867,
+            "compressed": 15063,
+            "crc32": 3358128164,
+            "name": "XBTGBP_240.csv",
+            "sha256": "1f1c07a2fa391f94b1140990677107cec5aba811a7adb0ab9cdeb063f84d8aaa"
+          },
+          {
+            "bytes": 141266,
+            "compressed": 54276,
+            "crc32": 1575173556,
+            "name": "XBTGBP_60.csv",
+            "sha256": "e7a41b0cc1e73b3ffaebb5974b62d277e1c78c6a437735774088f9f672bf946e"
+          }
+        ],
+        "parts": [
+          {
+            "etag": "\"caa4a859d2f1c2b3740006d3dadf80ea-69\"",
+            "size": 576348633,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_2026Q3.zip"
+          }
+        ]
+      },
+      "trades": {
+        "members": [
+          {
+            "bytes": 210181869,
+            "compressed": 61229071,
+            "crc32": 905370012,
+            "name": "ETHGBP.csv",
+            "sha256": "f6966a43d6e039b19ed1ad684637d3deafe696d4a4bd48d7a5c19574e25794c7"
+          },
+          {
+            "bytes": 618,
+            "compressed": 327,
+            "crc32": 2153248374,
+            "name": "MANIFEST.json",
+            "sha256": "b950391b406a7253cd23dfdd8329521b2d390f25bec7eaabb56738f614c360d1"
+          },
+          {
+            "bytes": 405730132,
+            "compressed": 111740787,
+            "crc32": 2405752307,
+            "name": "XBTGBP.csv",
+            "sha256": "93b9dccdf707ea66b4a06046bb8d583492a717991cad1e580cbe86493dea5b95"
+          }
+        ],
+        "parts": [
+          {
+            "etag": "\"99cf51a3c4d85f9945fd4efa94e6810a-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part00"
+          },
+          {
+            "etag": "\"e935d3fc7c854230a35d06eda5509af4-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part01"
+          },
+          {
+            "etag": "\"2de715c935b6b80107dd75d6d73b69ac-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part02"
+          },
+          {
+            "etag": "\"1bd05174b77854c45ac6dcf455e7855e-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part03"
+          },
+          {
+            "etag": "\"fe4bc850116b5b5ea33662e0a465545e-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part04"
+          },
+          {
+            "etag": "\"bb6aeef2ac169f082dd288f8d4c3b30f-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part05"
+          },
+          {
+            "etag": "\"8061c8517633e5cc2139b1872901516f-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part06"
+          },
+          {
+            "etag": "\"7c7171965bad0ee2092458074b7de924-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part07"
+          },
+          {
+            "etag": "\"2994725d723948e0e256c07cd1e38568-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part08"
+          },
+          {
+            "etag": "\"d149e63722ea9fdb82fc246a09add27e-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part09"
+          },
+          {
+            "etag": "\"bf95a673bea70773059843605465eacd-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part10"
+          },
+          {
+            "etag": "\"7ef3873d15d8dbb71330e041c9d8a0f1-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part11"
+          },
+          {
+            "etag": "\"a55380c176cfa5153ca7c30227763448-250\"",
+            "size": 2097152000,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part12"
+          },
+          {
+            "etag": "\"84554a613c6ce86251f52fe61c6c4da8-150\"",
+            "size": 1253291234,
+            "url": "https://assets.kraken.com/marketing/institutions/Kraken_Trades_Full.zip.part13"
+          }
+        ]
+      }
+    },
+    "full_archive_sha256_verified": false,
+    "network_bytes": 1574288,
+    "requests": 32,
+    "rest": {
+      "server_date": "Fri, 23 Oct 2026 09:50:15 GMT",
+      "sha256": "2c2823d57664d2e9cded211ba96c5637e5a9b6d7ee78b1e3c4599b8775f74003",
+      "url": "https://api.kraken.com/0/public/Trades?pair=XBTGBP&since=1782202664984300900&count=20"
+    },
+    "retrieved_at": "2026-10-23T09:50:12.592198+00:00",
+    "schema_version": 1
+  },
+  "audit_sha256": "46b05154db4743806acde69d5e1d238335e4d7e382d5dfcaac539c99b4f69318",
+  "candle_corrections": [],
+  "classification_counts": {
+    "confirmed_no_trade": 2833
+  },
+  "complete_research_gap_register": {
+    "empty_intervals": 6653,
+    "original_manifest_boundaries_equal": true,
+    "path": "research-gap-intervals.csv",
+    "sha256": "c1d25d0af67843b570acb8aca512562e5209225f8f993ff340f0055e609482ec",
+    "spans": 2833
+  },
+  "coverage_end_exclusive": "2026-10-01T00:00:00+00:00",
+  "decision": "GAP_REVIEW_COMPLETE_WITH_DISPUTED_TRADES",
+  "evidence_limit": "Official member CRC32/local SHA256/strong ETag ranges; same publisher across sources, not independent exchange truth.",
+  "full_exchange_archives_sha256_verified": false,
+  "g3_passed": false,
+  "holdout_boundary_preserved": {
+    "disputed_june_2026_candles_inside_holdout": true,
+    "end_exclusive": "2026-10-01T00:00:00+00:00",
+    "performance_opened": false,
+    "start": "2025-10-01T00:00:00+00:00"
+  },
+  "holdout_performance_opened": false,
+  "inputs": {
+    "btc-id-gap-rest-earlier.json": {
+      "bytes": 6727,
+      "sha256": "2b4a4c8c2a24b16e7544623fd98476f768d42508f56b13569d712e016dc98e3a"
+    },
+    "btc-id-gap-rest-overlap.json": {
+      "bytes": 66808,
+      "sha256": "e540ef2e201221c7ff054570956150898da6047cd44e83e6913d64c34b1e3edf"
+    },
+    "btc-id-gap-rest-verified.json": {
+      "bytes": 1400,
+      "sha256": "2c2823d57664d2e9cded211ba96c5637e5a9b6d7ee78b1e3c4599b8775f74003"
+    },
+    "btc-id-gap-rest.json": {
+      "bytes": 1401,
+      "sha256": "5efb56e6bf926a6de7482901789aac285218eb8bdc2ab6a1a2f9d64933abd143"
+    },
+    "ohlc-ETHGBP_1440.csv": {
+      "bytes": 240855,
+      "sha256": "85c31bbc071bfc6a65864b100e1b58533046a1fb2e7c9b43da392a3dcea6cfb7"
+    },
+    "ohlc-ETHGBP_240.csv": {
+      "bytes": 1269965,
+      "sha256": "ac285d0f3b5e5283c9200bbf8ddc529813a2464cee3587c0b42dcd60dd6966e3"
+    },
+    "ohlc-ETHGBP_60.csv": {
+      "bytes": 4226663,
+      "sha256": "c793bc67afc31caabbd9a7d63883e67ba5d6a074f6e421ba9c55a76d37c00a9f"
+    },
+    "ohlc-MANIFEST.json": {
+      "bytes": 360,
+      "sha256": "2e3eef939692f2520847674dc2e69b00796f1c230429509cb8c12649458853bd"
+    },
+    "ohlc-XBTGBP_1440.csv": {
+      "bytes": 267889,
+      "sha256": "70062b3fcd0e3e63daad2022be0f8ff86444132823f82883da2b0f63ad75745a"
+    },
+    "ohlc-XBTGBP_240.csv": {
+      "bytes": 1409250,
+      "sha256": "5a80d241869d08fab78ef8274064ad15914ff71d27f5fe8a8ed446b6c7bcc972"
+    },
+    "ohlc-XBTGBP_60.csv": {
+      "bytes": 4715287,
+      "sha256": "aefb367a356493a0e78928e09a5429fd67ec3451bd4f60e9b3c3919441a02062"
+    },
+    "ohlc-verified-directory.json": {
+      "bytes": 1998,
+      "sha256": "fb24e191d2ec14ad7fdf36b8ab040cabd649205d244252757a7884cdee376003"
+    },
+    "quarter-ETHGBP_1440.csv": {
+      "bytes": 6051,
+      "sha256": "b99b743ec351003de2fdecfd9a4aaff1bfb581d7ad61545094329ac9070ba5c4"
+    },
+    "quarter-ETHGBP_240.csv": {
+      "bytes": 35562,
+      "sha256": "e637de4bfc1ef972cf08963d79cb170cf8fefefbc4a70e858c2a209c3ba19a34"
+    },
+    "quarter-ETHGBP_60.csv": {
+      "bytes": 138376,
+      "sha256": "93657c7d6d50f6389ff712df9ac2c802c0d45b847725037aa2681217b041d058"
+    },
+    "quarter-MANIFEST.json": {
+      "bytes": 359,
+      "sha256": "89900c5f1873d792ca73b79e26fba153b05b5d59f273942ed91f97560d300486"
+    },
+    "quarter-XBTGBP_1440.csv": {
+      "bytes": 6088,
+      "sha256": "22c565dea5cd2d082ada3ef7284a0c3e3fc61a09d164d1aa08aa431af53d73fa"
+    },
+    "quarter-XBTGBP_240.csv": {
+      "bytes": 35867,
+      "sha256": "1f1c07a2fa391f94b1140990677107cec5aba811a7adb0ab9cdeb063f84d8aaa"
+    },
+    "quarter-XBTGBP_60.csv": {
+      "bytes": 141266,
+      "sha256": "e7a41b0cc1e73b3ffaebb5974b62d277e1c78c6a437735774088f9f672bf946e"
+    },
+    "quarter-verified-directory.json": {
+      "bytes": 1321,
+      "sha256": "75a3e2fe07555544a76b1379d9cd92d9aab5f984bc9a8a79b6e804672a7f58e7"
+    },
+    "snapshot.json": {
+      "bytes": 6552,
+      "sha256": "bc93b61c687434ac6e645292e93eb5cf9fa568f5d824c74c6aff74beea869cb6"
+    },
+    "trades-ETHGBP.csv": {
+      "bytes": 210181869,
+      "sha256": "f6966a43d6e039b19ed1ad684637d3deafe696d4a4bd48d7a5c19574e25794c7"
+    },
+    "trades-MANIFEST.json": {
+      "bytes": 618,
+      "sha256": "b950391b406a7253cd23dfdd8329521b2d390f25bec7eaabb56738f614c360d1"
+    },
+    "trades-XBTGBP.csv": {
+      "bytes": 405730132,
+      "sha256": "93b9dccdf707ea66b4a06046bb8d583492a717991cad1e580cbe86493dea5b95"
+    },
+    "trades-verified-directory.json": {
+      "bytes": 2800,
+      "sha256": "584a092b65fe009ba87bfa580187a616bc45ea730b626ded4eb2fac8d0b67f9c"
+    }
+  },
+  "kind": "kraken_historical_gap_audit",
+  "known_limits": [
+    "Same publisher supplies candles, hourly bars, trades and REST; corroboration is not proof against shared publisher omissions.",
+    "One disputed BTC trade-ID range remains; no numerical repair was applied.",
+    "Full exchange ZIP SHA256 values were not verified; selected member CRC32, ETag and local SHA256 were verified.",
+    "Full-download support paragraph says June; archive manifests, Q3 rows and trade coverage corroborate September.",
+    "Existing research importer/reference simulator do not yet consume the gap-review sidecar; a simple old-command rerun still rejects raw gaps.",
+    "No new backtest, walk-forward, candidate freeze or holdout evaluation was run."
+  ],
+  "local_audit_path": "data/research/reviewed-2026-10-23/audit.json",
+  "local_raw_paths": "data/research/audit-2026-10-22 (ignored; full member sizes and hashes in inputs)",
+  "no_strategy_evaluated": true,
+  "original_dataset_sha256": "b10e975a9f5dd2343ca55c35e4497f254ff58bd569bd39203d724ea5a7f0b50c",
+  "promotion_permission": false,
+  "raw_inputs_modified": false,
+  "retrieved_at": "2026-10-23T09:50:12.592198+00:00",
+  "schema_version": 1,
+  "script_sha256": "6070ca8c95be67b9c20b06068740ae05f24a39c27de4b9359ec2112f3f6c5a80",
+  "series": [
+    {
+      "corrected_rows": 0,
+      "disputed_populated_candles": [
+        "2026-06-23T08:00:00+00:00"
+      ],
+      "empty_intervals": 26835,
+      "first": "2014-11-06T16:00:00+00:00",
+      "gap_spans": 7278,
+      "interval_minutes": 60,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "original_trade_comparison": {
+        "candles": 77477,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "7.24E-12",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 77477,
+        "volume_difference_count": 49126
+      },
+      "quarterly_rows_equal": 2208,
+      "repaired_trade_comparison": {
+        "candles": 77477,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "7.24E-12",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 77477,
+        "volume_difference_count": 49126
+      },
+      "rows": 77477,
+      "symbol": "BTC/GBP"
+    },
+    {
+      "corrected_rows": 0,
+      "disputed_populated_candles": [
+        "2026-06-23T08:00:00+00:00"
+      ],
+      "empty_intervals": 3128,
+      "first": "2014-11-06T16:00:00+00:00",
+      "gap_spans": 1385,
+      "interval_minutes": 240,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "original_trade_comparison": {
+        "candles": 22950,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "1.15E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 22950,
+        "volume_difference_count": 16373
+      },
+      "quarterly_rows_equal": 552,
+      "repaired_trade_comparison": {
+        "candles": 22950,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "1.15E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 22950,
+        "volume_difference_count": 16373
+      },
+      "revised_csv_sha256": "5a80d241869d08fab78ef8274064ad15914ff71d27f5fe8a8ed446b6c7bcc972",
+      "rows": 22950,
+      "symbol": "BTC/GBP"
+    },
+    {
+      "corrected_rows": 0,
+      "disputed_populated_candles": [
+        "2026-06-23T00:00:00+00:00"
+      ],
+      "empty_intervals": 90,
+      "first": "2014-11-06T00:00:00+00:00",
+      "gap_spans": 51,
+      "interval_minutes": 1440,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "original_trade_comparison": {
+        "candles": 4257,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "6.18E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 4257,
+        "volume_difference_count": 3543
+      },
+      "quarterly_rows_equal": 92,
+      "repaired_trade_comparison": {
+        "candles": 4257,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "6.18E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 4257,
+        "volume_difference_count": 3543
+      },
+      "revised_csv_sha256": "70062b3fcd0e3e63daad2022be0f8ff86444132823f82883da2b0f63ad75745a",
+      "rows": 4257,
+      "symbol": "BTC/GBP"
+    },
+    {
+      "corrected_rows": 0,
+      "disputed_populated_candles": [],
+      "empty_intervals": 26432,
+      "first": "2015-08-07T12:00:00+00:00",
+      "gap_spans": 6706,
+      "interval_minutes": 60,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "original_trade_comparison": {
+        "candles": 71308,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "4.75E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 71308,
+        "volume_difference_count": 40716
+      },
+      "quarterly_rows_equal": 2207,
+      "repaired_trade_comparison": {
+        "candles": 71308,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "4.75E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 71308,
+        "volume_difference_count": 40716
+      },
+      "rows": 71308,
+      "symbol": "ETH/GBP"
+    },
+    {
+      "corrected_rows": 0,
+      "disputed_populated_candles": [],
+      "empty_intervals": 3272,
+      "first": "2015-08-07T12:00:00+00:00",
+      "gap_spans": 1357,
+      "interval_minutes": 240,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "original_trade_comparison": {
+        "candles": 21163,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "6.74E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 21163,
+        "volume_difference_count": 14371
+      },
+      "quarterly_rows_equal": 552,
+      "repaired_trade_comparison": {
+        "candles": 21163,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "6.74E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 21163,
+        "volume_difference_count": 14371
+      },
+      "revised_csv_sha256": "ac285d0f3b5e5283c9200bbf8ddc529813a2464cee3587c0b42dcd60dd6966e3",
+      "rows": 21163,
+      "symbol": "ETH/GBP"
+    },
+    {
+      "corrected_rows": 0,
+      "disputed_populated_candles": [],
+      "empty_intervals": 163,
+      "first": "2015-08-07T00:00:00+00:00",
+      "gap_spans": 40,
+      "interval_minutes": 1440,
+      "last_end": "2026-10-01T00:00:00+00:00",
+      "original_trade_comparison": {
+        "candles": 3910,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "8.5E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 3910,
+        "volume_difference_count": 3255
+      },
+      "quarterly_rows_equal": 92,
+      "repaired_trade_comparison": {
+        "candles": 3910,
+        "candles_without_trades": [],
+        "maximum_absolute_volume_difference": "8.5E-11",
+        "missing_candle_starts": [],
+        "price_or_count_conflicts": [],
+        "trade_populated_intervals": 3910,
+        "volume_difference_count": 3255
+      },
+      "revised_csv_sha256": "85c31bbc071bfc6a65864b100e1b58533046a1fb2e7c9b43da392a3dcea6cfb7",
+      "rows": 3910,
+      "symbol": "ETH/GBP"
+    }
+  ],
+  "source_bundle_sha256": "071a756d50c2275cf56ca7b30ec56dd487f5f66fe03766541197364e979ece79",
+  "trade_audits": {
+    "BTC/GBP": {
+      "original": {
+        "equal_timestamp_rows_preserved": 897093,
+        "first_id": 1,
+        "id_gaps": [
+          {
+            "after_id": 7098367,
+            "after_time": "1782202832.2348585",
+            "before_id": 7098363,
+            "before_time": "1782202664.9843009",
+            "missing_count": 3
+          }
+        ],
+        "last_id": 7441261,
+        "last_timestamp": "1790812476.8081384",
+        "repairs_inserted": 0,
+        "rows": 7441258
+      },
+      "repair_applied": false,
+      "rest_evidence": [
+        {
+          "candidate_trades": [
+            {
+              "misc": "",
+              "order_type": "l",
+              "price": "47167.90000",
+              "timestamp": "1782202768.043821",
+              "trade_id": "7098364",
+              "type": "b",
+              "volume": "0.00050919"
+            },
+            {
+              "misc": "",
+              "order_type": "l",
+              "price": "47130.40000",
+              "timestamp": "1782202804.5697374",
+              "trade_id": "7098365",
+              "type": "s",
+              "volume": "0.00088800"
+            },
+            {
+              "misc": "",
+              "order_type": "m",
+              "price": "47133.60000",
+              "timestamp": "1782202811.6816962",
+              "trade_id": "7098366",
+              "type": "s",
+              "volume": "0.00022919"
+            }
+          ],
+          "disputed_ids_absent": [],
+          "disputed_ids_present": [
+            7098364,
+            7098365,
+            7098366
+          ],
+          "file": "btc-id-gap-rest.json",
+          "rows": 20,
+          "sha256": "5efb56e6bf926a6de7482901789aac285218eb8bdc2ab6a1a2f9d64933abd143"
+        },
+        {
+          "candidate_trades": [],
+          "disputed_ids_absent": [
+            7098364,
+            7098365,
+            7098366
+          ],
+          "disputed_ids_present": [],
+          "file": "btc-id-gap-rest-verified.json",
+          "rows": 20,
+          "sha256": "2c2823d57664d2e9cded211ba96c5637e5a9b6d7ee78b1e3c4599b8775f74003"
+        },
+        {
+          "candidate_trades": [],
+          "disputed_ids_absent": [
+            7098364,
+            7098365,
+            7098366
+          ],
+          "disputed_ids_present": [],
+          "file": "btc-id-gap-rest-earlier.json",
+          "rows": 100,
+          "sha256": "2b4a4c8c2a24b16e7544623fd98476f768d42508f56b13569d712e016dc98e3a"
+        },
+        {
+          "candidate_trades": [],
+          "disputed_ids_absent": [
+            7098364,
+            7098365,
+            7098366
+          ],
+          "disputed_ids_present": [],
+          "file": "btc-id-gap-rest-overlap.json",
+          "rows": 1000,
+          "sha256": "e540ef2e201221c7ff054570956150898da6047cd44e83e6913d64c34b1e3edf"
+        }
+      ],
+      "reviewed": {
+        "equal_timestamp_rows_preserved": 897093,
+        "first_id": 1,
+        "id_gaps": [
+          {
+            "after_id": 7098367,
+            "after_time": "1782202832.2348585",
+            "before_id": 7098363,
+            "before_time": "1782202664.9843009",
+            "missing_count": 3
+          }
+        ],
+        "last_id": 7441261,
+        "last_timestamp": "1790812476.8081384",
+        "repairs_inserted": 0,
+        "rows": 7441258
+      },
+      "unresolved_id_ranges": [
+        {
+          "after_id": 7098367,
+          "after_time": "1782202832.2348585",
+          "before_id": 7098363,
+          "before_time": "1782202664.9843009",
+          "missing_count": 3
+        }
+      ]
+    },
+    "ETH/GBP": {
+      "original": {
+        "equal_timestamp_rows_preserved": 471842,
+        "first_id": 1,
+        "id_gaps": [],
+        "last_id": 3938982,
+        "last_timestamp": "1790812634.8721533",
+        "repairs_inserted": 0,
+        "rows": 3938982
+      },
+      "repair_applied": false,
+      "rest_evidence": [],
+      "reviewed": {
+        "equal_timestamp_rows_preserved": 471842,
+        "first_id": 1,
+        "id_gaps": [],
+        "last_id": 3938982,
+        "last_timestamp": "1790812634.8721533",
+        "repairs_inserted": 0,
+        "rows": 3938982
+      },
+      "unresolved_id_ranges": []
+    }
+  },
+  "unresolved_trade_range_count": 1,
+  "verification": {
+    "database_access": false,
+    "dependencies_changed": false,
+    "g3_passed": false,
+    "holdout_opened": false,
+    "mypy_source_files_checked": 156,
+    "new_audit_tests_passed": 14,
+    "original_csv_hashes_preserved": true,
+    "python_runtime": "CPython 3.14.8 isolated existing test image; actual full audit also ran under macOS Python 3.9.6",
+    "qualifying_days": 0,
+    "raw_inputs_unchanged_after_audit": true,
+    "research_tests_passed": 54,
+    "retained_stack_changed": false,
+    "ruff": "all src/tests/scripts passed",
+    "source_files_changed": false,
+    "strategy_evaluated": false,
+    "strict_source_import_load_round_trip": "passed in isolated /tmp; 4 series, 2833 unexplained raw gaps, no implicit filling or holdout opening"
+  }
+}
