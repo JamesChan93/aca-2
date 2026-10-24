@@ -14,6 +14,7 @@ from aca.domain.market import InstrumentRules, MarketTrade, OrderBook
 from aca.domain.trading import TERMINAL, ZERO, Fee, Fill, OrderIntent, VenueOrder, VenueSnapshot
 from aca.domain.values import FINANCIAL_CONTEXT, utc_datetime
 from aca.ports.execution import DefinitiveRejection, UnknownOutcome
+from aca.simulation.assumptions import BOUNDS
 from aca.sizing.long_spot import round_increment
 from aca.storage.paper import PaperStore, lock_key, venue_events
 from aca.storage.replay import PUBLIC_REPLAY_LOCK, cursors, public_events
@@ -26,8 +27,8 @@ class PaperExchange:
     aggressive trades. Bar data cannot manufacture passive liquidity.
     """
 
-    def __init__(self, store: PaperStore, *, latency_ms: int = 250) -> None:
-        if not 250 <= latency_ms <= 60_000:
+    def __init__(self, store: PaperStore, *, latency_ms: int = BOUNDS.minimum_latency_ms) -> None:
+        if not BOUNDS.minimum_latency_ms <= latency_ms <= BOUNDS.maximum_latency_ms:
             raise ValueError("invalid paper latency")
         self.store, self.latency = store, timedelta(milliseconds=latency_ms)
 
@@ -311,8 +312,8 @@ class PaperExchange:
             )
         with localcontext(FINANCIAL_CONTEXT):
             budgets = {
-                "buy": [level.quantity * Decimal("0.01") for level in book.asks],
-                "sell": [level.quantity * Decimal("0.01") for level in book.bids],
+                "buy": [level.quantity * BOUNDS.maximum_participation for level in book.asks],
+                "sell": [level.quantity * BOUNDS.maximum_participation for level in book.bids],
             }
             for initial in snapshot.orders:
                 if initial.intent.symbol != book.symbol or initial.state in TERMINAL:
@@ -363,7 +364,10 @@ class PaperExchange:
                                 update={"queue_ahead": order.queue_ahead - consumed}
                             )
                             quantity = round_increment(
-                                min(remaining, (trade.quantity - consumed) * Decimal("0.01")),
+                                min(
+                                    remaining,
+                                    (trade.quantity - consumed) * BOUNDS.maximum_participation,
+                                ),
                                 rules.quantity_increment,
                             )
                             cost = quantity * i.limit_price

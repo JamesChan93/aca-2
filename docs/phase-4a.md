@@ -10,8 +10,11 @@ schema `0016_history_segments`.
 [merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
 P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
 its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
-The remaining 17 items are unchecked. Current integrated PR checks must pass before
-merging the artefact increment; prior CI success is not transferred to new code.
+Both increments are merged with their hosted checks passing. Version 0.4.21
+establishes the [independent P4A-19 parity fixtures](phase-4a-parity.md) for Batch A;
+P4A-19 stays open for the corrected-model/account checks in Batches B/C. The
+remaining 17 items are unchecked. Current integrated PR checks must pass before
+merge; prior CI success is not transferred to new code.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
 The numbered items map directly to recommendations 1–19; the batch and study
@@ -273,6 +276,9 @@ baseline evidence rather than Phase 4a implementation credit.
   Preserve financial property/lifecycle tests and paper-only capability. Supply
   one integrated status/evidence register so historical limitations do not become
   new unnamed work. No framework rewrite or new service is required.
+  Batch A progress: [independent fixtures, versioned simulation bounds and named
+  baseline probes](phase-4a-parity.md), application 0.4.21. This establishes the
+  verification foundation; Batches B/C must extend it before this box closes.
 
 **Acceptance and phase closure**
 

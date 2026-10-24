@@ -1,0 +1,112 @@
+{
+  "actual_new_study_run": false,
+  "application": "0.4.21",
+  "base_commit": "c66fef75250476837657684a5b925b2aad3726a9",
+  "baseline_probes": [
+    {
+      "corrected_target_passed": false,
+      "discrepancy_reproduced": true,
+      "name": "extra_full_bar_delay",
+      "owner": "P4A-01"
+    },
+    {
+      "corrected_target_passed": false,
+      "discrepancy_reproduced": true,
+      "legacy_max_drawdown": "0",
+      "name": "intraday_drawdown_hidden_by_daily_reduction",
+      "owner": "P4A-05",
+      "required_max_drawdown": "0.1"
+    },
+    {
+      "corrected_target_passed": false,
+      "discrepancy_reproduced": true,
+      "later_executable_bid_gbp": "960",
+      "legacy_exit_price_gbp": "940.5",
+      "legacy_final_nav_gbp": "999.24976",
+      "name": "minimum_price_stop_stress",
+      "owner": "P4A-06"
+    }
+  ],
+  "bounds": {
+    "economic_values_changed": false,
+    "maximum_latency_ms": 60000,
+    "maximum_participation": "0.01",
+    "minimum_latency_ms": 250,
+    "risk_guard_imports_simulation": false,
+    "version": "simulation-bounds-v1"
+  },
+  "candidate_promotion_allowed": false,
+  "file_sha256": {
+    "Dockerfile": "7d798180acc2d4decf20f044f4a623bb299922a14a28dcabfff451a41912bae3",
+    "pyproject.toml": "aea29e15d3723e39e89985489ab2e43ff973a1b4710c42643cded808199596f9",
+    "src/aca/simulation/assumptions.py": "8cc83a54a3476584ac6b81b672dff5411c6459d79670162a2a217c114914d7ce",
+    "src/aca/simulation/paper.py": "2f0561ca6213b952d2bcb9d20a9c050e4dc0ef89df867c51390f44353fe753f6",
+    "src/aca/simulation/reference.py": "36a198af045893881d0ed0ad8030cb91b48c6d620dc27ddb3b520a3eddff5fe7",
+    "tests/fixtures/parity/v1.json": "d3a52151e6832fd568f37611f8d28370d2febaa1e236ac95cf0fac3a9ad3e892",
+    "tests/parity_fixture.py": "473c3a56e1da8b9c45bd06091878c2e80b290c4cb7b810b2448d36bf7b456336",
+    "tests/test_research_paper_parity.py": "4ce38f903738c1ff3b45d941a13a31b62e52d7c3141cff93b9a1556feecc2057"
+  },
+  "holdout_opened": false,
+  "independent_fixtures": {
+    "authority": "Literal hand-calculated Decimal results, not simulator-generated snapshots",
+    "base_asset_fee_and_partial_disposal": true,
+    "common_executed_trade_nav_gbp": "999.92",
+    "common_open_inventory_btc": "0.01",
+    "dispatch_equality_and_forged_economics_veto": true,
+    "expected_stop_observations": 13,
+    "flows_units_latches_and_serialisation": true,
+    "partial_residual_final_nav_gbp": "999.50272",
+    "recovered_bid_final_nav_gbp": "999.4432",
+    "source": "tests/fixtures/parity/v1.json",
+    "stop_paths": 4
+  },
+  "kind": "phase_4a_parity_foundation_evidence_v1",
+  "limitations": [
+    "Fixture foundation only: P4A-19 remains incomplete until corrected event research and continuous account/calendar parity are verified.",
+    "Legacy bar results and their known discrepancies remain explicit; no changed model or strategy promotion is inferred.",
+    "Common executed-trade economics do not establish identical strategy timing, mandates, market evidence or all precision boundaries."
+  ],
+  "live_execution_available": false,
+  "qualifying_days": 0,
+  "qualifying_episodes": 0,
+  "s0_ready": false,
+  "schema_version": 1,
+  "scope": {
+    "authoritative_register": "docs/phase-4a.md",
+    "batch": "A",
+    "phase_4_complete": true,
+    "phase_4a_complete": [
+      "P4A-17",
+      "P4A-18"
+    ],
+    "phase_4a_total": 19,
+    "progress_item": "P4A-19",
+    "progress_item_complete": false,
+    "remaining_extension_batches": [
+      "B",
+      "C"
+    ]
+  },
+  "source_code_sha256": "802d610de27819d7ae02d9ee43971a351fb7e313de7fe4f07bea6132f51eebf3",
+  "verification": {
+    "hosted_ci": "Requires passing checks on the integrated PR head; see PR status.",
+    "linux_postgresql": {
+      "command": "python3 scripts/ci_database.py --linux",
+      "disposable_postgresql": true,
+      "exit_code": 0,
+      "new_parity_tests_passed": 14,
+      "retained_services_changed": false,
+      "seconds": 173.91,
+      "tests_passed": 772
+    },
+    "ruff": {
+      "check_exit_code": 0,
+      "format_exit_code": 0,
+      "formatted_files": 190
+    },
+    "strict_mypy": {
+      "exit_code": 0,
+      "files": 163
+    }
+  }
+}
