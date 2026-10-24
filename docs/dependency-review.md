@@ -1,5 +1,32 @@
 # Phase 1 dependency and supply-chain review
 
+**Security update, 24 October 2026 (P4A-17):** PR #29's two `verify` jobs failed
+only at the development dependency audit on `setuptools==84.0.0`; both
+bounded-history acceptance jobs passed. The
+[upstream advisory](https://github.com/pypa/setuptools/security/advisories/GHSA-xmj3-9gf7-h52w)
+identifies 84.1.0 as patched. The
+[release notes](https://setuptools.pypa.io/en/latest/history.html#v84-1-0)
+describe validation of namespace-installation and archive paths. ADR A16 is
+amended to pin 84.1.0 in the development constraint/lock. This is a development
+tool update; runtime/research locks, direct dependencies and installed services
+are unchanged. Earlier audit failures remain historical evidence.
+
+Verified against [PyPI metadata](https://pypi.org/pypi/setuptools/84.1.0/json):
+
+| Distribution | SHA-256 |
+| --- | --- |
+| `setuptools-84.1.0-py3-none-any.whl` | `5231689c6ac8156cd155cfb98c3fd6fb252c3e7e9bd3d78b64d3c55f132624c9` |
+| `setuptools-84.1.0.tar.gz` | `23657205b63d4d31395ab917815247f694aafad28cd21316bf5fd45a51048ea0` |
+
+Both downloaded files match their published hashes and are not yanked. The
+universal pure-Python wheel declares Python >=3.10 and the MIT licence; project
+CPython 3.14.8 is within that range. An isolated hash-checked installation passes
+`pip check`, setuptools/pip-tools imports and all three current dependency audits.
+A clean Linux musl test-image build installs the patched lock and passes dependency
+consistency, Ruff/format, strict mypy across 158 files and wheel packaging. Hosted
+regression/container results are tracked on [PR #29](https://github.com/JamesChan93/aca-2/pull/29);
+these local checks alone do not establish a fully passing hosted release.
+
 **Security update, 20 October 2026 (0.4.13):** the current advisory audit identified
 [GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)
 in the previously locked `certifi==2026.7.22`. The maintainer initially patched

@@ -81,6 +81,26 @@ locks, inspect the upstream wheel, and rerun advisory, clean Linux and container
 checks. Do not ignore the advisory or disable TLS verification. This changes no
 direct dependency candidate, database schema or running deployment.
 
+**A16 amendment, 24 October 2026:** constrain the development transitive build
+tool to `setuptools==84.1.0` following
+[GHSA-xmj3-9gf7-h52w](https://github.com/pypa/setuptools/security/advisories/GHSA-xmj3-9gf7-h52w).
+Verify the upstream wheel/sdist SHA-256, Python compatibility and MIT licence,
+replace only that package's development-lock entry, and require hash-checked
+installation, dependency audits, packaging and release regression. The patch
+validates legacy wheel namespace-installation paths; no audit suppression is
+introduced. Runtime/research locks, direct dependencies, base images, financial
+policy and retained services are unchanged.
+
+**A19 amendment, 24 October 2026:** later CI reached the database image scan and
+found CVE-2026-111497 in `brotli-libs==1.2.0-r1`. Keep the reviewed PostgreSQL
+18.6/Alpine base digest and add the exact signed Alpine package
+`brotli-libs=1.2.1-r0` during the image build. Do not use a general `apk upgrade`;
+the verified build changes only that package. The
+[upstream security release](https://github.com/google/brotli/releases/tag/v1.2.1)
+contains the decoder fix. Require current image scans and PostgreSQL regression.
+This source-image update does not migrate or restart retained databases; PostgreSQL
+version, schema, filesystem permissions and the non-root service user are unchanged.
+
 No direct dependency candidate substitution was required. Version/digest observations and
 verification limits are recorded in the milestone report. Changes to these decisions
 must be reviewed rather than inferred from a successful health check.

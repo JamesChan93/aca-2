@@ -40,3 +40,10 @@ packages and maps T00–T32. Its section references refer to the later implement
 specification named above, not to the archived planning prompt. The package breakdown
 and staged allocation are engineering decisions; the checklist separates them from
 the user's requirements and leaves gate approval explicit.
+
+On 24 October 2026 the user requested that the
+[research/repository review](../research-promotion-review-2026-10-24.md) become
+**Phase 4a**. The [Phase 4a plan](../phase-4a.md) establishes a fixed 19-item scope,
+bounded research budget and explicit closure rule. It is a new post-Phase-4 plan;
+Phase 4 stays complete at 17/17. Creating the plan does not start implementation,
+open the holdout, select a candidate or begin qualifying paper observation.

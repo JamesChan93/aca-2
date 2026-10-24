@@ -238,6 +238,15 @@ async def run() -> None:
         "bulk_seed_is_ingestion_measurement": False,
     }
     cpu, began = process_time(), monotonic()
+
+    def progress(phase: str) -> None:
+        print(
+            "ACA_CAPACITY_PROGRESS "
+            + json.dumps({"phase": phase, "elapsed_seconds": monotonic() - began}),
+            file=sys.stderr,
+            flush=True,
+        )
+
     try:
         async with PaperWriter(store) as writer:
             venue = NoCommands(store)
@@ -249,6 +258,7 @@ async def run() -> None:
             await seed_events(writer, state)
             await seed_values(writer, replay, MAX_REPORT_VALUES - 1)
         result["seed_seconds"] = monotonic() - began
+        progress("seeded")
         result["record_limits"] = {
             "events": MAX_REPORT_EVENTS,
             "valuations": MAX_REPORT_VALUES,
@@ -281,6 +291,7 @@ async def run() -> None:
                 expected_source,
             )
             result["compaction"] = {"seconds": monotonic() - compacting, **compacted}
+            progress("compacted")
             store = PaperStore(
                 engine, store.account_id, history_prefix=UUID(compacted["certificate"]["id"])
             )
@@ -292,6 +303,7 @@ async def run() -> None:
                 current = await service._state()
                 await seed_events(owner, current, current.version + MAX_ONLINE_SUFFIX)
                 await seed_values(owner, StoredReplay(service, venue), MAX_ONLINE_SUFFIX)
+            progress("suffix_seeded")
             indexed_report = await historical_performance(store)
             full_report = await historical_performance(PaperStore(engine, store.account_id))
             assert indexed_report["period"] == full_report["period"]
@@ -302,6 +314,7 @@ async def run() -> None:
             assert Decimal(cast(dict[str, Any], indexed_report["period"])["pnl_gbp"]) == 0
             result["compaction"]["bounded_suffix_records"] = MAX_ONLINE_SUFFIX
             result["compaction"]["full_report_economics_match"] = True
+            progress("reports_compared")
 
         async def measure(
             name: str,
@@ -329,6 +342,7 @@ async def run() -> None:
             return returned
 
         if not preservation_only:
+            progress("measuring_operations")
 
             async def startup() -> None:
                 async with PaperWriter(store):
@@ -360,6 +374,7 @@ async def run() -> None:
 
             # The notification owner's existing summary budget is 15 seconds.
             await measure("scheduled_daily_summary", summary, 15)
+            progress("operations_measured")
             # Finite real one-second loop, including actual maintenance writes, with
             # no invented feed health/market fills. Use the non-replay loop separately.
             tick_store = PaperStore(engine, uuid4())
