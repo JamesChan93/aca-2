@@ -1,0 +1,84 @@
+{
+  "actual_new_study_run": false,
+  "application": "0.4.20",
+  "archive_bytes": 13905920,
+  "archive_restore_identical": true,
+  "archive_sha256": "e47905623bab84befbd36d5b44fcc8343903669434b08be252ea840aa8d9bff1",
+  "file_sha256": {
+    "Dockerfile": "bbbe70526bbfff66d2f1bc6ff67c6e3007858fbe87df7a4709020f8eb1bf2e81",
+    "pyproject.toml": "50043f52300b6b9e30cdc872a0be169d1c46091fb279893d40d1345a3514d6c1",
+    "src/aca/research/bundles.py": "b9375c1f82f8d4a4f82307d488ba1d0136beb3c9ba239f711395ec8e575edb1d",
+    "src/aca/research/cli.py": "7a1ba5a1e77959dbcff4a67a1481b6ccfdb6590962651da8d7cb5c85395e47ab",
+    "src/aca/research/registry.py": "ab735f583efce5be672d95096da8f281ddcfbc8eb6419ece9a3157f790bb9882",
+    "src/aca/research/runner.py": "ae58a38ef5107777f2e9d154bd596ed3dc41b4edbfd6b4acffd528171bfdd491",
+    "tests/test_research_bundles.py": "9b8ca7b8b1faccb9334ae41cd246ecf2bda7f03874044afacabeb499ab70b2fb",
+    "tests/test_research_registry.py": "f391589886acd354f0e326df1b1b2b56de19778e690b8ba8d3cb96a740292feb"
+  },
+  "holdout_opened": false,
+  "legacy_event_count": 42,
+  "limitations": [
+    "Local offline research-output backup only; no off-host redundancy or production RPO/RTO claim.",
+    "Source datasets and official raw archives are separate retained inputs bound by the original report; they are not copied into this output bundle.",
+    "No corrected S0/S1/S2 performance evaluation, holdout opening or paper observation start."
+  ],
+  "live_execution_available": false,
+  "local_paths": {
+    "archive": "data/research/phase-4a-artifacts-2026-10-24/baseline.tar",
+    "bundle": "data/research/phase-4a-artifacts-2026-10-24/preserved",
+    "reproduced_report": "data/research/phase-4a-artifacts-2026-10-24/reproduced-baseline.json",
+    "restored": "data/research/phase-4a-artifacts-2026-10-24/restored"
+  },
+  "original_report_bytes": 13841730,
+  "original_report_sha256": "67a8f9630be6d4f55ad52f2132ba70468f097fca859dbf3d8babc970f8f20790",
+  "packet": {
+    "abandoned_attempts": 0,
+    "execution_permission": false,
+    "failed_attempts": 0,
+    "objects": 63,
+    "packet_sha256": "5eed881855319759a840a4d493fe40156424e7498ef03540e335e5d21afcec3a",
+    "promotion_allowed": false,
+    "stored_bytes": 13867418,
+    "tasks": {
+      "legacy_events": {
+        "attempt": 1,
+        "reason": "original_event_preservation",
+        "status": "completed"
+      },
+      "legacy_report": {
+        "attempt": 1,
+        "reason": "byte_identical_preservation",
+        "status": "completed"
+      }
+    }
+  },
+  "qualifying_days": 0,
+  "qualifying_episodes": 0,
+  "reproduced_report_sha256": "67a8f9630be6d4f55ad52f2132ba70468f097fca859dbf3d8babc970f8f20790",
+  "schema_version": 1,
+  "source_code_sha256": "b1030d5817b5d525b4a4b0ae1429b2813709fbfd9c58431d4bba4c8dd7f38cfa",
+  "verification": {
+    "focused_bundle_tests": 19,
+    "hosted_ci": "Requires successful checks on the integrated PR head; see PR status.",
+    "linux_postgresql": {
+      "command": "python3 scripts/ci_database.py --linux",
+      "exit_code": 0,
+      "retained_services_changed": false,
+      "seconds": 179.11,
+      "tests_passed": 758
+    },
+    "ruff": {
+      "check_exit_code": 0,
+      "format_exit_code": 0,
+      "formatted_files": 187
+    },
+    "strict_mypy": {
+      "exit_code": 0,
+      "files": 160
+    },
+    "synthetic_stream": {
+      "maximum_object_bytes": 262144,
+      "maximum_traced_python_bytes": 8000000,
+      "minimum_bytes": 20000000
+    }
+  }
+}

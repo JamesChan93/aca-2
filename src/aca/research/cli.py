@@ -22,6 +22,10 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     run = actions.add_parser("run")
     run.add_argument("--dataset", type=Path, required=True)
     run.add_argument("--bootstrap-samples", type=int, default=10000)
+    run.add_argument("--modular", action="store_true", help="Resumable legacy-model bundle output")
+    run.add_argument(
+        "--retry-failed", action="store_true", help="Explicitly retry failed modular tasks"
+    )
     freeze = actions.add_parser("freeze")
     freeze.add_argument("--report", type=Path, required=True)
     freeze.add_argument("--trial", required=True)
@@ -31,6 +35,20 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     holdout.add_argument("--freeze", type=Path, required=True)
     register = actions.add_parser("register")
     trials = actions.add_parser("trials")
+    preserve = actions.add_parser("bundle-preserve", help="Preserve an unopened legacy report")
+    preserve.add_argument("--report", type=Path, required=True)
+    preserve.add_argument("--directory", type=Path, required=True)
+    review = actions.add_parser("bundle-review", help="Verify a complete offline review packet")
+    review.add_argument("--packet", type=Path, required=True)
+    backup = actions.add_parser("bundle-archive", help="Archive a verified packet and its objects")
+    backup.add_argument("--packet", type=Path, required=True)
+    backup.add_argument("--output", type=Path, required=True)
+    restore = actions.add_parser("bundle-restore", help="Verify/restore into a new directory")
+    restore.add_argument("--archive", type=Path, required=True)
+    restore.add_argument("--directory", type=Path, required=True)
+    export = actions.add_parser("bundle-export-report", help="Reproduce preserved report bytes")
+    export.add_argument("--packet", type=Path, required=True)
+    export.add_argument("--output", type=Path, required=True)
     for parser in (ingest, run, freeze, holdout, register, trials):
         parser.add_argument("--root", type=Path, default=Path("data/research"))
 
@@ -61,11 +79,34 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
         output = asyncio.run(_register(args.root, settings))
     elif args.action == "trials":
         output = [read_json(path) for path in sorted((args.root / "events").glob("*.json"))]
+    elif args.action.startswith("bundle-"):
+        from aca.research.bundles import archive, export_report, preserve_report, restore, verify
+
+        if args.action == "bundle-preserve":
+            output = {"packet": str(preserve_report(args.report, args.directory))}
+        elif args.action == "bundle-review":
+            output = verify(args.packet)
+        elif args.action == "bundle-archive":
+            output = archive(args.packet, args.output)
+        elif args.action == "bundle-export-report":
+            output = {"report_sha256": export_report(args.packet, args.output)}
+        else:
+            output = {"packet": str(restore(args.archive, args.directory))}
     else:
-        from aca.research.runner import freeze, holdout, run
+        from aca.research.runner import freeze, holdout, run, run_modular
 
         if args.action == "run":
-            result = run(args.root, args.dataset, samples=args.bootstrap_samples)
+            if args.retry_failed and not args.modular:
+                raise ValueError("--retry-failed requires --modular")
+            if args.modular:
+                result = run_modular(
+                    args.root,
+                    args.dataset,
+                    samples=args.bootstrap_samples,
+                    retry_failed=args.retry_failed,
+                )
+            else:
+                result = run(args.root, args.dataset, samples=args.bootstrap_samples)
         elif args.action == "freeze":
             result = freeze(args.root, args.report, args.trial, args.review)
         else:

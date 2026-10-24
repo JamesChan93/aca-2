@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 24 October 2026. Application **0.4.19**, schema `0016_history_segments`.
+Updated 24 October 2026. Application **0.4.20**, schema `0016_history_segments`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -51,46 +51,29 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
-**Phase 4a is in progress at 0/19.** P4A-17 has started with the development
-dependency audit repair requested after PR #29's checks failed; its other
-acceptance requirements and the remaining items have not completed. The
-[fixed plan](phase-4a.md) maps all 19
-[review recommendations](research-promotion-review-2026-10-24.md) to acceptance
-items, six dependency-aware batches and at most 26 candidate definitions: the
-original 20, up to four new daily variants and two shared-account portfolios.
-The original family is rerun under the corrected model first. A complete Phase 4a
-may conclude research no-go; it cannot keep expanding until a strategy passes.
-Qualifying observation and the actual holdout remain separate conditional decisions.
+**Phase 4a is in progress at 2/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
+completed with all eight hosted checks passing on `eae9a2b` before PR #29 merged.
+Both hosted runs passed 738 tests, dependency audits, packaging, both image scans
+and bounded-history acceptance. Earlier 0.4.19 audit/fixture failures are retained
+in that repair report; they are not the final repaired outcome.
 
-The 0.4.19 merged-commit [hosted run](https://github.com/JamesChan93/aca-2/actions/runs/40057130464)
-has completed with failure: all 736 Linux/PostgreSQL tests passed, but the
-bounded-history harness timed out and the development dependency audit found the
-setuptools advisory. Later build/container scans in that job were skipped.
-P4A-17 owns that verification repair. This current result does not rewrite the
-historical 0.4.18 acceptance packet or supply a current green release.
+Version 0.4.20 completes P4A-18's [modular research artefacts](phase-4a-artifacts.md):
+small typed manifests, separate immutable trial/fold/curve/episode pages, durable
+start/outcome/failure attempts, per-trial resume and verified offline archive/restore.
+The [actual local evidence](evidence/phase-4a-artifacts.json) preserves the original
+13,841,730-byte report and 42 matching events; the reconstructed report has exactly
+the original SHA-256. A complete >20 MB synthetic bundle passes with bounded
+streaming memory. All **758 Linux/PostgreSQL tests**, formatting and strict typing
+pass on this new revision; current hosted checks must pass before merge. The old
+CI outcome is not treated as verification of new code.
 
-The subsequent [PR #29](https://github.com/JamesChan93/aca-2/pull/29) runs passed
-both bounded-history acceptance jobs and failed only on that development audit.
-The current repair updates the reviewed setuptools constraint/development hashes
-to 84.1.0. All three local dependency audits, the clean test-image install, static
-checks and wheel build pass. Fresh hosted checks must establish the patched-head
-outcome. No runtime/research lock, application code or retained service changes.
-
-The first patched-head CI runs cleared dependency audits, then found
-CVE-2026-111497 in the PostgreSQL image's Brotli package. One overall compaction
-fixture also timed out, while the other run passed all five measured operation
-deadlines. P4A-17 now pins the patched database package and gives the entire
-seed/compaction/comparison fixture 900 seconds within a 20-minute CI job. The
-30/20/20/10/15-second operation limits and failure exit remain unchanged.
-Allowlisted progress checkpoints identify the last completed phase on timeout
-without exposing private child logs. Current patched-image/hosted results must
-still be verified; this remains the same P4A-17 item.
-
-The [P4A-17 repair packet](phase-4a-ci-repair.md) records the concrete fixes and
-local validation: 738 Linux/PostgreSQL tests, helper safety and type checks,
-all dependency audits, and a clean arm64 patched-database scan. Its
-[evidence](evidence/phase-4a-ci-local.json) binds exact changed files; final hosted
-acceptance is tracked on PR #29.
+The [fixed plan](phase-4a.md) still has 19 items, six batches and at most 26
+candidate definitions. The other 17 items remain unchecked. The modular runner
+labels and preserves the legacy evaluation semantics; corrected timing, continuous
+accounts, metrics, statistical gates and paper-study capability remain their named
+items. No corrected S0/S1/S2 study or actual holdout evaluation ran. All 20 original
+candidates remain rejected; qualifying observation remains unstarted at zero days
+and episodes. Phase 4 remains closed at 17/17.
 
 The retained workstation stack has not been upgraded, migrated or compacted by
 this release. Its existing image/schema is not this release's deployed evidence.
@@ -127,7 +110,7 @@ only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 
 | Stage | Work / decision still required |
 | --- | --- |
-| Phase 4a | [Fixed 19-item plan](phase-4a.md), 0/19: evaluation fidelity, continuous contribution-aware research, bounded candidate studies, enforced promotion evidence and sustainable paper preparation |
+| Phase 4a | [Fixed 19-item plan](phase-4a.md), 2/19: release verification and modular research artefacts complete; evaluation fidelity, contribution-aware studies, promotion gates and sustainable paper preparation remain |
 | Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; all current candidates rejected |
 | Phase 5 / G4 | Authorised observation start; at least 56 calendar days and 10 completed signal-driven episodes; measured fills/latency, 99.5% healthy observations under the specified dependency condition, real destination integration, recovery exercises and positive economics |
 | Deployment/readiness / G4–G5 | Authorised hosting/service setup, actual capture growth and maintenance planning, encrypted off-host/WAL backups, gap reconciliation, host-loss/fencing drills, production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |
