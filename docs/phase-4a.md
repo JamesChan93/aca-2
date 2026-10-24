@@ -6,7 +6,9 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: planned; 0/19 completion items. Implementation has not started.**
+**Status: in progress; 0/19 completion items.** P4A-17 has started with the
+development dependency audit repair requested after PR #29's checks failed.
+The remaining items have not started. This partial repair does not close P4A-17.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
 The numbered items map directly to recommendations 1–19; the batch and study

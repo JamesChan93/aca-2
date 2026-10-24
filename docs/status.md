@@ -51,7 +51,9 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
-**Phase 4a is planned at 0/19; implementation has not started.** The
+**Phase 4a is in progress at 0/19.** P4A-17 has started with the development
+dependency audit repair requested after PR #29's checks failed; its other
+acceptance requirements and the remaining items have not completed. The
 [fixed plan](phase-4a.md) maps all 19
 [review recommendations](research-promotion-review-2026-10-24.md) to acceptance
 items, six dependency-aware batches and at most 26 candidate definitions: the
@@ -66,6 +68,13 @@ bounded-history harness timed out and the development dependency audit found the
 setuptools advisory. Later build/container scans in that job were skipped.
 P4A-17 owns that verification repair. This current result does not rewrite the
 historical 0.4.18 acceptance packet or supply a current green release.
+
+The subsequent [PR #29](https://github.com/JamesChan93/aca-2/pull/29) runs passed
+both bounded-history acceptance jobs and failed only on that development audit.
+The current repair updates the reviewed setuptools constraint/development hashes
+to 84.1.0. All three local dependency audits, the clean test-image install, static
+checks and wheel build pass. Fresh hosted checks must establish the patched-head
+outcome. No runtime/research lock, application code or retained service changes.
 
 The retained workstation stack has not been upgraded, migrated or compacted by
 this release. Its existing image/schema is not this release's deployed evidence.
