@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "independent_synthetic_parity_v1",
+  "authority": "Hand-calculated Decimal examples; not emitted by either simulator",
+  "opening_gbp": "1000",
+  "entry_quantity": "0.01",
+  "entry_price": "1000",
+  "entry_fee": "0.08",
+  "entry_cash": "989.92",
+  "entry_limit": "1001",
+  "stop_trigger": "950.9",
+  "protective_limit": "941.4",
+  "fee_rate": "0.008",
+  "cases": [
+    {
+      "name": "recovered_bid",
+      "steps": [
+        {"ms": 500, "bid": "950", "depth": "10", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.42", "fill_count": 1},
+        {"ms": 749, "bid": "960", "depth": "10", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.52", "fill_count": 1},
+        {"ms": 750, "bid": "960", "depth": "10", "filled": "0.01", "cash": "999.4432", "fees": "0.1568", "nav": "999.4432", "fill_count": 2}
+      ]
+    },
+    {
+      "name": "rapid_gap",
+      "steps": [
+        {"ms": 500, "bid": "950", "depth": "10", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.42", "fill_count": 1},
+        {"ms": 750, "bid": "800", "depth": "10", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "997.92", "fill_count": 1},
+        {"ms": 1000, "bid": "800", "depth": "10", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "997.92", "fill_count": 1}
+      ]
+    },
+    {
+      "name": "no_liquidity",
+      "steps": [
+        {"ms": 500, "bid": "950", "depth": "0.0000001", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.42", "fill_count": 1},
+        {"ms": 750, "bid": "960", "depth": "0.0000001", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.52", "fill_count": 1},
+        {"ms": 1000, "bid": "970", "depth": "0.0000001", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.62", "fill_count": 1}
+      ]
+    },
+    {
+      "name": "partial_residual",
+      "steps": [
+        {"ms": 500, "bid": "950", "depth": "10", "filled": "0", "cash": "989.92", "fees": "0.08", "nav": "999.42", "fill_count": 1},
+        {"ms": 750, "bid": "960", "depth": "0.4", "filled": "0.004", "cash": "993.72928", "fees": "0.11072", "nav": "999.48928", "fill_count": 2},
+        {"ms": 1000, "bid": "800", "depth": "10", "filled": "0.004", "cash": "993.72928", "fees": "0.11072", "nav": "998.52928", "fill_count": 2},
+        {"ms": 1250, "bid": "970", "depth": "10", "filled": "0.01", "cash": "999.50272", "fees": "0.15728", "nav": "999.50272", "fill_count": 3}
+      ]
+    }
+  ]
+}

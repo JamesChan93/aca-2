@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 24 October 2026. Application **0.4.20**, schema `0016_history_segments`.
+Updated 24 October 2026. Application **0.4.21**, schema `0016_history_segments`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -64,8 +64,23 @@ The [actual local evidence](evidence/phase-4a-artifacts.json) preserves the orig
 13,841,730-byte report and 42 matching events; the reconstructed report has exactly
 the original SHA-256. A complete >20 MB synthetic bundle passes with bounded
 streaming memory. All **758 Linux/PostgreSQL tests**, formatting and strict typing
-pass on this new revision; current hosted checks must pass before merge. The old
-CI outcome is not treated as verification of new code.
+pass on that revision. All eight hosted checks passed on `99f624b` before PR #30
+merged; the run links are recorded in that PR.
+
+Version 0.4.21 establishes Batch A's [independent research/paper verification
+fixtures](phase-4a-parity.md) under P4A-19. Both simulators use the same immutable
+latency/participation bounds without changing their values. Literal synthetic
+fixtures check executed economics, actual fees, trigger/matching chronology,
+partial/gap/no-executable-liquidity paths, residual protection, flow-neutral units,
+risk latches and independent dispatch rejection. Named probes reproduce the
+legacy extra-bar delay, lost intraday drawdown and minimum-price stop stress.
+The [evidence packet](evidence/phase-4a-parity.json) records source/input identities
+and verification. Current hosted checks must pass before merge; previous release
+checks do not verify this new source. P4A-19 remains unchecked until corrected
+event research and continuous account/calendar parity extend the same fixtures
+in Batches B/C. This is progress inside the existing item, not a new requirement.
+All **772 Linux/PostgreSQL tests**, formatting and strict typing pass locally,
+including the 14 new independent parity tests.
 
 The [fixed plan](phase-4a.md) still has 19 items, six batches and at most 26
 candidate definitions. The other 17 items remain unchecked. The modular runner

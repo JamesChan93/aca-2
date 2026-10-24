@@ -8,6 +8,7 @@ from itertools import pairwise
 from aca.domain.market import Candle, InstrumentRules
 from aca.domain.values import FINANCIAL_CONTEXT, FinancialDecimal, parse_decimal, utc_datetime
 from aca.operations.config import RiskPolicy, StrictModel
+from aca.simulation.assumptions import BOUNDS
 from aca.sizing.long_spot import round_increment, size_long
 from aca.strategies.slow import Variant, signal
 
@@ -22,8 +23,8 @@ class CostModel(StrictModel):
     spread_slippage_one_way: FinancialDecimal = D("0.001")
     implementation_allowance: FinancialDecimal = D("0.002")
     protection_limit_offset: FinancialDecimal = D("0.01")
-    participation: FinancialDecimal = D("0.01")
-    latency_ms: int = 250
+    participation: FinancialDecimal = BOUNDS.maximum_participation
+    latency_ms: int = BOUNDS.minimum_latency_ms
 
     def checked(self) -> CostModel:
         if (
@@ -36,8 +37,8 @@ class CostModel(StrictModel):
                     self.protection_limit_offset,
                 )
             )
-            or not D(0) < self.participation <= D("0.01")
-            or not 250 <= self.latency_ms <= 60_000
+            or not D(0) < self.participation <= BOUNDS.maximum_participation
+            or not BOUNDS.minimum_latency_ms <= self.latency_ms <= BOUNDS.maximum_latency_ms
         ):
             raise ValueError("invalid cost model")
         return self

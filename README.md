@@ -30,7 +30,11 @@ It is in progress at **2/19**, with six implementation batches and a bounded stu
 budget. P4A-17 closes the release-check repair. Version 0.4.20 adds P4A-18's
 [modular research output and offline restore](docs/phase-4a-artifacts.md): durable
 attempts, bounded pages, deterministic trial resume and a byte-identical archive/
-restore of the original report. No corrected S0/S1/S2 study has run.
+restore of the original report. Version 0.4.21 establishes
+[independent research/paper fixtures](docs/phase-4a-parity.md) under P4A-19:
+hand-calculated fill/fee/flow/stop examples and named timing/drawdown discrepancy
+probes. P4A-19 remains open for the corrected model in Batches B/C.
+No corrected S0/S1/S2 study has run.
 Phase 4 remains closed at 17/17; qualifying observation has not started.
 
 The [original project prompt and implementation context](docs/context/README.md)
