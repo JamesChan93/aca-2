@@ -1,0 +1,69 @@
+{
+  "all_latency_stress_turnover_zero": true,
+  "application_code_changed": false,
+  "ci": {
+    "bounded_history_failure": "TimeoutExpired",
+    "conclusion": "failure",
+    "dependency_audit_failure": "setuptools 84.0.0 GHSA-xmj3-9gf7-h52w; patched 84.1.0",
+    "later_build_and_container_scans": "skipped",
+    "linux_postgresql_tests": 736,
+    "run": 40057130464,
+    "test_seconds": 390.99,
+    "url": "https://github.com/JamesChan93/aca-2/actions/runs/40057130464"
+  },
+  "csv_sha256": "e96d7655d7fd44eb144b7796bddf5746facd1e3e3db2b96db89f60aa08e19d92",
+  "definitions": [
+    "All candidate financial results are pre-holdout research observations, not forecasts.",
+    "Annual arithmetic return increments are distinct from CAGR.",
+    "Fees are divided by the fixed \u00a3250 opening equity and actual test elapsed years; this is a diagnostic, not a continuous-portfolio cost attribution.",
+    "Exposure is weighted by fold elapsed days.",
+    "Episode totals across correlated variants are not independent samples.",
+    "Open-quantity counts include ordinary positions and possible sub-minimum residuals.",
+    "Ten-episode durations simply extrapolate observed episode frequency and are not waiting-time forecasts."
+  ],
+  "episodes_across_trials": 3426,
+  "fold_count": 300,
+  "folds_ending_with_open_quantity": 146,
+  "folds_with_loss_latch": 27,
+  "full_report_bytes": 13841730,
+  "full_report_sha256": "67a8f9630be6d4f55ad52f2132ba70468f097fca859dbf3d8babc970f8f20790",
+  "holdout_performance_opened": false,
+  "kind": "research_promotion_review_diagnostics",
+  "positive_net_cash_point_estimates": 14,
+  "positive_passive10_point_estimates": 0,
+  "promotion_allowed": false,
+  "reviewed_commit": "bdcaed830457ceb38294a79fa4adfe5227f4f208",
+  "schema_version": 1,
+  "synthetic_probes": [
+    {
+      "comment": "The reference always uses the protection minimum as the exit once a later opening bid permits it. This is a documented pessimistic convention, not evidence about the actual intrabar fill.",
+      "entry_price": "100.1",
+      "episode_pnl": "-1.217725449072",
+      "kind": "synthetic_stop_execution_probe",
+      "next_open_model_bid": "99.900",
+      "stop_limit_fill": "94.1"
+    },
+    {
+      "kind": "synthetic_intraday_drawdown_probe",
+      "observation_drawdown": "0.10",
+      "observation_hours": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24
+      ],
+      "reported_max_drawdown": 0.0,
+      "unit_prices": [
+        "1",
+        ".90",
+        "1.02",
+        "1.01",
+        "1.03",
+        "1.04"
+      ]
+    }
+  ],
+  "trial_count": 20
+}

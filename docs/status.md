@@ -51,6 +51,22 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
+**Phase 4a is planned at 0/19; implementation has not started.** The
+[fixed plan](phase-4a.md) maps all 19
+[review recommendations](research-promotion-review-2026-10-24.md) to acceptance
+items, six dependency-aware batches and at most 26 candidate definitions: the
+original 20, up to four new daily variants and two shared-account portfolios.
+The original family is rerun under the corrected model first. A complete Phase 4a
+may conclude research no-go; it cannot keep expanding until a strategy passes.
+Qualifying observation and the actual holdout remain separate conditional decisions.
+
+The 0.4.19 merged-commit [hosted run](https://github.com/JamesChan93/aca-2/actions/runs/40057130464)
+has completed with failure: all 736 Linux/PostgreSQL tests passed, but the
+bounded-history harness timed out and the development dependency audit found the
+setuptools advisory. Later build/container scans in that job were skipped.
+P4A-17 owns that verification repair. This current result does not rewrite the
+historical 0.4.18 acceptance packet or supply a current green release.
+
 The retained workstation stack has not been upgraded, migrated or compacted by
 this release. Its existing image/schema is not this release's deployed evidence.
 Use the reviewed upgrade procedure before changing retained state.
@@ -86,6 +102,7 @@ only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 
 | Stage | Work / decision still required |
 | --- | --- |
+| Phase 4a | [Fixed 19-item plan](phase-4a.md), 0/19: evaluation fidelity, continuous contribution-aware research, bounded candidate studies, enforced promotion evidence and sustainable paper preparation |
 | Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; all current candidates rejected |
 | Phase 5 / G4 | Authorised observation start; at least 56 calendar days and 10 completed signal-driven episodes; measured fills/latency, 99.5% healthy observations under the specified dependency condition, real destination integration, recovery exercises and positive economics |
 | Deployment/readiness / G4–G5 | Authorised hosting/service setup, actual capture growth and maintenance planning, encrypted off-host/WAL backups, gap reconciliation, host-loss/fencing drills, production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |

@@ -23,6 +23,13 @@ All 300 eligible folds now complete using the audited no-trade convention, but
 none of the original 20 candidates passes the confidence or economic gates.
 No candidate is frozen and the final holdout remains closed.
 
+The [Phase 4a plan](docs/phase-4a.md) turns the
+[research and repository review](docs/research-promotion-review-2026-10-24.md)
+into a fixed **19-item** research-fidelity and promotion-preparation phase.
+It is planned at **0/19**, with six implementation batches and a bounded study
+budget. Phase 4 remains closed at 17/17; Phase 4a implementation and qualifying
+observation have not started.
+
 The [original project prompt and implementation context](docs/context/README.md)
 are preserved in the repository for future contributors.
 
