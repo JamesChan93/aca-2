@@ -21,6 +21,7 @@ def _paths(root: Path) -> list[Path]:
             *root.glob("reports/*.json"),
             *root.glob("freezes/*.json"),
             *root.glob("events/*.json"),
+            *root.glob("packets/*.json"),
         ]
     )
 
@@ -50,8 +51,13 @@ async def register(root: Path, engine: AsyncEngine) -> dict[str, int]:
             "research_report",
             "holdout_report",
             "candidate_freeze",
+            "research_review_packet",
         }:
             raise ValueError("unsupported research artefact kind")
+        if kind == "research_review_packet":
+            from aca.research.bundles import verify
+
+            await asyncio.to_thread(verify, path)
         async with engine.begin() as connection:
             result = await connection.execute(
                 insert(ResearchArtifact)

@@ -6,10 +6,12 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: in progress; 0/19 completion items.** P4A-17 has started with the
-development audit, database-image security and fixture-timeout repairs requested
-after PR #29's checks failed.
-The remaining items have not started. This partial repair does not close P4A-17.
+**Status: in progress; 2/19 completion items.** P4A-17 closes through the
+[merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
+P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
+its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
+The remaining 17 items are unchecked. Current integrated PR checks must pass before
+merging the artefact increment; prior CI success is not transferred to new code.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
 The numbered items map directly to recommendations 1–19; the batch and study
@@ -240,7 +242,7 @@ baseline evidence rather than Phase 4a implementation credit.
   production backup/host-loss limits. This is engineering capacity evidence, not
   56 elapsed days of reliability. Depends on P4A-15/P4A-17/P4A-19.
 
-- [ ] **P4A-17 — Release verification repair.** Address the baseline setuptools
+- [x] **P4A-17 — Release verification repair.** Address the baseline setuptools
   advisory through the reviewed constraint/hash-lock process and diagnose the
   bounded-history harness timeout. Retain partial timings/profiles and distinguish
   fixture setup from measured operation deadlines. Keep acceptance deadlines and
@@ -248,14 +250,20 @@ baseline evidence rather than Phase 4a implementation credit.
   Require the relevant regression, packaging and container checks on the integrated
   release, with current hosted outcomes linked. Do not provision retained services
   or represent the failed baseline CI as green.
+  Acceptance: [repair packet and final hosted runs](phase-4a-ci-repair.md), tested
+  head `eae9a2b825f5d1ce7615cb4dad9e9addb27917ee`, merged in PR #29.
 
-- [ ] **P4A-18 — Modular durable research artefacts.** Implement small typed
+- [x] **P4A-18 — Modular durable research artefacts.** Implement small typed
   manifests referencing immutable hashed trial/fold curves and episodes, complete
   start/outcome/failed-trial records, deterministic resume and an offline review
   packet. Preserve the 0.4.19 report and reproduce its identity. Demonstrate a
   complete study beyond the former single-JSON reader bound without increasing
   unbounded memory or losing failure evidence. Document and verify local archive/
   restore of the complete research bundle; paid/off-host provisioning stays later.
+  Acceptance: [0.4.20 implementation and limits](phase-4a-artifacts.md),
+  [source-bound actual restore identity](evidence/phase-4a-artifacts.json),
+  `tests/test_research_bundles.py` and the PostgreSQL registry regression. The
+  original report and its 42 events are preserved; no corrected study ran.
 
 - [ ] **P4A-19 — Research/paper parity and focused refactoring.** Share pure
   economic transitions where useful while retaining the independent execution

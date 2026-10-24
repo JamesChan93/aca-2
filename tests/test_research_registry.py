@@ -85,3 +85,38 @@ async def test_tampered_local_registry_rejected(
             await register(tmp_path, engine)
     finally:
         await engine.dispose()
+
+
+async def test_small_bundle_manifest_registered_only_after_full_object_verification(
+    database_settings: Settings,
+    tmp_path: Path,
+) -> None:
+    from aca.research.bundles import Result, Store, create, execute, seal
+
+    path = create(tmp_path, {"synthetic": True}, {"trial": {}})
+    result = execute(
+        path,
+        "trial",
+        lambda store: Result(
+            status="rejected",
+            reason="no_edge",
+            artifacts=(store.records("curve", [{"nav": "250"}]),),
+        ),
+    )
+    packet = seal(path)
+    engine = create_engine(database_settings)
+    try:
+        assert await register(tmp_path, engine) == {"artifacts_inserted": 1, "events_inserted": 0}
+        assert await register(tmp_path, engine) == {"artifacts_inserted": 0, "events_inserted": 0}
+        async with engine.connect() as connection:
+            stored = await connection.scalar(
+                select(ResearchArtifact.document).where(
+                    ResearchArtifact.fingerprint == packet.stem,
+                )
+            )
+            assert stored == read_json(packet)
+        Store(tmp_path).path(result.artifacts[0].parts[0]).write_bytes(b"corrupt")
+        with pytest.raises(ValueError, match="size mismatch"):
+            await register(tmp_path, engine)
+    finally:
+        await engine.dispose()
