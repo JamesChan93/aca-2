@@ -11,7 +11,7 @@ services:
           nocopy: true
     command: [postgres, -c, shared_buffers=32MB, -c, max_connections=30, -c, timezone=UTC, -c, wal_recycle=off]
   storage-holder:
-    image: aca-restore-tests:0.4.18
+    image: aca-restore-tests:0.4.19
     user: "70:70"
     command: [python, -c, "import time; time.sleep(900)"]
     volumes:

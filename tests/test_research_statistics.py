@@ -10,7 +10,7 @@ from test_research_core import bars, rules
 
 from aca.research.artifacts import canonical, digest, read_json
 from aca.research.datasets import import_dataset
-from aca.research.runner import _curves, freeze, holdout, run
+from aca.research.runner import _append_daily, _curves, freeze, holdout, run
 from aca.research.statistics import metrics, paired_bootstrap, xirr
 from aca.simulation.reference import CostModel, simulate
 
@@ -40,6 +40,15 @@ def test_seeded_paired_blocks_and_family_adjustment() -> None:
     assert not paired_bootstrap({"a": 0.0}, {"a": 0.0}, block_days=7, samples=1000)["available"]
     with pytest.raises(ValueError, match="paired"):
         paired_bootstrap(strategy, {"wrong": 0.0}, block_days=7)
+
+
+def test_partial_utc_day_returns_are_chained_across_adjacent_folds() -> None:
+    target = {"2020-01-01": 0.1, "2020-01-02": 0.2}
+    _append_daily(target, {"2020-01-02": -0.1, "2020-01-03": 0.3})
+    assert list(target) == ["2020-01-01", "2020-01-02", "2020-01-03"]
+    assert target["2020-01-02"] == pytest.approx(0.08)
+    with pytest.raises(ValueError, match="overlapping"):
+        _append_daily(target, {"2020-01-02": 0.0, "2020-01-03": 0.0})
 
 
 def test_cash_metrics_undefined_and_xirr() -> None:

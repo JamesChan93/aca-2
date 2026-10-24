@@ -18,6 +18,11 @@ candidates remain rejected, the holdout is closed and operational experiments
 earn zero qualifying days/episodes. Engineering completion does not approve
 research, deployment or live trading. The retained workstation stack has not been upgraded.
 
+Version 0.4.19 adds [reviewed-data backtesting and walk-forward validation](docs/research-reviewed-validation.md).
+All 300 eligible folds now complete using the audited no-trade convention, but
+none of the original 20 candidates passes the confidence or economic gates.
+No candidate is frozen and the final holdout remains closed.
+
 The [original project prompt and implementation context](docs/context/README.md)
 are preserved in the repository for future contributors.
 

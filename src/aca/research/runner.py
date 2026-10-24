@@ -77,7 +77,19 @@ def event(root: Path, run: str, trial: str, status: str, detail: dict[str, objec
 def _window(bars: tuple[Candle, ...], start: datetime, end: datetime) -> tuple[Candle, ...]:
     preceding = [bar for bar in bars if bar.end <= start]
     # 201 warm-up bars preserve the finalisation/first-executable-open lag.
-    return tuple(preceding[-201:] + [bar for bar in bars if start <= bar.start and bar.end <= end])
+    offset = max(0, len(preceding) - 201)
+    # Keep the originating populated close when a warm-up boundary falls inside
+    # a reviewed empty span; never validate a carried price against a future bar.
+    while offset and preceding[offset].quality == ("confirmed_no_trade",):
+        offset -= 1
+    return tuple(
+        preceding[offset:] + [bar for bar in bars if start <= bar.start and bar.end <= end]
+    )
+
+
+def _qualified_window(bars: tuple[Candle, ...]) -> None:
+    if any(not bar.complete and bar.quality != ("confirmed_no_trade",) for bar in bars):
+        raise ResearchDataError("quarantined_or_unqualified_observation")
 
 
 def _curves(
@@ -90,6 +102,7 @@ def _curves(
     other: tuple[Candle, ...] | None = None,
 ) -> tuple[Backtest, dict[str, Backtest]]:
     selected = _window(bars, start, end)
+    _qualified_window(selected)
     # Missing boundary candles cannot silently shorten a requested test.
     evaluation = [bar for bar in selected if bar.start >= start]
     if not evaluation or evaluation[0].start != start or evaluation[-1].end != end:
@@ -129,6 +142,7 @@ def _curves(
     )
     if other is not None:
         alternate = _window(other, start, end)
+        _qualified_window(alternate)
         alternate_evaluation = [bar for bar in alternate if bar.start >= start]
         if [bar.start for bar in alternate_evaluation] != [bar.start for bar in evaluation] or any(
             a.end != b.start for a, b in pairwise(alternate)
@@ -212,6 +226,15 @@ def _fold_report(
     }
 
 
+def _append_daily(target: dict[str, float], incoming: dict[str, float]) -> None:
+    """Chain non-overlapping fold returns sharing one partial UTC calendar day."""
+    overlap = target.keys() & incoming.keys()
+    if overlap and overlap != {next(reversed(target))} & {next(iter(incoming))}:
+        raise ValueError("overlapping out-of-sample calendar periods")
+    for day, value in incoming.items():
+        target[day] = (1 + target[day]) * (1 + value) - 1 if day in target else value
+
+
 def run(root: Path, manifest: Path, *, samples: int = 10_000) -> Path:
     if not 1000 <= samples <= 100_000:
         raise ValueError("bootstrap samples must be 1000..100000")
@@ -228,6 +251,7 @@ def run(root: Path, manifest: Path, *, samples: int = 10_000) -> Path:
         "family_size": 80,
         "holdout_months": 12,
         "folds": "24m_training_6m_validation_6m_test_step6m_flat_start_each_window",
+        "daily_fold_aggregation": "chain_shared_partial_utc_day_v2",
     }
     event(root, run_id, "family", "started", declaration)
     try:
@@ -250,6 +274,20 @@ def run(root: Path, manifest: Path, *, samples: int = 10_000) -> Path:
                 "platform": platform.platform(),
                 "numpy": version("numpy"),
             },
+            "data_review": {
+                "transform": dataset.manifest["transform"],
+                "gap_audit_sha256": dataset.manifest.get("gap_audit_sha256"),
+                "indicator_only_rows": sum(
+                    bar.quality == ("confirmed_no_trade",)
+                    for bars in dataset.series.values()
+                    for bar in bars
+                ),
+                "quarantined_rows": sum(
+                    "disputed_trade_evidence" in bar.quality
+                    for bars in dataset.series.values()
+                    for bar in bars
+                ),
+            },
             "trials": outcomes,
             "holdout_opened": False,
             "promotion_allowed": False,
@@ -259,7 +297,9 @@ def run(root: Path, manifest: Path, *, samples: int = 10_000) -> Path:
                 "Bar opens plus slippage approximate post-latency taker prices; no maker fills.",
                 "Every window starts flat with fresh research state; no live restart inference.",
                 "Incomplete windows remain failed; successful subsets cannot establish alpha.",
-                "Paper execution, ledger, live risk guard and tax engine remain unimplemented.",
+                "Research results grant no paper selection, live activation or tax approval.",
+                "No-trade observations carry past closes for indicators/marks, with no liquidity.",
+                "Full archive hashes and point-in-time fee/rule history remain unverified.",
             ],
         }
         output = save_document(root / "reports", report)
@@ -302,6 +342,7 @@ def _trial(
             try:
                 # Training data must also be contiguous; outages are not deleted from history.
                 training = _window(bars, fold.train_start, fold.train_end)
+                _qualified_window(training)
                 if any(a.end != b.start for a, b in pairwise(training)):
                     raise ResearchDataError("training_gap")
                 validation = _fold_report(
@@ -313,7 +354,7 @@ def _trial(
                 item.update({"status": "complete", "validation": validation, "test": test})
                 episodes += int(test["candidate"]["completed_episodes"])
                 for key in all_daily:
-                    all_daily[key].update(test["daily_" + key])
+                    _append_daily(all_daily[key], test["daily_" + key])
                 # Stress is predeclared, not an extra searched candidate.
                 item["stress"] = {
                     label: metrics(
@@ -439,6 +480,15 @@ def holdout(root: Path, manifest: Path, frozen_path: Path) -> Path:
         or declaration.get("costs") != CostModel().model_dump(mode="json")
     ):
         raise ValueError("holdout requires an unchanged frozen candidate, dataset and cost model")
+    trial = str(frozen["trial"])
+    selected = next(item for item in TRIALS if f"{item[0]}:{item[1]}:{item[2]}" == trial)
+    bars = dataset.series[(selected[0], selected[1])]
+    end = bars[-1].end
+    other = dataset.series[("ETH/GBP" if selected[0] == "BTC/GBP" else "BTC/GBP", selected[1])]
+    # Quarantine is a preflight failure, before consuming the one-time holdout.
+    # This includes the comparison asset needed for the predeclared blend.
+    for series in (bars, other):
+        _qualified_window(_window(series, months(end, -12), end))
     # One opening per dataset, across all candidates. A crash remains an opened holdout.
     marker = manifest.parents[2] / "holdout-openings" / (dataset.fingerprint + ".json")
     marker.parent.mkdir(parents=True, exist_ok=True)
@@ -450,10 +500,6 @@ def holdout(root: Path, manifest: Path, frozen_path: Path) -> Path:
         )
     run_id = str(uuid4())
     event(root, run_id, str(frozen["trial"]), "holdout_opened", {"dataset": dataset.fingerprint})
-    trial = str(frozen["trial"])
-    selected = next(item for item in TRIALS if f"{item[0]}:{item[1]}:{item[2]}" == trial)
-    bars = dataset.series[(selected[0], selected[1])]
-    end = bars[-1].end
     try:
         result = _fold_report(
             bars,
@@ -462,7 +508,7 @@ def holdout(root: Path, manifest: Path, frozen_path: Path) -> Path:
             months(end, -12),
             end,
             CostModel(),
-            dataset.series[("ETH/GBP" if selected[0] == "BTC/GBP" else "BTC/GBP", selected[1])],
+            other,
         )
         report: dict[str, object] = {
             "kind": "holdout_report",
