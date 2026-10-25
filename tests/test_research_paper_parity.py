@@ -5,6 +5,7 @@ parity: P4A-01/02/04/05/06 still have explicit baseline discrepancies below.
 """
 
 import ast
+import json
 from collections.abc import AsyncIterator
 from dataclasses import FrozenInstanceError
 from datetime import datetime, timedelta
@@ -80,6 +81,49 @@ async def enter(service: PaperExecution, venue: PaperExchange) -> None:
     )
     assert (await service.reconcile(at)).complete
     assert (await service._state()).quantity("GBP") == EXPECTED.entry_cash
+
+
+@pytest.mark.integration
+async def test_continuous_account_and_paper_share_independent_flow_oracle(
+    account: tuple[PaperExecution, PaperExchange],
+) -> None:
+    from test_causal_research import engine, print_at, slow
+
+    oracle = json.loads((Path(__file__).parent / "fixtures/parity/continuous-v1.json").read_bytes())
+    service, venue = account
+    await enter(service, venue)
+    research = engine()
+    research.trade(print_at(0))
+    research.publish(slow(), AT)
+    research.trade(print_at(250))
+    at = AT + timedelta(milliseconds=500)
+    await service.mark(
+        (Valuation(asset="BTC", bid_gbp=D(1000), observed_at=at, source="parity"),), at
+    )
+    before = await service._state()
+    assert (
+        nav(before, at)
+        == research.result().attribution["ending_nav_gbp"]
+        == D(oracle["pre_flow_nav"])
+    )
+    assert unit_price(before, at) == D(oracle["pre_flow_unit_price"])
+    epoch, inception = before.kill.policy_epoch, before.inception_high_water
+    # Internal query/report snapshots are read-only. Neither resets the account.
+    assert (await service._state()).document() == before.document()
+    await service.cashflow("independent-month-end", D(oracle["contribution"]), at)
+    research.cashflow("independent-month-end", D(oracle["contribution"]), at)
+    after = await service._state()
+    assert after.quantity("GBP") == research.state.quantity("GBP") == D(oracle["post_flow_cash"])
+    assert after.units == research.state.units == D(oracle["post_flow_units"])
+    assert (
+        nav(after, at)
+        == research.result().attribution["ending_nav_gbp"]
+        == D(oracle["post_flow_nav"])
+    )
+    assert unit_price(after, at) == unit_price(before, at)
+    assert after.orders == before.orders
+    assert after.kill.policy_epoch == epoch and after.inception_high_water == inception
+    assert (await service._state()).quantity("BTC") == D(oracle["entry_quantity"])
 
 
 @pytest.mark.integration

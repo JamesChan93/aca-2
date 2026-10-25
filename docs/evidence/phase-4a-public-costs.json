@@ -1,0 +1,144 @@
+{
+  "assumptions": {
+    "command_latency_ms": 250,
+    "latency_stress_ms": 2000,
+    "maximum_print_participation": "0.01",
+    "spread_slippage_one_way": "0.001",
+    "stress_one_way": "0.002"
+  },
+  "blockers": [
+    "short_nonrepresentative_public_sample",
+    "command_latency_not_measured",
+    "queue_and_maker_fill_calibration_absent",
+    "maker_adverse_selection_not_established",
+    "private_account_fees_unverified"
+  ],
+  "decision": "CONSERVATIVE_TAKER_ASSUMPTIONS_ONLY; MAKER_UNQUALIFIED",
+  "fees": {
+    "modelled_taker_base": "0.008",
+    "modelled_taker_stress": "0.012",
+    "private_fee_verified": false,
+    "risk_entry_exit_floor": "0.008"
+  },
+  "kind": "public-execution-cost-review-v1",
+  "live_execution_available": false,
+  "promotion_evidence": false,
+  "raw_hashes_and_top10_checksums_rechecked": true,
+  "receipts": 5000,
+  "sampling": "bounded_valid_retained_books_by_received_at_then_id; short_convenience_sample",
+  "schema_version": 1,
+  "series": {
+    "BTC/GBP": {
+      "books": 1442,
+      "epochs": 2,
+      "event_to_receipt_ms_including_clock_error": {
+        "count": 1442,
+        "maximum": "275.001000",
+        "median": "28.338000",
+        "minimum": "3.132000",
+        "p95_nearest_rank": "111.502000"
+      },
+      "first": "2026-10-17T21:27:04.497470+00:00",
+      "hypothetical_taker_markouts_no_fills": {
+        "1s": {
+          "buy_at_ask_to_later_bid_bps": {
+            "count": 1250,
+            "maximum": "0.9189728509163472141994433650160163839731134800000",
+            "median": "-0.98388075365265729793549021858550743649869635800000",
+            "minimum": "-6.1841803090449788392769266100193563203306978118000",
+            "p95_nearest_rank": "-0.01640366129720153538269741806371182047833076340000"
+          },
+          "sell_at_bid_to_later_ask_bps": {
+            "count": 1250,
+            "maximum": "4.8390880205505405835448042137794261661792037322000",
+            "median": "-1.1989836560460803910329162074668760234475214710000",
+            "minimum": "-6.0244128249407407893786482990472563477941128190000",
+            "p95_nearest_rank": "0.21323570418630895557152089545873561069065404310000"
+          }
+        },
+        "5s": {
+          "buy_at_ask_to_later_bid_bps": {
+            "count": 1149,
+            "maximum": "1.9035897435897435897435897435897435897435897440000",
+            "median": "-1.1480698485695869736714781727320290166453727045000",
+            "minimum": "-8.0706013582231554082871296873462156753387356058000",
+            "p95_nearest_rank": "0.9189728509163472141994433650160163839731134800000"
+          },
+          "sell_at_bid_to_later_ask_bps": {
+            "count": 1149,
+            "maximum": "4.0845183631087613739073093194273800521309211163000",
+            "median": "-0.4920065338467694850987621115608415279754915150000",
+            "minimum": "-5.1708175472924614404748616190732581731747834820000",
+            "p95_nearest_rank": "1.5580513533726071611320309117388509125260768595000"
+          }
+        }
+      },
+      "last": "2026-10-17T21:29:55.246366+00:00",
+      "negative_delay_observations": 0,
+      "spread_bps": {
+        "count": 1442,
+        "maximum": "7.1718175469922267016450048783129653167949360731755",
+        "median": "1.1323699436194646187728884377643735081231132296093",
+        "minimum": "0.016403674751217767804343529037374952736912123053807",
+        "p95_nearest_rank": "3.9066347132398805029381832507140277732182134532681"
+      }
+    },
+    "ETH/GBP": {
+      "books": 3558,
+      "epochs": 2,
+      "event_to_receipt_ms_including_clock_error": {
+        "count": 3558,
+        "maximum": "232.702000",
+        "median": "21.221000",
+        "minimum": "2.799000",
+        "p95_nearest_rank": "106.187000"
+      },
+      "first": "2026-10-17T21:27:04.498923+00:00",
+      "hypothetical_taker_markouts_no_fills": {
+        "1s": {
+          "buy_at_ask_to_later_bid_bps": {
+            "count": 3440,
+            "maximum": "2.3302392933826752256725791865245590576956152660000",
+            "median": "-2.2197435086375769279859712210254105138151286619000",
+            "minimum": "-21.232599524345420577327131714185926611709529168500",
+            "p95_nearest_rank": "-0.05540166204986149584487534626038781163434903050000"
+          },
+          "sell_at_bid_to_later_ask_bps": {
+            "count": 3440,
+            "maximum": "3.6048626824615111584364878654776165757132082169000",
+            "median": "-2.6074895977808599167822468793342579750346740640000",
+            "minimum": "-21.036038786237213252149394728224369612637164409000",
+            "p95_nearest_rank": "0.33246522967806283592840915387599046933008256220000"
+          }
+        },
+        "5s": {
+          "buy_at_ask_to_later_bid_bps": {
+            "count": 3173,
+            "maximum": "5.4372250178929088599026847685573044679564356220000",
+            "median": "-2.6074895977808599167822468793342579750346740638000",
+            "minimum": "-22.172580278598471200589790635410719333935688430900",
+            "p95_nearest_rank": "2.7169392847241474909897421680066537288605489330000"
+          },
+          "sell_at_bid_to_later_ask_bps": {
+            "count": 3173,
+            "maximum": "8.4258140334150046009379261410880386700517744099000",
+            "median": "-2.7163820009202436982709397018632163071618243000000",
+            "minimum": "-21.277777777777777777777777777777777777777777778000",
+            "p95_nearest_rank": "3.8785460992907801418439716312056737588652482270000"
+          }
+        }
+      },
+      "last": "2026-10-17T21:29:55.241797+00:00",
+      "negative_delay_observations": 0,
+      "spread_bps": {
+        "count": 3558,
+        "maximum": "22.395671648410129052286132422723845846822475497805",
+        "median": "2.3838496955047801730231372016376493024467722397931",
+        "minimum": "0.055555401234996569453973738961836217121619106613593",
+        "p95_nearest_rank": "11.104941699056079955580233203775680177679067184897"
+      }
+    }
+  },
+  "source_bytes": 10668338,
+  "source_sha256": "02be4c57aa2235069bf42587e9fa0e2a8b2fd668bc4c4ce8445c1f1ec96d9538"
+}

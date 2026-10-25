@@ -32,10 +32,19 @@ from aca.domain.trading import (
 )
 from aca.domain.values import FINANCIAL_CONTEXT, parse_decimal, utc_datetime
 from aca.operations.config import RiskPolicy
-from aca.portfolio.state import entries_paused, flow_units, free_cash, nav, observe_risk, unit_price
+from aca.portfolio.state import (
+    entries_paused,
+    episode_risk,
+    flow_units,
+    free_cash,
+    nav,
+    observe_risk,
+    unit_price,
+)
 from aca.risk.execution import DispatchDenied, commitment_guard
 from aca.risk.portfolio import approve
 from aca.simulation.assumptions import TRADE_MODEL
+from aca.simulation.passive import proxy_prices
 from aca.simulation.reference import (
     DEFAULT_COSTS,
     DEFAULT_POLICY,
@@ -72,6 +81,17 @@ class OpenEpisode:
 
 
 @dataclass(frozen=True)
+class EpochReview:
+    id: str
+    at: datetime
+    reason: str
+    evidence_sha256: str
+    previous_epoch: UUID
+    previous_state_sha256: str
+    new_epoch: UUID
+
+
+@dataclass(frozen=True)
 class EventResult:
     backtest: Backtest
     state: PortfolioSnapshot
@@ -88,6 +108,8 @@ class EventResult:
     requested_through: datetime
     exposure_fraction_seconds: Decimal
     equity_seconds: Decimal
+    planned_risk_fraction_seconds: Decimal = ZERO
+    epoch_reviews: tuple[EpochReview, ...] = ()
     execution_model: str = TRADE_MODEL
     clock_version: str = CLOCK_VERSION
     promotion_evidence: bool = False
@@ -99,7 +121,7 @@ class TradeSimulation:
     IOC entries use a past/current print for sizing, then wait for a later print
     after latency; unused residuals are cancelled. Every fill is limited by 1% of
     its own print. No passive fills or interpolation across missing events exists.
-    Account/control continuity and contribution scenarios are extended in Batch C.
+    Reporting snapshots never reset the account, protection or policy epoch.
     """
 
     def __init__(
@@ -111,6 +133,7 @@ class TradeSimulation:
         costs: CostModel = DEFAULT_COSTS,
         policy: RiskPolicy = DEFAULT_POLICY,
         dispatch_delay_ms: int = 0,
+        identity_namespace: str = "",
     ) -> None:
         self.start = self.at = utc_datetime(start)
         parse_decimal(initial)
@@ -138,6 +161,7 @@ class TradeSimulation:
                 "costs": costs.model_dump(mode="json"),
                 "policy": policy.model_dump(mode="json"),
                 "dispatch_delay_ms": dispatch_delay_ms,
+                **({"namespace": identity_namespace} if identity_namespace else {}),
             }
         )
         account = uuid5(NAMESPACE_URL, identity)
@@ -173,6 +197,8 @@ class TradeSimulation:
         self.implementation = self.halt_seconds = self.exposure_seconds = ZERO
         self.exposure_fraction_seconds = ZERO
         self.equity_seconds = ZERO
+        self.planned_risk_fraction_seconds = ZERO
+        self.epoch_reviews: dict[str, EpochReview] = {}
         self.unfilled = 0
 
     def _clock(self, at: datetime) -> None:
@@ -191,6 +217,10 @@ class TradeSimulation:
                 self.exposure_seconds += seconds
             self.exposure_fraction_seconds += seconds * self.observations[-1].exposure
             self.equity_seconds += seconds * self.observations[-1].nav
+            if self.observations[-1].nav:
+                self.planned_risk_fraction_seconds += seconds * stored(
+                    episode_risk(self.state) / self.observations[-1].nav
+                )
         self.at = at
 
     def _quotes(self, trade: MarketTrade) -> tuple[Decimal, Decimal]:
@@ -199,17 +229,7 @@ class TradeSimulation:
             return self._quoted(trade)
 
     def _quoted(self, trade: MarketTrade) -> tuple[Decimal, Decimal]:
-        return (
-            round_increment(
-                trade.price * (1 - self.costs.spread_slippage_one_way),
-                self.rules.price_increment,
-            ),
-            round_increment(
-                trade.price * (1 + self.costs.spread_slippage_one_way),
-                self.rules.price_increment,
-                up=True,
-            ),
-        )
+        return proxy_prices(trade, self.rules, self.costs)
 
     def _observe(self, at: datetime, trade: MarketTrade) -> None:
         bid, _ = self._quotes(trade)
@@ -239,7 +259,7 @@ class TradeSimulation:
                         self.state, order.model_copy(update={"state": "CANCELLED"})
                     )
         value = nav(self.state, at)
-        exposure = (value - self.state.quantity("GBP")) / value if value else ZERO
+        exposure = stored((value - self.state.quantity("GBP")) / value) if value else ZERO
         self.observations.append(
             Observation(at, value, unit_price(self.state, at), exposure, ZERO, False)
         )
@@ -412,10 +432,29 @@ class TradeSimulation:
                 and self.at <= c.dispatch_due <= at
                 and self.state.order(c.client_id).state == "VALIDATED"
             }
+            | {
+                o.intent.created_at + MATCHING_TTL
+                for o in self.state.orders
+                if o.state not in TERMINAL
+                and o.intent.purpose != "protection"
+                and self.at <= o.intent.created_at + MATCHING_TTL <= at
+            }
         )
         for when in due:
             self._clock(when)
             self._dispatch(when)
+            for order in self.state.orders:
+                if (
+                    order.intent.purpose != "protection"
+                    and order.state in {"OPEN", "PARTIALLY_FILLED"}
+                    and when >= order.intent.created_at + MATCHING_TTL
+                ):
+                    self.state = replace_order(
+                        self.state, order.model_copy(update={"state": "EXPIRED"})
+                    )
+                    self.skips["matching_deadline"] += 1
+                    if order.intent.purpose == "exit":
+                        self._protect(order.intent, order.remaining, when)
         self._clock(at)
         if self.waiting is not None and at >= self.waiting.expires_at:
             self.skips["signal_expired"] += 1
@@ -525,11 +564,76 @@ class TradeSimulation:
                     at,
                     value,
                     unit_price(self.state, at),
-                    (value - self.state.quantity("GBP")) / value if value else ZERO,
+                    stored((value - self.state.quantity("GBP")) / value) if value else ZERO,
                     amount,
                     False,
                 )
             )
+
+    def mark_time(self, at: datetime) -> None:
+        """Observe a timer with existing fresh evidence; never refresh an old mark.
+
+        Used for real UTC midnight baselines. A missing held-asset valuation is
+        left missing; the next late observation applies the shared daily latch.
+        """
+        with localcontext(FINANCIAL_CONTEXT):
+            self.advance_time(at)
+            if self.latest is not None and 0 <= (at - self.latest.received_at).total_seconds() <= 5:
+                self._observe(at, self.latest)
+            elif not self.state.quantity(self.asset):
+                self.state = observe_risk(self.state, at, self.policy)
+
+    def review_epoch(
+        self, source: str, reason: str, evidence_sha256: str, expected_epoch: UUID, at: datetime
+    ) -> None:
+        """Explicit audited input only; no automatic fold/day/restart rearming."""
+        at = utc_datetime(at)
+        old = self.epoch_reviews.get(source)
+        if old is not None:
+            if (old.at, old.reason, old.evidence_sha256, old.previous_epoch) != (
+                at,
+                reason,
+                evidence_sha256,
+                expected_epoch,
+            ):
+                raise ValueError("conflicting epoch review identity")
+            return
+        if (
+            not 1 <= len(source) <= 120
+            or not 12 <= len(reason.strip()) <= 240
+            or len(evidence_sha256) != 64
+            or any(c not in "0123456789abcdef" for c in evidence_sha256)
+        ):
+            raise ValueError("epoch review requires substantive reason and evidence hash")
+        self.advance_time(at)
+        before = self.state
+        if (
+            before.kill.policy_epoch != expected_epoch
+            or not before.ready
+            or before.incident
+            or any(o.state in {"UNKNOWN", "SUBMITTING", "RECONCILING"} for o in before.orders)
+            or any(o.intent.purpose == "entry" and o.state not in TERMINAL for o in before.orders)
+        ):
+            raise ValueError("epoch review requires complete known account state")
+        price = unit_price(before, at)
+        new = uuid5(before.account_id, f"review:{source}")
+        self.epoch_reviews[source] = EpochReview(
+            source, at, reason, evidence_sha256, expected_epoch, fingerprint(before.document()), new
+        )
+        self.state = before.model_copy(
+            update={
+                "version": before.version + 1,
+                "as_of": at,
+                "high_water": price,
+                "kill": KillSwitchState(
+                    policy_epoch=new,
+                    daily_day=before.kill.daily_day,
+                    reason=reason,
+                    latched_at=at,
+                    actor="operator",
+                ),
+            }
+        )
 
     def _match(self, trade: MarketTrade) -> None:
         bid, ask = self._quotes(trade)
@@ -789,6 +893,8 @@ class TradeSimulation:
                 self.at,
                 self.exposure_fraction_seconds,
                 self.equity_seconds,
+                self.planned_risk_fraction_seconds,
+                tuple(self.epoch_reviews.values()),
             )
 
 

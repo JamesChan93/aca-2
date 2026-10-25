@@ -223,6 +223,25 @@ evidence differences. All-observation drawdown includes inception; daily statist
 retain daily sampling. Actual studies require the later account/calendar/data/
 statistics gates, and cannot silently switch from the legacy runner.
 
+Amendment, 25 October 2026 (Batch C, before adoption): corrected evaluation uses
+one continuous account over contiguous out-of-sample report windows; training and
+validation use separate accounts. Windows never liquidate, reissue capital or
+clear risk. Explicit reviewed epoch inputs preserve daily suspensions and inception
+high-water marks. Month-end flows occur at the next UTC month's boundary and must
+have a valid pre-flow valuation; missing evidence makes the comparison incomplete.
+All comparators receive identical investor flows. Passive budgets buy once per
+opening/contribution, after latency, without chasing an unfilled residual or
+selling to rebalance; market drift is reported. Full exposure and the 50/50
+buy-and-hold blend intentionally have different mandates from risk-limited trading.
+Past-exposure/risk matching is diagnostic, uses only prior observations and is
+bounded to monthly buy-only adjustments; intended and achieved exposure differ.
+The common calendar starts after 200 daily warm-up observations for both assets,
+uses 24/6/6-month rolling segments and includes the final pre-holdout partial test
+window. The holdout remains 2025-10-01 to 2026-10-01, end exclusive. Offline source
+and cost reviews may finish with a named blocked/no-go decision. Local hashes,
+public propagation delay and model assumptions cannot become full-archive proof,
+order latency calibration, maker evidence or historical account fees.
+
 Freeze the complete 20-trial family before loading data for experiments. Ordinary
 runs reserve the last 12 months. A separate freeze binds report/dataset/code/cost
 hashes and a review reason; holdout opening is exclusive in the dataset's local

@@ -1,0 +1,465 @@
+{
+  "actual_public_cost_review": {
+    "canonical_artifact_sha256": "24c5ffc119ba3b804bf3bb297ceee504d936db0f0ca53d1c11add533ca5abd48",
+    "committed_packet": "docs/evidence/phase-4a-public-costs.json",
+    "database_export_read_only": true,
+    "export_sha256": "02be4c57aa2235069bf42587e9fa0e2a8b2fd668bc4c4ce8445c1f1ec96d9538",
+    "new_capture_started": false,
+    "order_latency_or_maker_calibration_established": false,
+    "public_only": true,
+    "raw_hashes_and_top10_checksums_rechecked": true,
+    "receipts": 5000,
+    "retained_export": "data/research/phase-4a-continuous-2026-10-25/public-books.jsonl",
+    "source_bytes": 10668338
+  },
+  "actual_source_assurance_review": {
+    "btc_repair_applied": false,
+    "bytes_rehashed": 628495464,
+    "canonical_artifact_sha256": "e53f458ba45b76e4a80b4ff1a0e95e7cebae1ce5a0c07a2e09b8556331e56c8a",
+    "committed_packet": "docs/evidence/phase-4a-source-assurance.json",
+    "decision": "BLOCKED_NO_GO",
+    "engineering_complete_does_not_verify_missing_facts": true,
+    "full_archive_sha256_verified": false,
+    "input_files_rehashed": 25,
+    "new_network_requests": 0
+  },
+  "application_version": "0.4.23",
+  "base_commit": "ca5634ba07f9fd988ef75094b08b9986e4d9995f",
+  "boundaries": {
+    "actual_corrected_S0_S1_S2_studies_run": false,
+    "actual_holdout_opened": false,
+    "candidate_freeze": false,
+    "legacy_runner_explicitly_preserved": true,
+    "live_orders": 0,
+    "live_writer": false,
+    "new_outbound_notifications": false,
+    "private_account_access": false,
+    "qualifying_paper_days": 0,
+    "qualifying_paper_episodes": 0,
+    "retained_deployment_upgraded_or_migrated": false,
+    "risk_policy": "provisional-v1; unchanged"
+  },
+  "code_sha256": "b80ecfdc31c1f571172cb8ceec56fe8acf641ca8354813720798a734bf006f31",
+  "date": "2026-10-25",
+  "file_sha256": {
+    ".github/workflows/ci.yaml": "859a35a3ca82eb786140111967c5273a017215cce03953efedbf9f849c7d613b",
+    "Dockerfile": "290d05e3fc0d7d36b5d5962cfb2fa3edb2957c869df2dbb4436ee8e32f85e887",
+    "compose.drill.yaml": "b5c83ca2e705044a85ec6691c5ee1935a7e6f848d9f6d267af1a57952dbd2a24",
+    "compose.storage-fault.yaml": "8da1020587e97a404e94d6f332e501c8c63591f49dc171042ea0e0e8b892081e",
+    "compose.test.yaml": "f903c770c072de833b4d18b7fdcf9c862f822f32f7af2d5a30f93b20403e4335",
+    "compose.yaml": "76cb2a54431299851e3796cf4080292ffd42236ae63eaf0e1f2a9255cbae829e",
+    "docs/evidence/phase-4a-public-costs.json": "109dfa37b15bda44a256bede66d9ee7996dbe62f39e7f5b07e1c246f26fd03b4",
+    "docs/evidence/phase-4a-source-assurance.json": "3fa9aca748b0f2f724d040365d74d9b088ecf1441cf587592329d0aba71cf901",
+    "pyproject.toml": "a7dc18afd7b09635cd393e3ca79fa98dd62e00f33ebda82760665de07fb64547",
+    "src/aca/__init__.py": "a41a38b6acb3eb60203275ada0dedc108bf9f40bf91369ee1ed7dfe0e36fee96",
+    "src/aca/research/assurance.py": "b557c0eee91aaae185c3ba997b54e636585893face845a8146dacbcf7366722b",
+    "src/aca/research/calendar.py": "65549a1a848fa14043da196cd46c8e3850dd4e931e75c3af6a6f089216d75995",
+    "src/aca/research/cli.py": "232968ed89d2ed3b81ca0cfc093e817c6f907e0b4868338ef73a904ace340f8c",
+    "src/aca/research/continuous.py": "0524e566bc45f60b7023555b102bb9be926832318f7c4518d99f0c32b8c8c221",
+    "src/aca/research/economics.py": "636f6d79f129db938747c07e369827ec8478090c441f26d89b7b9d752dd9ccc4",
+    "src/aca/simulation/events.py": "1d11a0c0966403ac93fa0218c1bf94a88cbb021f0da864d5c9ce9b4947ba3cba",
+    "src/aca/simulation/passive.py": "1e5f106c89eece76c85a402c8c82a4f0eff1135acd25bfb0ccfef19ccea5b114",
+    "tests/fixtures/parity/continuous-v1.json": "3fc6ec4799ee591b80582b4c98e13c1b2a71a0e81335490be16e898e03732be9",
+    "tests/fixtures/parity/v1.json": "d3a52151e6832fd568f37611f8d28370d2febaa1e236ac95cf0fac3a9ad3e892",
+    "tests/test_continuous_research.py": "201bd5e2b9054c80c7f46a83ebdd1c224f1e78646b6508a726862368c1ec950d",
+    "tests/test_research_assurance.py": "72a738f901f2c017c18a76a3b7fc549ffae43a17af318782c84cf5dcf59b35e8",
+    "tests/test_research_paper_parity.py": "a9baa149be0be6911c7315dacd27be45239c26112d0740b3731be991704562e4"
+  },
+  "installed_package_fingerprint_matches_worktree": true,
+  "kind": "phase-4a-batch-c-integrated-evidence-v1",
+  "phase4_complete": {
+    "completed": 17,
+    "total": 17
+  },
+  "phase4a": {
+    "closed_this_batch": [
+      "P4A-02",
+      "P4A-03",
+      "P4A-07",
+      "P4A-10",
+      "P4A-13",
+      "P4A-14",
+      "P4A-19"
+    ],
+    "completed": 13,
+    "remaining": [
+      "P4A-08",
+      "P4A-09",
+      "P4A-11",
+      "P4A-12",
+      "P4A-15",
+      "P4A-16"
+    ],
+    "total": 19
+  },
+  "python_source_files": 127,
+  "schema_revision": "0016_history_segments",
+  "schema_version": 1,
+  "synthetic_probes": {
+    "actual_corrected_study": false,
+    "actual_holdout_opened": false,
+    "all_required_daily_endpoints_present": true,
+    "candidate_attribution": {
+      "ending_nav_gbp": "349.920000000000000000",
+      "external_flows_gbp": "100",
+      "fees_gbp": "0.080000000000000000",
+      "functional_currency_rounding_gbp": "0E-18",
+      "gross_marked_pnl_gbp": "0E-8",
+      "opening_nav_gbp": "250",
+      "realised_trading_pnl_gbp": "0",
+      "spread_slippage_rounding_gbp": "0E-8",
+      "terminal_inventory_gbp": "10.00000000",
+      "terminal_mark_discount_gbp": "0E-8",
+      "unrealised_mark_pnl_gbp": "0E-18"
+    },
+    "candidate_episode": "80806d4b-2145-55f4-804c-4d1eddc55e08",
+    "candidate_units": "350.032010243277848912",
+    "code_sha256": "b80ecfdc31c1f571172cb8ceec56fe8acf641ca8354813720798a734bf006f31",
+    "comparator_budgets": {
+      "blend50_50": {
+        "achieved_spend_gbp": "40.320000000000000000",
+        "intended_budget_gbp": "350.000000000000000000",
+        "inventory": {
+          "BTC": "0.02",
+          "ETH": "0.02"
+        },
+        "mean_exposure": "0.096648180903950280306600646219135802469135802469136",
+        "unspent_budget_gbp": "309.680000000000000000"
+      },
+      "btc_buy_hold": {
+        "achieved_spend_gbp": "20.160000000000000000",
+        "intended_budget_gbp": "350.000000000000000000",
+        "inventory": {
+          "BTC": "0.02",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.048304827644333008464233072916666666666666666666667",
+        "unspent_budget_gbp": "329.840000000000000000"
+      },
+      "buy_hold": {
+        "achieved_spend_gbp": "20.160000000000000000",
+        "intended_budget_gbp": "350.000000000000000000",
+        "inventory": {
+          "BTC": "0.02",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.048304827644333008464233072916666666666666666666667",
+        "unspent_budget_gbp": "329.840000000000000000"
+      },
+      "cash": {
+        "achieved_spend_gbp": "0",
+        "intended_budget_gbp": "0",
+        "inventory": {
+          "BTC": "0",
+          "ETH": "0"
+        },
+        "mean_exposure": "0E-19",
+        "unspent_budget_gbp": "0"
+      },
+      "eth_buy_hold": {
+        "achieved_spend_gbp": "20.160000000000000000",
+        "intended_budget_gbp": "350.000000000000000000",
+        "inventory": {
+          "BTC": "0",
+          "ETH": "0.02"
+        },
+        "mean_exposure": "0.048304827644333008464233072916666666666666666666667",
+        "unspent_budget_gbp": "329.840000000000000000"
+      },
+      "monthly_purchases": {
+        "achieved_spend_gbp": "20.160000000000000000",
+        "intended_budget_gbp": "350.000000000000000000",
+        "inventory": {
+          "BTC": "0.02",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.048304827644333008464233072916666666666666666666667",
+        "unspent_budget_gbp": "329.840000000000000000"
+      },
+      "passive10": {
+        "achieved_spend_gbp": "20.070005760000000000",
+        "intended_budget_gbp": "35.000000000000000000",
+        "inventory": {
+          "BTC": "0.01991072",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.048181424171595832570353973765432098765432098765432",
+        "unspent_budget_gbp": "14.929994240000000000"
+      },
+      "passive30": {
+        "achieved_spend_gbp": "20.160000000000000000",
+        "intended_budget_gbp": "105.000000000000000000",
+        "inventory": {
+          "BTC": "0.02",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.048304827644333008464233072916666666666666666666667",
+        "unspent_budget_gbp": "84.840000000000000000"
+      },
+      "past_exposure_matched": {
+        "achieved_spend_gbp": "10.080000000000000000",
+        "intended_budget_gbp": "14.004427840146600948",
+        "inventory": {
+          "BTC": "0.01",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.013812624488331018955976610725308641975308641975309",
+        "unspent_budget_gbp": "3.924427840146600948"
+      },
+      "past_risk_matched": {
+        "achieved_spend_gbp": "10.080000000000000000",
+        "intended_budget_gbp": "13.832464446136026389",
+        "inventory": {
+          "BTC": "0.01",
+          "ETH": "0"
+        },
+        "mean_exposure": "0.013812624488331018955976610725308641975308641975309",
+        "unspent_budget_gbp": "3.752464446136026389"
+      }
+    },
+    "daily_calendar_days": 60,
+    "equal_flow_ids": [
+      "month-end:2020-01"
+    ],
+    "final_account_identity": "03aa97252389bd8784c5e63e44562c51d2584b0f82c7c51b0d7acab2673254ce",
+    "frontier_illustrative_5pct_not_established": {
+      "bound_is_supplied_evidence_not_established_here": true,
+      "cases": [
+        {
+          "account_identity": "deb1a52f7ec3722589d51415e1854414d9deef4b8a476ef4b36c10cf582904ed",
+          "average_equity_gbp": "148.281447115924918981",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "7.41407235579624594905",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "160.523062345297741273",
+          "initial_gbp": "100",
+          "monthly_gbp": "100",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "199.948113680000000000"
+        },
+        {
+          "account_identity": "71d8407ae8f873b02191f76f9cba3a2e07b5b1acad14dfc98551ff9f31c9d18f",
+          "average_equity_gbp": "220.781447115924918981",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "11.03907235579624594905",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "310.523062345297741273",
+          "initial_gbp": "100",
+          "monthly_gbp": "250",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "349.948113680000000000"
+        },
+        {
+          "account_identity": "a2c06c09323d4569dd3797d1833f3fc9a59060856ef966f17facd62c0a425455",
+          "average_equity_gbp": "293.281447115924918981",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "14.66407235579624594905",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "460.523062345297741273",
+          "initial_gbp": "100",
+          "monthly_gbp": "400",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "499.948113680000000000"
+        },
+        {
+          "account_identity": "03aa97252389bd8784c5e63e44562c51d2584b0f82c7c51b0d7acab2673254ce",
+          "average_equity_gbp": "298.253333491512345679",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "14.91266667457561728395",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "310.494948665297741273",
+          "initial_gbp": "250",
+          "monthly_gbp": "100",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "349.920000000000000000"
+        },
+        {
+          "account_identity": "8e10b044275014bf0a7bc54f78bae599ae30e8163b2fa7e72b6431740a7594be",
+          "average_equity_gbp": "370.753333491512345679",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "18.53766667457561728395",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "460.494948665297741273",
+          "initial_gbp": "250",
+          "monthly_gbp": "250",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "499.920000000000000000"
+        },
+        {
+          "account_identity": "3062b86220d5fe25160c809289e518627d51a98e8f531bbda747e3761610a324",
+          "average_equity_gbp": "443.253333491512345679",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "22.16266667457561728395",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "610.494948665297741273",
+          "initial_gbp": "250",
+          "monthly_gbp": "400",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "649.920000000000000000"
+        },
+        {
+          "account_identity": "cc6f4d9d9d7b8ac8e77e30e5a0567177df9fcc03add1d2fbe5932555b3e9961e",
+          "average_equity_gbp": "448.253333491512345679",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "22.41266667457561728395",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "460.494948665297741273",
+          "initial_gbp": "400",
+          "monthly_gbp": "100",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "499.920000000000000000"
+        },
+        {
+          "account_identity": "42dacf8b02f429fc844a200b4ccbcead20727ef22bfd2a8eab45df84d79b4756",
+          "average_equity_gbp": "520.753333491512345679",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "26.03766667457561728395",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "610.494948665297741273",
+          "initial_gbp": "400",
+          "monthly_gbp": "250",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "649.920000000000000000"
+        },
+        {
+          "account_identity": "fc77df538604265c94935de4548216157b4513632b38a59c3dc2a9189f6f1266",
+          "average_equity_gbp": "593.253333491512345679",
+          "economic_arithmetic": {
+            "annual_fixed_cost_gbp": "240",
+            "estimated_lower_bound_benefit_gbp": "29.66266667457561728395",
+            "execution_permission": false,
+            "passes_arithmetic_hurdle": false,
+            "required_benefit_gbp": "480"
+          },
+          "economic_eligible": false,
+          "execution_permission": false,
+          "fixed_cost_actual": false,
+          "fixed_cost_version": "planned-household-infrastructure-2026-10-v1",
+          "household_wealth_before_tax_gbp": "760.494948665297741273",
+          "initial_gbp": "400",
+          "monthly_gbp": "400",
+          "required_average_equity_at_supplied_bound_gbp": "9.6E+3",
+          "separate_infrastructure_gbp": "39.425051334702258727",
+          "statistical_eligible": false,
+          "tax_assessment": "not_computed",
+          "trading_nav_gbp": "799.920000000000000000"
+        }
+      ],
+      "kind": "continuous-scenario-economic-frontier-v1",
+      "no_sizing_or_policy_change": true,
+      "promotion_evidence": false
+    },
+    "kind": "synthetic-continuous-account-probes-v1",
+    "live_execution_available": false,
+    "promotion_evidence": false,
+    "unbroken_equals_split": true
+  },
+  "verification": {
+    "generated_passive_financial_examples": 1000,
+    "hosted_checks": "Must pass on the PR head; results and exact commit belong to the PR, not a later evidence-only commit.",
+    "linux_postgresql": {
+      "command": "python3 scripts/ci_database.py --linux",
+      "passed": 843,
+      "seconds": "167.00"
+    },
+    "retained_critical_financial_examples": 1000,
+    "retained_lifecycle_fault_sequences": 10000,
+    "ruff_check": true,
+    "ruff_format": {
+      "files": 199,
+      "passed": true
+    },
+    "strict_mypy": {
+      "files": 172,
+      "passed": true
+    }
+  }
+}
