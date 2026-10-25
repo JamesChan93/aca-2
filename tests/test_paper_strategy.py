@@ -143,6 +143,7 @@ async def workflow(database_settings: Settings) -> AsyncIterator[Workflow]:
             await select_strategy(
                 owner,
                 PaperSelection(
+                    strategy_version="slow-v2",
                     account_id=store.account_id,
                     strategy="sma200",
                     symbol="BTC/GBP",
@@ -334,8 +335,8 @@ async def test_expired_decision_and_backlog_do_not_catch_up(workflow: Workflow) 
     await workflow.begin("gap")
     end = workflow.at + timedelta(hours=8)
     await workflow.candles(end)
-    await workflow.fresh(end + timedelta(seconds=13))
-    await workflow.tick(end + timedelta(seconds=13))
+    await workflow.fresh(end + timedelta(seconds=70))
+    await workflow.tick(end + timedelta(seconds=70))
     assert workflow.strategy.reason == "strategy_decision_expired"
     assert not (await workflow.service._state()).orders
 
@@ -493,11 +494,16 @@ async def test_actual_decision_time_does_not_extend_original_expiry(workflow: Wo
     assert len(state.orders) == 1
     intent = state.orders[0].intent
     assert intent.created_at == workflow.at + timedelta(hours=4, seconds=11, milliseconds=500)
-    assert intent.expires_at == workflow.at + timedelta(hours=4, seconds=12)
+    assert intent.expires_at == intent.created_at + timedelta(seconds=5)
+    assert state.orders[0].approval is not None
+    assert state.orders[0].approval.expires_at == intent.created_at + timedelta(seconds=2)
     async with workflow.service.writer.transaction() as c:
         status = await strategy_status(c, workflow.service.store.account_id)
     item = status["decisions"][0]  # type: ignore[index]
     assert item["decision"]["decision_at"] == intent.created_at.isoformat().replace("+00:00", "Z")
+    assert item["decision"]["signal"]["expires_at"] == (
+        workflow.at + timedelta(hours=4, seconds=70)
+    ).isoformat().replace("+00:00", "Z")
 
 
 async def test_duplicate_candle_receipt_does_not_create_another_economic_action(

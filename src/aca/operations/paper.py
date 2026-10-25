@@ -363,6 +363,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
                 ).document()
             if args.action == "select":
                 chosen = PaperSelection(
+                    strategy_version="slow-v2",
                     account_id=args.account,
                     strategy=args.strategy,
                     symbol=args.symbol,

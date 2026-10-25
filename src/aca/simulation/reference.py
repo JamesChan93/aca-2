@@ -55,6 +55,7 @@ class Observation:
     unit_price: Decimal
     exposure: Decimal
     contribution: Decimal
+    interval_close: bool = True
 
 
 @dataclass(frozen=True)
@@ -80,6 +81,8 @@ class Backtest:
     open_quantity: Decimal
     unfilled_stop_bars: int
     interval_minutes: int = 1440
+    started_at: datetime | None = None
+    observation_resolution: str = "bar_close_only"
 
 
 def money(value: Decimal) -> Decimal:

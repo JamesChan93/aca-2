@@ -26,14 +26,17 @@ No candidate is frozen and the final holdout remains closed.
 The [Phase 4a plan](docs/phase-4a.md) turns the
 [research and repository review](docs/research-promotion-review-2026-10-24.md)
 into a fixed **19-item** research-fidelity and promotion-preparation phase.
-It is in progress at **2/19**, with six implementation batches and a bounded study
+It is in progress at **6/19**, with six implementation batches and a bounded study
 budget. P4A-17 closes the release-check repair. Version 0.4.20 adds P4A-18's
 [modular research output and offline restore](docs/phase-4a-artifacts.md): durable
 attempts, bounded pages, deterministic trial resume and a byte-identical archive/
 restore of the original report. Version 0.4.21 establishes
 [independent research/paper fixtures](docs/phase-4a-parity.md) under P4A-19:
 hand-calculated fill/fee/flow/stop examples and named timing/drawdown discrepancy
-probes. P4A-19 remains open for the corrected model in Batches B/C.
+probes. Version 0.4.22 delivers [Batch B causal execution, separate clocks,
+all-observation drawdown and reconciled attribution](docs/phase-4a-causal-replay.md),
+closing P4A-01/04/05/06. Trade research and PostgreSQL paper pass the same independent
+stop/partial-fill oracle. P4A-19 remains open for Batch C's account/calendar parity.
 No corrected S0/S1/S2 study has run.
 Phase 4 remains closed at 17/17; qualifying observation has not started.
 

@@ -1,11 +1,12 @@
 """Portfolio checks on exact candidate economics, separate from quantity sizing."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal, localcontext
 from uuid import uuid4
 
 from aca.accounting.ledger import stored
 from aca.domain.market import InstrumentRules
+from aca.domain.timing import APPROVAL_TTL
 from aca.domain.trading import (
     TERMINAL,
     UNCERTAIN,
@@ -130,6 +131,6 @@ def approve(
         intent_hash=fingerprint(intent.document()),
         rules_hash=intent.rules_hash,
         approved_at=at,
-        expires_at=min(intent.expires_at, at + timedelta(seconds=2)),
+        expires_at=min(intent.expires_at, at + APPROVAL_TTL),
         planned_loss=planned_loss(intent) if intent.purpose == "entry" else ZERO,
     )

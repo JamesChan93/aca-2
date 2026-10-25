@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 24 October 2026. Application **0.4.21**, schema `0016_history_segments`.
+Updated 25 October 2026. Application **0.4.22**, schema `0016_history_segments`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -51,7 +51,7 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
-**Phase 4a is in progress at 2/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
+**Phase 4a is in progress at 6/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
 completed with all eight hosted checks passing on `eae9a2b` before PR #29 merged.
 Both hosted runs passed 738 tests, dependency audits, packaging, both image scans
 and bounded-history acceptance. Earlier 0.4.19 audit/fixture failures are retained
@@ -75,18 +75,31 @@ partial/gap/no-executable-liquidity paths, residual protection, flow-neutral uni
 risk latches and independent dispatch rejection. Named probes reproduce the
 legacy extra-bar delay, lost intraday drawdown and minimum-price stop stress.
 The [evidence packet](evidence/phase-4a-parity.json) records source/input identities
-and verification. Current hosted checks must pass before merge; previous release
-checks do not verify this new source. P4A-19 remains unchecked until corrected
+and verification. All eight hosted checks passed on `9678f15` before PR #31 merged.
+P4A-19 remains unchecked until corrected
 event research and continuous account/calendar parity extend the same fixtures
 in Batches B/C. This is progress inside the existing item, not a new requirement.
 All **772 Linux/PostgreSQL tests**, formatting and strict typing pass locally,
 including the 14 new independent parity tests.
 
+Version 0.4.22 completes [Batch B](phase-4a-causal-replay.md): P4A-01 causal
+ordered-print execution; P4A-04 versioned signal/approval/matching clocks; P4A-05
+all-observation drawdown and NAV/fee/flow attribution; P4A-06 chronological
+limit-or-better protective exits. The existing independent stop oracle now checks
+both research and PostgreSQL paper. New CLI selections use `slow-v2`; old stored
+selections retain their semantics and hashes. The retained local stack is unchanged.
+The [source-bound evidence](evidence/phase-4a-causal-replay.json) records local checks;
+all **803 Linux/PostgreSQL tests** pass locally, with strict typing and formatting.
+The exact PR head must pass current hosted checks before merge. Historical checks
+do not approve changed code. Synthetic fixtures do not qualify a trading candidate.
+
 The [fixed plan](phase-4a.md) still has 19 items, six batches and at most 26
-candidate definitions. The other 17 items remain unchecked. The modular runner
-labels and preserves the legacy evaluation semantics; corrected timing, continuous
-accounts, metrics, statistical gates and paper-study capability remain their named
-items. No corrected S0/S1/S2 study or actual holdout evaluation ran. All 20 original
+candidate definitions. The other 13 items remain unchecked. Batch C is next:
+continuous OOS account, comparable contribution/benchmark/calendar scenarios,
+cost/data assurance and completion of P4A-19. The modular runner still explicitly
+uses the named legacy execution model; corrected study integration and statistical
+gates retain their existing later items. No corrected S0/S1/S2 study or actual
+holdout evaluation ran. All 20 original
 candidates remain rejected; qualifying observation remains unstarted at zero days
 and episodes. Phase 4 remains closed at 17/17.
 

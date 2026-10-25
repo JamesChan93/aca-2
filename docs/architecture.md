@@ -196,7 +196,32 @@ strategies. The bar reference uses a full-bar signal lag, fresh signal evaluatio
 taker fees, adverse price rounding and participation caps. A stop trigger cannot
 fill until a subsequent observed open permits its limit. This is a conservative
 assumption set, not a calibrated paper exchange or a claim about intrabar paths.
-Two-second latency expires entry approvals; stress output must explain that effect.
+This original model remains `legacy-flat-window-bar-taker-v2`, a named stress,
+including its conflation of two-second approval expiry and matching delay.
+
+Amendment, 25 October 2026 (P4A-04, before corrected-model adoption):
+`slow-v2` signals have a fixed deadline 60 seconds after close + 10-second
+finalisation. Late evaluation cannot renew that deadline. Admission binds a fresh
+two-second, state-specific risk approval; dispatch at equality is denied. The
+five-second command transmission deadline is separate. Once dispatched, the
+consumed command retains its ID while matching waits 250 ms–60 s. A delayed match
+does not retroactively expire its approval. Modelled IOC/FOK matching must occur
+before the fixed 60-second order deadline; delayed/no-observation nonexecution
+is reported separately from pre-dispatch expiry. Legacy `slow-v1` records keep
+their original interpretation. Paper restarts still recover before dispatch.
+
+`ordered-trade-taker-v1` is the corrected research execution model. A closed
+indicator prefix can publish a signal at finalisation; only subsequently received
+individual trades supply executable price/quantity evidence. A disclosed adverse
+price proxy and at most 1% of that print's quantity bound taker fills; this is
+neither reconstructed order-book depth nor maker evidence. No full-bar future
+volume supplies an earlier decision/fill. Stops trigger from an admissible bid
+proxy, wait matching latency, and can fill only on a later event at the limit or
+better. Gaps leave protected residuals. The model shares the GBP journal, sizing,
+portfolio policy and independent commitment veto with paper, with explicit market
+evidence differences. All-observation drawdown includes inception; daily statistics
+retain daily sampling. Actual studies require the later account/calendar/data/
+statistics gates, and cannot silently switch from the legacy runner.
 
 Freeze the complete 20-trial family before loading data for experiments. Ordinary
 runs reserve the last 12 months. A separate freeze binds report/dataset/code/cost

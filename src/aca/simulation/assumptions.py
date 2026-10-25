@@ -21,3 +21,4 @@ class SimulationBounds:
 BOUNDS: Final = SimulationBounds()
 LEGACY_BAR_MODEL: Final = "legacy-flat-window-bar-taker-v2"
 PAPER_MODEL: Final = "paper-ordered-depth-queue-v1"
+TRADE_MODEL: Final = "ordered-trade-taker-v1"

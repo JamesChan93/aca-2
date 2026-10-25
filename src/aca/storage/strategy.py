@@ -1,6 +1,6 @@
 """Permanent operational selections and consume-before-action strategy decisions."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Literal, Self
 from uuid import UUID, uuid5
 
@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca import __version__
 from aca.domain.market import Symbol
+from aca.domain.timing import APPROVAL_TTL, FINALISATION, SLOW_FRESHNESS
 from aca.domain.trading import Record, fingerprint
 from aca.domain.values import UtcDateTime
 from aca.operations.config import RiskPolicy
@@ -51,7 +52,7 @@ results = Table(
 class PaperSelection(Record):
     account_id: UUID
     strategy: Variant
-    strategy_version: Literal["slow-v1"] = "slow-v1"
+    strategy_version: Literal["slow-v1", "slow-v2"] = "slow-v1"
     symbol: Symbol
     interval_minutes: Literal[240, 1440]
     entry_time_in_force: Literal["GTD", "FOK"] = "GTD"
@@ -90,7 +91,10 @@ class PaperDecision(Record):
             or self.signal.data_watermark != self.watermark
             or self.signal.decision_at != self.decision_at
             or not self.decision_at <= self.recorded_at < self.signal.expires_at
-            or self.signal.expires_at > self.watermark + timedelta(seconds=12)
+            or self.signal.expires_at
+            > self.watermark
+            + FINALISATION
+            + (SLOW_FRESHNESS if self.signal.strategy_version == "slow-v2" else APPROVAL_TTL)
             or self.candle_hash is None
             or len(self.sources) < 200
         ):

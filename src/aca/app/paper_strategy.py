@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
+from aca.domain.timing import APPROVAL_TTL, SLOW_FRESHNESS
 from aca.domain.trading import TERMINAL, UNCERTAIN, Asset, Order, fingerprint
 from aca.domain.values import utc_datetime
 from aca.execution.paper import PaperExecution
@@ -46,10 +47,11 @@ class PaperStrategy:
         if watermark == self.last_watermark:
             return
         decision_at = watermark + timedelta(seconds=10)
+        freshness = SLOW_FRESHNESS if chosen.strategy_version == "slow-v2" else APPROVAL_TTL
         prefix = None
         value = None
         reason = None
-        if at >= decision_at + timedelta(seconds=2) or decision_at < chosen.selected_at:
+        if at >= decision_at + freshness or decision_at < chosen.selected_at:
             reason = "strategy_decision_expired"
         else:
             try:
@@ -57,12 +59,12 @@ class PaperStrategy:
             except FeedUnavailable:
                 reason = "strategy_candles_unavailable"
         now = utc_datetime(self.clock())
-        if now < at or now >= decision_at + timedelta(seconds=2):
+        if now < at or now >= decision_at + freshness:
             reason = "strategy_decision_expired"
         if prefix is not None and reason is None:
-            value = signal(prefix.bars, chosen.strategy, now).model_copy(
-                update={"expires_at": decision_at + timedelta(seconds=2)}
-            )
+            value = signal(prefix.bars, chosen.strategy, now, version=chosen.strategy_version)
+            if chosen.strategy_version == "slow-v1":
+                value = value.model_copy(update={"expires_at": decision_at + freshness})
         decision = PaperDecision(
             account_id=chosen.account_id,
             selection_hash=fingerprint(chosen.document()),
