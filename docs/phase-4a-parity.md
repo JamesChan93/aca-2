@@ -1,5 +1,9 @@
 # Phase 4a — independent research/paper verification foundation
 
+Historical increment: [0.4.23 Batch C](phase-4a-continuous-accounts.md) subsequently
+completed continuous-account/calendar/comparator parity and the bounded assurance
+review. The dated findings below describe this increment's own scope.
+
 Historical Batch A report. For current completion and corrected execution/metric
 results see [0.4.22 Batch B](phase-4a-causal-replay.md) and the authoritative
 [phase checklist](phase-4a.md). The source-bound 0.4.21 evidence below is preserved;

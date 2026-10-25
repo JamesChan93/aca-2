@@ -1,0 +1,242 @@
+{
+  "audit_sha256": "46b05154db4743806acde69d5e1d238335e4d7e382d5dfcaac539c99b4f69318",
+  "blockers": [
+    "full_archive_sha256_not_verified",
+    "btc_trade_ids_7098364_7098366_disputed",
+    "btc_holdout_and_eth_blend_comparison_quarantined",
+    "historical_fees_reconstructed_not_verified",
+    "historical_rules_reconstructed_not_verified",
+    "historical_trade_receipt_latency_unavailable"
+  ],
+  "bounded_review": {
+    "full_archive_downloaded": false,
+    "network_requests": 0,
+    "resolution": "missing_archive_or_authoritative_conflict_resolution_remain_blockers",
+    "scope": "rehash_retained_inputs_rebuild_reviewed_projection_retain_dispute"
+  },
+  "common_calendar": {
+    "last_test_start": "2025-09-01T00:00:00+00:00",
+    "oos_end": "2025-10-01T00:00:00+00:00",
+    "oos_start": "2018-09-01T00:00:00+00:00",
+    "origin": "2016-03-01T00:00:00+00:00",
+    "partial_tail": true,
+    "windows": 15
+  },
+  "dataset_sha256": "689acbcc0199e3c0a72b4a0d37f535e7ed95e9c2e15342ecb8aff5ced826ad71",
+  "decision": "BLOCKED_NO_GO",
+  "declared_source_assurance": "range_members_crc",
+  "full_archive_sha256_verified": false,
+  "holdout": {
+    "end_exclusive": "2026-10-01T00:00:00+00:00",
+    "performance_opened": false,
+    "start": "2025-10-01T00:00:00+00:00"
+  },
+  "kind": "historical-source-assurance-review-v1",
+  "live_execution_available": false,
+  "original_manifest_sha256": "b10e975a9f5dd2343ca55c35e4497f254ff58bd569bd39203d724ea5a7f0b50c",
+  "promotion_evidence": false,
+  "published_archive_sha256": "bc273e9027470b07d790a7fa4df9bb43f0dfc527c20c6ecae48402e123e7b1c7",
+  "rehashed_bytes": 628495464,
+  "retrieved_at": "2026-10-23T09:50:12.592198+00:00",
+  "revisions": {
+    "candle_corrections": [],
+    "quarterly_equal_rows": [
+      {
+        "interval_minutes": 60,
+        "rows": 2208,
+        "symbol": "BTC/GBP"
+      },
+      {
+        "interval_minutes": 240,
+        "rows": 552,
+        "symbol": "BTC/GBP"
+      },
+      {
+        "interval_minutes": 1440,
+        "rows": 92,
+        "symbol": "BTC/GBP"
+      },
+      {
+        "interval_minutes": 60,
+        "rows": 2207,
+        "symbol": "ETH/GBP"
+      },
+      {
+        "interval_minutes": 240,
+        "rows": 552,
+        "symbol": "ETH/GBP"
+      },
+      {
+        "interval_minutes": 1440,
+        "rows": 92,
+        "symbol": "ETH/GBP"
+      }
+    ],
+    "raw_inputs_modified": false
+  },
+  "same_publisher_corroboration_is_not_independent_completeness": true,
+  "schema_version": 1,
+  "series": [
+    {
+      "bars": 26078,
+      "indicator_only": 3128,
+      "interval_minutes": 240,
+      "legacy_unused_pre_holdout_tail": {
+        "end_exclusive": "2025-10-01T00:00:00+00:00",
+        "now_included_in_common_calendar": true,
+        "start": "2025-06-10T04:00:00+00:00"
+      },
+      "quarantined_starts": [
+        "2026-06-23T08:00:00+00:00"
+      ],
+      "symbol": "BTC/GBP",
+      "unknown_discontinuities": 0
+    },
+    {
+      "bars": 4347,
+      "indicator_only": 90,
+      "interval_minutes": 1440,
+      "legacy_unused_pre_holdout_tail": {
+        "end_exclusive": "2025-10-01T00:00:00+00:00",
+        "now_included_in_common_calendar": true,
+        "start": "2025-05-26T00:00:00+00:00"
+      },
+      "quarantined_starts": [
+        "2026-06-23T00:00:00+00:00"
+      ],
+      "symbol": "BTC/GBP",
+      "unknown_discontinuities": 0
+    },
+    {
+      "bars": 24435,
+      "indicator_only": 3272,
+      "interval_minutes": 240,
+      "legacy_unused_pre_holdout_tail": {
+        "end_exclusive": "2025-10-01T00:00:00+00:00",
+        "now_included_in_common_calendar": true,
+        "start": "2025-09-10T00:00:00+00:00"
+      },
+      "quarantined_starts": [],
+      "symbol": "ETH/GBP",
+      "unknown_discontinuities": 0
+    },
+    {
+      "bars": 4073,
+      "indicator_only": 163,
+      "interval_minutes": 1440,
+      "legacy_unused_pre_holdout_tail": {
+        "end_exclusive": "2025-10-01T00:00:00+00:00",
+        "now_included_in_common_calendar": true,
+        "start": "2025-08-24T00:00:00+00:00"
+      },
+      "quarantined_starts": [],
+      "symbol": "ETH/GBP",
+      "unknown_discontinuities": 0
+    }
+  ],
+  "source_sha256": "071a756d50c2275cf56ca7b30ec56dd487f5f66fe03766541197364e979ece79",
+  "source_url": "https://support.kraken.com/articles/360047124832-downloadable-historical-ohlcvt-open-high-low-close-volume-trades-data",
+  "usage_note": "Reviewed official archive and public REST evidence; see gap audit. No redistribution licence inferred.",
+  "verified_inputs": {
+    "btc-id-gap-rest-earlier.json": {
+      "bytes": 6727,
+      "sha256": "2b4a4c8c2a24b16e7544623fd98476f768d42508f56b13569d712e016dc98e3a"
+    },
+    "btc-id-gap-rest-overlap.json": {
+      "bytes": 66808,
+      "sha256": "e540ef2e201221c7ff054570956150898da6047cd44e83e6913d64c34b1e3edf"
+    },
+    "btc-id-gap-rest-verified.json": {
+      "bytes": 1400,
+      "sha256": "2c2823d57664d2e9cded211ba96c5637e5a9b6d7ee78b1e3c4599b8775f74003"
+    },
+    "btc-id-gap-rest.json": {
+      "bytes": 1401,
+      "sha256": "5efb56e6bf926a6de7482901789aac285218eb8bdc2ab6a1a2f9d64933abd143"
+    },
+    "ohlc-ETHGBP_1440.csv": {
+      "bytes": 240855,
+      "sha256": "85c31bbc071bfc6a65864b100e1b58533046a1fb2e7c9b43da392a3dcea6cfb7"
+    },
+    "ohlc-ETHGBP_240.csv": {
+      "bytes": 1269965,
+      "sha256": "ac285d0f3b5e5283c9200bbf8ddc529813a2464cee3587c0b42dcd60dd6966e3"
+    },
+    "ohlc-ETHGBP_60.csv": {
+      "bytes": 4226663,
+      "sha256": "c793bc67afc31caabbd9a7d63883e67ba5d6a074f6e421ba9c55a76d37c00a9f"
+    },
+    "ohlc-MANIFEST.json": {
+      "bytes": 360,
+      "sha256": "2e3eef939692f2520847674dc2e69b00796f1c230429509cb8c12649458853bd"
+    },
+    "ohlc-XBTGBP_1440.csv": {
+      "bytes": 267889,
+      "sha256": "70062b3fcd0e3e63daad2022be0f8ff86444132823f82883da2b0f63ad75745a"
+    },
+    "ohlc-XBTGBP_240.csv": {
+      "bytes": 1409250,
+      "sha256": "5a80d241869d08fab78ef8274064ad15914ff71d27f5fe8a8ed446b6c7bcc972"
+    },
+    "ohlc-XBTGBP_60.csv": {
+      "bytes": 4715287,
+      "sha256": "aefb367a356493a0e78928e09a5429fd67ec3451bd4f60e9b3c3919441a02062"
+    },
+    "ohlc-verified-directory.json": {
+      "bytes": 1998,
+      "sha256": "fb24e191d2ec14ad7fdf36b8ab040cabd649205d244252757a7884cdee376003"
+    },
+    "quarter-ETHGBP_1440.csv": {
+      "bytes": 6051,
+      "sha256": "b99b743ec351003de2fdecfd9a4aaff1bfb581d7ad61545094329ac9070ba5c4"
+    },
+    "quarter-ETHGBP_240.csv": {
+      "bytes": 35562,
+      "sha256": "e637de4bfc1ef972cf08963d79cb170cf8fefefbc4a70e858c2a209c3ba19a34"
+    },
+    "quarter-ETHGBP_60.csv": {
+      "bytes": 138376,
+      "sha256": "93657c7d6d50f6389ff712df9ac2c802c0d45b847725037aa2681217b041d058"
+    },
+    "quarter-MANIFEST.json": {
+      "bytes": 359,
+      "sha256": "89900c5f1873d792ca73b79e26fba153b05b5d59f273942ed91f97560d300486"
+    },
+    "quarter-XBTGBP_1440.csv": {
+      "bytes": 6088,
+      "sha256": "22c565dea5cd2d082ada3ef7284a0c3e3fc61a09d164d1aa08aa431af53d73fa"
+    },
+    "quarter-XBTGBP_240.csv": {
+      "bytes": 35867,
+      "sha256": "1f1c07a2fa391f94b1140990677107cec5aba811a7adb0ab9cdeb063f84d8aaa"
+    },
+    "quarter-XBTGBP_60.csv": {
+      "bytes": 141266,
+      "sha256": "e7a41b0cc1e73b3ffaebb5974b62d277e1c78c6a437735774088f9f672bf946e"
+    },
+    "quarter-verified-directory.json": {
+      "bytes": 1321,
+      "sha256": "75a3e2fe07555544a76b1379d9cd92d9aab5f984bc9a8a79b6e804672a7f58e7"
+    },
+    "snapshot.json": {
+      "bytes": 6552,
+      "sha256": "bc93b61c687434ac6e645292e93eb5cf9fa568f5d824c74c6aff74beea869cb6"
+    },
+    "trades-ETHGBP.csv": {
+      "bytes": 210181869,
+      "sha256": "f6966a43d6e039b19ed1ad684637d3deafe696d4a4bd48d7a5c19574e25794c7"
+    },
+    "trades-MANIFEST.json": {
+      "bytes": 618,
+      "sha256": "b950391b406a7253cd23dfdd8329521b2d390f25bec7eaabb56738f614c360d1"
+    },
+    "trades-XBTGBP.csv": {
+      "bytes": 405730132,
+      "sha256": "93b9dccdf707ea66b4a06046bb8d583492a717991cad1e580cbe86493dea5b95"
+    },
+    "trades-verified-directory.json": {
+      "bytes": 2800,
+      "sha256": "584a092b65fe009ba87bfa580187a616bc45ea730b626ded4eb2fac8d0b67f9c"
+    }
+  }
+}

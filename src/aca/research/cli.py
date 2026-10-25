@@ -35,6 +35,15 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     holdout.add_argument("--freeze", type=Path, required=True)
     register = actions.add_parser("register")
     trials = actions.add_parser("trials")
+    assurance = actions.add_parser("assurance", help="Offline retained public cost/source review")
+    assurance.add_argument("--source", type=Path, required=True)
+    assurance.add_argument("--gap-audit", type=Path, required=True)
+    assurance.add_argument("--raw-directory", type=Path, required=True)
+    assurance.add_argument("--dataset", type=Path, required=True)
+    assurance.add_argument("--public-books", type=Path, required=True)
+    assurance.add_argument("--original-manifest", type=Path)
+    assurance.add_argument("--full-archive", type=Path)
+    assurance.add_argument("--root", type=Path, default=Path("data/research"))
     preserve = actions.add_parser("bundle-preserve", help="Preserve an unopened legacy report")
     preserve.add_argument("--report", type=Path, required=True)
     preserve.add_argument("--directory", type=Path, required=True)
@@ -79,6 +88,21 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
         output = asyncio.run(_register(args.root, settings))
     elif args.action == "trials":
         output = [read_json(path) for path in sorted((args.root / "events").glob("*.json"))]
+    elif args.action == "assurance":
+        from aca.research.assurance import cost_review, data_review, save_reviews
+
+        output = save_reviews(
+            args.root,
+            cost_review(args.public_books),
+            data_review(
+                args.source,
+                args.gap_audit,
+                args.raw_directory,
+                args.dataset,
+                full_archive=args.full_archive,
+                original_manifest=args.original_manifest,
+            ),
+        )
     elif args.action.startswith("bundle-"):
         from aca.research.bundles import archive, export_report, preserve_report, restore, verify
 

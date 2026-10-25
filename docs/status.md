@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 25 October 2026. Application **0.4.22**, schema `0016_history_segments`.
+Updated 25 October 2026. Application **0.4.23**, schema `0016_history_segments`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -51,7 +51,7 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
-**Phase 4a is in progress at 6/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
+**Phase 4a is in progress at 13/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
 completed with all eight hosted checks passing on `eae9a2b` before PR #29 merged.
 Both hosted runs passed 738 tests, dependency audits, packaging, both image scans
 and bounded-history acceptance. Earlier 0.4.19 audit/fixture failures are retained
@@ -76,9 +76,8 @@ risk latches and independent dispatch rejection. Named probes reproduce the
 legacy extra-bar delay, lost intraday drawdown and minimum-price stop stress.
 The [evidence packet](evidence/phase-4a-parity.json) records source/input identities
 and verification. All eight hosted checks passed on `9678f15` before PR #31 merged.
-P4A-19 remains unchecked until corrected
-event research and continuous account/calendar parity extend the same fixtures
-in Batches B/C. This is progress inside the existing item, not a new requirement.
+P4A-19 closed when Batches B/C extended these same fixtures; this paragraph
+records the original verification foundation.
 All **772 Linux/PostgreSQL tests**, formatting and strict typing pass locally,
 including the 14 new independent parity tests.
 
@@ -90,13 +89,19 @@ both research and PostgreSQL paper. New CLI selections use `slow-v2`; old stored
 selections retain their semantics and hashes. The retained local stack is unchanged.
 The [source-bound evidence](evidence/phase-4a-causal-replay.json) records local checks;
 all **803 Linux/PostgreSQL tests** pass locally, with strict typing and formatting.
-The exact PR head must pass current hosted checks before merge. Historical checks
-do not approve changed code. Synthetic fixtures do not qualify a trading candidate.
+All eight hosted checks passed on `a12891d` before PR #32 merged. Synthetic
+fixtures do not qualify a trading candidate.
 
 The [fixed plan](phase-4a.md) still has 19 items, six batches and at most 26
-candidate definitions. The other 13 items remain unchecked. Batch C is next:
-continuous OOS account, comparable contribution/benchmark/calendar scenarios,
-cost/data assurance and completion of P4A-19. The modular runner still explicitly
+candidate definitions. Six items remain unchecked. Version 0.4.23 delivers
+[Batch C continuous accounts, contributions, comparators and assurance](phase-4a-continuous-accounts.md),
+closing P4A-02/03/07/10/13/14/19. Equal-flow scenarios and report boundaries
+preserve the account; the common calendar includes the terminal pre-holdout tail.
+The public cost packet rechecks 5,000 retained books. The source audit concludes
+blocked/no-go, preserving missing full-archive/history facts and disputed BTC
+quarantine. The current release passes **843 Linux/PostgreSQL tests**, strict typing and
+formatting locally; it requires its own integrated hosted checks.
+Batch D is next: the statistical protocol and enforced research/holdout gates. The modular runner still explicitly
 uses the named legacy execution model; corrected study integration and statistical
 gates retain their existing later items. No corrected S0/S1/S2 study or actual
 holdout evaluation ran. All 20 original
@@ -138,7 +143,7 @@ only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 
 | Stage | Work / decision still required |
 | --- | --- |
-| Phase 4a | [Fixed 19-item plan](phase-4a.md), 2/19: release verification and modular research artefacts complete; evaluation fidelity, contribution-aware studies, promotion gates and sustainable paper preparation remain |
+| Phase 4a | [Fixed 19-item plan](phase-4a.md), 13/19: Batches A–C complete; corrected study/statistical gates, bounded additional research and qualifying-paper preparation remain |
 | Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; all current candidates rejected |
 | Phase 5 / G4 | Authorised observation start; at least 56 calendar days and 10 completed signal-driven episodes; measured fills/latency, 99.5% healthy observations under the specified dependency condition, real destination integration, recovery exercises and positive economics |
 | Deployment/readiness / G4–G5 | Authorised hosting/service setup, actual capture growth and maintenance planning, encrypted off-host/WAL backups, gap reconciliation, host-loss/fencing drills, production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |

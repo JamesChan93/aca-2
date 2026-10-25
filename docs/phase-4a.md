@@ -6,17 +6,19 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: in progress; 6/19 completion items.** P4A-17 closes through the
+**Status: in progress; 13/19 completion items.** P4A-17 closes through the
 [merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
 P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
 its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
 Those increments and version 0.4.21's [independent P4A-19 parity fixtures](phase-4a-parity.md)
 are merged with their hosted checks passing. Version 0.4.22 delivers
 [Batch B causal execution, three clocks, metrics and protection](phase-4a-causal-replay.md),
-closing P4A-01/04/05/06 with source-bound synthetic verification. P4A-19 stays open
-for Batch C's continuous-account/comparator checks. The remaining 13 items are
-unchecked. No corrected actual-data study has run. Current integrated PR checks must pass before
-merge; prior CI success is not transferred to new code.
+closing P4A-01/04/05/06 with source-bound synthetic verification. Version 0.4.23
+delivers [Batch C continuous accounts, equal flows, comparators and assurance](phase-4a-continuous-accounts.md),
+closing P4A-02/03/07/10/13/14/19. The source review concludes blocked/no-go for
+qualification; it does not verify the missing archive/history facts. The remaining
+six items are unchecked. No corrected actual-data study has run. Current
+integrated PR checks must pass before merge; prior CI success is not transferred to new code.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
 The numbered items map directly to recommendations 1–19; the batch and study
@@ -127,20 +129,22 @@ baseline evidence rather than Phase 4a implementation credit.
   [source-bound checks](evidence/phase-4a-causal-replay.json). This closes model
   capability; actual input assurance/integration/study remain P4A-14 and Batches C/D.
 
-- [ ] **P4A-02 — Continuous OOS account.** Carry cash, positions, protection, fees,
+- [x] **P4A-02 — Continuous OOS account.** Carry cash, positions, protection, fees,
   units, high-water marks, risk latches and pending operations across contiguous
   test windows. Isolate training/validation experiments explicitly. A reporting
   split must leave economics unchanged; an open episode retains its identity and
   risk budget across the split. Audited manual epoch changes are explicit inputs,
   never automatic fold resets. Depends on P4A-01/P4A-04/P4A-05/P4A-06.
+  Acceptance: Continuous OOS state, immutable split snapshots, isolated training/validation accounts and explicit audited epoch inputs pass the [0.4.23 continuous-account fixtures](phase-4a-continuous-accounts.md#p4a-02-continuous-accounts).
 
-- [ ] **P4A-03 — Contributions and economic frontier.** Apply the declared opening
+- [x] **P4A-03 — Contributions and economic frontier.** Apply the declared opening
   capital and £100/£250/£400 month-end contribution scenarios consistently to each
   continuous candidate/comparator account. Keep flows out of returns. Version
   actual/planned fixed-cost inputs, retain the twice-fixed-cost hurdle and show
   statistical eligibility separately from economic eligibility. Independently
   reconcile scenario cash, units and household infrastructure attribution. Neither
   capital arithmetic nor the £1m aspiration can affect sizing. Depends on P4A-02.
+  Acceptance: The nine declared opening/contribution cases, equal dated investor flows, exact unitisation and household cost attribution pass the [0.4.23 scenario/frontier checks](phase-4a-continuous-accounts.md#p4a-03-contributions-and-economics). No supplied bound is established by arithmetic.
 
 - [x] **P4A-04 — Three explicit clocks.** Version and separate slow-signal
   freshness, two-second state-bound pre-dispatch risk approval, and bounded
@@ -173,12 +177,13 @@ baseline evidence rather than Phase 4a implementation credit.
   [0.4.22 source/check evidence](evidence/phase-4a-causal-replay.json). The legacy
   minimum-price stress is retained separately; research does not claim transport certainty.
 
-- [ ] **P4A-07 — Benchmarks and exposure diagnostics.** Preserve mandatory cash/
+- [x] **P4A-07 — Benchmarks and exposure diagnostics.** Preserve mandatory cash/
   passive-10% comparisons and the other original comparators. Predeclare passive
   deployment/rebalancing and bounded handling of unfilled budgets; report intended
   versus achieved allocations. Add past-only exposure/risk-matched and risk-sized
   always-long diagnostics without replacing the mandatory comparator. Equal cash
   flows and execution assumptions must be auditable. Depends on P4A-02/P4A-03.
+  Acceptance: All original comparators plus explicit past-only diagnostics use the [same continuous calendar, flows, price proxy and latency](phase-4a-continuous-accounts.md#p4a-07-comparable-benchmarks). Intended deployment and unspent cash are reported; passive mandates retain their stated risk differences.
 
 - [ ] **P4A-08 — Bounded low-turnover research.** Support and preregister S1 within
   its four-candidate ceiling, with unchanged protective/risk limits and explicit
@@ -196,12 +201,13 @@ baseline evidence rather than Phase 4a implementation credit.
   requires the same explicit separation of implemented capability and absent
   empirical qualification as P4A-08. Depends on P4A-02/P4A-07/P4A-10/P4A-11.
 
-- [ ] **P4A-10 — Complete common calendar.** Freeze calendar origins, past-only
+- [x] **P4A-10 — Complete common calendar.** Freeze calendar origins, past-only
   warm-up and terminal partial-window handling before reruns. Account explicitly
   for the original unused pre-holdout tails; show common-calendar comparisons and
   labelled supplementary earlier history. Preserve the fixed holdout boundary and
   all eligible losing/outage periods. Describe fixed-rule rolling evaluation
   accurately; no fitted training procedure is implied where none exists.
+  Acceptance: The [frozen common calendar and literal tail oracle](phase-4a-continuous-accounts.md#p4a-10-complete-calendar) include the previously unused tails, past-only warm-up, missing daily endpoints and unchanged holdout. No actual corrected strategy return was evaluated.
 
 - [ ] **P4A-11 — Calibrated statistical decision.** Preregister the complete
   comparison family, history reuse, block sensitivities, selection procedure,
@@ -221,7 +227,7 @@ baseline evidence rather than Phase 4a implementation credit.
   paths and a wholly synthetic positive path without opening the actual holdout.
   Depends on P4A-03/P4A-07/P4A-11/P4A-14/P4A-18.
 
-- [ ] **P4A-13 — Measured execution-cost inputs.** Separate conservative sizing/
+- [x] **P4A-13 — Measured execution-cost inputs.** Separate conservative sizing/
   risk fee bounds from modelled realised maker/taker charges. Produce a versioned
   public evidence packet for spreads, latency, queue/fill assumptions and adverse
   selection using retained or expressly started nonqualifying local observations.
@@ -229,8 +235,9 @@ baseline evidence rather than Phase 4a implementation credit.
   supporting trade/depth calibration; bar touches cannot earn fills. Private
   account fees remain a separately authorised later input. No actual webhook or
   account operation is part of this evidence task.
+  Acceptance: The [retained public cost packet](evidence/phase-4a-public-costs.json) rechecks 5,000 raw hashes/top-10 checksums and reports spreads, propagation delay and hypothetical markouts. [Model assumptions and limits](phase-4a-continuous-accounts.md#p4a-13-public-cost-evidence) preserve conservative risk fee bounds; command latency and maker calibration remain explicitly unavailable.
 
-- [ ] **P4A-14 — Data-assurance decision.** Produce an immutable source/checksum,
+- [x] **P4A-14 — Data-assurance decision.** Produce an immutable source/checksum,
   continuity, revision and historical-fee/rule review. Verify available full
   archive checksums where required for the claimed assurance; do not equate a
   local hash with truth/completeness. Resolve the disputed BTC record by evidence
@@ -238,6 +245,7 @@ baseline evidence rather than Phase 4a implementation credit.
   Unobtainable facts stay identified gate blockers with a bounded attempt/review
   record. A completed audit may conclude blocked/no-go; it cannot mark the missing
   fact verified. Unknown gaps remain blocked and no-trade bars have zero liquidity.
+  Acceptance: The [immutable source review](evidence/phase-4a-source-assurance.json) rehashes retained inputs and rebuilds the reviewed projection. It concludes **BLOCKED_NO_GO**, retaining the full-archive, disputed-BTC/blend, historical fee/rule and historical receipt-time blockers. [Bounded review and quarantine checks](phase-4a-continuous-accounts.md#p4a-14-data-assurance-decision) close the audit/control work, not those missing facts.
 
 - [ ] **P4A-15 — Qualifying-paper study capability.** Add a versioned study model
   and reviewed migration/CLI path binding an eligible candidate and recorded
@@ -282,7 +290,7 @@ baseline evidence rather than Phase 4a implementation credit.
   `tests/test_research_bundles.py` and the PostgreSQL registry regression. The
   original report and its 42 events are preserved; no corrected study ran.
 
-- [ ] **P4A-19 — Research/paper parity and focused refactoring.** Share pure
+- [x] **P4A-19 — Research/paper parity and focused refactoring.** Share pure
   economic transitions where useful while retaining the independent execution
   veto. Centralise versioned assumptions and document every expected difference
   between research and paper. Independent fixtures cover timed signals, fills,
@@ -292,10 +300,11 @@ baseline evidence rather than Phase 4a implementation credit.
   new unnamed work. No framework rewrite or new service is required.
   Batch A progress: [independent fixtures, versioned simulation bounds and named
   baseline probes](phase-4a-parity.md), application 0.4.21. This establishes the
-  verification foundation; Batches B/C must extend it before this box closes.
+  verification foundation, extended by Batches B/C below.
   Batch B extends that same oracle to corrected ordered research, journals,
   trigger/matching clocks, attribution, explicit flows and duration reports in
-  [0.4.22](phase-4a-causal-replay.md). Batch C still owns account/calendar parity.
+  [0.4.22](phase-4a-causal-replay.md). Batch C completes account/calendar parity.
+  Acceptance: The original stop oracle plus the [independent continuous flow/calendar oracle and PostgreSQL parity test](phase-4a-continuous-accounts.md#p4a-19-integrated-parity) now cover Batches A–C. Shared financial transitions, separate execution vetoes and expected differences remain documented. All critical financial/lifecycle properties are retained.
 
 **Acceptance and phase closure**
 

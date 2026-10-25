@@ -1,5 +1,9 @@
 # Phase 4a Batch B — causal execution, clocks and metrics
 
+Historical increment: [0.4.23 Batch C](phase-4a-continuous-accounts.md) subsequently
+completed continuous-account/calendar/comparator parity and the bounded assurance
+review. The dated findings below describe this increment's own scope.
+
 25 October 2026. Application **0.4.22**, schema unchanged at
 `0016_history_segments`. Base: merged PR #31, `f0fc2b6e406b3bca7ac171b12445ce654326b610`.
 This delivers **P4A-01, P4A-04, P4A-05 and P4A-06** from the

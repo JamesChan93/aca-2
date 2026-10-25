@@ -52,17 +52,23 @@ def project(
         )
 
 
-def fixed_cost_gate(average_equity: Decimal, incremental_lower_bound: Decimal) -> dict[str, object]:
-    for value in (average_equity, incremental_lower_bound):
+def fixed_cost_gate(
+    average_equity: Decimal,
+    incremental_lower_bound: Decimal,
+    *,
+    annual_fixed_cost: Decimal = Decimal(240),
+) -> dict[str, object]:
+    for value in (average_equity, incremental_lower_bound, annual_fixed_cost):
         parse_decimal(value)
-    if average_equity <= 0:
+    if average_equity <= 0 or annual_fixed_cost < 0:
         raise ValueError("invalid equity")
     with localcontext(FINANCIAL_CONTEXT):
         benefit = average_equity * incremental_lower_bound
         return {
-            "passes_arithmetic_hurdle": incremental_lower_bound > 0 and benefit >= 480,
-            "annual_fixed_cost_gbp": "240",
-            "required_benefit_gbp": "480",
+            "passes_arithmetic_hurdle": incremental_lower_bound > 0
+            and benefit >= 2 * annual_fixed_cost,
+            "annual_fixed_cost_gbp": str(annual_fixed_cost),
+            "required_benefit_gbp": str(2 * annual_fixed_cost),
             "estimated_lower_bound_benefit_gbp": str(benefit),
             "execution_permission": False,
         }
