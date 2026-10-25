@@ -6,14 +6,16 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: in progress; 2/19 completion items.** P4A-17 closes through the
+**Status: in progress; 6/19 completion items.** P4A-17 closes through the
 [merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
 P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
 its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
-Both increments are merged with their hosted checks passing. Version 0.4.21
-establishes the [independent P4A-19 parity fixtures](phase-4a-parity.md) for Batch A;
-P4A-19 stays open for the corrected-model/account checks in Batches B/C. The
-remaining 17 items are unchecked. Current integrated PR checks must pass before
+Those increments and version 0.4.21's [independent P4A-19 parity fixtures](phase-4a-parity.md)
+are merged with their hosted checks passing. Version 0.4.22 delivers
+[Batch B causal execution, three clocks, metrics and protection](phase-4a-causal-replay.md),
+closing P4A-01/04/05/06 with source-bound synthetic verification. P4A-19 stays open
+for Batch C's continuous-account/comparator checks. The remaining 13 items are
+unchecked. No corrected actual-data study has run. Current integrated PR checks must pass before
 merge; prior CI success is not transferred to new code.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
@@ -115,12 +117,15 @@ commands/artefact identities and material limitations. Test counts alone do not
 close items. All boxes start unchecked; the source review and existing tests are
 baseline evidence rather than Phase 4a implementation credit.
 
-- [ ] **P4A-01 — Causal execution timing.** Replace the extra full-bar delay with
+- [x] **P4A-01 — Causal execution timing.** Replace the extra full-bar delay with
   ordered post-finalisation event-time execution using retained trades and
   explicitly bounded price/liquidity assumptions. No future price, whole-bar future
   liquidity or invented depth/maker fill may authorise an earlier fill. Prove that
   future events cannot alter earlier decisions/fills. Retain the named bar-only
   pessimistic sensitivity. Depends on P4A-04/P4A-18 and the P4A-19 timing fixtures.
+  Acceptance: [0.4.22 ordered-trade implementation and prefix fixtures](phase-4a-causal-replay.md#p4a-01-ordered-trade-execution),
+  [source-bound checks](evidence/phase-4a-causal-replay.json). This closes model
+  capability; actual input assurance/integration/study remain P4A-14 and Batches C/D.
 
 - [ ] **P4A-02 — Continuous OOS account.** Carry cash, positions, protection, fees,
   units, high-water marks, risk latches and pending operations across contiguous
@@ -137,27 +142,36 @@ baseline evidence rather than Phase 4a implementation credit.
   reconcile scenario cash, units and household infrastructure attribution. Neither
   capital arithmetic nor the £1m aspiration can affect sizing. Depends on P4A-02.
 
-- [ ] **P4A-04 — Three explicit clocks.** Version and separate slow-signal
+- [x] **P4A-04 — Three explicit clocks.** Version and separate slow-signal
   freshness, two-second state-bound pre-dispatch risk approval, and bounded
   transmission/matching latency. Keep finalisation, fresh quote/account checks,
   expiry, no stale backlog and uncertain-outcome recovery. Demonstrate expired
   approvals cannot dispatch; successful dispatch followed by delay retains its
   command identity. Report actual delay effects separately from deliberately
   expired/no-entry stresses. Amend A26's planned timing semantics before adoption.
+  Acceptance: [A26 amendment, versioned clocks and real-PostgreSQL boundary tests](phase-4a-causal-replay.md#p4a-04-three-clocks-with-legacy-interpretation-preserved),
+  [0.4.22 source/check evidence](evidence/phase-4a-causal-replay.json). Legacy
+  selections/hashes retain their original timing; accepted delay cannot replay a command.
 
-- [ ] **P4A-05 — Correct metrics and attribution.** Calculate drawdown from all
+- [x] **P4A-05 — Correct metrics and attribution.** Calculate drawdown from all
   available observations and inception, with its observation resolution disclosed.
   Reproduce the review's 10%-intraday-loss case correctly. Reconcile NAV to gross
   marked P&L, actual modelled fees, spread/slippage, external flows and terminal
   inventory; include partial/open episodes, reason-coded skips, halt time and
   exposure. Keep daily data for daily statistics and undefined outputs unavailable.
+  Acceptance: [all-observation metrics, two attribution identities and literal flows](phase-4a-causal-replay.md#p4a-05-all-observations-and-reconciled-attribution),
+  [0.4.22 checks](evidence/phase-4a-causal-replay.json). Observation resolution and
+  stale marks remain explicit; no continuous-OOS/comparator/statistical approval is inferred.
 
-- [ ] **P4A-06 — Protective-exit chronology.** Model stop triggering, subsequent
+- [x] **P4A-06 — Protective-exit chronology.** Model stop triggering, subsequent
   latency, limit-or-better execution, partial fills and gap-through nonexecution
   from ordered admissible evidence. No same-event causal shortcut or sale below
   the approved limit. Retain the old minimum-price convention as a named stress.
   Independent fixtures cover recovered bid, rapid gap, no liquidity and residual
   protection. Depends on P4A-01/P4A-04 and P4A-19 fixtures.
+  Acceptance: [chronological protection and shared independent stop oracle](phase-4a-causal-replay.md#p4a-06-protection-from-chronological-evidence),
+  [0.4.22 source/check evidence](evidence/phase-4a-causal-replay.json). The legacy
+  minimum-price stress is retained separately; research does not claim transport certainty.
 
 - [ ] **P4A-07 — Benchmarks and exposure diagnostics.** Preserve mandatory cash/
   passive-10% comparisons and the other original comparators. Predeclare passive
@@ -279,6 +293,9 @@ baseline evidence rather than Phase 4a implementation credit.
   Batch A progress: [independent fixtures, versioned simulation bounds and named
   baseline probes](phase-4a-parity.md), application 0.4.21. This establishes the
   verification foundation; Batches B/C must extend it before this box closes.
+  Batch B extends that same oracle to corrected ordered research, journals,
+  trigger/matching clocks, attribution, explicit flows and duration reports in
+  [0.4.22](phase-4a-causal-replay.md). Batch C still owns account/calendar parity.
 
 **Acceptance and phase closure**
 

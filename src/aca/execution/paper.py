@@ -2,7 +2,7 @@
 
 import asyncio
 from collections.abc import Awaitable, Callable
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal, localcontext
 from typing import Literal
 from uuid import UUID, uuid4
@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
 from aca.domain.market import Symbol
+from aca.domain.timing import APPROVAL_TTL, CLOCK_VERSION, TRANSMISSION_TTL
 from aca.domain.trading import (
     TERMINAL,
     UNCERTAIN,
@@ -395,8 +396,12 @@ class PaperExecution:
             fee_bound=Decimal("0.008"),
             allowance_per_unit=allowance,
             created_at=at,
-            expires_at=min(signal.expires_at, at + timedelta(seconds=2)),
+            expires_at=min(
+                signal.expires_at,
+                at + (TRANSMISSION_TTL if signal.strategy_version == "slow-v2" else APPROVAL_TTL),
+            ),
             strategy_version=signal.strategy_version,
+            timing_version=CLOCK_VERSION if signal.strategy_version == "slow-v2" else None,
             rules_hash=fingerprint(market.rules.model_dump(mode="json")),
             episode_id=uuid4(),
             time_in_force=time_in_force,
@@ -937,6 +942,7 @@ class PaperExecution:
             if o.intent.symbol == symbol and o.intent.purpose == "entry"
         )
         ident = client_id or uuid4()
+        transmission = TRANSMISSION_TTL if parent.intent.timing_version else APPROVAL_TTL
         intent = OrderIntent(
             id=ident,
             client_id=ident,
@@ -950,10 +956,9 @@ class PaperExecution:
             fee_bound=parent.intent.fee_bound,
             allowance_per_unit=ZERO,
             created_at=at,
-            expires_at=min(expires_at, at + timedelta(seconds=2))
-            if expires_at
-            else at + timedelta(seconds=2),
+            expires_at=min(expires_at, at + transmission) if expires_at else at + transmission,
             strategy_version="safety-v1",
+            timing_version=parent.intent.timing_version,
             rules_hash=fingerprint(market.rules.model_dump(mode="json")),
             episode_id=parent.intent.episode_id,
             time_in_force="IOC",

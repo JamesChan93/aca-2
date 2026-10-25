@@ -2,16 +2,24 @@
 
 import math
 from collections.abc import Sequence
+from dataclasses import asdict
 from datetime import datetime, timedelta
+from decimal import Decimal
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from aca.simulation.reference import Backtest
 
+if TYPE_CHECKING:
+    from aca.simulation.events import EventResult
+
 
 def daily_units(result: Backtest) -> dict[str, float]:
     return {
-        (row.at - timedelta(microseconds=1)).date().isoformat(): float(row.unit_price)
+        (row.at - timedelta(microseconds=1) if row.interval_close else row.at)
+        .date()
+        .isoformat(): float(row.unit_price)
         for row in result.observations
     }
 
@@ -61,7 +69,7 @@ def metrics(result: Backtest, initial: float = 250.0) -> dict[str, object]:
     days = len(returns)
     total = units[-1] - 1
     interval = timedelta(minutes=result.interval_minutes)
-    origin = result.observations[0].at - interval
+    origin = result.started_at or result.observations[0].at - interval
     elapsed = (result.observations[-1].at - origin).total_seconds() / 86400
     annual = (
         math.expm1(math.log(units[-1]) * 365.25 / elapsed)
@@ -71,7 +79,10 @@ def metrics(result: Backtest, initial: float = 250.0) -> dict[str, object]:
     volatility = float(np.std(returns, ddof=1) * math.sqrt(365.25)) if days > 1 else None
     downside = float(np.sqrt(np.mean(np.minimum(returns, 0) ** 2)) * math.sqrt(365.25))
     mean_annual = float(np.mean(returns) * 365.25)
-    drawdown = float(np.max(1 - units / np.maximum.accumulate(units)))
+    observed_units = np.array(
+        [1.0, *(float(row.unit_price) for row in result.observations)], dtype=np.float64
+    )
+    drawdown = float(np.max(1 - observed_units / np.maximum.accumulate(observed_units)))
     wins = sum(float(episode.pnl) for episode in result.episodes if episode.pnl > 0)
     losses = -sum(float(episode.pnl) for episode in result.episodes if episode.pnl < 0)
     flows = [(origin, -initial)]
@@ -84,6 +95,8 @@ def metrics(result: Backtest, initial: float = 250.0) -> dict[str, object]:
         "annualised_return": annual,
         "mwr_xirr": xirr(flows),
         "max_drawdown": drawdown,
+        "drawdown_observation_resolution": result.observation_resolution,
+        "drawdown_includes_inception": True,
         "annualised_volatility": volatility,
         "sharpe_zero_cash_yield": mean_annual / volatility if volatility else None,
         "sortino": mean_annual / downside if downside else None,
@@ -118,6 +131,63 @@ def metrics(result: Backtest, initial: float = 250.0) -> dict[str, object]:
             for year in sorted({day[:4] for day in daily_returns(result)})
         },
     }
+
+
+def event_metrics(result: EventResult) -> dict[str, object]:
+    """Report observed economics separately from unavailable terminal evidence.
+
+    Exposure/halts are durations under the last known state, not invented price
+    observations inside gaps. Daily returns sample the last available observation
+    per UTC day. A data-assurance/calendar review is required before inference.
+    """
+    from aca.domain.values import FINANCIAL_CONTEXT
+
+    report = metrics(result.backtest, initial=float(result.attribution["opening_nav_gbp"]))
+    origin = result.backtest.started_at or result.backtest.observations[0].at
+    duration = Decimal(str((result.requested_through - origin).total_seconds()))
+    from decimal import localcontext
+
+    with localcontext(FINANCIAL_CONTEXT):
+        exposure = result.exposure_fraction_seconds / duration if duration else None
+        equity = result.equity_seconds / duration if duration else None
+    report.pop("unfilled_stop_bars")
+    report.update(
+        execution_model=result.execution_model,
+        clock_version=result.clock_version,
+        attribution_gbp={key: str(value) for key, value in result.attribution.items()},
+        skip_reasons=result.skip_reasons,
+        halt_seconds=str(result.halt_seconds),
+        position_occupied_seconds=str(result.exposure_seconds),
+        mean_exposure=float(exposure) if exposure is not None else None,
+        mean_equity_gbp=str(equity) if equity is not None else None,
+        exposure_sampling="last_known_state_duration; price_gaps_not_interpolated",
+        daily_sampling="last_available_observation_in_each_UTC_day; coverage_requires_review",
+        observed_through=result.observed_through.isoformat(),
+        requested_through=result.requested_through.isoformat(),
+        stale_terminal_mark=result.stale_terminal_mark,
+        max_observation_gap_seconds=max(
+            (
+                (right.at - left.at).total_seconds()
+                for left, right in zip(
+                    result.backtest.observations, result.backtest.observations[1:], strict=False
+                )
+            ),
+            default=0,
+        ),
+        open_episode=(
+            {key: str(value) for key, value in asdict(result.open_episode).items()}
+            if result.open_episode is not None
+            else None
+        ),
+        outstanding_orders=sum(
+            o.state not in {"FILLED", "CANCELLED", "EXPIRED", "REJECTED"}
+            for o in result.state.orders
+        ),
+        unfilled_stop_observations=result.backtest.unfilled_stop_bars,
+        promotion_evidence=False,
+        live_execution_available=False,
+    )
+    return report
 
 
 def paired_bootstrap(

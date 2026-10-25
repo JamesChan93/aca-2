@@ -1,5 +1,11 @@
 # Phase 4a — independent research/paper verification foundation
 
+Historical Batch A report. For current completion and corrected execution/metric
+results see [0.4.22 Batch B](phase-4a-causal-replay.md) and the authoritative
+[phase checklist](phase-4a.md). The source-bound 0.4.21 evidence below is preserved;
+its daily-only drawdown discrepancy is fixed in 0.4.22, and its stop oracle now also
+checks corrected trade research. P4A-19 still awaits Batch C's account/calendar checks.
+
 Application 0.4.21, schema unchanged at `0016_history_segments`. This increment
 establishes the **Batch A fixtures under P4A-19** in the [fixed plan](phase-4a.md).
 It does not close P4A-19: corrected event execution and account/calendar parity

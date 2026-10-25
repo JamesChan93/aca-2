@@ -207,6 +207,50 @@ async def test_dispatch_approval_boundary_keeps_independent_veto(
         assert not (await venue.snapshot(at)).orders
 
 
+@pytest.mark.integration
+async def test_v2_paper_dispatch_can_match_after_its_approval_expires(
+    account: tuple[PaperExecution, PaperExchange],
+) -> None:
+    service, _ = account
+    venue = PaperExchange(service.store, latency_ms=2000)
+    service.venue = venue
+    value = decision().model_copy(
+        update={"strategy_version": "slow-v2", "expires_at": AT + timedelta(seconds=60)}
+    )
+    # A slow signal remains fresh at +3s. Admission creates a NEW two-second
+    # approval, rather than extending an existing approval or replaying a command.
+    at = AT + timedelta(seconds=3)
+    order = await service.queue(value, market(at), at, time_in_force="FOK")
+    assert order.approval is not None
+    assert order.approval.expires_at == AT + timedelta(seconds=5)
+    assert order.intent.expires_at == AT + timedelta(seconds=8)
+    await service.dispatch(order.intent.client_id, market(at), at)
+    at = AT + timedelta(seconds=5)
+    m = market(at)
+    snapshot = await venue.advance(m.book, m.rules, at)
+    assert len(snapshot.fills) == 1
+    assert snapshot.fills[0].client_id == order.intent.client_id
+    assert snapshot.fills[0].quantity == EXPECTED.entry_quantity
+    assert snapshot.fills[0].occurred_at == order.approval.expires_at
+    assert (await service.reconcile(at)).complete
+    assert (await service._state()).quantity("GBP") == EXPECTED.entry_cash
+    at = AT + timedelta(seconds=6)
+    m = market(at, bid=D(1100))
+    await service.mark(
+        (Valuation(asset="BTC", bid_gbp=D(1100), observed_at=at, source="parity"),), at
+    )
+    exit_order = await service.exit_position("BTC/GBP", m, at)
+    assert exit_order is not None
+    assert exit_order.intent.timing_version == "three-clocks-v1"
+    at = AT + timedelta(seconds=8)
+    m = market(at, bid=D(1100))
+    snapshot = await venue.advance(m.book, m.rules, at)
+    assert len(snapshot.fills) == 2
+    assert snapshot.fills[-1].client_id == exit_order.intent.client_id
+    assert (await service.reconcile(at)).complete
+    assert (await service._state()).quantity("BTC") == 0
+
+
 def test_actual_base_asset_fee_and_partial_disposal_have_independent_basis() -> None:
     opening = cash_flow("opening", D(1000), AT)
     buy = Fill(
@@ -350,7 +394,7 @@ def test_timed_slow_signal_uses_only_finalised_prefix() -> None:
         signal(data, "sma200", close + timedelta(seconds=10))
 
 
-def test_p4a05_baseline_probe_detects_lost_intraday_drawdown() -> None:
+def test_p4a05_all_observation_metric_recovers_intraday_drawdown() -> None:
     result = Backtest(
         observations=(
             Observation(AT + timedelta(hours=4), D(900), D("0.9"), D(0), D(0)),
@@ -365,8 +409,8 @@ def test_p4a05_baseline_probe_detects_lost_intraday_drawdown() -> None:
         unfilled_stop_bars=0,
         interval_minutes=240,
     )
-    # Named legacy probe, NOT acceptance of the required corrected metric.
-    assert metrics(result, initial=1000)["max_drawdown"] == 0
+    # The original daily-only calculation returned zero for this path.
+    assert metrics(result, initial=1000)["max_drawdown"] == pytest.approx(0.1)
     with localcontext(FINANCIAL_CONTEXT):
         required = max(D(1) - observation.unit_price / D(1) for observation in result.observations)
     assert required == D("0.1")

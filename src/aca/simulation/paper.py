@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from aca.accounting.ledger import stored
 from aca.domain.market import InstrumentRules, MarketTrade, OrderBook
+from aca.domain.timing import CLOCK_VERSION, MATCHING_TTL
 from aca.domain.trading import TERMINAL, ZERO, Fee, Fill, OrderIntent, VenueOrder, VenueSnapshot
 from aca.domain.values import FINANCIAL_CONTEXT, utc_datetime
 from aca.ports.execution import DefinitiveRejection, UnknownOutcome
@@ -325,7 +326,12 @@ class PaperExchange:
                     continue
                 if order.triggered_at and at < order.triggered_at + self.latency:
                     continue
-                if i.time_in_force in {"IOC", "FOK"} and at >= i.expires_at:
+                matching_deadline = (
+                    i.created_at + MATCHING_TTL
+                    if i.timing_version == CLOCK_VERSION
+                    else i.expires_at
+                )
+                if i.time_in_force in {"IOC", "FOK"} and at >= matching_deadline:
                     order = order.model_copy(update={"state": "CANCELLED"})
                 elif i.purpose == "entry" and at >= i.created_at + timedelta(seconds=60):
                     order = order.model_copy(update={"state": "EXPIRED"})
@@ -443,6 +449,7 @@ class PaperExchange:
                                 created_at=at,
                                 expires_at=at + timedelta(days=3650),
                                 strategy_version="safety-v1",
+                                timing_version=i.timing_version,
                                 rules_hash=i.rules_hash,
                                 episode_id=i.episode_id,
                                 parent_id=i.client_id,

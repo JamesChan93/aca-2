@@ -1,5 +1,10 @@
 # Continuous operational paper workflow — P4-C1
 
+This is the historical 0.4.10 handoff. In 0.4.22, new CLI selections use the
+[versioned three-clock semantics](phase-4a-causal-replay.md); existing immutable
+`slow-v1` selections retain the timing described below. Selection still requires
+an explicit operational experiment and earns no qualifying credit.
+
 Application candidate 0.4.10, schema `0013_paper_strategy`. This change implements
 all five C1 conditions in the [fixed checklist](phase-4-completion.md). It does not
 complete C2–C4 or approve G2–G6. The retained local stack has not been upgraded or

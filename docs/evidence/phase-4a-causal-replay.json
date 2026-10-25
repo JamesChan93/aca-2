@@ -1,0 +1,166 @@
+{
+  "actual_holdout_opened": false,
+  "actual_studies": {
+    "S0": false,
+    "S1": false,
+    "S2": false
+  },
+  "all_20_original_candidates_rejected": true,
+  "application_version": "0.4.22",
+  "base_commit": "f0fc2b6e406b3bca7ac171b12445ce654326b610",
+  "branch": "feat/phase-4a-causal-replay",
+  "candidate_freeze_allowed": false,
+  "checks": {
+    "focused_causal_fixtures": {
+      "elapsed_seconds": "2.31",
+      "passed": 30
+    },
+    "full_linux_postgresql_regression": {
+      "command": "python3 scripts/ci_database.py --linux",
+      "elapsed_seconds": "177.69",
+      "generated_financial_properties_retained": true,
+      "generated_lifecycle_fault_sequences": 10000,
+      "status": "passed",
+      "tests": 803
+    },
+    "hosted": "Exact PR head must pass both hosted workflows; final links/outcomes belong in PR body.",
+    "ruff": {
+      "formatted_files": 193,
+      "passed": true
+    },
+    "strict_mypy": {
+      "files": 166,
+      "passed": true
+    }
+  },
+  "clocks": {
+    "approval": "two seconds, state/economics/policy/rules bound; equality expires",
+    "legacy": "slow-v1 records retain previous semantics; absent timing_version omitted from document",
+    "matching": "250..60000ms after consumed dispatch; IOC/FOK deadline created_at+60s",
+    "signal": "slow-v2; close+10s finalisation, fixed expiry close+70s",
+    "transmission": "five seconds, before send",
+    "version": "three-clocks-v1"
+  },
+  "completion": {
+    "P4A-19": "extended, open for Batch C account/calendar parity",
+    "newly_closed": [
+      "P4A-01",
+      "P4A-04",
+      "P4A-05",
+      "P4A-06"
+    ],
+    "phase_4": "17/17 historical",
+    "phase_4a": "6/19",
+    "previously_closed": [
+      "P4A-17",
+      "P4A-18"
+    ]
+  },
+  "corrected_acceptance": {
+    "accepted_matching_delays_ms": [
+      250,
+      2000,
+      5000,
+      59999
+    ],
+    "all_observation_drawdown_fixture": "10%, instead of original daily-only zero",
+    "causal_first_match": "close+10.250s inside next bar, without future bar OHLC/volume",
+    "dispatch_expiry_ms": 2000,
+    "flow_fixture": {
+      "deposit": "99.092",
+      "ending_nav": "1040.466",
+      "ending_units": "1050",
+      "policy_epoch_and_hard_latch_preserved": true,
+      "pre_flow_nav": "990.92",
+      "unit_price": "0.99092",
+      "withdrawal": "49.546"
+    },
+    "future_prefix_identity": "earlier decisions, approvals, command IDs, fills and observations unchanged",
+    "generated_attribution_examples": 1000,
+    "matching_deadline_no_entry_ms": 60000,
+    "protection": "shared literal recovered/gap/no-executable-liquidity/partial oracle"
+  },
+  "files_sha256": {
+    "src/aca/__init__.py": "a9f6270dd0166d050e0dc78fe27debc012a0685b86bb0741867a5533a11129b5",
+    "src/aca/app/paper_strategy.py": "de901dde78315b50dbd2cb7319a2be4a7e5accb03e2a28805ceaf01c54ca4ef2",
+    "src/aca/domain/timing.py": "4e7141b8c875a41651e87da59c07e76d48aa03d7d672796efdb817b2dcf2c333",
+    "src/aca/domain/trading.py": "045bd61507ad9d2be468dc1915280a5c562cbb8933c4abab64a60c3625d0efec",
+    "src/aca/execution/paper.py": "2f4a694c2b4ec16943d3eaac1175bbdd56b5ef89a77e1e37b507125de0d9cf88",
+    "src/aca/operations/paper.py": "9b1163a599b81edec043df4de1b5f3dab78fe33e60c4d29d9a226abe17b9aa2f",
+    "src/aca/research/statistics.py": "5b2c893389b4b74fda65d47e9e235a6c5e1bd1ffd3f2c9418fbd90c46ec7c1cd",
+    "src/aca/risk/execution.py": "6e2cd32ddddb16a9092ff5b6fd8e8eefc049a40d9883ba22cbbf400e2f83efc9",
+    "src/aca/risk/portfolio.py": "66dce06926ad3c0667257448c4ab292e3fa06d3efe6f6c45e96cf71922b0f0b0",
+    "src/aca/simulation/assumptions.py": "2921b32163cd6303d3b8ded5ded8eb74df5ce1e5baca6bbc5ab142559e309878",
+    "src/aca/simulation/events.py": "83391562959a0b121294759fec70fbd6e0522ffc2b9d4c0f582d607b0d7ce841",
+    "src/aca/simulation/paper.py": "db0250e693d645b936c398cd2d5a90fa8b4f1b6436cf70634b7b3530ff03c0a1",
+    "src/aca/simulation/reference.py": "f0ec33b955dff25abd0c695a394789b6743890fd8929849a8230693f99632ccc",
+    "src/aca/storage/strategy.py": "7d06611bd6effb653d42564e5131b1eea5e31be30225fcc787d80d0654645e3b",
+    "src/aca/strategies/slow.py": "3c9b5ce29f49186adede922b08febe060c4753c681f3563b5cea7ffb9fd0685f",
+    "tests/fixtures/parity/v1.json": "d3a52151e6832fd568f37611f8d28370d2febaa1e236ac95cf0fac3a9ad3e892",
+    "tests/test_causal_research.py": "180d5be759a820c1ea56346be7366cde52d2d0bd3a3963dc1aaf5fb3a4e84e4e",
+    "tests/test_paper_strategy.py": "8f37fddf15830d1f4f2285eadabad35eaa2d4c4b796b6f121ee419a68bb9a25f",
+    "tests/test_research_paper_parity.py": "41415bc26d261bb0d2701c1acadaa32c447513b5813a298efafddf081749f416"
+  },
+  "kind": "phase_4a_batch_b_synthetic_verification",
+  "limitations": [
+    "Trade proxy prices and 1% individual print quantity are disclosed assumptions, not observed book depth or maker calibration.",
+    "No automatic switch of the legacy CLI/modular runner into a corrected study.",
+    "Continuous OOS account/comparator/calendar integration remains Batch C.",
+    "Actual costs/data assurance and statistical/eligibility gates remain their existing later items.",
+    "Duration estimates use last known state; stale terminal marks and missing observation coverage stay explicit.",
+    "Research cancellation is a deterministic timeline; paper uncertainty/recovery tests remain independently required."
+  ],
+  "live_execution_available": false,
+  "models": {
+    "bounds": "simulation-bounds-v1",
+    "corrected_trade": "ordered-trade-taker-v1",
+    "legacy_bar": "legacy-flat-window-bar-taker-v2",
+    "paper": "paper-ordered-depth-queue-v1"
+  },
+  "outbound_messages_sent": false,
+  "paid_provisioning": false,
+  "private_kraken_access": false,
+  "promotion_allowed": false,
+  "qualifying_days": 0,
+  "qualifying_episodes": 0,
+  "recorded_on": "2026-10-25",
+  "retained_services_changed": false,
+  "schema": "0016_history_segments",
+  "schema_version": 1,
+  "source_fingerprint_method": "runner.code_fingerprint: canonical sorted relative .py path -> SHA-256, with trailing newline",
+  "source_sha256": "f6d65918f9f712709585fa5656fa136f3a2605764f4c3fea9868ab7a5b590685",
+  "synthetic_probes": {
+    "no_liquidity": {
+      "clock_version": "three-clocks-v1",
+      "completed_episodes": 0,
+      "ending_nav_gbp": "999.620000000000000000",
+      "fees_gbp": "0.080000000000000000",
+      "open_quantity": "0.01000000",
+      "unfilled_stop_observations": 2
+    },
+    "partial_residual": {
+      "clock_version": "three-clocks-v1",
+      "completed_episodes": 1,
+      "ending_nav_gbp": "999.502720000000000000",
+      "fees_gbp": "0.157280000000000000",
+      "open_quantity": "0E-8",
+      "unfilled_stop_observations": 1
+    },
+    "rapid_gap": {
+      "clock_version": "three-clocks-v1",
+      "completed_episodes": 0,
+      "ending_nav_gbp": "997.920000000000000000",
+      "fees_gbp": "0.080000000000000000",
+      "open_quantity": "0.01000000",
+      "unfilled_stop_observations": 2
+    },
+    "recovered_bid": {
+      "clock_version": "three-clocks-v1",
+      "completed_episodes": 1,
+      "ending_nav_gbp": "999.443200000000000000",
+      "fees_gbp": "0.156800000000000000",
+      "open_quantity": "0E-8",
+      "unfilled_stop_observations": 0
+    }
+  }
+}

@@ -8,6 +8,7 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from aca.domain.market import Candle, MarketRecord, Symbol
+from aca.domain.timing import APPROVAL_TTL, FINALISATION, SLOW_FRESHNESS
 from aca.domain.values import FINANCIAL_CONTEXT, FinancialDecimal, UtcDateTime
 from aca.features.indicators import atr, sma
 
@@ -23,7 +24,7 @@ VARIANTS: tuple[Variant, ...] = (
 
 class StrategySignal(MarketRecord):
     strategy: Variant
-    strategy_version: Literal["slow-v1"] = "slow-v1"
+    strategy_version: Literal["slow-v1", "slow-v2"] = "slow-v1"
     symbol: Symbol
     decision_at: UtcDateTime
     data_watermark: UtcDateTime
@@ -33,14 +34,26 @@ class StrategySignal(MarketRecord):
 
     @model_validator(mode="after")
     def chronology(self) -> StrategySignal:
-        if self.decision_at < self.data_watermark + timedelta(seconds=10):
+        finalised = self.data_watermark + FINALISATION
+        if self.decision_at < finalised:
             raise ValueError("signal precedes finalisation")
-        if not self.decision_at < self.expires_at <= self.decision_at + timedelta(seconds=2):
+        deadline = (
+            finalised + SLOW_FRESHNESS
+            if self.strategy_version == "slow-v2"
+            else self.decision_at + APPROVAL_TTL
+        )
+        if not self.decision_at < self.expires_at <= deadline:
             raise ValueError("signal has expired")
         return self
 
 
-def signal(bars: Sequence[Candle], variant: Variant, at: datetime) -> StrategySignal:
+def signal(
+    bars: Sequence[Candle],
+    variant: Variant,
+    at: datetime,
+    *,
+    version: Literal["slow-v1", "slow-v2"] = "slow-v1",
+) -> StrategySignal:
     if variant not in VARIANTS or len(bars) < 200:
         raise ValueError("unknown strategy or insufficient 200-bar warm-up")
     recent = bars[-201:]
@@ -77,10 +90,15 @@ def signal(bars: Sequence[Candle], variant: Variant, at: datetime) -> StrategySi
             desired = "long" if last.close > upper else "flat" if last.close < lower else "hold"
         return StrategySignal(
             strategy=variant,
+            strategy_version=version,
             symbol=last.symbol,
             decision_at=at,
             data_watermark=last.end,
             desired=desired,
             stop_distance=distance,
-            expires_at=at + timedelta(seconds=2),
+            expires_at=(
+                last.end + FINALISATION + SLOW_FRESHNESS
+                if version == "slow-v2"
+                else at + APPROVAL_TTL
+            ),
         )

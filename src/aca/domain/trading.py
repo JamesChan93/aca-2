@@ -142,7 +142,10 @@ class OrderIntent(Record):
     allowance_per_unit: FinancialDecimal = Field(ge=0)
     created_at: Time
     expires_at: Time
-    strategy_version: Literal["slow-v1", "safety-v1"]
+    strategy_version: Literal["slow-v1", "slow-v2", "safety-v1"]
+    timing_version: Literal["three-clocks-v1"] | None = Field(
+        default=None, exclude_if=lambda v: v is None
+    )
     rules_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     episode_id: UUID
     parent_id: UUID | None = None
@@ -154,6 +157,8 @@ class OrderIntent(Record):
         if self.expires_at <= self.created_at:
             raise ValueError("invalid order deadline")
         if self.purpose == "entry":
+            if (self.strategy_version == "slow-v2") != (self.timing_version is not None):
+                raise ValueError("entry strategy/timing versions differ")
             if (
                 self.side != "buy"
                 or not 0 < self.protective_limit < self.stop_trigger < self.limit_price
