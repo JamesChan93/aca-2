@@ -1,0 +1,183 @@
+{
+  "actual_s0_preflight": {
+    "archive_bytes": 174080,
+    "archive_sha256": "f76128b67984bf427fcf389d07d0194fb41cfd885576bab529bc53ab71611d6a",
+    "committed_summary": "docs/evidence/phase-4a-s0-preflight.json",
+    "declaration_sha256": "5b05062ff7b9f7a3825b1ca9afa67bb7292a539d2ccaecc8c0172755c13f9542",
+    "input_file_sha256": {
+      "data/research/reviewed-study-final-2026-10-24/datasets/689acbcc0199e3c0a72b4a0d37f535e7ed95e9c2e15342ecb8aff5ced826ad71/manifest.json": "689acbcc0199e3c0a72b4a0d37f535e7ed95e9c2e15342ecb8aff5ced826ad71",
+      "docs/evidence/phase-4a-continuous-accounts.json": "7849f0baa9c0e5b728481a4d5fec67722206296570e93abb62bad291b82e0c16",
+      "docs/evidence/phase-4a-public-costs.json": "109dfa37b15bda44a256bede66d9ee7996dbe62f39e7f5b07e1c246f26fd03b4",
+      "docs/evidence/phase-4a-source-assurance.json": "3fa9aca748b0f2f724d040365d74d9b088ecf1441cf587592329d0aba71cf901"
+    },
+    "local_artifact_directory": "data/research/phase-4a-gates-2026-10-25",
+    "object_bytes": 103146,
+    "objects": 83,
+    "restored_closure_equal": true,
+    "result": "20_incomplete_decisions; performance_not_evaluated",
+    "sealed_packet_sha256": "b73c112c3fd18bdea3ada3114700e03a745db039c351b11d8d80904bef938a72",
+    "task_count": 20
+  },
+  "application_python_files": 132,
+  "application_version": "0.4.24",
+  "base_commit": "e1f9755ef8095652d185391d6de6d18e52d48aa9",
+  "boundaries": {
+    "actual_candidate_freeze": false,
+    "actual_holdout_opened": false,
+    "actual_selected_paper_candidate": false,
+    "actual_strategy_performance_evaluated": false,
+    "dependencies_changed": false,
+    "kraken_private_access": false,
+    "live_orders": 0,
+    "live_writer": false,
+    "outbound_notifications_sent": false,
+    "qualifying_paper_days": 0,
+    "qualifying_paper_episodes": 0,
+    "retained_app_container": "d3a2ecbb4031",
+    "retained_app_image": "aca-foundation:0.4.8",
+    "retained_database_container": "96adb63d0930",
+    "retained_deployment_upgraded_migrated_or_restarted": false,
+    "risk_policy_changed": false
+  },
+  "calibration": {
+    "canonical_sha256": "e0c57cbc694eca25e6e603b8687534f1062aa55858916335a06813a634182fb3",
+    "committed_packet": "docs/evidence/phase-4a-statistical-calibration.json",
+    "results": {
+      "correlated_processes_per_family": 4,
+      "days": 252,
+      "definitions_per_family": 26,
+      "implementation_sha256": "833f488ca8198ead17c3cc32b057807215ea09336db52a4a39fe883679e111ae",
+      "kind": "synthetic_statistical_calibration",
+      "known_daily_effect": 0.002,
+      "known_effect_detections": 64,
+      "limitations": [
+        "bounded_four_process_family_repeated_over_26_definitions",
+        "not_universal_bootstrap_coverage",
+        "history_reuse_not_cured",
+        "no_actual_strategy_results"
+      ],
+      "null_false_positives": 0,
+      "null_fwer_one_sided_95_upper_if_zero": 0.045729702330762456,
+      "passes_declared_probe": true,
+      "promotion_allowed": false,
+      "protocol_sha256": "411a138e40d3229c2a4cce67e6e74ec7feabcbf1557e8de3390c36a17f91dc81",
+      "seed": 804011,
+      "worlds": 64
+    }
+  },
+  "code_sha256": "52cef2b9c996e292de266482b425372d670eab9e7f3cf8141367682744c59a75",
+  "controls_verified": [
+    "legacy_freeze_and_holdout_rejected",
+    "all_original20_declared_before_work",
+    "corrected_continuous_model_integration",
+    "full_common_calendar_no_subset_inference",
+    "failed_and_incomplete_gates_cannot_freeze",
+    "economic_and_statistical_gates_separate",
+    "missing_tampered_or_wrong_purpose_review_rejected",
+    "code_strategy_cost_policy_calendar_bindings_rechecked",
+    "postgres_claim_committed_before_evaluation",
+    "concurrent_requests_invoke_work_at_most_once",
+    "failure_consumes_claim",
+    "folder_lineage_revision_restart_cannot_reopen",
+    "synthetic_positive_path_separate",
+    "registry_typed_contracts_and_holdout_identity",
+    "append_only_runtime_privileges",
+    "source_blocked_actual_preflight_never_evaluates_returns"
+  ],
+  "date": "2026-10-26",
+  "file_sha256": {
+    ".github/workflows/ci.yaml": "080b8e444a6359f8aec4dc8bba7e3f006a342706a099c47bc1f2b947eb4a3870",
+    "Dockerfile": "a5e083c40cf6df29b783f31a5b7478c11059990131438bf490c79df6a55aed8a",
+    "README.md": "8d9b12f6eec157d6783c72e24949693b7665639397b9dbbd2aacadf0180eeaf0",
+    "compose.drill.yaml": "17f541e5a95d1f06cecd629f8a01bb353cd529bb71b1e3b23fc24b05d07acae8",
+    "compose.storage-fault.yaml": "b1724ebc7dac1124bf0c18cb0954f52418a0eea97cdf1af482e30a8457e5b04f",
+    "compose.test.yaml": "92c4e6bc6723eeeaa11528830049175db4feee1e50c1f33db80111b0c0b454bb",
+    "compose.yaml": "88f8b363c54c31719749bdf4b1c088fec49f5365d62a24781fd06145389837ef",
+    "docs/architecture.md": "4ed7446f05b55b4a371cea71ab65ca680cbc9aef625c70de548572701202a048",
+    "docs/evidence/phase-4a-s0-preflight.json": "c5bbf14e5a5801adec1ab6f658cafde7fc71a37b9cb0e35a65f5eb22faf6e3fe",
+    "docs/evidence/phase-4a-statistical-calibration.json": "f704d059bc201fbebaf0ceb21e4b945b9fd6ba60f845457972aeaf5279ef2a39",
+    "docs/phase-4a-statistical-gates.md": "9306dc4d9bf8c8afa420a39aac774930075ae0cd1ac0b59df389f20134d8b101",
+    "docs/phase-4a.md": "c54fcd2ca23afd88a3d13f3bc6787ebeb0824b008bfccbfdd9b4dc029e62b677",
+    "docs/status.md": "0cd4f40571c6a5949b0d1cbe677f834928a0b84f1572203f878d80a574234459",
+    "pyproject.toml": "adcb3a89b8a33e7a73c60c8086bd2c25975538651581fb431f4eda043e9df06d",
+    "src/aca/__init__.py": "10576b209f08f4bede2deeec697cf56b6ae88ddbbf59d111029b3b8979579bb4",
+    "src/aca/research/cli.py": "175f39eebd0ae7a438e68efa54e146dc9959f1f06589807e331c60900ae5b6ee",
+    "src/aca/research/continuous.py": "05556e8a49f172f4dd474a4587325f227b6e6152c76d8a6645f47acdd3d97ef0",
+    "src/aca/research/gates.py": "97dc14a687c5e729d5ea2f55257e866c075913e5c5176029375a239f7f09430b",
+    "src/aca/research/holdout.py": "c36eacc31c7465d9c19d2a77d652be9aa92fa03891fa6848377fe7ee6883774d",
+    "src/aca/research/inference.py": "833f488ca8198ead17c3cc32b057807215ea09336db52a4a39fe883679e111ae",
+    "src/aca/research/registry.py": "20f353ef0e20b43fff54ef113a5ebaf5bc566e2a565aee2a345f6f0d1fc10d09",
+    "src/aca/research/runner.py": "daf2a2325a93dc5dd7e1c7ebee9e2a81d5fab5e43a3ee1bfaf02b2d65f116572",
+    "src/aca/research/study.py": "0d89d951d29fc58152b29dcb0c7f7203c0b4423cc5d2e2f0a46fa48d12d75596",
+    "src/aca/storage/database.py": "8ba808ca1739f7ce3d0d0728ae8a8cae208de2f2326f6ed58059733d32d1d117",
+    "src/aca/storage/migrations/versions/0017_research_holdout.py": "ba9783b3427ba06992393f47c163fa53fb32dff3741588db13122b6b97274519",
+    "src/aca/storage/models.py": "7a40d346b81d6b91ac636808fdda1c0fc5dfe4325b401dc30716a6221b54a756",
+    "tests/test_research_gates.py": "80f05e47237233aaf353d0d98c8a96304a4f2bfd84212179470863b91c408176",
+    "tests/test_research_reviewed.py": "3341703b4400d05cf37f0cbe310727dcaf2c69b80b70a32f0cde1f85672f9756",
+    "tests/test_research_statistics.py": "0e00217698df00e25d0a9cc35eeeefdd5e27bc5e6bfdebe505e496cec85551bd",
+    "tests/test_service.py": "b2f38b70d388940b3992f3afb52fae74eab8a9d771bfbf43e0d76e8543e0821d"
+  },
+  "installed_source_matches_worktree": true,
+  "kind": "phase-4a-batch-d-evidence-v1",
+  "limitations": [
+    "bounded_synthetic_calibration_not_universal_coverage",
+    "history_reuse_not_independent_confirmation",
+    "actual_source_assurance_BLOCKED_NO_GO",
+    "no_corrected_actual_performance_results",
+    "holdout_reviewed_is_consumed_not_promoted",
+    "internal_holdout_gate_requires_separately_reviewed_evaluator",
+    "local_archive_not_production_or_offhost_backup"
+  ],
+  "phase4_complete": {
+    "completed": 17,
+    "total": 17
+  },
+  "phase4a": {
+    "closed_this_batch": [
+      "P4A-11",
+      "P4A-12"
+    ],
+    "completed": 15,
+    "remaining": [
+      "P4A-08",
+      "P4A-09",
+      "P4A-15",
+      "P4A-16"
+    ],
+    "total": 19
+  },
+  "schema_revision": "0017_research_holdout",
+  "schema_version": 1,
+  "statistical_protocol": {
+    "alpha": 0.05,
+    "blocks": [
+      7,
+      30
+    ],
+    "candidate_ceiling": 26,
+    "capital_selection": "250_initial_250_monthly; other_cases_diagnostic_only",
+    "comparisons": [
+      "cash",
+      "passive10"
+    ],
+    "history_reuse": "original20_and_adaptive_review_retained; exploratory_not_independent",
+    "kind": "phase4a-statistics-v1",
+    "method": "paired_circular_percentile_bonferroni",
+    "minimum_expected_tail": 100,
+    "monte_carlo_error": 0.01,
+    "samples": 262144,
+    "schema_version": 1,
+    "seed": 1729,
+    "selection": "any_individually_eligible_recorded_review_no_return_ranking"
+  },
+  "validation": {
+    "critical_financial_property_examples": 1000,
+    "elapsed_seconds": 223.45,
+    "git_diff_check": "pass",
+    "hosted_results": "exact-head PR checks; links and final state maintained in PR body",
+    "lifecycle_fault_sequences": 10000,
+    "linux_postgresql_tests": 885,
+    "mypy_files": 177,
+    "ruff_files": 205
+  }
+}

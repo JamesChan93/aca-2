@@ -96,7 +96,7 @@ jobs:
       - name: Scan application image for high and critical vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: aca-foundation:0.4.23
+          image-ref: aca-foundation:0.4.24
           version: v0.76.0
           scanners: vuln,secret
           format: table

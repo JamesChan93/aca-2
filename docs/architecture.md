@@ -242,10 +242,26 @@ and cost reviews may finish with a named blocked/no-go decision. Local hashes,
 public propagation delay and model assumptions cannot become full-archive proof,
 order latency calibration, maker evidence or historical account fees.
 
-Freeze the complete 20-trial family before loading data for experiments. Ordinary
+Original A26 coordination (superseded by Batch D below): freeze the complete
+20-trial family before loading data for experiments. Ordinary
 runs reserve the last 12 months. A separate freeze binds report/dataset/code/cost
 hashes and a review reason; holdout opening is exclusive in the dataset's local
 artefact tree, and a crash does not reopen it. This is trusted local research
 coordination, not a security boundary against an operator deleting/copying files.
 Append-only PostgreSQL publication preserves events/artifacts independently. No
 research output, freeze or statistical/economic gate can activate execution.
+
+**A26 amendment, Phase 4a Batch D, before corrected inference:** retain the
+paired circular-block percentile Bonferroni method as the baseline decision
+method. Reserve all 26 definitions × two mandatory comparisons × both 7-/30-day
+sensitivities (104 claims); diagnostic capital cases cannot select another winner.
+Use 262,144 deterministic draws, allocating .04 family error to the
+bootstrap tail and .01 to a conservative simultaneous Monte Carlo rank margin,
+with synthetic null/known-effect calibration recorded before actual inference. Historical reuse remains exploratory and requires an explicit review;
+resampling cannot manufacture an independent sample. Do not switch to a joint or
+studentised method after results. Freeze requires typed, rechecked complete
+source/code/strategy/cost/policy/calendar/inference/economic evidence. PostgreSQL
+owns the one-time fixed holdout claim, independent of local folders, candidate or
+dataset revision. A committed claim survives failure; no automatic retry opens it
+again. Synthetic workflows have a separate namespace and cannot qualify actual
+paper. Existing legacy reports remain readable but cannot authorise new freezes.

@@ -1,0 +1,697 @@
+{
+  "actual_frozen_candidates": 0,
+  "actual_holdout_opened": false,
+  "actual_performance_evaluated": false,
+  "actual_qualifying_paper_days": 0,
+  "actual_qualifying_paper_episodes": 0,
+  "archive_bytes": 174080,
+  "archive_restore_equal": true,
+  "archive_sha256": "f76128b67984bf427fcf389d07d0194fb41cfd885576bab529bc53ab71611d6a",
+  "calendar": {
+    "oos_end": "2025-10-01T00:00:00+00:00",
+    "oos_start": "2018-09-01T00:00:00+00:00",
+    "origin": "2016-03-01T00:00:00+00:00",
+    "procedure": "fixed_rule_rolling_evaluation; no_fitted_training_claim",
+    "supplementary_before_origin": {
+      "BTC/GBP:1440": [
+        "2014-11-06T00:00:00+00:00",
+        "2016-03-01T00:00:00+00:00"
+      ],
+      "BTC/GBP:240": [
+        "2014-11-06T16:00:00+00:00",
+        "2016-03-01T00:00:00+00:00"
+      ],
+      "ETH/GBP:1440": [
+        "2015-08-07T00:00:00+00:00",
+        "2016-03-01T00:00:00+00:00"
+      ],
+      "ETH/GBP:240": [
+        "2015-08-07T12:00:00+00:00",
+        "2016-03-01T00:00:00+00:00"
+      ]
+    },
+    "version": "common-continuous-calendar-v1",
+    "windows": [
+      {
+        "partial_tail": false,
+        "test_end": "2019-03-01T00:00:00+00:00",
+        "train_end": "2018-03-01T00:00:00+00:00",
+        "train_start": "2016-03-01T00:00:00+00:00",
+        "validation_end": "2018-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2019-09-01T00:00:00+00:00",
+        "train_end": "2018-09-01T00:00:00+00:00",
+        "train_start": "2016-09-01T00:00:00+00:00",
+        "validation_end": "2019-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2020-03-01T00:00:00+00:00",
+        "train_end": "2019-03-01T00:00:00+00:00",
+        "train_start": "2017-03-01T00:00:00+00:00",
+        "validation_end": "2019-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2020-09-01T00:00:00+00:00",
+        "train_end": "2019-09-01T00:00:00+00:00",
+        "train_start": "2017-09-01T00:00:00+00:00",
+        "validation_end": "2020-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2021-03-01T00:00:00+00:00",
+        "train_end": "2020-03-01T00:00:00+00:00",
+        "train_start": "2018-03-01T00:00:00+00:00",
+        "validation_end": "2020-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2021-09-01T00:00:00+00:00",
+        "train_end": "2020-09-01T00:00:00+00:00",
+        "train_start": "2018-09-01T00:00:00+00:00",
+        "validation_end": "2021-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2022-03-01T00:00:00+00:00",
+        "train_end": "2021-03-01T00:00:00+00:00",
+        "train_start": "2019-03-01T00:00:00+00:00",
+        "validation_end": "2021-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2022-09-01T00:00:00+00:00",
+        "train_end": "2021-09-01T00:00:00+00:00",
+        "train_start": "2019-09-01T00:00:00+00:00",
+        "validation_end": "2022-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2023-03-01T00:00:00+00:00",
+        "train_end": "2022-03-01T00:00:00+00:00",
+        "train_start": "2020-03-01T00:00:00+00:00",
+        "validation_end": "2022-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2023-09-01T00:00:00+00:00",
+        "train_end": "2022-09-01T00:00:00+00:00",
+        "train_start": "2020-09-01T00:00:00+00:00",
+        "validation_end": "2023-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2024-03-01T00:00:00+00:00",
+        "train_end": "2023-03-01T00:00:00+00:00",
+        "train_start": "2021-03-01T00:00:00+00:00",
+        "validation_end": "2023-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2024-09-01T00:00:00+00:00",
+        "train_end": "2023-09-01T00:00:00+00:00",
+        "train_start": "2021-09-01T00:00:00+00:00",
+        "validation_end": "2024-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2025-03-01T00:00:00+00:00",
+        "train_end": "2024-03-01T00:00:00+00:00",
+        "train_start": "2022-03-01T00:00:00+00:00",
+        "validation_end": "2024-09-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": false,
+        "test_end": "2025-09-01T00:00:00+00:00",
+        "train_end": "2024-09-01T00:00:00+00:00",
+        "train_start": "2022-09-01T00:00:00+00:00",
+        "validation_end": "2025-03-01T00:00:00+00:00"
+      },
+      {
+        "partial_tail": true,
+        "test_end": "2025-10-01T00:00:00+00:00",
+        "train_end": "2025-03-01T00:00:00+00:00",
+        "train_start": "2023-03-01T00:00:00+00:00",
+        "validation_end": "2025-09-01T00:00:00+00:00"
+      }
+    ]
+  },
+  "calibration": {
+    "correlated_processes_per_family": 4,
+    "days": 252,
+    "definitions_per_family": 26,
+    "implementation_sha256": "833f488ca8198ead17c3cc32b057807215ea09336db52a4a39fe883679e111ae",
+    "kind": "synthetic_statistical_calibration",
+    "known_daily_effect": 0.002,
+    "known_effect_detections": 64,
+    "limitations": [
+      "bounded_four_process_family_repeated_over_26_definitions",
+      "not_universal_bootstrap_coverage",
+      "history_reuse_not_cured",
+      "no_actual_strategy_results"
+    ],
+    "null_false_positives": 0,
+    "null_fwer_one_sided_95_upper_if_zero": 0.045729702330762456,
+    "passes_declared_probe": true,
+    "promotion_allowed": false,
+    "protocol_sha256": "411a138e40d3229c2a4cce67e6e74ec7feabcbf1557e8de3390c36a17f91dc81",
+    "seed": 804011,
+    "worlds": 64
+  },
+  "calibration_sha256": "e0c57cbc694eca25e6e603b8687534f1062aa55858916335a06813a634182fb3",
+  "code_sha256": "52cef2b9c996e292de266482b425372d670eab9e7f3cf8141367682744c59a75",
+  "database_access": false,
+  "decisions": [
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:240:momentum90"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:1440:momentum90"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:240:sma200"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:240:sma200"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:1440:sma100"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:1440:momentum90"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:1440:momentum60"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:1440:donchian55-20"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:1440:sma200"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:1440:sma100"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:240:sma100"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:240:momentum90"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:240:donchian55-20"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:240:momentum60"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:240:momentum60"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:1440:donchian55-20"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:240:donchian55-20"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "BTC/GBP:240:sma100"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:1440:momentum60"
+    },
+    {
+      "reasons": [
+        "btc_holdout_and_eth_blend_comparison_quarantined",
+        "btc_trade_ids_7098364_7098366_disputed",
+        "fewer_than_four_years_history",
+        "full_archive_sha256_not_verified",
+        "historical_fees_reconstructed_not_verified",
+        "historical_rules_reconstructed_not_verified",
+        "historical_trade_receipt_latency_unavailable",
+        "performance_not_evaluated",
+        "unqualified_cost",
+        "unqualified_history_reuse_review",
+        "unqualified_neighbouring_parameters_and_cost_stability_review",
+        "unqualified_parity",
+        "unqualified_source"
+      ],
+      "status": "incomplete",
+      "trial": "ETH/GBP:1440:sma200"
+    }
+  ],
+  "declaration_sha256": "5b05062ff7b9f7a3825b1ca9afa67bb7292a539d2ccaecc8c0172755c13f9542",
+  "input_file_sha256": {
+    "data/research/reviewed-study-final-2026-10-24/datasets/689acbcc0199e3c0a72b4a0d37f535e7ed95e9c2e15342ecb8aff5ced826ad71/manifest.json": "689acbcc0199e3c0a72b4a0d37f535e7ed95e9c2e15342ecb8aff5ced826ad71",
+    "docs/evidence/phase-4a-continuous-accounts.json": "7849f0baa9c0e5b728481a4d5fec67722206296570e93abb62bad291b82e0c16",
+    "docs/evidence/phase-4a-public-costs.json": "109dfa37b15bda44a256bede66d9ee7996dbe62f39e7f5b07e1c246f26fd03b4",
+    "docs/evidence/phase-4a-source-assurance.json": "3fa9aca748b0f2f724d040365d74d9b088ecf1441cf587592329d0aba71cf901"
+  },
+  "installed_source_matches_worktree": true,
+  "kind": "phase4a-corrected-S0-preflight-v1",
+  "network_access": false,
+  "packet": "packets/b73c112c3fd18bdea3ada3114700e03a745db039c351b11d8d80904bef938a72.json",
+  "private_account_access": false,
+  "protocol": {
+    "alpha": 0.05,
+    "blocks": [
+      7,
+      30
+    ],
+    "candidate_ceiling": 26,
+    "capital_selection": "250_initial_250_monthly; other_cases_diagnostic_only",
+    "comparisons": [
+      "cash",
+      "passive10"
+    ],
+    "history_reuse": "original20_and_adaptive_review_retained; exploratory_not_independent",
+    "kind": "phase4a-statistics-v1",
+    "method": "paired_circular_percentile_bonferroni",
+    "minimum_expected_tail": 100,
+    "monte_carlo_error": 0.01,
+    "samples": 262144,
+    "schema_version": 1,
+    "seed": 1729,
+    "selection": "any_individually_eligible_recorded_review_no_return_ranking"
+  },
+  "purpose": "actual",
+  "retained_deployment_changed": false,
+  "review": {
+    "abandoned_attempts": 0,
+    "execution_permission": false,
+    "failed_attempts": 0,
+    "objects": 83,
+    "packet_sha256": "b73c112c3fd18bdea3ada3114700e03a745db039c351b11d8d80904bef938a72",
+    "promotion_allowed": false,
+    "stored_bytes": 103146,
+    "tasks": {
+      "BTC/GBP:1440:donchian55-20": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:1440:momentum60": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:1440:momentum90": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:1440:sma100": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:1440:sma200": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:240:donchian55-20": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:240:momentum60": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:240:momentum90": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:240:sma100": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "BTC/GBP:240:sma200": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:1440:donchian55-20": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:1440:momentum60": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:1440:momentum90": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:1440:sma100": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:1440:sma200": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:240:donchian55-20": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:240:momentum60": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:240:momentum90": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:240:sma100": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      },
+      "ETH/GBP:240:sma200": {
+        "attempt": 1,
+        "reason": "incomplete_evidence_no_run",
+        "status": "rejected"
+      }
+    }
+  },
+  "source_lineage": "6e66e687603019233632ad4c71e98b5e747acf64c4d260310b0b33f98d49f3ae"
+}

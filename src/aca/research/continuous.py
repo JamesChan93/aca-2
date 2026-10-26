@@ -122,6 +122,7 @@ class Comparison:
     costs: CostModel
     rules: dict[Symbol, InstrumentRules]
     policy: RiskPolicy
+    interval_minutes: int = 1440
     version: str = ACCOUNT_MODEL
     promotion_evidence: bool = False
 
@@ -361,6 +362,7 @@ class ContinuousEvaluation:
             self.costs,
             dict(self.comparators["cash"].rules),
             self.candidate.policy,
+            interval_minutes=self.bars[self.symbol][0].interval_minutes,
         )
 
 
@@ -568,6 +570,7 @@ def comparison_report(value: Comparison) -> dict[str, object]:
         "scope": value.scope,
         "symbol": value.symbol,
         "variant": value.variant,
+        "interval_minutes": value.interval_minutes,
         "costs": value.costs.model_dump(mode="json"),
         "instrument_rules": {s: r.model_dump(mode="json") for s, r in sorted(value.rules.items())},
         "risk_policy": value.policy.model_dump(mode="json"),

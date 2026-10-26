@@ -271,6 +271,6 @@ def test_quarantine_blocks_window_and_holdout_without_opening(
         },
     )
     manifest = tmp_path / "datasets" / dataset.fingerprint / "manifest.json"
-    with pytest.raises(ResearchDataError, match="quarantined"):
+    with pytest.raises(ValueError, match="legacy holdout disabled"):
         holdout(tmp_path, manifest, frozen)
     assert not (tmp_path / "holdout-openings").exists()

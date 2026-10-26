@@ -6,7 +6,7 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: in progress; 13/19 completion items.** P4A-17 closes through the
+**Status: in progress; 15/19 completion items.** P4A-17 closes through the
 [merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
 P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
 its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
@@ -17,7 +17,10 @@ closing P4A-01/04/05/06 with source-bound synthetic verification. Version 0.4.23
 delivers [Batch C continuous accounts, equal flows, comparators and assurance](phase-4a-continuous-accounts.md),
 closing P4A-02/03/07/10/13/14/19. The source review concludes blocked/no-go for
 qualification; it does not verify the missing archive/history facts. The remaining
-six items are unchecked. No corrected actual-data study has run. Current
+four items are unchecked. Version 0.4.24 delivers
+[Batch D statistical decisions and durable research gates](phase-4a-statistical-gates.md),
+closing P4A-11/P4A-12. Its actual-data preflight records 20 incomplete/no-run
+outcomes; no corrected actual-data performance study has run. Current
 integrated PR checks must pass before merge; prior CI success is not transferred to new code.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
@@ -209,7 +212,7 @@ baseline evidence rather than Phase 4a implementation credit.
   accurately; no fitted training procedure is implied where none exists.
   Acceptance: The [frozen common calendar and literal tail oracle](phase-4a-continuous-accounts.md#p4a-10-complete-calendar) include the previously unused tails, past-only warm-up, missing daily endpoints and unchanged holdout. No actual corrected strategy return was evaluated.
 
-- [ ] **P4A-11 — Calibrated statistical decision.** Preregister the complete
+- [x] **P4A-11 — Calibrated statistical decision.** Preregister the complete
   comparison family, history reuse, block sensitivities, selection procedure,
   precision target and deterministic seeds. Use sufficient tail resolution for
   the chosen method; test false-positive control and known-effect sensitivity on
@@ -217,8 +220,11 @@ baseline evidence rather than Phase 4a implementation credit.
   justified recorded method decision, not a post-result switch. Keep baseline
   Bonferroni evidence and disclose Monte Carlo uncertainty. Depends on P4A-05/
   P4A-10/P4A-18; ready before S0 inference or S1/S2 selection.
+  Acceptance: The [fixed 104-claim protocol, Monte Carlo error budget and correlated calibration](phase-4a-statistical-gates.md#p4a-11-preregistered-statistical-decision)
+  retain baseline Bonferroni, full history reuse and source-bound synthetic checks.
+  This is bounded calibration, not proof of universal bootstrap coverage.
 
-- [ ] **P4A-12 — Enforced research gates and holdout lineage.** Implement typed
+- [x] **P4A-12 — Enforced research gates and holdout lineage.** Implement typed
   failed/incomplete/freeze-eligible/holdout-reviewed outcomes with exact data,
   code, strategy, cost, policy and evidence bindings. Reject failed/insufficient
   candidates at freeze and recheck before opening. Make one-time holdout use
@@ -226,6 +232,10 @@ baseline evidence rather than Phase 4a implementation credit.
   cannot reopen it. Keep synthetic workflow tests separate. Demonstrate rejection
   paths and a wholly synthetic positive path without opening the actual holdout.
   Depends on P4A-03/P4A-07/P4A-11/P4A-14/P4A-18.
+  Acceptance: [Typed rechecked gates, corrected S0 workflow and PostgreSQL holdout claims](phase-4a-statistical-gates.md#p4a-12-rechecked-decisions-and-durable-holdout-use)
+  reject incomplete/failed freezes, changed evidence and replay across folders,
+  revisions, concurrent callers and restarts. The actual preflight is explicitly
+  no-run; the wholly synthetic positive path opens no actual holdout.
 
 - [x] **P4A-13 — Measured execution-cost inputs.** Separate conservative sizing/
   risk fee bounds from modelled realised maker/taker charges. Produce a versioned

@@ -542,84 +542,18 @@ def _trial(
     return outcome
 
 
-def freeze(root: Path, report_path: Path, trial: str, review: str) -> Path:
-    report = read_json(report_path)
-    if report_path.stem != digest(canonical(report)):
-        raise ValueError("report content hash mismatch")
-    if report.get("kind") != "research_report" or not review.strip():
-        raise ValueError("freeze requires a research report and review reason")
-    trials = report["trials"]
-    if not isinstance(trials, list) or trial not in {item["trial"] for item in trials}:
-        raise ValueError("candidate was not in the predeclared family")
-    declaration = report["declaration"]
-    if not isinstance(declaration, dict) or declaration["code_sha256"] != code_fingerprint():
-        raise ValueError("code changed since experiment")
-    document: dict[str, object] = {
-        "schema_version": 1,
-        "kind": "candidate_freeze",
-        "report_sha256": file_hash(report_path),
-        "dataset": report["dataset"],
-        "trial": trial,
-        "declaration": declaration,
-        "review": review,
-        "at": datetime.now(UTC).isoformat(),
-        "execution_permission": False,
-    }
-    return save_document(root / "freezes", document)
+def freeze(
+    root: Path, report_path: Path, trial: str, review: str, *, actor: str | None = None
+) -> Path:
+    """Historical reports remain readable; they cannot authorise new research use."""
+    if read_json(report_path).get("kind") != "corrected-evaluation-v1":
+        raise ValueError("legacy report cannot freeze; use corrected evidence-bound research gates")
+    if actor is None:
+        raise ValueError("freeze requires an explicit review actor")
+    from aca.research.gates import freeze_evaluation
+
+    return freeze_evaluation(root, report_path, trial, actor, review)
 
 
 def holdout(root: Path, manifest: Path, frozen_path: Path) -> Path:
-    frozen = read_json(frozen_path)
-    dataset = load_dataset(manifest)
-    declaration = frozen.get("declaration")
-    if (
-        frozen.get("kind") != "candidate_freeze"
-        or frozen_path.stem != digest(canonical(frozen))
-        or not isinstance(declaration, dict)
-        or declaration.get("code_sha256") != code_fingerprint()
-        or frozen.get("dataset") != dataset.fingerprint
-        or declaration.get("costs") != CostModel().model_dump(mode="json")
-    ):
-        raise ValueError("holdout requires an unchanged frozen candidate, dataset and cost model")
-    trial = str(frozen["trial"])
-    selected = next(item for item in TRIALS if f"{item[0]}:{item[1]}:{item[2]}" == trial)
-    bars = dataset.series[(selected[0], selected[1])]
-    end = bars[-1].end
-    other = dataset.series[("ETH/GBP" if selected[0] == "BTC/GBP" else "BTC/GBP", selected[1])]
-    # Quarantine is a preflight failure, before consuming the one-time holdout.
-    # This includes the comparison asset needed for the predeclared blend.
-    for series in (bars, other):
-        _qualified_window(_window(series, months(end, -12), end))
-    # One opening per dataset, across all candidates. A crash remains an opened holdout.
-    marker = manifest.parents[2] / "holdout-openings" / (dataset.fingerprint + ".json")
-    marker.parent.mkdir(parents=True, exist_ok=True)
-    with marker.open("xb") as stream:
-        stream.write(
-            canonical(
-                {"freeze_sha256": file_hash(frozen_path), "at": datetime.now(UTC).isoformat()}
-            )
-        )
-    run_id = str(uuid4())
-    event(root, run_id, str(frozen["trial"]), "holdout_opened", {"dataset": dataset.fingerprint})
-    try:
-        result = _fold_report(
-            bars,
-            reconstructed_rules(selected[0]),
-            selected[2],
-            months(end, -12),
-            end,
-            CostModel(),
-            other,
-        )
-        report: dict[str, object] = {
-            "kind": "holdout_report",
-            "freeze_sha256": file_hash(frozen_path),
-            "result": result,
-            "promotion_allowed": False,
-        }
-        output = save_document(root / "reports", report)
-        event(root, run_id, trial, "completed", {"report_sha256": file_hash(output)})
-        return output
-    except Exception as exc:
-        event(root, run_id, trial, "failed", {"error_type": type(exc).__name__})
-        raise
+    raise ValueError("legacy holdout disabled; requires corrected gates and durable holdout claim")

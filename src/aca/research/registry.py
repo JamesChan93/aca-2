@@ -22,6 +22,9 @@ def _paths(root: Path) -> list[Path]:
             *root.glob("freezes/*.json"),
             *root.glob("events/*.json"),
             *root.glob("packets/*.json"),
+            *root.glob("decisions/*.json"),
+            *root.glob("calibrations/*.json"),
+            *root.glob("evaluations/*.json"),
         ]
     )
 
@@ -52,8 +55,29 @@ async def register(root: Path, engine: AsyncEngine) -> dict[str, int]:
             "holdout_report",
             "candidate_freeze",
             "research_review_packet",
+            "candidate-freeze-v2",
+            "corrected-evaluation-v1",
+            "research-decision-v1",
+            "research-holdout-review-v1",
+            "synthetic_statistical_calibration",
         }:
             raise ValueError("unsupported research artefact kind")
+        if kind == "candidate-freeze-v2":
+            from aca.research.gates import Freeze
+
+            Freeze.model_validate_json(canonical(document))
+        elif kind == "corrected-evaluation-v1":
+            from aca.research.gates import Evaluation
+
+            Evaluation.model_validate_json(canonical(document))
+        elif kind == "research-decision-v1":
+            from aca.research.gates import Decision
+
+            Decision.model_validate_json(canonical(document))
+        elif kind == "research-holdout-review-v1":
+            from aca.research.gates import HoldoutReview
+
+            HoldoutReview.model_validate_json(canonical(document))
         if kind == "research_review_packet":
             from aca.research.bundles import verify
 

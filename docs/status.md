@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 25 October 2026. Application **0.4.23**, schema `0016_history_segments`.
+Updated 26 October 2026. Application **0.4.24**, schema `0017_research_holdout`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -51,7 +51,7 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
-**Phase 4a is in progress at 13/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
+**Phase 4a is in progress at 15/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
 completed with all eight hosted checks passing on `eae9a2b` before PR #29 merged.
 Both hosted runs passed 738 tests, dependency audits, packaging, both image scans
 and bounded-history acceptance. Earlier 0.4.19 audit/fixture failures are retained
@@ -93,7 +93,7 @@ All eight hosted checks passed on `a12891d` before PR #32 merged. Synthetic
 fixtures do not qualify a trading candidate.
 
 The [fixed plan](phase-4a.md) still has 19 items, six batches and at most 26
-candidate definitions. Six items remain unchecked. Version 0.4.23 delivers
+candidate definitions. Four items remain unchecked. Version 0.4.23 delivers
 [Batch C continuous accounts, contributions, comparators and assurance](phase-4a-continuous-accounts.md),
 closing P4A-02/03/07/10/13/14/19. Equal-flow scenarios and report boundaries
 preserve the account; the common calendar includes the terminal pre-holdout tail.
@@ -143,7 +143,7 @@ only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 
 | Stage | Work / decision still required |
 | --- | --- |
-| Phase 4a | [Fixed 19-item plan](phase-4a.md), 13/19: Batches A–C complete; corrected study/statistical gates, bounded additional research and qualifying-paper preparation remain |
+| Phase 4a | [Fixed 19-item plan](phase-4a.md), 15/19: Batches A–D engineering/decisions complete; actual corrected performance blocked/no-run; bounded S1/S2 and qualifying-paper preparation remain |
 | Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; all current candidates rejected |
 | Phase 5 / G4 | Authorised observation start; at least 56 calendar days and 10 completed signal-driven episodes; measured fills/latency, 99.5% healthy observations under the specified dependency condition, real destination integration, recovery exercises and positive economics |
 | Deployment/readiness / G4–G5 | Authorised hosting/service setup, actual capture growth and maintenance planning, encrypted off-host/WAL backups, gap reconciliation, host-loss/fencing drills, production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |
@@ -154,3 +154,15 @@ These later requirements do not reopen the fixed Phase 4 checklist. No contribut
 test count, elapsed time, restart or configuration flag grants trading permission.
 Private Kraken access, paid deployment, writer implementation and every live order
 retain their separate authorisation boundaries.
+
+Version 0.4.24 delivers [Batch D](phase-4a-statistical-gates.md), closing P4A-11/12.
+The 104-claim protocol retains baseline Bonferroni, reserves its Monte Carlo error
+budget and uses source-bound correlated synthetic calibration. Typed gates recheck
+source/code/strategy/cost/policy/calendar/evidence before freeze and opening.
+PostgreSQL owns the append-only one-time fixed holdout claim; folder or source
+revision and failure cannot replay evaluation. Legacy freezes are refused.
+The corrected S0 workflow records 20 incomplete/no-run decisions against current
+actual evidence. There are no new actual return estimates, candidate freezes,
+holdout openings or qualifying paper days/episodes. Remaining work is exactly
+P4A-08/09/15/16 in Batches E/F. Retained workstation services remain on 0.4.8;
+no upgrade or migration is performed by this release verification.
