@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 26 October 2026. Application **0.4.24**, schema `0017_research_holdout`.
+Updated 27 October 2026. Application **0.4.24**, schema `0017_research_holdout`.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -166,3 +166,10 @@ actual evidence. There are no new actual return estimates, candidate freezes,
 holdout openings or qualifying paper days/episodes. Remaining work is exactly
 P4A-08/09/15/16 in Batches E/F. Retained workstation services remain on 0.4.8;
 no upgrade or migration is performed by this release verification.
+
+PR #34's final database-image scan exposed CVE-2026-92392 in libcurl. The
+[security follow-up](phase-4a-statistical-gates.md#database-image-security-follow-up-27-october-2026)
+pins 8.23.0-r0 and preserves the PostgreSQL/base versions and previous Brotli fix.
+All 885 tests pass against the patched local image; its Trivy scan is clean at
+high/critical severity. No Python locks, application-source fingerprint, research
+results or retained services change. Exact-head hosted checks are recorded in PR #34.

@@ -198,3 +198,24 @@ Final local frozen-source verification: **885 Linux/PostgreSQL tests pass in
 and format pass 205 files. The installed wheel and worktree fingerprints agree.
 Hosted dependency, image, capacity, restore and packaging checks still belong to
 the exact PR commit; previous-release success does not approve this source.
+
+## Database-image security follow-up, 27 October 2026
+
+Both initial hosted workflows passed all 885 tests, typed/format checks, restore
+(including all 33 application tables), capacity, dependency audits, packaging and
+application-image scanning. Their database-image scan found
+[CVE-2026-92392](https://curl.se/docs/CVE-2026-92392.html) in libcurl 8.22.0-r0.
+A19 records the exact signed Alpine `libcurl=8.23.0-r0` fix, preserving the base
+digest, PostgreSQL version and existing Brotli pin. Comparing the previous
+committed image with the patched image shows only this package changes (53
+packages in each). No finding is suppressed and no scan is weakened.
+
+The patched local image passes the full **885-test PostgreSQL suite in 256.44
+seconds** and Trivy 0.76.0 finds **zero high/critical vulnerabilities and zero
+secrets**. The first local vulnerability-database mirror transfer ended early;
+a retry from Trivy's official registry succeeded. Local image verification is
+arm64; the new hosted runs verify amd64. The
+[security receipt](evidence/phase-4a-image-security.json) preserves the initial
+failed run IDs, exact package/inventory hashes, scan identity and limits. Python
+source, protocol/calibration/preflight identities, financial policy and dependency
+locks remain unchanged. Retained services remain on their original images.

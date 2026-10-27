@@ -3,6 +3,7 @@ FROM postgres:18.6-alpine3.24@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c666
 # helper; remove the unused binary and its vulnerable bundled Go runtime.
 # CVE-2026-111497: the reviewed base still contains brotli-libs 1.2.0-r1.
 # Pin the signed Alpine security update; do not upgrade unrelated packages.
-RUN apk add --no-cache 'brotli-libs=1.2.1-r0' \
+# CVE-2026-92392: libcurl 8.23.0 fixes the HTTP/2 upload use-after-free.
+RUN apk add --no-cache 'brotli-libs=1.2.1-r0' 'libcurl=8.23.0-r0' \
     && rm /usr/local/bin/gosu
 USER postgres:postgres

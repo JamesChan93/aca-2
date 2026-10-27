@@ -265,3 +265,13 @@ owns the one-time fixed holdout claim, independent of local folders, candidate o
 dataset revision. A committed claim survives failure; no automatic retry opens it
 again. Synthetic workflows have a separate namespace and cannot qualify actual
 paper. Existing legacy reports remain readable but cannot authorise new freezes.
+
+**A19 amendment, 26 October 2026:** PR #34's database-image scan reports
+[CVE-2026-92392](https://curl.se/docs/CVE-2026-92392.html) in
+`libcurl==8.22.0-r0`. The upstream advisory fixes the HTTP/2 upload use-after-free
+in curl 8.23.0. Keep the PostgreSQL 18.6/Alpine base digest and existing Brotli
+pin; install the exact signed Alpine update `libcurl=8.23.0-r0`. A refreshed
+signed-index simulation changes only that package, with no additional packages.
+Do not suppress the finding, disable scanning, run a general OS upgrade or alter
+Python locks. Require PostgreSQL regression and fresh image scans. This source
+image change does not upgrade or restart the retained database/container.
