@@ -26,7 +26,7 @@ No candidate is frozen and the final holdout remains closed.
 The [Phase 4a plan](docs/phase-4a.md) turns the
 [research and repository review](docs/research-promotion-review-2026-10-24.md)
 into a fixed **19-item** research-fidelity and promotion-preparation phase.
-It is in progress at **13/19**, with six implementation batches and a bounded study
+It is in progress at **15/19**, with six implementation batches and a bounded study
 budget. P4A-17 closes the release-check repair. Version 0.4.20 adds P4A-18's
 [modular research output and offline restore](docs/phase-4a-artifacts.md): durable
 attempts, bounded pages, deterministic trial resume and a byte-identical archive/
@@ -193,3 +193,11 @@ The continuous operational runner uses only the durable local paper venue. Paper
 simulator's records; it is not evidence of Kraken account reconciliation.
 Subsequent milestones require review; live order-writer implementation and activation
 require separate explicit authorisation under the approved plan.
+
+Phase 4a Batch D adds the preregistered 104-claim statistical protocol, evidence-bound
+freeze decisions, and PostgreSQL one-time holdout-use records. The corrected S0
+workflow refuses incomplete source evidence before evaluating returns. Legacy
+reports cannot freeze; use a corrected evaluation and an explicit review actor.
+See [the Batch D evidence and commands](docs/phase-4a-statistical-gates.md).
+The retained workstation stack is unchanged; actual holdout and qualifying paper
+remain unstarted. Schema 0017 is an additive research migration for reviewed upgrades.

@@ -30,6 +30,7 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     freeze.add_argument("--report", type=Path, required=True)
     freeze.add_argument("--trial", required=True)
     freeze.add_argument("--review", required=True)
+    freeze.add_argument("--actor", required=True)
     holdout = actions.add_parser("holdout")
     holdout.add_argument("--dataset", type=Path, required=True)
     holdout.add_argument("--freeze", type=Path, required=True)
@@ -44,6 +45,19 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     assurance.add_argument("--original-manifest", type=Path)
     assurance.add_argument("--full-archive", type=Path)
     assurance.add_argument("--root", type=Path, default=Path("data/research"))
+    calibration = actions.add_parser("calibrate", help="Synthetic preregistered statistical probes")
+    calibration.add_argument("--root", type=Path, default=Path("data/research"))
+    corrected = actions.add_parser(
+        "corrected", help="Corrected S0, with enforced evidence preflight"
+    )
+    corrected.add_argument("--dataset", type=Path, required=True)
+    corrected.add_argument("--source-review", type=Path)
+    corrected.add_argument("--cost-review", type=Path)
+    corrected.add_argument("--parity-review", type=Path)
+    corrected.add_argument("--calibration", type=Path)
+    corrected.add_argument("--review-bundle", type=Path)
+    corrected.add_argument("--trades", type=Path)
+    corrected.add_argument("--root", type=Path, default=Path("data/research"))
     preserve = actions.add_parser("bundle-preserve", help="Preserve an unopened legacy report")
     preserve.add_argument("--report", type=Path, required=True)
     preserve.add_argument("--directory", type=Path, required=True)
@@ -103,6 +117,47 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
                 original_manifest=args.original_manifest,
             ),
         )
+    elif args.action == "calibrate":
+        from aca.research.artifacts import save_document
+        from aca.research.inference import calibration
+
+        output = {"calibration": str(save_document(args.root / "calibrations", calibration()))}
+    elif args.action == "corrected":
+        from aca.research.artifacts import canonical, digest
+        from aca.research.study import actual_evidence, run_corrected
+
+        paths = (args.source_review, args.cost_review, args.parity_review, args.calibration)
+        if args.review_bundle is not None:
+            if any(path is not None for path in paths):
+                raise ValueError("review bundle replaces individual review arguments")
+            from aca.research.gates import ReviewBundle
+
+            value = ReviewBundle.model_validate_json(canonical(read_json(args.review_bundle)))
+            if value.evidence.purpose != "actual":
+                raise ValueError(
+                    "ordinary corrected CLI requires actual evidence; synthetic is test-only"
+                )
+            evidence, calibrated, documents = value.evidence, value.calibration, value.documents
+        else:
+            if any(path is None for path in paths):
+                raise ValueError("supply all four retained reviews or an explicit reviewed bundle")
+            evidence = actual_evidence(*paths)
+            calibrated = read_json(args.calibration)
+            documents = {digest(canonical(doc)): doc for doc in (read_json(path) for path in paths)}
+        output = {
+            "packet": str(
+                run_corrected(
+                    args.root,
+                    args.dataset,
+                    evidence,
+                    calibrated,
+                    trades=args.trades,
+                    reviews=documents,
+                )
+            ),
+            "holdout_opened": False,
+            "execution_permission": False,
+        }
     elif args.action.startswith("bundle-"):
         from aca.research.bundles import archive, export_report, preserve_report, restore, verify
 
@@ -132,7 +187,7 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
             else:
                 result = run(args.root, args.dataset, samples=args.bootstrap_samples)
         elif args.action == "freeze":
-            result = freeze(args.root, args.report, args.trial, args.review)
+            result = freeze(args.root, args.report, args.trial, args.review, actor=args.actor)
         else:
             result = holdout(args.root, args.dataset, args.freeze)
         output = {"artifact": str(result), "execution_permission": False}

@@ -1,0 +1,22 @@
+{
+  "correlated_processes_per_family": 4,
+  "days": 252,
+  "definitions_per_family": 26,
+  "implementation_sha256": "833f488ca8198ead17c3cc32b057807215ea09336db52a4a39fe883679e111ae",
+  "kind": "synthetic_statistical_calibration",
+  "known_daily_effect": 0.002,
+  "known_effect_detections": 64,
+  "limitations": [
+    "bounded_four_process_family_repeated_over_26_definitions",
+    "not_universal_bootstrap_coverage",
+    "history_reuse_not_cured",
+    "no_actual_strategy_results"
+  ],
+  "null_false_positives": 0,
+  "null_fwer_one_sided_95_upper_if_zero": 0.045729702330762456,
+  "passes_declared_probe": true,
+  "promotion_allowed": false,
+  "protocol_sha256": "411a138e40d3229c2a4cce67e6e74ec7feabcbf1557e8de3390c36a17f91dc81",
+  "seed": 804011,
+  "worlds": 64
+}

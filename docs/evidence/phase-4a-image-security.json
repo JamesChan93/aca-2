@@ -1,0 +1,64 @@
+{
+  "added": [
+    "libcurl-8.23.0-r0"
+  ],
+  "advisory": "https://curl.se/docs/CVE-2026-92392.html",
+  "base_image": "postgres:18.6-alpine3.24@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873",
+  "before_inventory_sha256": "947323eca942c03fdc964a285259477fd24676cb7fd8ac99d1908ce18e5efcb4",
+  "date": "2026-10-27",
+  "dockerfile_sha256": "bbfb479365f1b4e1a6cb33ca77d6406cf36df5945ffdf1b9fe8b4e2114ee6e87",
+  "elapsed_seconds": 256.44,
+  "existing_brotli_pin": "1.2.1-r0",
+  "findings_suppressed": false,
+  "fixed_libcurl": "8.23.0-r0",
+  "high_critical_vulnerabilities": 0,
+  "hosted_amd64_results": "exact follow-up commit workflows; final links in PR #34 body",
+  "initial_failed_runs": [
+    {
+      "event": "push",
+      "job_id": 121353212831,
+      "run_id": 40254458289
+    },
+    {
+      "event": "pull_request",
+      "job_id": 121353313198,
+      "run_id": 40254490714
+    }
+  ],
+  "initial_failure": "database_image_scan_only; other release stages passed",
+  "initial_feature_commit": "dba401b3343eebcd7097bbd504bafeed522b970f",
+  "initial_mirror_download_interrupted": true,
+  "kind": "phase-4a-database-security-followup-v1",
+  "local_image_architecture": "arm64",
+  "local_postgresql_tests": 885,
+  "local_trivy_version": "0.76.0",
+  "official_registry_retry_succeeded": true,
+  "packages_after": 53,
+  "packages_before": 53,
+  "patched_inventory_sha256": "853c16b037a94402149c650eedd9feed6f0ae65acb6807b47651fdbfa866c9bd",
+  "postgresql_version_changed": false,
+  "previous_libcurl": "8.22.0-r0",
+  "python_application_source_sha256": "52cef2b9c996e292de266482b425372d670eab9e7f3cf8141367682744c59a75",
+  "python_source_and_dependency_locks_changed": false,
+  "removed": [
+    "libcurl-8.22.0-r0"
+  ],
+  "retained_app_and_database_restarted_or_upgraded": false,
+  "scan_checks_relaxed": false,
+  "scan_database_registry": "ghcr.io/aquasecurity/trivy-db:2",
+  "scan_report_sha256": "c580a97aeae5a940f12d8452020a3f8922febbc7f6186189e1b1d40df171dca4",
+  "scan_severities": [
+    "HIGH",
+    "CRITICAL"
+  ],
+  "scanner_image": "aquasec/trivy@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+  "scanners": [
+    "vuln",
+    "secret"
+  ],
+  "schema_version": 1,
+  "secrets_found": 0,
+  "severity": "HIGH",
+  "signed_index_and_exact_package_build_verified": true,
+  "vulnerability": "CVE-2026-92392"
+}

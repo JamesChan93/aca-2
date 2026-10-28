@@ -242,10 +242,36 @@ and cost reviews may finish with a named blocked/no-go decision. Local hashes,
 public propagation delay and model assumptions cannot become full-archive proof,
 order latency calibration, maker evidence or historical account fees.
 
-Freeze the complete 20-trial family before loading data for experiments. Ordinary
+Original A26 coordination (superseded by Batch D below): freeze the complete
+20-trial family before loading data for experiments. Ordinary
 runs reserve the last 12 months. A separate freeze binds report/dataset/code/cost
 hashes and a review reason; holdout opening is exclusive in the dataset's local
 artefact tree, and a crash does not reopen it. This is trusted local research
 coordination, not a security boundary against an operator deleting/copying files.
 Append-only PostgreSQL publication preserves events/artifacts independently. No
 research output, freeze or statistical/economic gate can activate execution.
+
+**A26 amendment, Phase 4a Batch D, before corrected inference:** retain the
+paired circular-block percentile Bonferroni method as the baseline decision
+method. Reserve all 26 definitions × two mandatory comparisons × both 7-/30-day
+sensitivities (104 claims); diagnostic capital cases cannot select another winner.
+Use 262,144 deterministic draws, allocating .04 family error to the
+bootstrap tail and .01 to a conservative simultaneous Monte Carlo rank margin,
+with synthetic null/known-effect calibration recorded before actual inference. Historical reuse remains exploratory and requires an explicit review;
+resampling cannot manufacture an independent sample. Do not switch to a joint or
+studentised method after results. Freeze requires typed, rechecked complete
+source/code/strategy/cost/policy/calendar/inference/economic evidence. PostgreSQL
+owns the one-time fixed holdout claim, independent of local folders, candidate or
+dataset revision. A committed claim survives failure; no automatic retry opens it
+again. Synthetic workflows have a separate namespace and cannot qualify actual
+paper. Existing legacy reports remain readable but cannot authorise new freezes.
+
+**A19 amendment, 26 October 2026:** PR #34's database-image scan reports
+[CVE-2026-92392](https://curl.se/docs/CVE-2026-92392.html) in
+`libcurl==8.22.0-r0`. The upstream advisory fixes the HTTP/2 upload use-after-free
+in curl 8.23.0. Keep the PostgreSQL 18.6/Alpine base digest and existing Brotli
+pin; install the exact signed Alpine update `libcurl=8.23.0-r0`. A refreshed
+signed-index simulation changes only that package, with no additional packages.
+Do not suppress the finding, disable scanning, run a general OS upgrade or alter
+Python locks. Require PostgreSQL regression and fresh image scans. This source
+image change does not upgrade or restart the retained database/container.

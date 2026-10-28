@@ -145,16 +145,7 @@ def test_full_family_replay_and_frozen_holdout(tmp_path: Path) -> None:
     assert first["holdout_opened"] is False
     assert not (root / "holdout-openings").exists()
     trial = "BTC/GBP:1440:sma200"
-    frozen = freeze(root, first_path, trial, "Synthetic workflow test; no economic conclusion")
-    output = read_json(holdout(root, manifest, frozen))
-    assert output["promotion_allowed"] is False
-    with pytest.raises(FileExistsError):
-        holdout(root, manifest, frozen)
-    with pytest.raises(ValueError, match="predeclared"):
-        freeze(root, first_path, "unregistered", "test")
-    changed = read_json(frozen)
-    changed["declaration"]["costs"]["taker_fee"] = "0"  # type: ignore[index]
-    tampered = tmp_path / "changed.json"
-    tampered.write_bytes(canonical(changed))
-    with pytest.raises(ValueError, match="unchanged"):
-        holdout(root, manifest, tampered)
+    with pytest.raises(ValueError, match="legacy report cannot freeze"):
+        freeze(root, first_path, trial, "Synthetic legacy rejection; no economic conclusion")
+    with pytest.raises(ValueError, match="legacy holdout disabled"):
+        holdout(root, manifest, first_path)

@@ -102,3 +102,16 @@ class ResearchEvent(Base):
     )
     status: Mapped[str] = mapped_column(String(40))
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ResearchHoldoutUse(Base):
+    __tablename__ = "research_holdout_uses"
+    __table_args__ = (
+        CheckConstraint("octet_length(document::text) <= 262144"),
+        {"schema": "aca"},
+    )
+    scope: Mapped[str] = mapped_column(String(160), primary_key=True)
+    freeze: Mapped[str] = mapped_column(String(64))
+    source_lineage: Mapped[str] = mapped_column(String(64))
+    document: Mapped[dict[str, object]] = mapped_column(JSONB)
+    claimed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
