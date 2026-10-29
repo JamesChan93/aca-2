@@ -15,6 +15,7 @@ from sqlalchemy import text
 
 from aca.app.health import FoundationMetrics, FoundationStatus, HealthServer
 from aca.app.paper_strategy import PaperStrategy
+from aca.app.paper_study import PaperStudyStrategy
 from aca.domain.trading import Valuation
 from aca.execution.paper import PaperExecution
 from aca.market_data.paper_feed import FeedUnavailable, StoredPaperFeed
@@ -25,6 +26,7 @@ from aca.storage.archive_format import ArchiveReference
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.paper import PaperStore, PaperWriter
 from aca.storage.replay import cursors
+from aca.storage.studies import check_release, read_study
 
 
 class SupervisorStatus(FoundationStatus):
@@ -42,6 +44,7 @@ class SupervisorStatus(FoundationStatus):
         self.replay_processed = 0
         self.replay_skipped_trades = 0
         self.strategy_dispatch_enabled = False
+        self.study_id: UUID | None = None
         self.strategy_watermark: str | None = None
         self.strategy_decisions = 0
         self.strategy_reason: str | None = None
@@ -73,6 +76,8 @@ class SupervisorStatus(FoundationStatus):
                 "strategy_watermark": self.strategy_watermark,
                 "strategy_decisions_this_process": self.strategy_decisions,
                 "strategy_reason": self.strategy_reason,
+                "study_id": str(self.study_id) if self.study_id else None,
+                "study_report_required": self.study_id is not None,
                 "qualifying_days": 0,
                 "qualifying_episodes": 0,
                 "fill_replay_enabled": self.fill_replay_enabled,
@@ -83,7 +88,7 @@ class SupervisorStatus(FoundationStatus):
                 "replay_processed": self.replay_processed,
                 "replay_skipped_trades": self.replay_skipped_trades,
                 "promotion_evidence": False,
-                "operational_only": True,
+                "operational_only": self.study_id is None,
             }
         )
         return doc
@@ -147,7 +152,7 @@ class PaperSupervisor:
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         timer: Callable[[], float] = monotonic,
         replay: StoredReplay | None = None,
-        strategy: PaperStrategy | None = None,
+        strategy: PaperStrategy | PaperStudyStrategy | None = None,
     ) -> None:
         self.service, self.status = service, status
         self.marks, self.capacity, self.clock, self.timer = marks, capacity, clock, timer
@@ -300,6 +305,8 @@ class PaperSupervisor:
                 began = self.timer()
                 async with asyncio.timeout(3):
                     await self.tick()
+                    if isinstance(self.strategy, PaperStudyStrategy):
+                        await self.strategy.observe(self.status, self.clock())
                 self.status.tick_seconds = self.timer() - began
                 self.status.ticks += 1
                 healthy = self.status.supervision_ready
@@ -315,6 +322,20 @@ class PaperSupervisor:
         except BaseException:
             self.status.reason = "paper_supervisor_fault"
             self.status.last_success = None
+            if isinstance(self.strategy, PaperStudyStrategy):
+                from aca.storage.studies import append
+
+                try:
+                    async with asyncio.timeout(2):
+                        await append(
+                            self.service.writer,
+                            self.strategy.study,
+                            "fault",
+                            self.clock(),
+                            {"reason": "paper_supervisor_fault"},
+                        )
+                except Exception:
+                    structlog.get_logger().error("paper_study_fault_record_unavailable")
             raise
         finally:
             self.status.shutting_down = True
@@ -323,6 +344,8 @@ class PaperSupervisor:
                 self.status.reason = "paper_supervisor_stopped"
             try:
                 async with asyncio.timeout(5):
+                    if isinstance(self.strategy, PaperStudyStrategy):
+                        await self.strategy.flush()
                     await self.suspend(self.status.reason, self.clock())
             except Exception:
                 # The database may be unavailable. No port transmission is
@@ -340,6 +363,7 @@ async def supervise(
     replay_archive: ArchiveReference | None = None,
     audit_prefix: UUID | None = None,
     history_prefix: UUID | None = None,
+    study_id: UUID | None = None,
 ) -> dict[str, object]:
     if not 0 <= duration <= 86400:
         raise ValueError("duration must be 0..86400 seconds")
@@ -373,7 +397,11 @@ async def supervise(
 
             await suffix_budget(c, store, owner.accepted_history, new_commitment=True)
         disk = shutil.disk_usage("/")
-        if size is None or size >= 2_000_000_000 or disk.free * 100 <= disk.total * 15:
+        if (
+            size is None
+            or size >= settings.paper_database_budget
+            or disk.free * 100 <= disk.total * 15
+        ):
             raise ValueError("paper database/local disk capacity limit")
 
     try:
@@ -382,13 +410,34 @@ async def supervise(
             status.financial_audit_prefix = str(store.audit_prefix) if store.audit_prefix else None
             venue = PaperExchange(store)
             service = PaperExecution(owner, venue)
+            async with owner.transaction() as c:
+                study = await read_study(c, account_id)
+            if study is not None:
+                if study_id != study.id or not strategy_enabled:
+                    raise ValueError("approved study requires explicit --study and strategy runner")
+                check_release(study)
+                model = study.operating_review.measurement["model"]
+                if (
+                    not isinstance(model, dict)
+                    or model.get("database_limit_bytes") != settings.paper_database_budget
+                ):
+                    raise ValueError("study storage profile differs from approved configuration")
+                status.study_id = study.id
+            elif study_id is not None:
+                raise ValueError("requested paper study is missing")
             supervisor = PaperSupervisor(
                 service,
                 status,
                 marks=StoredPaperFeed(store).marks,
                 capacity=capacity,
                 replay=StoredReplay(service, venue) if replay_enabled else None,
-                strategy=PaperStrategy(service) if strategy_enabled else None,
+                strategy=(
+                    PaperStudyStrategy(service, study, lambda: datetime.now(UTC))
+                    if study is not None
+                    else PaperStrategy(service)
+                    if strategy_enabled
+                    else None
+                ),
             )
             await server.start(settings.health.host, settings.health.port)
             await supervisor.run(stop, metrics)

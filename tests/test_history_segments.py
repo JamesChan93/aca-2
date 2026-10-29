@@ -105,6 +105,7 @@ async def compact(
         "Reviewed complete history and original evidence",
         report["financial_head_version"],
         report["historical_head_source"],
+        previous_history=store.history_prefix,
     )
     return PaperStore(
         store.engine, store.account_id, history_prefix=UUID(result["certificate"]["id"])
@@ -194,7 +195,8 @@ async def test_suffix_and_second_compaction_preserve_flows_and_old_ranges(
         assert (await historical_performance(fast, end_source=260))["period"] == (
             await historical_performance(store, end_source=260)
         )["period"]
-        new, second = await compact(isolated_history_settings, store, complete)
+        new, second = await compact(isolated_history_settings, fast, complete)
+        assert second["certificate"]["predecessor"] == first["certificate"]["id"]
         assert second["certificate"]["id"] != first["certificate"]["id"]
         assert (await historical_performance(new))["period"] == complete["period"]
         with pytest.raises(ValueError, match="catalogue"):

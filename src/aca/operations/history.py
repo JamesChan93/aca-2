@@ -49,6 +49,37 @@ from aca.storage.replay import (
 )
 
 
+async def vacuum_history(settings: Settings, account: UUID) -> None:
+    """Reclaim dead-row space for reuse; no history deletion or VACUUM FULL.
+
+    Run after cutover, once its read snapshots have closed. The same stopped
+    producer/writer rule applies; autocommit is PostgreSQL's VACUUM requirement.
+    """
+    authority = create_engine(settings, "migration")
+    try:
+        async with authority.connect() as admin:
+            try:
+                await admin.execution_options(isolation_level="AUTOCOMMIT")
+                if await admin.scalar(text("SELECT current_user")) != "aca_migrator":
+                    raise ValueError("history vacuum requires the migration role")
+                for key in (lock_key(account), -lock_key(account), PUBLIC_REPLAY_LOCK):
+                    if not await admin.scalar(
+                        text("SELECT pg_try_advisory_lock(:key)"), {"key": key}
+                    ):
+                        raise ValueError("stop collector, venue and paper writer before vacuum")
+                await admin.execute(
+                    text(
+                        "VACUUM (ANALYZE) aca.paper_events, aca.paper_replay_valuations, "
+                        "aca.paper_replay_cursors, aca.public_replay_events, aca.market_receipts, "
+                        "aca.paper_history_blocks"
+                    )
+                )
+            finally:
+                await admin.invalidate()
+    finally:
+        await authority.dispose()
+
+
 async def compact_history(
     settings: Settings,
     account: UUID,
@@ -56,6 +87,8 @@ async def compact_history(
     reason: str,
     expected_version: int,
     expected_source: int,
+    *,
+    previous_history: UUID | None = None,
 ) -> dict[str, Any]:
     """Full re-audit, lossless copy/read-back, then one transactional cutover.
 
@@ -65,9 +98,11 @@ async def compact_history(
     """
     if type(expected_source) is not int or expected_source < 0:
         raise ValueError("history compaction requires an exact expected source")
-    financial = await accept_prefix(settings, account, actor, reason, expected_version)
+    financial = await accept_prefix(
+        settings, account, actor, reason, expected_version, previous_history=previous_history
+    )
     runtime, authority = create_engine(settings), create_engine(settings, "migration")
-    store = PaperStore(runtime, account)
+    store = PaperStore(runtime, account, history_prefix=previous_history)
     certificate_id = uuid4()
     source_hash = package_fingerprint()
     try:
@@ -93,6 +128,9 @@ async def compact_history(
                         raise ValueError(
                             "history compaction currently requires one enrolled account"
                         )
+                    from aca.reporting.history_prefix import required_history
+
+                    accepted = (await required_history(c, store)) if previous_history else None
                     read = await read_performance(c, store)
                     report = read.report
                     if (
@@ -136,11 +174,15 @@ async def compact_history(
                     baseline, last = history.restore(first), history.restore(head)
                     # Reconcile the complete cursor chain and original raw receipt
                     # identity, including already compressed source records.
-                    sources = all_rows(c, account, "source")
+                    sources = all_rows(
+                        c, account, "source", accepted.head.number if accepted else -1
+                    )
                     source = await anext(sources, None)
-                    previous = "0" * 64
+                    previous = accepted.cursor_hash if accepted else "0" * 64
                     try:
-                        async with aclosing(all_rows(c, account, "cursor")) as cursor_rows:
+                        async with aclosing(
+                            all_rows(c, account, "cursor", accepted.head.number if accepted else -1)
+                        ) as cursor_rows:
                             async for row in cursor_rows:
                                 cursor = restore_cursor(row, account, previous)
                                 while source is not None and source["number"] < cursor.number:
@@ -166,6 +208,8 @@ async def compact_history(
                     async with admin.begin():
                         await admin.execute(text("SET LOCAL statement_timeout='30s'"))
 
+                        new_financial_versions: list[list[int]] = []
+
                         async def put(
                             kind: str, rows: list[dict[str, Any]], document: dict[str, Any]
                         ) -> None:
@@ -187,10 +231,12 @@ async def compact_history(
                             if decode_rows(record) != rows:
                                 raise ValueError("lossless history read-back differs")
                             await admin.execute(blocks.insert().values(**record))
+                            if kind == "financial":
+                                new_financial_versions.append([row["version"] for row in rows])
 
                         # Compute report blocks with the original audited arithmetic.
-                        previous_value = baseline
-                        evidence = await _evidence(c, store, baseline, last)
+                        previous_value = accepted.head if accepted else baseline
+                        evidence = await _evidence(c, store, previous_value, last)
                         old_head = await c.scalar(
                             select(func.max(blocks.c.last)).where(
                                 blocks.c.account_id == account,
@@ -204,7 +250,7 @@ async def compact_history(
                         )
                         pending: list[dict[str, Any]] = []
                         period = None
-                        before_block, bridge = baseline, Totals()
+                        before_block, bridge = previous_value, Totals()
                         bridge_flows: tuple[tuple[datetime, Decimal], ...] = ()
                         boundaries = []
 
@@ -403,6 +449,7 @@ async def compact_history(
                             raise ValueError("history code changed during audit")
                         certificate = HistoryCertificate(
                             id=certificate_id,
+                            predecessor=previous_history,
                             account_id=account,
                             recorded_at=datetime.now(UTC),
                             actor=actor,
@@ -449,23 +496,12 @@ async def compact_history(
                                     f"ALTER TABLE aca.{table.name} DISABLE TRIGGER reject_mutation"
                                 )
                             )
-                        financial_blocks = (
-                            (
-                                await admin.execute(
-                                    select(blocks.c.document).where(
-                                        blocks.c.account_id == account, blocks.c.kind == "financial"
-                                    )
-                                )
-                            )
-                            .scalars()
-                            .all()
-                        )
                         moved["financial"] = 0
-                        for document in financial_blocks:
+                        for versions in new_financial_versions:
                             result = await admin.execute(
                                 events.delete().where(
                                     events.c.account_id == account,
-                                    events.c.version.in_(document["versions"]),
+                                    events.c.version.in_(versions),
                                 )
                             )
                             moved["financial"] += result.rowcount

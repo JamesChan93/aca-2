@@ -96,6 +96,7 @@ class FinancialAuditPrefix(Record):
     package_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     policy_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     environment_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    predecessor_history: UUID | None = Field(default=None, exclude_if=lambda v: v is None)
     historical_economics_audited: Literal[False] = False
     pruning_authorised: Literal[False] = False
     live_execution_available: Literal[False] = False
@@ -223,7 +224,13 @@ async def read_prefix(c: AsyncConnection, store: PaperStore) -> FinancialAuditPr
 
 
 async def accept_prefix(
-    settings: Settings, account_id: UUID, actor: UUID, reason: str, expected_version: int
+    settings: Settings,
+    account_id: UUID,
+    actor: UUID,
+    reason: str,
+    expected_version: int,
+    *,
+    previous_history: UUID | None = None,
 ) -> dict[str, object]:
     """Explicit operator operation, using separately supplied migration credentials.
 
@@ -242,7 +249,7 @@ async def accept_prefix(
     except BaseException:
         await runtime.dispose()
         raise
-    store = PaperStore(runtime, account_id)
+    store = PaperStore(runtime, account_id, history_prefix=previous_history)
     try:
         package_hash = package_fingerprint()
         environment_hash = environment_fingerprint()
@@ -261,7 +268,7 @@ async def accept_prefix(
                     await c.execution_options(
                         isolation_level="REPEATABLE READ", postgresql_readonly=True
                     )
-                    state = await store.audit(c, full=True)
+                    state = await store.audit(c, full=previous_history is None)
                     if state is None:
                         raise ValueError("financial audit requires an initialised account")
                     if state.version != expected_version:
@@ -294,6 +301,7 @@ async def accept_prefix(
                         state=state,
                         checkpoint_count=count,
                         recorded_at=datetime.now(UTC),
+                        predecessor_history=previous_history,
                         actor=actor,
                         reason=reason,
                         application_version=aca.__version__,

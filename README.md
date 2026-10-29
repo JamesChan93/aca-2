@@ -4,6 +4,11 @@ The application provides local paper execution and opt-in, credential-free Krake
 and ETH/GBP. It validates books, records canonical trades and closed candles, and
 preserves gaps and recovery evidence in PostgreSQL. It cannot place an exchange order.
 
+**Current release: 0.4.26. Phase 4a engineering is complete at 19/19, with a research no-go.**
+[Batch F and the integrated decision](docs/phase-4a-paper-readiness.md) cover the
+approved-study workflow and measured bounded capacity. Actual observation remains
+unapproved at zero qualifying days/episodes.
+
 Version 0.4.18 closes the fixed **17/17 Phase 4 engineering conditions** for the
 documented bounded local-paper profile. Use the consolidated
 [paper release handoff](docs/phase-4-paper-release.md) for setup, operation,
@@ -26,7 +31,7 @@ No candidate is frozen and the final holdout remains closed.
 The [Phase 4a plan](docs/phase-4a.md) turns the
 [research and repository review](docs/research-promotion-review-2026-10-24.md)
 into a fixed **19-item** research-fidelity and promotion-preparation phase.
-It is in progress at **17/19**, with six implementation batches and a bounded study
+It is engineering complete at **19/19**, with six implementation batches and a bounded study
 budget. P4A-17 closes the release-check repair. Version 0.4.20 adds P4A-18's
 [modular research output and offline restore](docs/phase-4a-artifacts.md): durable
 attempts, bounded pages, deterministic trial resume and a byte-identical archive/
@@ -44,8 +49,12 @@ Version 0.4.24 adds [Batch D statistical decisions and durable gates](docs/phase
 Version 0.4.25 adds [Batch E bounded S1/S2 research](docs/phase-4a-bounded-research.md):
 four fixed low-turnover definitions and two deterministic shared-account portfolios.
 The 20 S0 and six S1/S2 actual preflight outcomes are incomplete/no-run; no corrected
-actual-data performance study has run. P4A-15/16 in Batch F are the two remaining
-engineering items.
+actual-data performance study has run. Version 0.4.26 completes
+[Batch F approved paper studies and bounded observation capacity](docs/phase-4a-paper-readiness.md),
+closing P4A-15/16. Study approval and a declared input/storage/maintenance profile
+are implemented; actual observation remains blocked. The default database budget
+is 2 GB; a separate reviewed configuration explicitly opts into the measured 8 GB
+profile. This release performs no retained deployment.
 Phase 4 remains closed at 17/17; qualifying observation has not started.
 
 The [original project prompt and implementation context](docs/context/README.md)

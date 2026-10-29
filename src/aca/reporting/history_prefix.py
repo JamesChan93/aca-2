@@ -41,6 +41,7 @@ class HistoryCertificate(Record):
     format: Literal["paper-history-v1"] = "paper-history-v1"
     id: UUID
     account_id: UUID
+    predecessor: UUID | None = Field(default=None, exclude_if=lambda v: v is None)
     recorded_at: Time
     actor: UUID
     reason: str = Field(min_length=10, max_length=240)
@@ -78,6 +79,17 @@ class HistoryCertificate(Record):
 
 
 async def required_history(c: AsyncConnection, store: PaperStore) -> HistoryCertificate:
+    # The execution writer validated the complete prefix before acquiring
+    # authority. Its dedicated session holds the maintenance lock, and runtime
+    # cannot mutate blocks/certificates. Reuse lasts only for that exact owner
+    # and selected certificate; read-only reports still verify independently.
+    owned = c.info.get("aca_owned_history")
+    if owned is not None and owned[0] is store and owned[1].id == store.history_prefix:
+        record = cast(HistoryCertificate, owned[1])
+        if store.audit_prefix is not None and store.audit_prefix != record.financial_prefix:
+            raise ValueError("historical and financial certificates differ")
+        store.audit_prefix = record.financial_prefix
+        return record
     transaction = c.get_transaction()
     cache = c.info.get("aca_history_certificate")
     key = (store.account_id, store.history_prefix, transaction)

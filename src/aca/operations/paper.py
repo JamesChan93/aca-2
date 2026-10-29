@@ -68,6 +68,9 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
         "archive-verify",
         "audit-prefix-accept",
         "history-compact",
+        "history-vacuum",
+        "study-start",
+        "study-status",
     ):
         parser = actions.add_parser(name)
         parser.add_argument("--account", type=UUID, required=True)
@@ -101,8 +104,14 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
             parser.add_argument("--actor", type=UUID, required=True)
             parser.add_argument("--reason", required=True)
             parser.add_argument("--expected-version", type=int, required=True)
+        if name == "study-start":
+            for evidence in ("approval", "evaluation", "freeze", "holdout", "operating-review"):
+                parser.add_argument("--" + evidence, type=Path, required=True)
+        if name == "run":
+            parser.add_argument("--study", type=UUID)
         if name == "history-compact":
             parser.add_argument("--expected-source", type=int, required=True)
+            parser.add_argument("--previous-history", type=UUID)
         if name in {"performance", "daily", "consume", "run", "supervise"}:
             parser.add_argument("--archive", type=Path, help="explicit retained replay input")
             parser.add_argument("--archive-sha256", help="independently retained file SHA256")
@@ -165,6 +174,11 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
 
 
 async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, object] | str:
+    if args.action == "history-vacuum":
+        from aca.operations.history import vacuum_history
+
+        await vacuum_history(settings, args.account)
+        return {"vacuum_complete": True, "records_deleted": 0}
     if args.action == "history-compact":
         from aca.operations.history import compact_history
 
@@ -175,6 +189,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             args.reason,
             args.expected_version,
             args.expected_source,
+            previous_history=args.previous_history,
         )
     if args.action == "audit-prefix-accept":
         from aca.storage.audit_prefix import accept_prefix
@@ -211,6 +226,7 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
             replay_archive=archive,
             audit_prefix=audit_prefix,
             history_prefix=history_prefix,
+            study_id=getattr(args, "study", None),
         )
     engine = create_engine(settings)
     store = PaperStore(
@@ -222,6 +238,17 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
     )
     try:
         await verify_runtime(engine)
+        if args.action == "study-status":
+            from aca.storage.studies import read_study, study_status
+
+            async with engine.connect() as c:
+                await c.execution_options(
+                    isolation_level="REPEATABLE READ", postgresql_readonly=True
+                )
+                study = await read_study(c, args.account)
+                if study is None:
+                    return {"study": None, "qualifying_days": 0, "qualifying_episodes": 0}
+                return await study_status(c, study, datetime.now(UTC))
         if args.action == "archive-export":
             return await export_archive(store, args.output)
         if args.action in {"decisions", "daily", "accounting"}:
@@ -343,6 +370,25 @@ async def execute(args: argparse.Namespace, settings: Settings) -> dict[str, obj
         async with PaperWriter(store) as owner:
             venue = PaperExchange(store)
             service = PaperExecution(owner, venue)
+            if args.action == "study-start":
+                from aca.operations.observation_profile import OperatingReview
+                from aca.research.gates import Evaluation, Freeze, HoldoutReview
+                from aca.storage.studies import StartApproval, start_study
+
+                approval = StartApproval.restore(read_json(args.approval))
+                if approval.account_id != args.account:
+                    raise ValueError("approval account mismatch")
+                value = await start_study(
+                    owner,
+                    approval,
+                    Evaluation.model_validate_json(args.evaluation.read_bytes()),
+                    Freeze.model_validate_json(args.freeze.read_bytes()),
+                    HoldoutReview.model_validate_json(args.holdout.read_bytes()),
+                    datetime.now(UTC),
+                    operating_review=OperatingReview.restore(read_json(args.operating_review)),
+                    database_budget=settings.paper_database_budget,
+                )
+                return value.document()
             if args.action == "create":
                 return (await service.initialise(datetime.now(UTC))).document()
             if args.action == "transfer":

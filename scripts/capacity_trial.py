@@ -41,6 +41,10 @@ def last_progress(path: Path) -> dict[str, Any] | None:
         "reports_compared",
         "measuring_operations",
         "operations_measured",
+        "profile_cycle_0",
+        "profile_cycle_1",
+        "profile_cycle_2",
+        "workload_measured",
     }
     latest = None
     if not path.exists():
@@ -69,18 +73,29 @@ def last_progress(path: Path) -> dict[str, Any] | None:
 
 
 def main() -> int:
-    if sys.argv[1:] not in ([], ["--preservation"], ["--financial-prefix"], ["--compaction"]):
+    if sys.argv[1:] not in (
+        [],
+        ["--preservation"],
+        ["--financial-prefix"],
+        ["--compaction"],
+        ["--observation-profile"],
+        ["--observation-probe"],
+    ):
         print(
             "Usage: python3 scripts/capacity_trial.py "
-            "[--preservation|--financial-prefix|--compaction]",
+            "[--preservation|--financial-prefix|--compaction|--observation-profile|--observation-probe]",
             file=sys.stderr,
         )
         return 2
+    probe = sys.argv[1:] == ["--observation-probe"]
+    profile = sys.argv[1:] in (["--observation-profile"], ["--observation-probe"])
     compaction = sys.argv[1:] == ["--compaction"]
     preservation_only = sys.argv[1:] == ["--preservation"]
     financial_only = sys.argv[1:] == ["--financial-prefix"]
     mode = (
-        "compaction"
+        "observation_profile"
+        if profile
+        else "compaction"
         if compaction
         else "financial_prefix"
         if financial_only
@@ -103,7 +118,7 @@ def main() -> int:
         "trial_mode": mode,
         # Covers seeding, full compaction/audit comparison and measured operations.
         # Each operation retains its independent, unchanged acceptance deadline.
-        "fixture_timeout_seconds": 900 if preservation_only or compaction else 600,
+        "fixture_timeout_seconds": 900 if preservation_only or compaction or profile else 600,
     }
     try:
         drill.call([*drill.source, "build", "db", "restore-worker"])
@@ -117,12 +132,16 @@ def main() -> int:
                 "-T",
                 "restore-worker",
                 "python",
-                "tests/financial_prefix_capacity.py"
+                "tests/observation_profile_capacity.py"
+                if profile
+                else "tests/financial_prefix_capacity.py"
                 if financial_only
                 else "tests/capacity_fixture.py",
                 drill.database,
                 *(
-                    ["--preservation"]
+                    ["--probe"]
+                    if probe
+                    else ["--preservation"]
                     if preservation_only
                     else ["--compaction"]
                     if compaction
@@ -171,6 +190,10 @@ def main() -> int:
                         "archive_input",
                         "financial_prefix",
                         "compaction",
+                        "model",
+                        "accepted",
+                        "workload",
+                        "cycles",
                     )
                 },
                 sort_keys=True,
@@ -191,6 +214,8 @@ def main() -> int:
             )
         )
     passed = report["status"] == "measured" and report["cleanup_complete"]
+    if profile:
+        passed = passed and report.get("accepted") is True
     if compaction:
         passed = passed and not report.get("measured_boundary_failures", ["unmeasured"])
     return 0 if passed else 1

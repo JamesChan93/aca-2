@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 from aca.domain.timing import APPROVAL_TTL, SLOW_FRESHNESS
 from aca.domain.trading import TERMINAL, UNCERTAIN, Asset, Order, fingerprint
@@ -12,15 +13,22 @@ from aca.market_data.strategy_feed import StoredStrategyFeed
 from aca.portfolio.state import entries_paused
 from aca.risk.execution import DispatchDenied
 from aca.storage.strategy import PaperDecision, PaperSelection, claim, finish, selection
+from aca.storage.studies import PaperStudy, StudyMember, append, claim_signal
 from aca.strategies.slow import signal
 
 
 class PaperStrategy:
     def __init__(
-        self, service: PaperExecution, *, clock: Callable[[], datetime] = lambda: datetime.now(UTC)
+        self,
+        service: PaperExecution,
+        *,
+        study: PaperStudy | None = None,
+        member: StudyMember | None = None,
+        clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         self.service, self.clock = service, clock
-        self.chosen: PaperSelection | None = None
+        self.study, self.member = study, member
+        self.chosen: PaperSelection | StudyMember | None = None
         self.market = StoredPaperFeed(service.store)
         self.candles = StoredStrategyFeed(service.store)
         self.last_watermark: datetime | None = None
@@ -28,10 +36,29 @@ class PaperStrategy:
         self.decisions = 0
 
     async def start(self) -> None:
-        async with self.service.writer.transaction() as c:
-            self.chosen = await selection(c, self.service.store.account_id)
+        if self.study is not None:
+            if self.member is None:
+                raise ValueError("study member required")
+            self.chosen = self.member
+        else:
+            async with self.service.writer.transaction() as c:
+                self.chosen = await selection(c, self.service.store.account_id)
         if self.chosen is None:
             raise ValueError("explicit operational strategy selection required")
+
+    async def finish(
+        self, client_id: UUID, outcome: str, at: datetime, reason: str | None = None
+    ) -> None:
+        if self.study is None:
+            await finish(self.service.writer, client_id, outcome, at, reason)
+        else:
+            await append(
+                self.service.writer,
+                self.study,
+                "signal_result",
+                at,
+                {"client_id": str(client_id), "outcome": outcome, "reason": reason},
+            )
 
     async def tick(self, at: datetime) -> None:
         chosen = self.chosen
@@ -77,7 +104,12 @@ class PaperStrategy:
             candle_hash=prefix.fingerprint if prefix else None,
             sources=prefix.sources if prefix else (),
         )
-        if not await claim(self.service.writer, decision):
+        claimed = (
+            await claim_signal(self.service.writer, self.study, self.member, decision)
+            if self.study is not None and self.member is not None
+            else await claim(self.service.writer, decision)
+        )
+        if not claimed:
             self.last_watermark = watermark
             self.reason = None
             return
@@ -86,7 +118,7 @@ class PaperStrategy:
         self.service.fault("after_strategy_claim")
         if reason is not None or value is None:
             self.reason = reason
-            await finish(self.service.writer, decision.client_id, reason or "no_signal", now)
+            await self.finish(decision.client_id, reason or "no_signal", now)
             return
         denial = None
         try:
@@ -108,7 +140,16 @@ class PaperStrategy:
             if value.desired == "flat" and pending:
                 # Stop the remaining buy before sizing an exit from confirmed
                 # inventory. Cancellation races are reconciled by the core.
-                await self.service.cancel_entries(utc_datetime(self.clock()))
+                for pending_order in state.orders:
+                    if (
+                        pending_order.intent.symbol == chosen.symbol
+                        and pending_order.intent.purpose == "entry"
+                        and pending_order.state not in TERMINAL
+                        and pending_order.state not in UNCERTAIN
+                    ):
+                        await self.service.cancel(
+                            pending_order.intent.client_id, utc_datetime(self.clock())
+                        )
                 state = await self.service._state()
                 if any(o.state in UNCERTAIN for o in state.orders):
                     raise DispatchDenied("strategy_cancellation_uncertain")
@@ -167,6 +208,4 @@ class PaperStrategy:
                 "execution_denied" if isinstance(exc, DispatchDenied) else "market_unavailable"
             )
         self.reason = outcome if outcome in {"execution_denied", "market_unavailable"} else None
-        await finish(
-            self.service.writer, decision.client_id, outcome, utc_datetime(self.clock()), denial
-        )
+        await self.finish(decision.client_id, outcome, utc_datetime(self.clock()), denial)

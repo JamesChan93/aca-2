@@ -9,10 +9,9 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from aca.research.artifacts import canonical, digest, save_document
+from aca.research.calendar import ACTUAL_SCOPE as ACTUAL_SCOPE
 from aca.research.gates import Bindings, Decision, Evidence, HoldoutReview, assess, read_freeze
 from aca.storage.models import ResearchArtifact, ResearchHoldoutUse
-
-ACTUAL_SCOPE = "actual:kraken-spot-gbp:2025-10-01:2026-10-01"
 
 
 async def open_once(
