@@ -21,7 +21,7 @@ MAX_EVENTS = 1024
 MAX_OBJECTS = 16_384
 MAX_BUNDLE_BYTES = 1_073_741_824
 Hash = Annotated[str, StringConstraints(pattern=r"^[a-f0-9]{64}$")]
-Name = Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9_:./-]{1,160}$")]
+Name = Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9_+:./-]{1,160}$")]
 
 
 class Contract(BaseModel):

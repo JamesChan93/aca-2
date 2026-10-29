@@ -275,3 +275,19 @@ signed-index simulation changes only that package, with no additional packages.
 Do not suppress the finding, disable scanning, run a general OS upgrade or alter
 Python locks. Require PostgreSQL regression and fresh image scans. This source
 image change does not upgrade or restart the retained database/container.
+
+**A26 amendment, 28 October 2026 (Batch E, before new evaluation):** preregister
+exactly four daily lower-turnover definitions (SMA200 1% band and two-close
+confirmation on BTC/ETH) and two deterministic portfolios pairing the same rules.
+Keep all 20 S0 definitions, original report/no-run identities and adaptive history
+reuse within the 26-definition/104-claim budget. Use one shared cash/asset journal,
+unitisation, policy epoch, risk reservations and serial simulator for each joint
+portfolio. Daily signal ties use BTC then ETH; received prints retain source order.
+Use per-instrument command/episode IDs and cancel only the exiting instrument's
+protection. All entry and execution checks inspect the same shared portfolio.
+Mandatory joint passive10 uses 5% BTC/5% ETH, with identical investor flows.
+Inference uses the joint account's unit-price series. Neighbouring parameters and
+cost stresses remain diagnostic/unrun until separately reviewed; no alternative
+winner or optimised weight is admitted. Source evidence can end all six actual
+tasks before performance with an explicit no-run result. Research-only definitions
+do not expand existing operational paper selections or open observation/holdout.

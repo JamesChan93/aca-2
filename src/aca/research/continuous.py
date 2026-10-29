@@ -5,7 +5,7 @@ here. Training/validation must create separate evaluators (``scope`` is recorded
 """
 
 from collections.abc import Iterable, Iterator, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, localcontext
 from heapq import merge
@@ -16,17 +16,19 @@ from uuid import UUID
 from aca.accounting.ledger import stored
 from aca.domain.market import Candle, InstrumentRules, MarketTrade, Symbol
 from aca.domain.timing import FINALISATION
-from aca.domain.trading import ZERO, fingerprint
+from aca.domain.trading import ZERO, Asset, fingerprint
 from aca.domain.values import FINANCIAL_CONTEXT, parse_decimal, utc_datetime
 from aca.operations.config import RiskPolicy
-from aca.portfolio.state import nav
+from aca.portfolio.state import free_cash, nav
 from aca.research.calendar import HOLDOUT_START, qualified_bars, reporting_windows
+from aca.research.diagnostics import describe
 from aca.research.economics import fixed_cost_gate
+from aca.research.family import JOINT, PortfolioName, definition, portfolio_variant
 from aca.research.protocol import months
 from aca.simulation.events import EventResult, TradeSimulation
 from aca.simulation.passive import PassiveAccount, PassiveResult, proxy_prices
 from aca.simulation.reference import CostModel
-from aca.strategies.slow import StrategySignal, Variant, signal
+from aca.strategies.slow import ResearchVariant, StrategySignal, signal
 
 ACCOUNT_MODEL = "continuous-oos-equal-flows-v1"
 
@@ -117,14 +119,16 @@ class Comparison:
     reports: tuple[AccountSnapshot, ...]
     common_start: datetime
     common_end: datetime
-    symbol: Symbol
-    variant: Variant
+    symbol: Symbol | Literal["BTC+ETH/GBP"]
+    variant: ResearchVariant | PortfolioName
     costs: CostModel
     rules: dict[Symbol, InstrumentRules]
     policy: RiskPolicy
     interval_minutes: int = 1440
     version: str = ACCOUNT_MODEL
     promotion_evidence: bool = False
+    definition: dict[str, object] | None = None
+    diagnostics: dict[str, object] = field(default_factory=dict)
 
 
 class ContinuousEvaluation:
@@ -142,13 +146,14 @@ class ContinuousEvaluation:
         rules: dict[Symbol, InstrumentRules],
         *,
         symbol: Symbol,
-        variant: Variant,
+        variant: ResearchVariant,
         start: datetime,
         end: datetime,
         scenario: Scenario = DEFAULT_SCENARIO,
         costs: CostModel = DEFAULT_COSTS,
         scope: Literal["out_of_sample", "training", "validation"] = "out_of_sample",
         reviews: Sequence[ReviewInput] = (),
+        portfolio: PortfolioName | None = None,
     ) -> None:
         self.start, self.end = utc_datetime(start), utc_datetime(end)
         start, end = self.start, self.end
@@ -156,18 +161,27 @@ class ContinuousEvaluation:
             raise ValueError("invalid common pre-holdout evaluation")
         if set(rules) != set(bars) or scope not in {"out_of_sample", "training", "validation"}:
             raise ValueError("incomplete comparison mandate/scope")
-        self.bars = {s: qualified_bars(v, s, start, end) for s, v in bars.items()}
+        if portfolio is not None and (
+            symbol != "BTC/GBP" or variant != portfolio_variant(portfolio)
+        ):
+            raise ValueError("joint portfolio must use its exact registered daily definitions")
+        warmup = 201 if variant == "sma200-confirm2" else 200
+        self.bars = {s: qualified_bars(v, s, start, end, warmup=warmup) for s, v in bars.items()}
+        if portfolio is not None and any(v[0].interval_minutes != 1440 for v in self.bars.values()):
+            raise ValueError("joint portfolio requires daily bars")
+        self.portfolio = portfolio
         if len({v[-1].interval_minutes for v in self.bars.values()}) != 1:
             raise ValueError("comparators require one common bar interval")
         self.symbol, self.variant, self.scope = symbol, variant, scope
         self.scenario, self.costs = scenario, costs.checked()
-        namespace = f"{ACCOUNT_MODEL}:{scope}:{symbol}:{variant}:{scenario.monthly}"
+        namespace = f"{ACCOUNT_MODEL}:{scope}:{portfolio or symbol}:{variant}:{scenario.monthly}"
         self.candidate = TradeSimulation(
             rules[symbol],
             start=start,
             initial=scenario.initial,
             costs=costs,
             identity_namespace=f"{namespace}:candidate",
+            additional_rules={"ETH/GBP": rules["ETH/GBP"]} if portfolio else None,
         )
         self.always_long = TradeSimulation(
             rules[symbol],
@@ -175,6 +189,7 @@ class ContinuousEvaluation:
             initial=scenario.initial,
             costs=costs,
             identity_namespace=f"{namespace}:risk-sized-always-long",
+            additional_rules={"ETH/GBP": rules["ETH/GBP"]} if portfolio else None,
         )
         weights: dict[str, dict[Symbol, Decimal]] = {
             "cash": {},
@@ -188,6 +203,14 @@ class ContinuousEvaluation:
             "past_exposure_matched": {},
             "past_risk_matched": {},
         }
+        if portfolio:
+            for name, allocation in (
+                ("passive10", ".05"),
+                ("passive30", ".15"),
+                ("buy_hold", ".5"),
+                ("monthly_purchases", ".5"),
+            ):
+                weights[name] = {s: Decimal(allocation) for s in bars}
         self.comparators = {
             name: PassiveAccount(
                 f"{namespace}:{name}", rules, w, start=start, initial=scenario.initial, costs=costs
@@ -196,10 +219,13 @@ class ContinuousEvaluation:
         }
         self.flows = contributions(start, end, scenario)
         self.events: list[tuple[datetime, int, int, str, object]] = []
-        for index, bar in enumerate(self.bars[symbol]):
-            at = bar.end + FINALISATION
-            if index >= 199 and start <= at < end:
-                self.events.append((at, 0, index, "signal", index))
+        for priority, member in enumerate(("BTC/GBP", "ETH/GBP") if portfolio else (symbol,)):
+            for index, bar in enumerate(self.bars[member]):
+                at = bar.end + FINALISATION
+                if index >= warmup - 1 and start <= at < end:
+                    self.events.append(
+                        (at, 0, priority * 1_000_000 + index, "signal", (member, index))
+                    )
         midnight = start.replace(hour=0, minute=0, second=0, microsecond=0)
         if midnight < start:
             midnight += timedelta(days=1)
@@ -222,6 +248,7 @@ class ContinuousEvaluation:
         self.cursor = 0
         self.at = start
         self.last_signal: StrategySignal | None = None
+        self.signals: list[tuple[StrategySignal, Decimal]] = []
         self.diagnostic_targets: list[dict[str, str]] = []
         self.failed = False
 
@@ -236,6 +263,9 @@ class ContinuousEvaluation:
             yield trade.received_at, 1, index, "trade", trade
 
     def _diagnostics(self, at: datetime) -> None:
+        if self.portfolio:
+            self._joint_diagnostics(at)
+            return
         elapsed = Decimal(str((at - self.start).total_seconds()))
         if not elapsed or self.candidate.latest is None:
             return
@@ -286,6 +316,60 @@ class ContinuousEvaluation:
                     }
                 )
 
+    def _joint_diagnostics(self, at: datetime) -> None:
+        elapsed = Decimal(str((at - self.start).total_seconds()))
+        if elapsed <= 0:
+            return
+        with localcontext(FINANCIAL_CONTEXT):
+            result = self.candidate.result(at)
+            exposure = result.exposure_fraction_seconds / elapsed
+            risk = result.planned_risk_fraction_seconds / elapsed
+            for symbol in ("BTC/GBP", "ETH/GBP"):
+                latest = self.candidate.latest_by_symbol[symbol]
+                if latest is None or any(
+                    not 0 <= (at - stamp).total_seconds() <= 5
+                    for stamp in (latest.received_at, latest.event_at)
+                ):
+                    for name in ("past_exposure_matched", "past_risk_matched"):
+                        self.comparators[name].skips["diagnostic_missing_fresh_mark"] += 1
+                    continue
+                _, ask = proxy_prices(latest, self.candidate.instruments[symbol], self.costs)
+                past = next((s for s, _ in reversed(self.signals) if s.symbol == symbol), None)
+                distance = max(past.stop_distance if past else ZERO, ask * Decimal(".05"))
+                loss_fraction = (
+                    distance / ask
+                    + Decimal(".01")
+                    + 2 * max(Decimal(".008"), self.costs.taker_fee)
+                    + Decimal(".002")
+                )
+                for name, raw in (
+                    ("past_exposure_matched", exposure / 2),
+                    ("past_risk_matched", risk / (2 * loss_fraction)),
+                ):
+                    account = self.comparators[name]
+                    target = min(self.candidate.policy.asset_exposure, max(ZERO, raw))
+                    try:
+                        value = nav(account.state, at)
+                    except ValueError:
+                        account.skips["diagnostic_missing_fresh_mark"] += 1
+                        continue
+                    asset: Asset = "BTC" if symbol == "BTC/GBP" else "ETH"
+                    bid = proxy_prices(latest, self.candidate.instruments[symbol], self.costs)[0]
+                    held = account.state.quantity(asset) * bid
+                    budget = stored(max(ZERO, min(value * target - held, free_cash(account.state))))
+                    account.budget(
+                        f"joint-monthly-diagnostic:{symbol}:{at.isoformat()}", symbol, budget, at
+                    )
+                    self.diagnostic_targets.append(
+                        {
+                            "at": at.isoformat(),
+                            "name": name,
+                            "symbol": symbol,
+                            "target_allocation": str(target),
+                            "buy_budget_gbp": str(budget),
+                        }
+                    )
+
     def advance(self, until: datetime) -> AccountSnapshot:
         until = utc_datetime(until)
         if self.failed:
@@ -298,11 +382,18 @@ class ContinuousEvaluation:
         while self.next_event is not None and self.next_event[0] < until:
             at, _, _, kind, value = self.next_event
             if kind == "signal":
-                if not isinstance(value, int):
+                if not isinstance(value, tuple) or len(value) != 2:
                     raise TypeError("invalid signal timer")
-                prefix = self.bars[self.symbol][max(0, value - 200) : value + 1]
+                member, index = value
+                prefix = self.bars[member][max(0, index - 200) : index + 1]
                 decision = signal(prefix, self.variant, at, version="slow-v2")
                 self.last_signal = decision
+                self.signals.append(
+                    (
+                        decision,
+                        self.candidate.state.quantity("BTC" if member == "BTC/GBP" else "ETH"),
+                    )
+                )
                 self.candidate.publish(decision, at)
                 # Same ATR/risk/sizing policy; long every new closed-bar decision,
                 # with no intra-decision re-entry after a stop.
@@ -310,7 +401,7 @@ class ContinuousEvaluation:
             elif kind == "trade":
                 if not isinstance(value, MarketTrade):
                     raise TypeError("invalid trade input")
-                if value.symbol == self.symbol:
+                if self.portfolio or value.symbol == self.symbol:
                     self.candidate.trade(value)
                     self.always_long.trade(value)
                 for account in self.comparators.values():
@@ -357,12 +448,22 @@ class ContinuousEvaluation:
             snapshots,
             self.start,
             self.end,
-            self.symbol,
-            self.variant,
+            JOINT if self.portfolio else self.symbol,
+            self.portfolio or self.variant,
             self.costs,
             dict(self.comparators["cash"].rules),
             self.candidate.policy,
             interval_minutes=self.bars[self.symbol][0].interval_minutes,
+            diagnostics={
+                **describe(snapshots[-1].candidate, self.signals, self.bars, self.end),
+                "past_matched_targets": self.diagnostic_targets,
+            },
+            definition=(
+                definition(
+                    f"{JOINT if self.portfolio else self.symbol}:"
+                    f"{self.bars[self.symbol][0].interval_minutes}:{self.portfolio or self.variant}"
+                )
+            ),
         )
 
 
@@ -501,7 +602,7 @@ def comparison_report(value: Comparison) -> dict[str, object]:
     Missing daily boundaries remain null, never removed or forward filled into a
     paired sample. A later statistical gate must reject incomplete required data.
     """
-    from aca.research.statistics import event_metrics, metrics
+    from aca.research.statistics import metrics
 
     final = value.final
     curves = {
@@ -570,6 +671,8 @@ def comparison_report(value: Comparison) -> dict[str, object]:
         "scope": value.scope,
         "symbol": value.symbol,
         "variant": value.variant,
+        "candidate_definition": value.definition,
+        "research_diagnostics": value.diagnostics,
         "interval_minutes": value.interval_minutes,
         "costs": value.costs.model_dump(mode="json"),
         "instrument_rules": {s: r.model_dump(mode="json") for s, r in sorted(value.rules.items())},
@@ -592,9 +695,10 @@ def comparison_report(value: Comparison) -> dict[str, object]:
             }
             for flow in value.flows
         ],
-        "candidate": event_metrics(final.candidate),
+        "candidate": candidate_metrics(final.candidate),
+        "joint_account": value.symbol == JOINT,
         "comparators": reports,
-        "risk_sized_always_long": event_metrics(final.always_long),
+        "risk_sized_always_long": candidate_metrics(final.always_long),
         "report_boundaries": [s.at.isoformat() for s in value.reports],
         "final_account_identity": snapshot_identity(final),
         "calendar": {
@@ -614,3 +718,24 @@ def comparison_report(value: Comparison) -> dict[str, object]:
         "holdout_opened": False,
         "live_execution_available": False,
     }
+
+
+def candidate_metrics(result: EventResult) -> dict[str, object]:
+    from aca.research.statistics import event_metrics
+
+    report = event_metrics(result)
+    if len({fill.symbol for fill in result.fills}) > 1 or result.open_episodes:
+        report.pop("open_quantity", None)
+    report["inventory"] = {
+        b.asset: str(b.quantity) for b in result.state.balances if b.asset != "GBP"
+    }
+    report["open_episodes"] = [
+        {"id": str(e.id), "opened_at": e.opened_at.isoformat(), "remaining": str(e.remaining)}
+        for e in (result.open_episodes or ((result.open_episode,) if result.open_episode else ()))
+    ]
+    report["whipsaw_definition"] = "completed_loss_and_duration_at_most_7_days"
+    report["whipsaws"] = sum(
+        e.pnl < 0 and e.closed_at - e.opened_at <= timedelta(days=7)
+        for e in result.backtest.episodes
+    )
+    return report

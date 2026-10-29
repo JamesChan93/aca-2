@@ -13,6 +13,16 @@ from aca.domain.values import FINANCIAL_CONTEXT, FinancialDecimal, UtcDateTime
 from aca.features.indicators import atr, sma
 
 Variant = Literal["sma200", "sma100", "donchian55-20", "momentum90", "momentum60"]
+ResearchVariant = Literal[
+    "sma200",
+    "sma100",
+    "donchian55-20",
+    "momentum90",
+    "momentum60",
+    "sma200-band1",
+    "sma200-confirm2",
+]
+S1_VARIANTS: tuple[ResearchVariant, ...] = ("sma200-band1", "sma200-confirm2")
 VARIANTS: tuple[Variant, ...] = (
     "sma200",
     "sma100",
@@ -23,7 +33,7 @@ VARIANTS: tuple[Variant, ...] = (
 
 
 class StrategySignal(MarketRecord):
-    strategy: Variant
+    strategy: ResearchVariant
     strategy_version: Literal["slow-v1", "slow-v2"] = "slow-v1"
     symbol: Symbol
     decision_at: UtcDateTime
@@ -49,14 +59,18 @@ class StrategySignal(MarketRecord):
 
 def signal(
     bars: Sequence[Candle],
-    variant: Variant,
+    variant: ResearchVariant,
     at: datetime,
     *,
     version: Literal["slow-v1", "slow-v2"] = "slow-v1",
 ) -> StrategySignal:
-    if variant not in VARIANTS or len(bars) < 200:
+    if variant not in (*VARIANTS, *S1_VARIANTS) or len(bars) < (
+        201 if variant == "sma200-confirm2" else 200
+    ):
         raise ValueError("unknown strategy or insufficient 200-bar warm-up")
     recent = bars[-201:]
+    if variant in S1_VARIANTS and (version != "slow-v2" or recent[-1].interval_minutes != 1440):
+        raise ValueError("S1 requires corrected daily research signals")
     last = recent[-1]
     for index, bar in enumerate(recent):
         if (
@@ -75,7 +89,34 @@ def signal(
             Decimal("1e-18"), rounding=ROUND_CEILING
         )
         desired: Literal["long", "flat", "hold"]
-        if variant.startswith("sma"):
+        if variant == "sma200-band1":
+            average = sma(recent, 200)
+            if average is None:
+                raise ValueError("SMA warm-up unavailable")
+            desired = (
+                "long"
+                if last.close > average * Decimal("1.01")
+                else "flat"
+                if last.close < average * Decimal(".99")
+                else "hold"
+            )
+        elif variant == "sma200-confirm2":
+            averages = (sma(recent[:-1], 200), sma(recent, 200))
+            if any(value is None for value in averages):
+                raise ValueError("confirmation warm-up unavailable")
+            differences = [
+                bar.close - average
+                for bar, average in zip(recent[-2:], averages, strict=True)
+                if average is not None
+            ]
+            desired = (
+                "long"
+                if all(value > 0 for value in differences)
+                else "flat"
+                if all(value < 0 for value in differences)
+                else "hold"
+            )
+        elif variant.startswith("sma"):
             average = sma(recent, int(variant[3:]))
             if average is None:
                 raise ValueError("SMA warm-up unavailable")

@@ -139,21 +139,21 @@ def bindings_for(
     report: dict[str, object], evidence: Evidence, strategy: dict[str, object]
 ) -> Bindings:
     from aca.research.study import strategy_definition
-    from aca.strategies.slow import VARIANTS
 
     if strategy != strategy_definition(str(strategy["trial"])):
         raise ValueError("changed preregistered strategy definition")
     symbol, interval, variant = str(strategy["trial"]).split(":")
     if (
-        symbol not in {"BTC/GBP", "ETH/GBP"}
-        or interval not in {"240", "1440"}
-        or variant not in VARIANTS
-    ):
-        raise ValueError("candidate outside original S0 family")
-    if (
         report.get("symbol") != symbol
         or report.get("variant") != variant
         or report.get("interval_minutes") != int(interval)
+        or (
+            symbol == "BTC+ETH/GBP"
+            and (
+                report.get("candidate_definition") != strategy
+                or report.get("joint_account") is not True
+            )
+        )
     ):
         raise ValueError("strategy/report binding mismatch")
     return Bindings(
@@ -218,6 +218,13 @@ def assess(
             or report.get("symbol") != symbol
             or report.get("variant") != variant
             or report.get("interval_minutes") != int(interval)
+            or (
+                symbol == "BTC+ETH/GBP"
+                and (
+                    report.get("candidate_definition") != strategy_definition(bindings.trial)
+                    or report.get("joint_account") is not True
+                )
+            )
         ):
             raise ValueError("changed report/cost/policy/calendar/strategy binding")
     missing = list(evidence.blockers)
