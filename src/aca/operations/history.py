@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from collections.abc import Mapping
 from contextlib import aclosing
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -16,11 +17,11 @@ from aca.operations.config import RiskPolicy, Settings
 from aca.reporting.historical import Period, Totals, _advance, _evidence, read_performance
 from aca.reporting.history_prefix import HistoryCertificate, ReportBlock
 from aca.reporting.period_cache import PeriodRecord, TotalsRecord
-from aca.simulation.historical import HistoricalReplay
+from aca.simulation.historical import HistoricalReplay, HistoricalValuation
 from aca.simulation.paper import PaperExchange
 from aca.simulation.stored_replay import ReplayReceipt, restore_cursor
 from aca.storage.audit_prefix import (
-    accept_prefix,
+    capture_prefix,
     environment_fingerprint,
     package_fingerprint,
     policy_fingerprint,
@@ -29,6 +30,7 @@ from aca.storage.audit_prefix import (
 from aca.storage.database import create_engine, verify_runtime
 from aca.storage.history_blocks import (
     BLOCK_ROWS,
+    SOURCE_PAGE_ROWS,
     all_rows,
     blocks,
     certificates,
@@ -94,13 +96,14 @@ async def compact_history(
 
     Failure rolls back every block, certificate and deletion. Journals, fills,
     movements, commands, order identities, controls and checkpoint anchors remain.
-    The financial audit record published first is harmless if cutover fails.
+    Financial and historical certificates commit atomically with the cutover.
     """
+    if type(expected_version) is not int or expected_version < 1 or not 10 <= len(reason) <= 240:
+        raise ValueError(
+            "history compaction requires a positive expected version and bounded reason"
+        )
     if type(expected_source) is not int or expected_source < 0:
         raise ValueError("history compaction requires an exact expected source")
-    financial = await accept_prefix(
-        settings, account, actor, reason, expected_version, previous_history=previous_history
-    )
     runtime, authority = create_engine(settings), create_engine(settings, "migration")
     store = PaperStore(runtime, account, history_prefix=previous_history)
     certificate_id = uuid4()
@@ -115,7 +118,9 @@ async def compact_history(
                     if not await admin.scalar(
                         text("SELECT pg_try_advisory_lock(:key)"), {"key": key}
                     ):
-                        raise ValueError("stop collector, venue and paper writer before compaction")
+                        raise ValueError(
+                            "stop the paper writer, collector and venue before compaction"
+                        )
                 await admin.commit()
                 async with runtime.connect() as c:
                     await c.execution_options(
@@ -131,19 +136,6 @@ async def compact_history(
                     from aca.reporting.history_prefix import required_history
 
                     accepted = (await required_history(c, store)) if previous_history else None
-                    read = await read_performance(c, store)
-                    report = read.report
-                    if (
-                        report is None
-                        or read.aggregate is None
-                        or read.financial.accounting_invalidated
-                    ):
-                        raise ValueError("history compaction requires valid historical accounting")
-                    if (
-                        read.financial.version != expected_version
-                        or report["historical_head_source"] != expected_source
-                    ):
-                        raise ValueError("history compaction expected head changed")
                     history = HistoricalReplay(store, PaperExchange(store), RiskPolicy())
                     first = (
                         (
@@ -291,29 +283,48 @@ async def compact_history(
                             )
                             pending, period, boundaries = [], None, []
 
-                        async with aclosing(
-                            history.audited_values(c, expected_source)
-                        ) as economic_rows:
-                            async for economic_row, value in economic_rows:
-                                totals = period.totals if period is not None else Totals()
-                                dated = _advance(previous_value, value, evidence, totals)
-                                if old_head is None or value.number > old_head:
-                                    if period is None:
-                                        period = Period(value, economic_row["fingerprint"])
-                                        before_block, bridge, bridge_flows = (
-                                            previous_value,
-                                            totals,
-                                            dated,
-                                        )
-                                    else:
-                                        period.flows.extend(dated)
-                                    period.observe(value)
-                                    pending.append(dict(economic_row))
-                                    if value.day_boundary:
-                                        boundaries.append(value.day_boundary)
-                                previous_value = value
-                                if len(pending) == BLOCK_ROWS:
-                                    await flush()
+                        async def on_audited_value(
+                            economic_row: Mapping[Any, Any], value: HistoricalValuation
+                        ) -> None:
+                            nonlocal previous_value, period, before_block, bridge, bridge_flows
+                            totals = period.totals if period is not None else Totals()
+                            dated = _advance(previous_value, value, evidence, totals)
+                            if old_head is None or value.number > old_head:
+                                if period is None:
+                                    period = Period(value, economic_row["fingerprint"])
+                                    before_block, bridge, bridge_flows = (
+                                        previous_value,
+                                        totals,
+                                        dated,
+                                    )
+                                else:
+                                    period.flows.extend(dated)
+                                period.observe(value)
+                                pending.append(dict(economic_row))
+                                if value.day_boundary:
+                                    boundaries.append(value.day_boundary)
+                            previous_value = value
+                            if len(pending) == BLOCK_ROWS:
+                                await flush()
+
+                        # Stream the already validated rows into bounded report
+                        # blocks during the mandatory complete report pass. Do
+                        # not deserialize/audit the same suffix a second time.
+                        read = await read_performance(c, store, on_audited_value=on_audited_value)
+                        report = read.report
+                        if (
+                            report is None
+                            or read.aggregate is None
+                            or read.financial.accounting_invalidated
+                        ):
+                            raise ValueError(
+                                "history compaction requires valid historical accounting"
+                            )
+                        if (
+                            read.financial.version != expected_version
+                            or report["historical_head_source"] != expected_source
+                        ):
+                            raise ValueError("history compaction expected head changed")
                         await flush()
 
                         # Cursor/source rows are stored once. Retained endpoint
@@ -354,7 +365,7 @@ async def compact_history(
                                                             <= expected_source,
                                                         )
                                                         .order_by(public_events.c.number)
-                                                        .limit(8)
+                                                        .limit(SOURCE_PAGE_ROWS)
                                                     )
                                                 )
                                                 .mappings()
@@ -447,6 +458,21 @@ async def compact_history(
                         catalogue_hash, catalogue_count = await manifest(admin, account)
                         if package_fingerprint() != source_hash:
                             raise ValueError("history code changed during audit")
+                        financial = await capture_prefix(
+                            c, read.financial, actor, reason, previous_history=previous_history
+                        )
+                        if financial.package_sha256 != source_hash:
+                            raise ValueError("financial/history code changed during audit")
+                        await admin.execute(
+                            prefixes.insert().values(
+                                id=financial.id,
+                                account_id=account,
+                                version=financial.version,
+                                recorded_at=financial.recorded_at,
+                                fingerprint=fingerprint(financial.document()),
+                                document=financial.document(),
+                            )
+                        )
                         certificate = HistoryCertificate(
                             id=certificate_id,
                             predecessor=previous_history,
@@ -458,7 +484,7 @@ async def compact_history(
                             package_sha256=source_hash,
                             environment_hash=environment_fingerprint(),
                             policy_hash=policy_fingerprint(),
-                            financial_prefix=UUID(str(financial["id"])),
+                            financial_prefix=financial.id,
                             head=last,
                             head_hash=head["fingerprint"],
                             cursor=restore_cursor(cursor_row, account),

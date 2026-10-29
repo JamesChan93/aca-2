@@ -72,6 +72,9 @@ TABLES = {
 }
 MAX_BLOCKS = 100000
 BLOCK_ROWS = 256
+# Bounded read batches, independently of retained history and block row limits.
+# A profile source row is <=8 kB; 32 rows fit 256 kB of source documents.
+SOURCE_PAGE_ROWS = 32
 
 
 async def has_blocks(c: AsyncConnection, account: UUID) -> bool:
@@ -147,7 +150,7 @@ async def sql_rows(
             query = query.where(table.c.account_id == account)
         if upper is not None:
             query = query.where(table.c[key] <= upper)
-        page_size = 8 if kind == "source" else BLOCK_ROWS
+        page_size = SOURCE_PAGE_ROWS if kind == "source" else BLOCK_ROWS
         page = (await c.execute(query.order_by(table.c[key]).limit(page_size))).mappings().all()
         for item in page:
             lower = item[key]

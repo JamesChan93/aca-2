@@ -140,10 +140,10 @@ independent original-row rebuild and a finite real publication/replay/risk loop.
 The model doubles measured maintenance/restart cost, adds two seconds contingency,
 doubles measured storage growth, reserves 512 MB for other state and a separate
 2 GB for retained trade/raw evidence. It checks the unchanged catalogue ceiling
-and measures retained trade-row bytes with an extra row/index allowance. The final local model projects **6,318,667,711 bytes** against 8 GB, **99,131**
-catalogue blocks against 100,000 and **99.7702%** availability. Its doubled
-maintenance/restart bound is **8.2714 seconds per hour**; the maximum measured
-loop tick is **0.1407 seconds**, below the existing three-second deadline. All
+and measures retained trade-row bytes with an extra row/index allowance. The final local model projects **6,318,708,543 bytes** against 8 GB, **99,131**
+catalogue blocks against 100,000 and **99.6371%** availability. Its doubled
+maintenance/restart bound is **13.0651 seconds per hour**; the maximum measured
+loop tick is **0.1375 seconds**, below the existing three-second deadline. All
 timings and byte counts are in the linked packet; this is bounded extrapolation,
 not measured long-duration availability. Deployment must still fit its physical
 disk, WAL, logs and backup staging outside this database allowance.
@@ -203,13 +203,41 @@ retain their original separate gates.
 
 ## Release verification
 
-The final source passes 938 Linux/PostgreSQL tests (263.69 seconds), including the
+The final source passes 940 Linux/PostgreSQL tests (259.34 seconds), including the
 existing 1,000-example financial and 10,000-sequence lifecycle properties, strict
 mypy on 185 files and Ruff check/format on 214 source/test/script files. A populated logical restore
-compares 35 tables/seven synthetic accounts in 37.618 seconds, rolls back an
+compares 35 tables/seven synthetic accounts in 42.585 seconds, rolls back an
 injected failed restore and performs two disarmed recoveries with zero venue
 commands. The minimal non-root runtime CLI starts without research dependencies
 or network/credentials. Fresh hosted CI includes the separate observation-profile
 acceptance job, unchanged trading/report deadlines and both image scans.
 The final PR body records the hosted run links/results; the source-bound local
 packet is retained separately. No safety requirement is waived by a test count.
+
+
+## Hosted capacity correction within P4A-16
+
+The initial `79d6901` push and PR runs passed the eight existing jobs, including
+938 tests and both image scans. Both new capacity jobs failed the unchanged
+99.5% model on slower hosted CPUs: measured maintenance was 9.5–9.7 seconds and
+its doubled restart-adjusted bound was 21.8–22.3 seconds/hour, above 18. The
+[initial measurements](evidence/phase-4a-hosted-capacity-initial.json) are retained.
+A local pass was not substituted for this failed hosted acceptance.
+
+Profiling identified duplicate financial/historical audit passes and many small
+source reads. Compaction now constructs bounded report blocks during its one
+complete mandatory historical report pass. The financial state comes from that
+same report's mandatory financial reconstruction; financial and historical
+certificates publish together in the cutover transaction. Source/raw-receipt
+reads use bounded 32-row batches rather than eight. At the supported 8 kB encoded
+source-row bound this is 256 kB of source documents per batch; existing block,
+decoded-byte, retention, memory, financial and risk limits are not increased.
+Separate reports and full rebuilds still audit independently.
+
+New regressions require exactly one financial and one historical audit pass, equal
+full/indexed economics, and rollback of all staged blocks/certificates if a late
+corrupt value is discovered. The diagnostic probe retains a CPU profile and can
+never satisfy acceptance. The 99.5% target, doubled maintenance multiplier,
+18-second hourly allowance, input assumptions and fixture deadlines remain
+unchanged. Final hosted results must pass on the corrected commit and are linked
+in the PR body.

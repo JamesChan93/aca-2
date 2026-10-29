@@ -7,14 +7,26 @@
     "paid_provisioning": false,
     "private_account_access": false
   },
-  "capacity_document_sha256": "00606cca0ce181af9b8759b8595ea804f9e632277b56a3b2c597d985b2e349f7",
+  "capacity_document_sha256": "627fc8b824e338a8ffc2521ede5892a9306a3a411def00fa6135da704927c2a6",
   "closed_items": [
     "P4A-15",
     "P4A-16"
   ],
+  "correction_regressions": [
+    "Exactly one complete financial and historical audit pass",
+    "Late corrupt value rolls back staged blocks and both certificates",
+    "Full/indexed economics and disarmed restore preserved"
+  ],
   "date": "2026-10-29",
   "decision": "engineering_complete_research_no_go",
   "hosted_checks": "Final exact-head workflow runs and outcomes are recorded in the PR body; no prior-release success is transferred.",
+  "hosted_initial_failures": {
+    "commit": "79d690170f81599c393b824eeec6f76c81e2e507",
+    "document_sha256": "7121a3e0fb39b3a89176fb0613379362b00672043ca6cd95eea3c5de8d0f3753",
+    "failed_capacity_jobs": 2,
+    "passed_jobs": 8,
+    "unchanged_target": 0.995
+  },
   "kind": "phase-4a-paper-readiness-v1",
   "local_checks": {
     "capacity": {
@@ -27,9 +39,9 @@
       "command": "python3 scripts/ci_database.py --linux -q",
       "financial_property_examples": 1000,
       "lifecycle_sequences": 10000,
-      "log_sha256": "268f2679d14e5291ce6b64be668cb19fdda8ef581539e26ccfd7edfafbc0b29c",
-      "passed": 938,
-      "seconds": 263.69
+      "log_sha256": "f3bcff5bcd78a078e28d296571331c68d4ba52cfc0b20d455dc308efd9280ec7",
+      "passed": 940,
+      "seconds": 259.34
     },
     "mypy": {
       "command": "python -m mypy src/aca tests",
@@ -44,7 +56,7 @@
       "passed": true,
       "populated_study_start_and_health": true,
       "recovery_venue_commands": 0,
-      "seconds": 37.618,
+      "seconds": 42.585,
       "synthetic_accounts": 7,
       "tables": 35
     },
@@ -58,14 +70,15 @@
     },
     "runtime_smoke": {
       "capabilities": "ALL dropped",
+      "log_sha256": "4b25f72ee0cad660ea386d1ced16f01a3e1729bf16feecc9fdc656fb370b774d",
       "minimal_runtime_without_numpy": true,
       "network": "none",
-      "package_fingerprint": "5be4d0c1d6c65b6eea38b3a2516d60096fe3eb2a09c78104a8776148a397476e",
+      "package_fingerprint": "ecef7c20e696fc20db5461c34f9efe53bfd0faf53970bee8e2ddd8011fb6d04b",
       "paper_cli_starts": true,
       "read_only": true
     }
   },
-  "package_fingerprint": "5be4d0c1d6c65b6eea38b3a2516d60096fe3eb2a09c78104a8776148a397476e",
+  "package_fingerprint": "ecef7c20e696fc20db5461c34f9efe53bfd0faf53970bee8e2ddd8011fb6d04b",
   "phase4_closed": 17,
   "phase4_total": 17,
   "phase4a_closed": 19,
@@ -88,7 +101,7 @@
     "s1s2_outcomes": "6 incomplete/no-run; no empirical evaluation",
     "s1s2_packet_sha256": "678199122bef5d8edbd119522200eb5aa69e6b636712ebb4adf4be1fc2fcbad2"
   },
-  "research_code_fingerprint": "4ba13a595a345fd9cc9e54478812ee46624b5e2dbcbd37537a0f29fcd9de131a",
+  "research_code_fingerprint": "e9d759236b2f66d9adf609be605dfcfcaddc6bb8e7592f28217e624edd24288f",
   "retained_stack": {
     "application": "0.4.8",
     "application_container_id": "d3a2ecbb40312553cfa2dbad43b71f94dc1648bde023b62af0ee292973218e57",
@@ -155,7 +168,7 @@
     "operations/__init__.py": "cd3081c0eb062d4144f284efc764f755ec5c53b950b791116867108bfed1d517",
     "operations/cli.py": "f0cb2bfb22f50bc578f086d7410bb55f3ff80a2035dae25767bb13febdb2a8e1",
     "operations/config.py": "a38322f336a43a2ec09d9791e2f5ea930c1614ca38d6784efff9ff9f12022657",
-    "operations/history.py": "99ff23bf02933df65bfe76bae99ab26d5d5bd85fd4be870e57893eea34a81cec",
+    "operations/history.py": "6ed73414e57c6d5eaf002f694966118a1cc7badc046627ae66134fa71e84ed56",
     "operations/notifications.py": "3734e9065e40206b1919258564959f57059f0ef0fa7824a843f4dd9db1f3c145",
     "operations/observation_profile.py": "93a42c6d5bfc7169b1caee3b15f69d9aef08698c44dbaeccc6a4a94da3fc154b",
     "operations/paper.py": "c0dbec6ea935617b09a672ac1b9be4701f1923bc69661c732a5ffd3a5811b777",
@@ -169,7 +182,7 @@
     "ports/market.py": "d1dfa44c560ab94343acaabd46c780023675f28ba7b05ddb0891cd5848a21fe1",
     "reporting/__init__.py": "5f7d104a9f243d2ba20034588126ab803bbb26d97e7795c4df5a08944c18e968",
     "reporting/archive_input.py": "ac39cb4b511f0cf8c2bfbb3942b4d950d064c838f562ce23a685767f565ae838",
-    "reporting/historical.py": "6344c1994923bbe49f9c254df7e4b694733ed12baf016ccc434b5cc7a88ca443",
+    "reporting/historical.py": "14d9f3f285c97daa12399d22ee71dec79ce56305001ae5ab964a41d5dc48445a",
     "reporting/history_prefix.py": "0ab9728817e686360f595f0aae67588f2a4b5a055943c55f064b936b6e5aa967",
     "reporting/paper.py": "12c3391726c3bd285c459fc9eef8b7fdb929b0793d46b4bcdd12d6c8ab54fe50",
     "reporting/period_cache.py": "3adfb4c940a48702cafd3073aa33b410e67d0b36942ec1215641a3fd23be4173",
@@ -214,9 +227,9 @@
     "storage/__init__.py": "637d409da8a4eeb4c2463a4e89c30dd5e103062053acfb1ceb06e16b5b3966d9",
     "storage/accounting.py": "a1d3aeac46308b00ae13140ad74a554a8f190ec08c3152268fa15206881dc7d9",
     "storage/archive_format.py": "78387f307821e42925588150b4367bdb1c2981f851c57df81c67276cd710ceb8",
-    "storage/audit_prefix.py": "8df66fe01ee094233796f2fd98a435bd793c95c17639bed843231c822cce5cd4",
+    "storage/audit_prefix.py": "ed21fd9d5239666e0886f56e264e2b172c0d7508d7f5b81d9f3e1b13809f2e4e",
     "storage/database.py": "00ba31dfc3e1627413bd3b34467ed8b19e80d2e2d062ac113a6b5ff2b799a15c",
-    "storage/history_blocks.py": "8291ae1698cee7550af421a1aae72ef53eca6e87000a9cea92eb2fa01cd71704",
+    "storage/history_blocks.py": "c14267ca5eb6f8638ee96a23499d7085de22d949af56145371d8b64936d9bcbb",
     "storage/migrate.py": "5ff192a01fd57b98e61e0093864cc5aa22bfe8304ce04adc958c3175d03fcd6a",
     "storage/migrations/env.py": "f25b21277f279b229a49c2bb6ef6154ad2eb817059bbab50a06571b5a239849f",
     "storage/migrations/versions/0001_foundation.py": "f593df7887617b76ea6321ce5cfc40cfc136a636759f1681275a5a7c598570a0",

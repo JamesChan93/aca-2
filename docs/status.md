@@ -12,7 +12,7 @@ readiness remain separately reviewed inputs. No actual study may start from the
 current incomplete/rejected evidence. The actual holdout stays unopened, with
 **zero qualifying days and episodes**. The fixed Phase 4 checklist remains 17/17.
 
-The final application passes **938 Linux/PostgreSQL tests**, strict typing on
+The final application passes **940 Linux/PostgreSQL tests**, strict typing on
 185 files and Ruff check/format on 214 source/test/script files. The populated restore compares
 35 tables and seven synthetic accounts, including study approvals/health, with
 zero venue commands. The [integrated evidence](evidence/phase-4a-paper-readiness.json)

@@ -5,8 +5,10 @@ The old suffix, catalogue, memory and database ceilings remain enforced.
 """
 
 import asyncio
+import cProfile
 import json
 import math
+import pstats
 import resource
 import sys
 from datetime import timedelta
@@ -78,6 +80,9 @@ async def run() -> None:
             version = await c.scalar(select(func.max(events.c.version)))
             source = await c.scalar(select(func.max(valuations.c.number)))
         began = monotonic()
+        profiler = cProfile.Profile() if probe and previous is not None else None
+        if profiler is not None:
+            profiler.enable()
         value = await compact_history(
             settings,
             store.account_id,
@@ -88,6 +93,22 @@ async def run() -> None:
             previous_history=previous,
         )
         await vacuum_history(settings, store.account_id)
+        if profiler is not None:
+            profiler.disable()
+            statistics = vars(pstats.Stats(profiler))["stats"]
+            result["diagnostic_maintenance_profile"] = [
+                {
+                    "file": key[0],
+                    "line": key[1],
+                    "function": key[2],
+                    "calls": value[1],
+                    "own_seconds": value[2],
+                    "cumulative_seconds": value[3],
+                }
+                for key, value in sorted(
+                    statistics.items(), key=lambda item: item[1][3], reverse=True
+                )[:40]
+            ]
         return PaperStore(
             engine, store.account_id, history_prefix=UUID(value["certificate"]["id"])
         ), monotonic() - began

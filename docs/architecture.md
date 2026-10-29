@@ -318,3 +318,15 @@ close, ordinary stopped-worker VACUUM/ANALYZE makes dead-row space reusable with
 deleting logical history. Charge maintenance/restart time to availability. The
 measured profile is conditional engineering evidence, not an observation start,
 actual elapsed reliability, off-host backup or live approval.
+
+
+**A31 hosted-capacity follow-up (same P4A-16 acceptance):** keep the 99.5% target,
+doubled measured downtime and original deadlines. Build report blocks while the
+one complete audited report stream is consumed. Capture its already reconstructed
+financial state and publish financial/history certificates atomically in the
+cutover transaction, rather than re-auditing that financial suffix separately.
+Any late corrupt input rolls back staged blocks and both certificates. Batch
+source/raw-receipt reads in 32 rows rather than eight, within the existing global
+memory/decoded-byte limits and the declared source-size envelope. This changes no
+retained-record limit, financial policy or risk check. Keep the initial hosted
+capacity failures, diagnostic profiles and corrected acceptance measurements.

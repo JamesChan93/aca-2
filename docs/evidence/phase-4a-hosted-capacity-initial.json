@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "kind": "phase-4a-initial-hosted-capacity-results",
+  "commit": "79d690170f81599c393b824eeec6f76c81e2e507",
+  "package_fingerprint": "5be4d0c1d6c65b6eea38b3a2516d60096fe3eb2a09c78104a8776148a397476e",
+  "outcome": "both hosted capacity gates correctly failed; all eight other hosted jobs passed",
+  "unchanged_acceptance": {
+    "minimum_availability": 0.995,
+    "max_modelled_unavailability_seconds_per_hour": 18,
+    "downtime_multiplier": 2,
+    "extra_restart_seconds": 2
+  },
+  "measurements": [
+    {
+      "job_id": 123618524187,
+      "measurement": {
+        "56_day_headroom_demonstrated": null,
+        "accepted": false,
+        "application_version": null,
+        "archive_input": null,
+        "certifi_version": null,
+        "cleanup_complete": true,
+        "compaction": null,
+        "cpu.max": "75000 100000",
+        "cpu_seconds": 388.447819987,
+        "cycles": [
+          {
+            "compressed_payload_bytes": 42859099,
+            "cycle": 0,
+            "database_bytes": 162141887,
+            "maintenance_seconds": 9.748919462999993,
+            "restart_seconds": 0.38935795300005793
+          },
+          {
+            "compressed_payload_bytes": 44095659,
+            "cycle": 1,
+            "database_bytes": 163698367,
+            "maintenance_seconds": 9.548232080000048,
+            "restart_seconds": 0.36369241399995644
+          },
+          {
+            "compressed_payload_bytes": 45332026,
+            "cycle": 2,
+            "database_bytes": 165279423,
+            "maintenance_seconds": 9.369823470000028,
+            "restart_seconds": 0.34360938200006785
+          }
+        ],
+        "database_bytes": 165303999,
+        "financial_prefix": null,
+        "fixture_timeout_seconds": 900,
+        "last_progress": {
+          "elapsed_seconds": 481.74809007199997,
+          "phase": "workload_measured"
+        },
+        "max_rss_kib": 148336,
+        "measured_boundary_failures": null,
+        "memory.max": "805306368",
+        "memory.peak": "130289664",
+        "model": {
+          "availability_lower_model": 0.9938120681022222,
+          "backup_and_host_loss_proven": false,
+          "capacity_is_conditional_on_declared_rate_and_record_size": true,
+          "catalogue_limit": 100000,
+          "database_limit_bytes": 8000000000,
+          "days": 56,
+          "financial_records_per_second": "1",
+          "maintenance_every_seconds": 3600,
+          "maintenance_unavailability_bound_seconds": 22.2765548320001,
+          "maximum_encoded_source_row_bytes": 8000,
+          "production_stream_fit_proven": false,
+          "projected_catalogue_blocks": 99131,
+          "projected_database_bytes": 6318928575,
+          "public_frames_per_second": "0.75",
+          "public_trades_per_second": "0.1",
+          "reserve_bytes": 512000000,
+          "retained_trade_bytes_measured": 295,
+          "retained_trade_bytes_with_row_and_index_allowance": 807,
+          "retained_trade_evidence_allowance_bytes": 2000000000,
+          "retained_trade_evidence_projection_2x": 780917760,
+          "storage_growth_multiplier": 2,
+          "suffix_financial": 3600,
+          "suffix_limit": 4096,
+          "suffix_public": 2700
+        },
+        "one_second_loop": null,
+        "operational_budgets_exercised": null,
+        "operations": null,
+        "package_source_sha256": "5be4d0c1d6c65b6eea38b3a2516d60096fe3eb2a09c78104a8776148a397476e",
+        "record_limits": null,
+        "replay_preservation": null,
+        "trial_mode": "observation_profile",
+        "workload": {
+          "backlog_at_end": null,
+          "input_frames": 15,
+          "max_tick_seconds": 0.43693525999992744,
+          "modelled_seconds": 24,
+          "risk_checks_skipped": 0,
+          "tick_deadline_seconds": 3,
+          "ticks": 24,
+          "wall_seconds": 6.038995689999979
+        }
+      },
+      "url": "https://github.com/JamesChan93/aca-2/actions/runs/40922308275/job/123618524187"
+    },
+    {
+      "job_id": 123618780959,
+      "measurement": {
+        "56_day_headroom_demonstrated": null,
+        "accepted": false,
+        "application_version": null,
+        "archive_input": null,
+        "certifi_version": null,
+        "cleanup_complete": true,
+        "compaction": null,
+        "cpu.max": "75000 100000",
+        "cpu_seconds": 379.937126922,
+        "cycles": [
+          {
+            "compressed_payload_bytes": 42856211,
+            "cycle": 0,
+            "database_bytes": 162027199,
+            "maintenance_seconds": 9.51536109899996,
+            "restart_seconds": 0.3866211189999831
+          },
+          {
+            "compressed_payload_bytes": 44092670,
+            "cycle": 1,
+            "database_bytes": 163583679,
+            "maintenance_seconds": 9.237072696000041,
+            "restart_seconds": 0.3860898460000044
+          },
+          {
+            "compressed_payload_bytes": 45328922,
+            "cycle": 2,
+            "database_bytes": 165246655,
+            "maintenance_seconds": 8.623036472999956,
+            "restart_seconds": 0.4001936619999924
+          }
+        ],
+        "database_bytes": 165025471,
+        "financial_prefix": null,
+        "fixture_timeout_seconds": 900,
+        "last_progress": {
+          "elapsed_seconds": 472.18780028900005,
+          "phase": "workload_measured"
+        },
+        "max_rss_kib": 148512,
+        "measured_boundary_failures": null,
+        "memory.max": "805306368",
+        "memory.peak": "130613248",
+        "model": {
+          "availability_lower_model": 0.9939433432122222,
+          "backup_and_host_loss_proven": false,
+          "capacity_is_conditional_on_declared_rate_and_record_size": true,
+          "catalogue_limit": 100000,
+          "database_limit_bytes": 8000000000,
+          "days": 56,
+          "financial_records_per_second": "1",
+          "maintenance_every_seconds": 3600,
+          "maintenance_unavailability_bound_seconds": 21.803964435999887,
+          "maximum_encoded_source_row_bytes": 8000,
+          "production_stream_fit_proven": false,
+          "projected_catalogue_blocks": 99131,
+          "projected_database_bytes": 6318883903,
+          "public_frames_per_second": "0.75",
+          "public_trades_per_second": "0.1",
+          "reserve_bytes": 512000000,
+          "retained_trade_bytes_measured": 295,
+          "retained_trade_bytes_with_row_and_index_allowance": 807,
+          "retained_trade_evidence_allowance_bytes": 2000000000,
+          "retained_trade_evidence_projection_2x": 780917760,
+          "storage_growth_multiplier": 2,
+          "suffix_financial": 3600,
+          "suffix_limit": 4096,
+          "suffix_public": 2700
+        },
+        "one_second_loop": null,
+        "operational_budgets_exercised": null,
+        "operations": null,
+        "package_source_sha256": "5be4d0c1d6c65b6eea38b3a2516d60096fe3eb2a09c78104a8776148a397476e",
+        "record_limits": null,
+        "replay_preservation": null,
+        "trial_mode": "observation_profile",
+        "workload": {
+          "backlog_at_end": null,
+          "input_frames": 15,
+          "max_tick_seconds": 0.4574413550000145,
+          "modelled_seconds": 24,
+          "risk_checks_skipped": 0,
+          "tick_deadline_seconds": 3,
+          "ticks": 24,
+          "wall_seconds": 6.031071445000066
+        }
+      },
+      "url": "https://github.com/JamesChan93/aca-2/actions/runs/40922381003/job/123618780959"
+    }
+  ],
+  "correction": "Stream bounded report blocks during the existing full audited report pass; preserve complete EOF verification and transactional rollback. No input-rate, financial/risk, storage, suffix, clock or acceptance deadline is relaxed.",
+  "local_initial_evidence": "https://github.com/JamesChan93/aca-2/blob/79d690170f81599c393b824eeec6f76c81e2e507/docs/evidence/phase-4a-observation-profile.json"
+}
