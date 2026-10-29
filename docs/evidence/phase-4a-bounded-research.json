@@ -1,0 +1,309 @@
+{
+  "actual_frozen_candidates": 0,
+  "actual_holdout_opened": false,
+  "actual_preflight": {
+    "archive_bytes": 92160,
+    "archive_restore_equal": true,
+    "archive_sha256": "0f9e59e3ae08fa8b063c3931272f257805054f606bd354457658ecead1e01ad7",
+    "calibration_reused_with_unchanged_implementation_and_protocol": true,
+    "declaration_sha256": "0655207a0740be0e3309e2743a58d1df861de4124855445e99f165209ab31da1",
+    "incomplete_no_run_decisions": 6,
+    "packet_sha256": "678199122bef5d8edbd119522200eb5aa69e6b636712ebb4adf4be1fc2fcbad2",
+    "performance_reports": 0,
+    "summary_sha256": "a5c161bb5ac659ddee2b11e61aa4b4a085678feb95b9454fb6257e36a9ee9647"
+  },
+  "actual_qualifying_paper_days": 0,
+  "actual_qualifying_paper_episodes": 0,
+  "application_python_files": 134,
+  "application_version": "0.4.25",
+  "base_commit": "c17086481430568c137a02d289a92462f48b2ee3",
+  "bound_file_sha256": {
+    ".github/workflows/ci.yaml": "764575ec22b5c2e5dd3df059159f115810354f1e84fe554be6c8b7adc6b449ad",
+    "Dockerfile": "1aa2e5739b3af39b47585986445e184b66541e1e2417066cfd7df13018d43957",
+    "README.md": "dd22d85e3f72f1e4708f025be170478196d05754ebc8a3724ad882effa7c99b3",
+    "compose.drill.yaml": "4a3de7d9fc5529b72175e03ea3f4a4ba1d62f7c47f9fce402b5f90c5fb06468e",
+    "compose.storage-fault.yaml": "64d3248f2e401b2064181164edf750a47965b38649cae819f71a82dd99013002",
+    "compose.test.yaml": "ee222a889daf7e15c43663d3fb576459c37f59be20067350b48f41e2f526f07b",
+    "compose.yaml": "81af9e230abd5fbdc56e514131ce6f6e34e697e2c6147ffad070734e323f6c59",
+    "docs/architecture.md": "eaf25dda91d2417f81866fdb1fcde1092a1f6c4a721a378c028facaa6dd12d6c",
+    "docs/evidence/phase-4a-bounded-preflight.json": "a5c161bb5ac659ddee2b11e61aa4b4a085678feb95b9454fb6257e36a9ee9647",
+    "docs/phase-4a-bounded-protocol.md": "86082956e4b90311c5cf9fe4c1a282e6ed60b5dee0cbf62f2fcde5ed2962456e",
+    "docs/phase-4a-bounded-research.md": "eb5057e47014b6f1577dc917edb1fc65ca0fea33e08e49056fd8f4023234a355",
+    "docs/phase-4a.md": "d26ec24986f1f16e998c4d9342d9f93984b3230e4040c86daaabeacd7df653c0",
+    "docs/status.md": "350b39f6f6c308192dbad7da75d37d42d11cc5f4eb94ddc253c6a5a7b0f8e399",
+    "pyproject.toml": "a855fb6a951de7c9f0cce3586affe3b9a22d4a994753c469dc5504b056939f01",
+    "src/aca/__init__.py": "f2011e94cb1f4247314f0657851df3f5630dca966208c18be01d392a3694770e",
+    "src/aca/research/bundles.py": "55b9050f3548021088eee19225e11eca1bb980588ff4eb8efacb8a4165d8ddaf",
+    "src/aca/research/calendar.py": "898448c06581b300ed390fed0c4697eb2ac5fd21039d7106885fbd67cc0ccfe7",
+    "src/aca/research/cli.py": "2252cde52fc45d71d9bdc7a41da0fb092ea3d8c273e4bd803dfac36a0a1ba593",
+    "src/aca/research/continuous.py": "166cc2b8012350a11cf37d53389ba631c141a7d16dc6b5bbe7d44fcaed2e6b57",
+    "src/aca/research/diagnostics.py": "c969f3b95178e79a979f348aa648752d4eeecba979dca1aef9c5b84c89df8c2b",
+    "src/aca/research/family.py": "64b94eeed3e5b0c39f5403b1f1d5b71d07b064314e8195b1780675af2dd0a90a",
+    "src/aca/research/gates.py": "20c012f1750c688979ed519421b705328361e766b4cff87b366c4a7f16191d6f",
+    "src/aca/research/study.py": "ca4159afcb5db5a20156627e441e58bd6d8a29d7ccb59c96bcbd50f79b3e3605",
+    "src/aca/simulation/events.py": "b9236fa606979ea5b5ce36cf3addeff32f01bd4fa1b88e8caa2c9deb99a6f6ba",
+    "src/aca/strategies/slow.py": "afce144a967d00af88f27f5873a2f2bce12931ea8734719759a943fee1f2db67",
+    "tests/test_bounded_research.py": "f444a5d3499a723615965abb6c20253efd1f2b1a5cfc47348beaa9a999593396",
+    "tests/test_research_gates.py": "a2dd56dc04621c66490e4b7b46e6f431de1817c3eaf564f96a059524eb0f166d"
+  },
+  "completion": {
+    "phase4_closed": 17,
+    "phase4a_closed": 17,
+    "phase4a_total": 19,
+    "remaining": [
+      "P4A-15",
+      "P4A-16"
+    ],
+    "this_batch": [
+      "P4A-08",
+      "P4A-09"
+    ]
+  },
+  "date": "2026-10-29",
+  "family": {
+    "S0": 20,
+    "S1": 4,
+    "S2": 2,
+    "ceiling": 26,
+    "history_reuse": "original20_and_adaptive_review_retained; not_independent_confirmation",
+    "new_definitions": [
+      {
+        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
+        "daily_only": true,
+        "hypothesis": "reduce_switching_without_relaxing_risk; unproven",
+        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
+        "pyramiding": false,
+        "rule": "close>1.01*SMA200:long; close<.99*SMA200:flat; else:hold",
+        "selectable_sensitivities": false,
+        "sensitivities": [
+          "band_.5%_1.5%_or_confirmation_1_3_days_diagnostic_only",
+          "1.5x_fees",
+          "2x_spread_slippage",
+          "2s_latency",
+          "legacy_bar_only_stress"
+        ],
+        "signal": "sma200-band1",
+        "stop_reentry": "new_daily_full_entry_rule_only; hold_stays_flat; latches_preserved",
+        "strategy_version": "slow-v2",
+        "study": "S1",
+        "trial": "BTC/GBP:1440:sma200-band1",
+        "warmup_bars": 200
+      },
+      {
+        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
+        "daily_only": true,
+        "hypothesis": "reduce_switching_without_relaxing_risk; unproven",
+        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
+        "pyramiding": false,
+        "rule": "two_consecutive_closes_above_own_SMA200:long; below:flat; else:hold",
+        "selectable_sensitivities": false,
+        "sensitivities": [
+          "band_.5%_1.5%_or_confirmation_1_3_days_diagnostic_only",
+          "1.5x_fees",
+          "2x_spread_slippage",
+          "2s_latency",
+          "legacy_bar_only_stress"
+        ],
+        "signal": "sma200-confirm2",
+        "stop_reentry": "new_daily_full_entry_rule_only; hold_stays_flat; latches_preserved",
+        "strategy_version": "slow-v2",
+        "study": "S1",
+        "trial": "BTC/GBP:1440:sma200-confirm2",
+        "warmup_bars": 201
+      },
+      {
+        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
+        "daily_only": true,
+        "hypothesis": "reduce_switching_without_relaxing_risk; unproven",
+        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
+        "pyramiding": false,
+        "rule": "close>1.01*SMA200:long; close<.99*SMA200:flat; else:hold",
+        "selectable_sensitivities": false,
+        "sensitivities": [
+          "band_.5%_1.5%_or_confirmation_1_3_days_diagnostic_only",
+          "1.5x_fees",
+          "2x_spread_slippage",
+          "2s_latency",
+          "legacy_bar_only_stress"
+        ],
+        "signal": "sma200-band1",
+        "stop_reentry": "new_daily_full_entry_rule_only; hold_stays_flat; latches_preserved",
+        "strategy_version": "slow-v2",
+        "study": "S1",
+        "trial": "ETH/GBP:1440:sma200-band1",
+        "warmup_bars": 200
+      },
+      {
+        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
+        "daily_only": true,
+        "hypothesis": "reduce_switching_without_relaxing_risk; unproven",
+        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
+        "pyramiding": false,
+        "rule": "two_consecutive_closes_above_own_SMA200:long; below:flat; else:hold",
+        "selectable_sensitivities": false,
+        "sensitivities": [
+          "band_.5%_1.5%_or_confirmation_1_3_days_diagnostic_only",
+          "1.5x_fees",
+          "2x_spread_slippage",
+          "2s_latency",
+          "legacy_bar_only_stress"
+        ],
+        "signal": "sma200-confirm2",
+        "stop_reentry": "new_daily_full_entry_rule_only; hold_stays_flat; latches_preserved",
+        "strategy_version": "slow-v2",
+        "study": "S1",
+        "trial": "ETH/GBP:1440:sma200-confirm2",
+        "warmup_bars": 201
+      },
+      {
+        "allocation": "unchanged_shared_risk_sizer; no_subaccounts_no_weights",
+        "capital": "one_ledger_one_opening_one_monthly_flow",
+        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
+        "daily_only": true,
+        "hypothesis": "reduce_switching_without_relaxing_risk; unproven",
+        "mandatory_passive10": {
+          "BTC/GBP": "0.05",
+          "ETH/GBP": "0.05"
+        },
+        "members": {
+          "BTC/GBP": "sma200-band1",
+          "ETH/GBP": "sma200-band1"
+        },
+        "priority": "daily_timers_BTC_then_ETH; receipts_source_order",
+        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
+        "pyramiding": false,
+        "rule": "close>1.01*SMA200:long; close<.99*SMA200:flat; else:hold",
+        "selectable_sensitivities": false,
+        "sensitivities": [
+          "band_.5%_1.5%_or_confirmation_1_3_days_diagnostic_only",
+          "1.5x_fees",
+          "2x_spread_slippage",
+          "2s_latency",
+          "legacy_bar_only_stress"
+        ],
+        "signal": "sma200-band1",
+        "stop_reentry": "new_daily_full_entry_rule_only; hold_stays_flat; latches_preserved",
+        "strategy_version": "slow-v2",
+        "study": "S2",
+        "trial": "BTC+ETH/GBP:1440:joint-hysteresis",
+        "warmup_bars": 200
+      },
+      {
+        "allocation": "unchanged_shared_risk_sizer; no_subaccounts_no_weights",
+        "capital": "one_ledger_one_opening_one_monthly_flow",
+        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
+        "daily_only": true,
+        "hypothesis": "reduce_switching_without_relaxing_risk; unproven",
+        "mandatory_passive10": {
+          "BTC/GBP": "0.05",
+          "ETH/GBP": "0.05"
+        },
+        "members": {
+          "BTC/GBP": "sma200-confirm2",
+          "ETH/GBP": "sma200-confirm2"
+        },
+        "priority": "daily_timers_BTC_then_ETH; receipts_source_order",
+        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
+        "pyramiding": false,
+        "rule": "two_consecutive_closes_above_own_SMA200:long; below:flat; else:hold",
+        "selectable_sensitivities": false,
+        "sensitivities": [
+          "band_.5%_1.5%_or_confirmation_1_3_days_diagnostic_only",
+          "1.5x_fees",
+          "2x_spread_slippage",
+          "2s_latency",
+          "legacy_bar_only_stress"
+        ],
+        "signal": "sma200-confirm2",
+        "stop_reentry": "new_daily_full_entry_rule_only; hold_stays_flat; latches_preserved",
+        "strategy_version": "slow-v2",
+        "study": "S2",
+        "trial": "BTC+ETH/GBP:1440:joint-confirmation",
+        "warmup_bars": 201
+      }
+    ],
+    "original_report_sha256": "67a8f9630be6d4f55ad52f2132ba70468f097fca859dbf3d8babc970f8f20790",
+    "prior_S0_no_run_packet_sha256": "b73c112c3fd18bdea3ada3114700e03a745db039c351b11d8d80904bef938a72",
+    "reserved_names": [
+      "BTC/GBP:240:sma200",
+      "BTC/GBP:240:sma100",
+      "BTC/GBP:240:donchian55-20",
+      "BTC/GBP:240:momentum90",
+      "BTC/GBP:240:momentum60",
+      "BTC/GBP:1440:sma200",
+      "BTC/GBP:1440:sma100",
+      "BTC/GBP:1440:donchian55-20",
+      "BTC/GBP:1440:momentum90",
+      "BTC/GBP:1440:momentum60",
+      "ETH/GBP:240:sma200",
+      "ETH/GBP:240:sma100",
+      "ETH/GBP:240:donchian55-20",
+      "ETH/GBP:240:momentum90",
+      "ETH/GBP:240:momentum60",
+      "ETH/GBP:1440:sma200",
+      "ETH/GBP:1440:sma100",
+      "ETH/GBP:1440:donchian55-20",
+      "ETH/GBP:1440:momentum90",
+      "ETH/GBP:1440:momentum60",
+      "BTC/GBP:1440:sma200-band1",
+      "BTC/GBP:1440:sma200-confirm2",
+      "ETH/GBP:1440:sma200-band1",
+      "ETH/GBP:1440:sma200-confirm2",
+      "BTC+ETH/GBP:1440:joint-hysteresis",
+      "BTC+ETH/GBP:1440:joint-confirmation"
+    ],
+    "sensitivities": "registered_unrun_diagnostics; cannot_select_alternative",
+    "statistical_claims": 104
+  },
+  "installed_code_sha256": "909a0b93c3711d97cb943ed09b34ac62a593253d6f33eba1fd2e62c95efef1f0",
+  "installed_source_matches_worktree": true,
+  "kind": "phase4a-bounded-research-acceptance-v1",
+  "limitations": [
+    "synthetic_execution_and_statistical_workflow_are_not_actual_strategy_performance",
+    "source_cost_parity_reuse_stability_qualification_still_blocked",
+    "parameter_and_cost_stability_performance_unrun",
+    "original20_remain_empirically_rejected; new6_not_empirically_evaluated",
+    "no_actual_holdout_or_freeze",
+    "no_qualifying_observation",
+    "no_private_account_access_or_outbound_messages",
+    "no_retained_service_upgrade_migration_or_restart",
+    "local_archive_is_not_offhost_backup"
+  ],
+  "literal_shared_account_fixture": {
+    "BTC_bought": "0.01",
+    "ETH_bought": "0.01",
+    "ending_NAV_gbp": "999.84",
+    "ending_cash_gbp": "979.84",
+    "fee_each_gbp": "0.08",
+    "ledgers": 1,
+    "opening_gbp": "1000",
+    "price_gbp": "1000",
+    "risk_policy_unchanged": true,
+    "single_asset_ids_unchanged": true
+  },
+  "live_execution_available": false,
+  "schema_revision": "0017_research_holdout",
+  "schema_version": 1,
+  "verification": {
+    "full_suite": {
+      "command": "PATH=\"/Applications/Docker.app/Contents/Resources/bin:$PATH\" python3 scripts/ci_database.py --linux -q",
+      "critical_properties": "existing1000_example_financial_and10000_lifecycle_sequences_retained; additional1000_shared_account_examples",
+      "new_test_cases": 30,
+      "passed": 915,
+      "platform": "Linux arm64; CPython3.14.8; disposable PostgreSQL18.6",
+      "seconds": 229.0
+    },
+    "git_diff_check": true,
+    "hosted_release_checks": "must_pass_on_exact_PR_head; retained_in_PR_description",
+    "mypy": {
+      "files": 180,
+      "passed": true,
+      "strict": true
+    },
+    "ruff": {
+      "check": true,
+      "format": true,
+      "formatted_files": 256
+    }
+  }
+}

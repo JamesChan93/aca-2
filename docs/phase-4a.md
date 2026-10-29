@@ -6,7 +6,7 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: in progress; 15/19 completion items.** P4A-17 closes through the
+**Status: in progress; 17/19 completion items.** P4A-17 closes through the
 [merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
 P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
 its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
@@ -17,11 +17,13 @@ closing P4A-01/04/05/06 with source-bound synthetic verification. Version 0.4.23
 delivers [Batch C continuous accounts, equal flows, comparators and assurance](phase-4a-continuous-accounts.md),
 closing P4A-02/03/07/10/13/14/19. The source review concludes blocked/no-go for
 qualification; it does not verify the missing archive/history facts. The remaining
-four items are unchecked. Version 0.4.24 delivers
+two items are unchecked. Version 0.4.24 delivers
 [Batch D statistical decisions and durable research gates](phase-4a-statistical-gates.md),
 closing P4A-11/P4A-12. Its actual-data preflight records 20 incomplete/no-run
 outcomes; no corrected actual-data performance study has run. Current
 integrated PR checks must pass before merge; prior CI success is not transferred to new code.
+Version 0.4.25 delivers [Batch E bounded S1/S2 capability and no-run decisions](phase-4a-bounded-research.md),
+closing P4A-08/09. Exactly P4A-15/16 remain, both in Batch F.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
 The numbered items map directly to recommendations 1–19; the batch and study
@@ -188,21 +190,32 @@ baseline evidence rather than Phase 4a implementation credit.
   flows and execution assumptions must be auditable. Depends on P4A-02/P4A-03.
   Acceptance: All original comparators plus explicit past-only diagnostics use the [same continuous calendar, flows, price proxy and latency](phase-4a-continuous-accounts.md#p4a-07-comparable-benchmarks). Intended deployment and unspent cash are reported; passive mandates retain their stated risk differences.
 
-- [ ] **P4A-08 — Bounded low-turnover research.** Support and preregister S1 within
+- [x] **P4A-08 — Bounded low-turnover research.** Support and preregister S1 within
   its four-candidate ceiling, with unchanged protective/risk limits and explicit
   stop re-entry semantics. Record all attempted/abandoned trials, costs, whipsaws,
   missed trends, parameter stability and completed/open episode evidence. If the
   S0 review stops further actual-data research, retain implemented synthetic
   capability/protocol checks and the explicit no-run decision; do not claim any
   unrun variant passed. Depends on the verified model and the S0 review.
+  Acceptance: The [fixed four-candidate protocol](phase-4a-bounded-protocol.md),
+  [shared implementation and synthetic checks](phase-4a-bounded-research.md),
+  and [actual six-task no-run receipt](evidence/phase-4a-bounded-preflight.json)
+  retain S0's incomplete review, unchanged risk, explicit re-entry, episode/cost/
+  whipsaw/missed-participation reporting and unrun stability sensitivities.
 
-- [ ] **P4A-09 — Shared-account portfolio research.** Support S2's maximum two
+- [x] **P4A-09 — Shared-account portfolio research.** Support S2's maximum two
   deterministic portfolios on common dates, using one capital ledger, shared
   cash/aggregate risk and explicit simultaneous-signal handling. Show correlated
   losses and joint uncertainty; do not add independent £250 subaccounts or
   optimised weights. Preserve the one-writer boundary. An S0/S1 no-run decision
   requires the same explicit separation of implemented capability and absent
   empirical qualification as P4A-08. Depends on P4A-02/P4A-07/P4A-10/P4A-11.
+  Acceptance: [Two fixed shared-account definitions](phase-4a-bounded-research.md)
+  use one cash journal, units, aggregate reservations/risk and loss latches;
+  instrument-scoped identities/protection preserve simultaneous signals and exits.
+  Independent literal economics, 1,000 generated shared-account cases, common-flow/
+  split checks and the unchanged inference gates pass. Actual joint results remain
+  unrun, with no selected candidate or holdout opening.
 
 - [x] **P4A-10 — Complete common calendar.** Freeze calendar origins, past-only
   warm-up and terminal partial-window handling before reruns. Account explicitly

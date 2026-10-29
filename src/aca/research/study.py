@@ -4,6 +4,7 @@ from collections.abc import Iterator, Mapping
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
+from typing import Literal, cast
 
 from aca.domain.market import Candle, InstrumentRules, MarketTrade, Symbol
 from aca.operations.config import RiskPolicy
@@ -12,6 +13,7 @@ from aca.research.bundles import OBJECT_BYTES, Result, Store, create, execute, s
 from aca.research.calendar import common_calendar
 from aca.research.continuous import ContinuousEvaluation, comparison_report
 from aca.research.datasets import load_dataset
+from aca.research.family import FAMILY, S0, S1, S2, PortfolioName, definition, portfolio_variant
 from aca.research.gates import (
     Bindings,
     Evaluation,
@@ -21,23 +23,14 @@ from aca.research.gates import (
     evidence_identity,
 )
 from aca.research.inference import PROTOCOL
-from aca.research.protocol import TRIALS
 from aca.research.runner import code_fingerprint, reconstructed_rules
 from aca.simulation.reference import CostModel
-from aca.strategies.slow import Variant
+from aca.strategies.slow import ResearchVariant
 
 
 def strategy_definition(name: str) -> dict[str, object]:
-    if name not in {f"{s}:{i}:{v}" for s, i, v in TRIALS}:
-        raise ValueError("undeclared S0 candidate")
-    return {
-        "trial": name,
-        "strategy_version": "slow-v2",
-        "pyramiding": False,
-        "protective_distance": "max(2*ATR14,5%entry); limit_1%below_trigger",
-        "clock": "slow-v2; 10s_finalisation; 2s_dispatch; 250ms_latency; 60s_match",
-        "stop_reentry": "next_fresh_closed_signal_only; latched_risk_remains",
-    }
+    """Compatibility entry point; exact S0 hashes and the bounded new family."""
+    return definition(name)
 
 
 def _trades(path: Path, expected: str, end: datetime) -> Iterator[MarketTrade]:
@@ -62,7 +55,10 @@ def run_corrected(
     *,
     trades: Path | None = None,
     reviews: Mapping[str, dict[str, object]] | None = None,
+    study: Literal["S0", "S1S2"] = "S0",
 ) -> Path:
+    if study not in {"S0", "S1S2"}:
+        raise ValueError("undeclared study budget")
     dataset = load_dataset(manifest)
     if dataset.fingerprint != evidence.dataset:
         raise ValueError("dataset/evidence mismatch")
@@ -81,9 +77,9 @@ def run_corrected(
             for window in calendar.windows
         ],
     }
-    names = [f"{symbol}:{interval}:{variant}" for symbol, interval, variant in TRIALS]
+    names = S0 if study == "S0" else (*S1, *S2)
     declaration: dict[str, object] = {
-        "kind": "corrected-S0-v1",
+        "kind": f"corrected-{study}-v1",
         "dataset": dataset.fingerprint,
         "source_lineage": evidence.source_lineage,
         "purpose": evidence.purpose,
@@ -102,18 +98,30 @@ def run_corrected(
             "central250/250_only; any_individually_eligible_recorded_review_no_return_ranking"
         ),
         "holdout_opened": False,
+        "family_ceiling": 26,
+        "reserved_family": list(FAMILY),
+        "prior_baseline_report_sha256": (
+            "67a8f9630be6d4f55ad52f2132ba70468f097fca859dbf3d8babc970f8f20790"
+        ),
+        "prior_S0_no_run_packet_sha256": (
+            "b73c112c3fd18bdea3ada3114700e03a745db039c351b11d8d80904bef938a72"
+        ),
+        "mechanism_review": (
+            "original_passive10_negative; corrected_S0_incomplete_no_empirical_ranking"
+        ),
+        "sensitivity_status": "not_run; required_review_before_eligibility",
     }
     path = create(root, declaration, {name: strategy_definition(name) for name in names})
-    for symbol, interval, variant in TRIALS:
-        name = f"{symbol}:{interval}:{variant}"
+    for name in names:
 
-        def work(
-            store: Store,
-            name: str = name,
-            symbol: Symbol = symbol,
-            interval: int = interval,
-            variant: Variant = variant,
-        ) -> Result:
+        def work(store: Store, name: str = name) -> Result:
+            member, interval_text, variant_text = name.split(":")
+            interval = int(interval_text)
+            portfolio = cast(PortfolioName, variant_text) if name in S2 else None
+            symbol = cast(Symbol, "BTC/GBP" if portfolio else member)
+            variant = (
+                portfolio_variant(portfolio) if portfolio else cast(ResearchVariant, variant_text)
+            )
             bindings = Bindings(
                 purpose=evidence.purpose,
                 trial=name,
@@ -150,6 +158,7 @@ def run_corrected(
                 rules,
                 symbol=symbol,
                 variant=variant,
+                portfolio=portfolio,
                 start=calendar.oos_start,
                 end=calendar.oos_end,
             ).run(tuple(window.test_end for window in calendar.windows[:-1]))

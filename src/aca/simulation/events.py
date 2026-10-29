@@ -6,14 +6,15 @@ holdouts or studies. Its incremental interface makes prefix invariance testable.
 """
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal, localcontext
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from aca.accounting.ledger import apply_journals, cash_flow, fill_journal, stored
-from aca.domain.market import Candle, InstrumentRules, MarketTrade
+from aca.domain.market import Candle, InstrumentRules, MarketTrade, Symbol
 from aca.domain.timing import CLOCK_VERSION, FINALISATION, MATCHING_TTL, TRANSMISSION_TTL
 from aca.domain.trading import (
     TERMINAL,
@@ -37,6 +38,7 @@ from aca.portfolio.state import (
     episode_risk,
     flow_units,
     free_cash,
+    market_exposure,
     nav,
     observe_risk,
     unit_price,
@@ -113,6 +115,7 @@ class EventResult:
     execution_model: str = TRADE_MODEL
     clock_version: str = CLOCK_VERSION
     promotion_evidence: bool = False
+    open_episodes: tuple[OpenEpisode, ...] = ()
 
 
 class TradeSimulation:
@@ -134,6 +137,7 @@ class TradeSimulation:
         policy: RiskPolicy = DEFAULT_POLICY,
         dispatch_delay_ms: int = 0,
         identity_namespace: str = "",
+        additional_rules: dict[Symbol, InstrumentRules] | None = None,
     ) -> None:
         self.start = self.at = utc_datetime(start)
         parse_decimal(initial)
@@ -146,11 +150,21 @@ class TradeSimulation:
             raise ValueError("invalid trade simulation capital/dispatch delay")
         if rules.status != "online":
             raise ValueError("offline research instrument")
-        self.rules, self.costs, self.policy = rules, costs, policy
+        self.instruments: dict[Symbol, InstrumentRules] = {rules.symbol: rules}
+        for symbol, extra in (additional_rules or {}).items():
+            if symbol == rules.symbol or symbol != extra.symbol or extra.status != "online":
+                raise ValueError("invalid shared-account instrument rules")
+            self.instruments[symbol] = extra
+        self._symbol = rules.symbol
+        self.latest_by_symbol: dict[Symbol, MarketTrade | None] = dict.fromkeys(self.instruments)
+        self.waiting_by_symbol: dict[Symbol, StrategySignal | None] = dict.fromkeys(
+            self.instruments
+        )
+        self.open_by_symbol: dict[Symbol, OpenEpisode | None] = dict.fromkeys(self.instruments)
+        self.costs, self.policy = costs, policy
         self.delay = timedelta(milliseconds=dispatch_delay_ms)
         self.latency = timedelta(milliseconds=costs.latency_ms)
         self.initial = initial
-        self.asset: Asset = "BTC" if rules.symbol == "BTC/GBP" else "ETH"
         identity = fingerprint(
             {
                 "model": TRADE_MODEL,
@@ -158,6 +172,16 @@ class TradeSimulation:
                 "start": start.isoformat(),
                 "initial": str(initial),
                 "rules": rules.model_dump(mode="json"),
+                **(
+                    {
+                        "shared_rules": {
+                            s: r.model_dump(mode="json")
+                            for s, r in sorted(self.instruments.items())
+                        }
+                    }
+                    if additional_rules
+                    else {}
+                ),
                 "costs": costs.model_dump(mode="json"),
                 "policy": policy.model_dump(mode="json"),
                 "dispatch_delay_ms": dispatch_delay_ms,
@@ -201,6 +225,52 @@ class TradeSimulation:
         self.epoch_reviews: dict[str, EpochReview] = {}
         self.unfilled = 0
 
+    @property
+    def rules(self) -> InstrumentRules:
+        return self.instruments[self._symbol]
+
+    @property
+    def asset(self) -> Asset:
+        return "BTC" if self._symbol == "BTC/GBP" else "ETH"
+
+    @property
+    def latest(self) -> MarketTrade | None:
+        return self.latest_by_symbol[self._symbol]
+
+    @latest.setter
+    def latest(self, value: MarketTrade | None) -> None:
+        self.latest_by_symbol[self._symbol] = value
+
+    @property
+    def waiting(self) -> StrategySignal | None:
+        return self.waiting_by_symbol[self._symbol]
+
+    @waiting.setter
+    def waiting(self, value: StrategySignal | None) -> None:
+        self.waiting_by_symbol[self._symbol] = value
+
+    @property
+    def open_episode(self) -> OpenEpisode | None:
+        return self.open_by_symbol[self._symbol]
+
+    @open_episode.setter
+    def open_episode(self, value: OpenEpisode | None) -> None:
+        self.open_by_symbol[self._symbol] = value
+
+    @contextmanager
+    def _instrument(self, symbol: Symbol) -> Iterator[None]:
+        if symbol not in self.instruments:
+            raise ValueError("undeclared shared-account instrument")
+        previous = self._symbol
+        self._symbol = symbol
+        try:
+            yield
+        finally:
+            self._symbol = previous
+
+    def _held(self) -> bool:
+        return any(b.asset != "GBP" and b.quantity for b in self.state.balances)
+
     def _clock(self, at: datetime) -> None:
         at = utc_datetime(at)
         if at < self.at:
@@ -213,7 +283,7 @@ class TradeSimulation:
             )
             if entries_paused(self.state, self.at):
                 self.halt_seconds += seconds
-            if self.state.quantity(self.asset):
+            if self._held():
                 self.exposure_seconds += seconds
             self.exposure_fraction_seconds += seconds * self.observations[-1].exposure
             self.equity_seconds += seconds * self.observations[-1].nav
@@ -238,6 +308,7 @@ class TradeSimulation:
                 "as_of": at,
                 "version": self.state.version + 1,
                 "marks": (
+                    *(m for m in self.state.marks if m.asset != self.asset),
                     Valuation(
                         asset=self.asset,
                         bid_gbp=bid,
@@ -251,6 +322,10 @@ class TradeSimulation:
         )
         if (at - trade.received_at).total_seconds() > 5 and self.state.quantity(self.asset):
             return  # Never restamp an old mark; result will disclose missing coverage.
+        try:
+            nav(self.state, at)
+        except ValueError:
+            return  # Other held assets need their own fresh marks; never restamp them.
         self.state = observe_risk(self.state, at, self.policy)
         if entries_paused(self.state, at):
             for order in self.state.orders:
@@ -266,7 +341,7 @@ class TradeSimulation:
 
     def publish(self, value: StrategySignal, at: datetime) -> None:
         """Consume a decision once. Its fixed freshness deadline is never renewed."""
-        with localcontext(FINANCIAL_CONTEXT):
+        with localcontext(FINANCIAL_CONTEXT), self._instrument(value.symbol):
             self._publish(value, at)
 
     def _publish(self, value: StrategySignal, at: datetime) -> None:
@@ -275,7 +350,10 @@ class TradeSimulation:
         if value.strategy_version != "slow-v2" or value.symbol != self.rules.symbol:
             raise ValueError("corrected research requires a canonical slow-v2 signal")
         self.advance_time(at)
-        identity = (value.strategy, value.data_watermark)
+        identity = (
+            value.strategy if len(self.instruments) == 1 else f"{value.symbol}:{value.strategy}",
+            value.data_watermark,
+        )
         if identity in self.used_signals:
             return
         self.used_signals.add(identity)
@@ -311,7 +389,9 @@ class TradeSimulation:
             self.skips["risk_suspended"] += 1
             return
         held = self.state.quantity(self.asset)
-        active = any(o.state not in TERMINAL for o in self.state.orders)
+        active = any(
+            o.state not in TERMINAL and o.intent.symbol == self._symbol for o in self.state.orders
+        )
         if value.desired == "hold" or (value.desired == "long" and (held or active)):
             self.skips["no_change"] += 1
             return
@@ -336,8 +416,14 @@ class TradeSimulation:
             return
         fee_bound = max(Decimal("0.008"), self.costs.taker_fee)
         allowance = stored(entry * max(Decimal("0.002"), self.costs.implementation_allowance))
+        try:
+            equity = nav(self.state, at)
+            existing_value = market_exposure(self.state, at)
+        except ValueError:
+            self.skips["unsafe_shared_valuation"] += 1
+            return
         sized = size_long(
-            equity=nav(self.state, at),
+            equity=equity,
             free_cash=free_cash(self.state),
             entry=entry,
             protective_limit=limit,
@@ -347,11 +433,16 @@ class TradeSimulation:
             liquidity_quantity=stored(trade.quantity * self.costs.participation),
             rules=self.rules,
             policy=self.policy,
+            existing_market_value=existing_value,
+            existing_planned_risk=episode_risk(self.state),
         )
         if sized.reason:
             self.skips[sized.reason] += 1
             return
-        ident = uuid5(self.state.account_id, f"{value.strategy}:{value.data_watermark.isoformat()}")
+        label = f"{value.strategy}:{value.data_watermark.isoformat()}"
+        ident = uuid5(
+            self.state.account_id, f"{value.symbol}:{label}" if len(self.instruments) > 1 else label
+        )
         intent = OrderIntent(
             id=ident,
             client_id=ident,
@@ -386,38 +477,39 @@ class TradeSimulation:
 
     def _dispatch(self, at: datetime) -> None:
         for order in self.state.orders:
-            if order.state != "VALIDATED":
-                continue
-            command = self.commands[order.intent.client_id]
-            if command.dispatch_due > at:
-                continue
-            try:
-                commitment_guard(self.state, order, self.policy, at)
-                if self.latest is None or any(
-                    not 0 <= (at - stamp).total_seconds() <= 5
-                    for stamp in (self.latest.received_at, self.latest.event_at)
-                ):
-                    raise DispatchDenied("stale_trade_proxy")
-                _, ask = self._quotes(self.latest)
-                if ask > order.intent.limit_price:
-                    raise DispatchDenied("price_bound_changed")
-            except DispatchDenied as exc:
-                self.skips["dispatch:" + str(exc)] += 1
-                self.state = replace_order(
-                    self.state, order.model_copy(update={"state": "EXPIRED"})
-                )
-                continue
-            self.commands[order.intent.client_id] = Command(
-                command.client_id,
-                command.episode_id,
-                command.admitted_at,
-                command.dispatch_due,
-                at,
-                at + self.latency,
-            )
-            self.state = replace_order(
-                self.state, order.model_copy(update={"state": "OPEN", "submitted_at": at})
-            )
+            if order.state == "VALIDATED":
+                with self._instrument(order.intent.symbol):
+                    self._dispatch_order(order, at)
+
+    def _dispatch_order(self, order: Order, at: datetime) -> None:
+        command = self.commands[order.intent.client_id]
+        if command.dispatch_due > at:
+            return
+        try:
+            commitment_guard(self.state, order, self.policy, at)
+            if self.latest is None or any(
+                not 0 <= (at - stamp).total_seconds() <= 5
+                for stamp in (self.latest.received_at, self.latest.event_at)
+            ):
+                raise DispatchDenied("stale_trade_proxy")
+            _, ask = self._quotes(self.latest)
+            if ask > order.intent.limit_price:
+                raise DispatchDenied("price_bound_changed")
+        except ValueError as exc:
+            self.skips["dispatch:" + str(exc)] += 1
+            self.state = replace_order(self.state, order.model_copy(update={"state": "EXPIRED"}))
+            return
+        self.commands[order.intent.client_id] = Command(
+            command.client_id,
+            command.episode_id,
+            command.admitted_at,
+            command.dispatch_due,
+            at,
+            at + self.latency,
+        )
+        self.state = replace_order(
+            self.state, order.model_copy(update={"state": "OPEN", "submitted_at": at})
+        )
 
     def advance_time(self, at: datetime) -> None:
         """Dispatch timers precede later market input, never using that future print."""
@@ -454,11 +546,13 @@ class TradeSimulation:
                     )
                     self.skips["matching_deadline"] += 1
                     if order.intent.purpose == "exit":
-                        self._protect(order.intent, order.remaining, when)
+                        with self._instrument(order.intent.symbol):
+                            self._protect(order.intent, order.remaining, when)
         self._clock(at)
-        if self.waiting is not None and at >= self.waiting.expires_at:
-            self.skips["signal_expired"] += 1
-            self.waiting = None
+        for symbol, waiting in self.waiting_by_symbol.items():
+            if waiting is not None and at >= waiting.expires_at:
+                self.skips["signal_expired"] += 1
+                self.waiting_by_symbol[symbol] = None
 
     def _exit(self, value: StrategySignal, at: datetime) -> None:
         if self.latest is None or self.open_episode is None:
@@ -475,7 +569,7 @@ class TradeSimulation:
         # In this deterministic single timeline cancellation is definitive. There
         # is no claim about transport races; those remain covered by paper faults.
         for order in self.state.orders:
-            if order.state not in TERMINAL:
+            if order.state not in TERMINAL and order.intent.symbol == self._symbol:
                 self.state = replace_order(
                     self.state, order.model_copy(update={"state": "CANCELLED"})
                 )
@@ -514,11 +608,14 @@ class TradeSimulation:
             if previous != trade:
                 raise ValueError("conflicting research trade identity")
             return
-        if trade.venue != self.rules.venue or trade.symbol != self.rules.symbol:
+        if (
+            trade.symbol not in self.instruments
+            or trade.venue != self.instruments[trade.symbol].venue
+        ):
             raise ValueError("research trade instrument mismatch")
         if not 0 <= (trade.received_at - trade.event_at).total_seconds() <= 5:
             raise ValueError("stale/future research trade")
-        with localcontext(FINANCIAL_CONTEXT):
+        with localcontext(FINANCIAL_CONTEXT), self._instrument(trade.symbol):
             self.advance_time(trade.received_at)
             self.seen[key] = trade
             self.latest = trade
@@ -578,9 +675,18 @@ class TradeSimulation:
         """
         with localcontext(FINANCIAL_CONTEXT):
             self.advance_time(at)
-            if self.latest is not None and 0 <= (at - self.latest.received_at).total_seconds() <= 5:
-                self._observe(at, self.latest)
-            elif not self.state.quantity(self.asset):
+            fresh = next(
+                (
+                    t
+                    for t in self.latest_by_symbol.values()
+                    if t is not None and 0 <= (at - t.received_at).total_seconds() <= 5
+                ),
+                None,
+            )
+            if fresh is not None:
+                with self._instrument(fresh.symbol):
+                    self._observe(at, fresh)
+            elif not self._held():
                 self.state = observe_risk(self.state, at, self.policy)
 
     def review_epoch(
@@ -642,7 +748,7 @@ class TradeSimulation:
         )
         for order in self.state.orders:
             i = order.intent
-            if order.state not in {"OPEN", "PARTIALLY_FILLED"}:
+            if order.state not in {"OPEN", "PARTIALLY_FILLED"} or i.symbol != trade.symbol:
                 continue
             command = self.commands[i.client_id]
             if command.match_after is None or self.at < command.match_after:
@@ -822,13 +928,24 @@ class TradeSimulation:
         if at is not None:
             self.advance_time(at)
         with localcontext(FINANCIAL_CONTEXT):
-            q = self.state.quantity(self.asset)
-            raw = self.latest.price if self.latest else ZERO
-            bid = self._quotes(self.latest)[0] if self.latest else ZERO
-            terminal = self.state.quantity("GBP") + q * bid
-            gross = self.raw_cash + q * raw - self.initial - self.external_flows
+            raw_inventory = bid_inventory = cost_inventory = ZERO
+            stale = False
+            for symbol, latest in self.latest_by_symbol.items():
+                with self._instrument(symbol):
+                    quantity = self.state.quantity(self.asset)
+                    if quantity and latest is None:
+                        raise ValueError("held shared inventory without price evidence")
+                    raw_inventory += quantity * (latest.price if latest else ZERO)
+                    bid_inventory += quantity * (self._quotes(latest)[0] if latest else ZERO)
+                    cost_inventory += self.state.cost(self.asset)
+                    stale |= bool(
+                        quantity and latest and (self.at - latest.received_at).total_seconds() > 5
+                    )
+            q = self.state.quantity(self.asset) if len(self.instruments) == 1 else ZERO
+            terminal = self.state.quantity("GBP") + bid_inventory
+            gross = self.raw_cash + raw_inventory - self.initial - self.external_flows
             fees = sum((f.fees[0].quantity for f in self.fills), ZERO)
-            discount = q * (raw - bid)
+            discount = raw_inventory - bid_inventory
             rounding = terminal - (
                 self.initial + self.external_flows + gross - fees - self.implementation - discount
             )
@@ -840,7 +957,7 @@ class TradeSimulation:
                 "spread_slippage_rounding_gbp": self.implementation,
                 "terminal_mark_discount_gbp": discount,
                 "functional_currency_rounding_gbp": rounding,
-                "terminal_inventory_gbp": q * bid,
+                "terminal_inventory_gbp": bid_inventory,
                 "realised_trading_pnl_gbp": -sum(
                     (
                         line.gbp
@@ -850,7 +967,7 @@ class TradeSimulation:
                     ),
                     ZERO,
                 ),
-                "unrealised_mark_pnl_gbp": q * bid - self.state.cost(self.asset),
+                "unrealised_mark_pnl_gbp": bid_inventory - cost_inventory,
                 "ending_nav_gbp": terminal,
             }
             if abs(rounding) > Decimal("1e-15") * max(1, len(self.fills)):
@@ -883,18 +1000,21 @@ class TradeSimulation:
                 tuple(self.fills),
                 tuple(self.journals),
                 tuple(self.commands.values()),
-                self.open_episode,
+                self.open_episode if len(self.instruments) == 1 else None,
                 attribution,
                 dict(self.skips),
                 self.halt_seconds,
                 self.exposure_seconds,
-                bool(q and self.latest and (self.at - self.latest.received_at).total_seconds() > 5),
+                stale,
                 self.observations[-1].at,
                 self.at,
                 self.exposure_fraction_seconds,
                 self.equity_seconds,
                 self.planned_risk_fraction_seconds,
                 tuple(self.epoch_reviews.values()),
+                open_episodes=tuple(e for e in self.open_by_symbol.values() if e is not None)
+                if len(self.instruments) > 1
+                else (),
             )
 
 

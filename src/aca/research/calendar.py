@@ -107,7 +107,7 @@ def reporting_windows(
 
 
 def qualified_bars(
-    bars: Sequence[Candle], symbol: Symbol, start: datetime, end: datetime
+    bars: Sequence[Candle], symbol: Symbol, start: datetime, end: datetime, *, warmup: int = 200
 ) -> tuple[Candle, ...]:
     """Select 200 past bars and the entire requested range, without holdout reads.
 
@@ -120,9 +120,9 @@ def qualified_bars(
     # Ignore later objects without inspecting their price/quality values.
     selected = [bar for bar in bars if bar.start < end]
     preceding = [bar for bar in selected if bar.end <= start]
-    if len(preceding) < 200:
+    if warmup not in {200, 201} or len(preceding) < warmup:
         raise ValueError("insufficient past-only warm-up")
-    offset = len(preceding) - 200
+    offset = len(preceding) - warmup
     while offset and preceding[offset].quality == ("confirmed_no_trade",):
         offset -= 1
     result = tuple(preceding[offset:] + [b for b in selected if b.start >= start])

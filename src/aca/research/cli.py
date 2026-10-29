@@ -50,14 +50,16 @@ def add_parser(commands: argparse._SubParsersAction[argparse.ArgumentParser]) ->
     corrected = actions.add_parser(
         "corrected", help="Corrected S0, with enforced evidence preflight"
     )
-    corrected.add_argument("--dataset", type=Path, required=True)
-    corrected.add_argument("--source-review", type=Path)
-    corrected.add_argument("--cost-review", type=Path)
-    corrected.add_argument("--parity-review", type=Path)
-    corrected.add_argument("--calibration", type=Path)
-    corrected.add_argument("--review-bundle", type=Path)
-    corrected.add_argument("--trades", type=Path)
-    corrected.add_argument("--root", type=Path, default=Path("data/research"))
+    bounded = actions.add_parser("bounded", help="Preregistered four S1/two shared S2 candidates")
+    for research_parser in (corrected, bounded):
+        research_parser.add_argument("--dataset", type=Path, required=True)
+        research_parser.add_argument("--source-review", type=Path)
+        research_parser.add_argument("--cost-review", type=Path)
+        research_parser.add_argument("--parity-review", type=Path)
+        research_parser.add_argument("--calibration", type=Path)
+        research_parser.add_argument("--review-bundle", type=Path)
+        research_parser.add_argument("--trades", type=Path)
+        research_parser.add_argument("--root", type=Path, default=Path("data/research"))
     preserve = actions.add_parser("bundle-preserve", help="Preserve an unopened legacy report")
     preserve.add_argument("--report", type=Path, required=True)
     preserve.add_argument("--directory", type=Path, required=True)
@@ -122,7 +124,7 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
         from aca.research.inference import calibration
 
         output = {"calibration": str(save_document(args.root / "calibrations", calibration()))}
-    elif args.action == "corrected":
+    elif args.action in {"corrected", "bounded"}:
         from aca.research.artifacts import canonical, digest
         from aca.research.study import actual_evidence, run_corrected
 
@@ -153,6 +155,7 @@ def execute(args: argparse.Namespace, settings: Settings) -> int:
                     calibrated,
                     trades=args.trades,
                     reviews=documents,
+                    study="S1S2" if args.action == "bounded" else "S0",
                 )
             ),
             "holdout_opened": False,

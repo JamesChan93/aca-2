@@ -530,8 +530,9 @@ def test_freeze_cli_uses_rechecked_envelope_and_rejects_tampering(tmp_path: Path
         )
 
 
+@pytest.mark.parametrize("study,count", [("S0", 20), ("S1S2", 6)])
 def test_corrected_s0_preregisters_all20_and_preserves_blocked_no_run(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, study: Any, count: int
 ) -> None:
     from datetime import UTC, datetime
 
@@ -564,14 +565,18 @@ def test_corrected_s0_preregisters_all20_and_preserves_blocked_no_run(
     blocked = Evidence.model_validate(
         {**evidence.model_dump(), "blockers": ("disputed_BTC_retained",), "source_qualified": False}
     )
-    packet = run_corrected(tmp_path, tmp_path / "unused", blocked, calibrated, reviews=docs)
+    packet = run_corrected(
+        tmp_path, tmp_path / "unused", blocked, calibrated, reviews=docs, study=study
+    )
     summary = verify(packet)
-    assert len(summary["tasks"]) == 20  # type: ignore[arg-type]
+    assert len(summary["tasks"]) == count  # type: ignore[arg-type]
     tasks = summary["tasks"]
     assert isinstance(tasks, dict)
     assert {item["reason"] for item in tasks.values()} == {"incomplete_evidence_no_run"}
-    assert packet == run_corrected(tmp_path, tmp_path / "unused", blocked, calibrated, reviews=docs)
-    assert len(list((tmp_path / "decisions").glob("*.json"))) == 20
+    assert packet == run_corrected(
+        tmp_path, tmp_path / "unused", blocked, calibrated, reviews=docs, study=study
+    )
+    assert len(list((tmp_path / "decisions").glob("*.json"))) == count
     assert not (tmp_path / "evaluations").exists()
     assert not (tmp_path / "holdout-openings").exists()
     archive(packet, tmp_path / "blocked.tar")
@@ -656,8 +661,9 @@ async def test_concurrent_holdout_requests_invoke_work_at_most_once(
         await engine.dispose()
 
 
+@pytest.mark.parametrize("study,count", [("S0", 20), ("S1S2", 6)])
 def test_corrected_workflow_executes_continuous_model_and_retains_short_sample_rejection(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, study: Any, count: int
 ) -> None:
     from datetime import UTC, datetime
 
@@ -675,10 +681,12 @@ def test_corrected_workflow_executes_continuous_model_and_retains_short_sample_r
     series: dict[tuple[Symbol, int], tuple[Candle, ...]] = {}
     for symbol in ("BTC/GBP", "ETH/GBP"):
         for interval in (240, 1440):
-            count = int((END - datetime(2019, 1, 1, tzinfo=UTC)).total_seconds() / (interval * 60))
+            bar_count = int(
+                (END - datetime(2019, 1, 1, tzinfo=UTC)).total_seconds() / (interval * 60)
+            )
             series[(symbol, interval)] = tuple(
                 bar.model_copy(update={"symbol": symbol})
-                for bar in bars([1000] * count, interval=interval)
+                for bar in bars([1000] * bar_count, interval=interval)
             )
     dataset = Dataset(evidence.dataset, {}, series)
     monkeypatch.setattr("aca.research.study.load_dataset", lambda _: dataset)
@@ -695,11 +703,17 @@ def test_corrected_workflow_executes_continuous_model_and_retains_short_sample_r
         )
     )
     packet = run_corrected(
-        tmp_path / "study", tmp_path / "unused", evidence, calibrated, trades=path, reviews=docs
+        tmp_path / "study",
+        tmp_path / "unused",
+        evidence,
+        calibrated,
+        trades=path,
+        reviews=docs,
+        study=study,
     )
-    assert len(verify(packet)["tasks"]) == 20  # type: ignore[arg-type]
+    assert len(verify(packet)["tasks"]) == count  # type: ignore[arg-type]
     envelopes = list((tmp_path / "study/evaluations").glob("*.json"))
-    assert len(envelopes) == 20
+    assert len(envelopes) == count
     for value in envelopes:
         envelope = Evaluation.model_validate_json(value.read_bytes())
         candidate = envelope.report["candidate"]

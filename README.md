@@ -26,7 +26,7 @@ No candidate is frozen and the final holdout remains closed.
 The [Phase 4a plan](docs/phase-4a.md) turns the
 [research and repository review](docs/research-promotion-review-2026-10-24.md)
 into a fixed **19-item** research-fidelity and promotion-preparation phase.
-It is in progress at **15/19**, with six implementation batches and a bounded study
+It is in progress at **17/19**, with six implementation batches and a bounded study
 budget. P4A-17 closes the release-check repair. Version 0.4.20 adds P4A-18's
 [modular research output and offline restore](docs/phase-4a-artifacts.md): durable
 attempts, bounded pages, deterministic trial resume and a byte-identical archive/
@@ -40,7 +40,12 @@ stop/partial-fill oracle. Version 0.4.23 delivers [Batch C continuous accounts,
 equal contributions, comparators and source/cost assurance](docs/phase-4a-continuous-accounts.md),
 closing P4A-02/03/07/10/13/14/19. The data review records a blocked/no-go decision
 with missing facts retained as qualification blockers.
-No corrected S0/S1/S2 study has run.
+Version 0.4.24 adds [Batch D statistical decisions and durable gates](docs/phase-4a-statistical-gates.md).
+Version 0.4.25 adds [Batch E bounded S1/S2 research](docs/phase-4a-bounded-research.md):
+four fixed low-turnover definitions and two deterministic shared-account portfolios.
+The 20 S0 and six S1/S2 actual preflight outcomes are incomplete/no-run; no corrected
+actual-data performance study has run. P4A-15/16 in Batch F are the two remaining
+engineering items.
 Phase 4 remains closed at 17/17; qualifying observation has not started.
 
 The [original project prompt and implementation context](docs/context/README.md)
@@ -66,7 +71,7 @@ python3 scripts/bootstrap.py
 ```
 
 This command is for a fresh local stack. For an existing deployment, use the
-reviewed backup/upgrade procedure; do not start an older image against schema 0016.
+reviewed backup/upgrade procedure; do not start an older image against the migrated schema.
 The handoff uses a separate project name for a fresh review stack.
 
 The bootstrap uses the host Python's standard library only (3.9+). Application code
