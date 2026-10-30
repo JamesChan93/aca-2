@@ -265,3 +265,27 @@ still fails acceptance if doubled measured maintenance/restart cost plus two
 seconds exceeds 18 seconds/hour. Fixture and CI wall limits also remain unchanged.
 The final source-bound local capacity measurement passes; final hosted outcomes
 are recorded in the PR body.
+
+
+## CI job wall-limit correction
+
+On application commit `181ddda`, all eight standalone audit/replay/history/capacity
+jobs passed, including both observation-profile acceptances. Both sequential
+`verify` jobs passed all 943 tests (842.16 and 819.64 seconds), populated restores,
+packaged handoff, standard capacity and three dependency audits. They reached the
+container build before GitHub cancelled them at the 30-minute job wall limit;
+this was not a failed application assertion. The [push run](https://github.com/JamesChan93/aca-2/actions/runs/40989843490)
+and [PR run](https://github.com/JamesChan93/aca-2/actions/runs/40989847860) retain
+those outcomes.
+
+The workflow now separates regression/fault/restore verification from packaged
+release/capacity/security verification. Each uses a fresh runner and the same
+30-minute ceiling. All existing step definitions, shell scripts, pinned actions,
+triggers, permissions and measurement-job limits are preserved; only the required
+checkout/Python/locked-dependency setup is repeated for the separate runner.
+Parsing and a direct comparison to the preceding workflow verify that no check
+was removed or altered, and every shell block passes `bash -n`. Six jobs per
+workflow (12 checks across push and PR) must finish successfully on the final
+head. Application source, financial/risk rules and operation deadlines are
+unchanged by this scheduling correction. Final run links/results remain in the
+PR body, without a follow-up evidence-only commit.

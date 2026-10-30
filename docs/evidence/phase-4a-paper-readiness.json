@@ -8,6 +8,23 @@
     "private_account_access": false
   },
   "capacity_document_sha256": "6bac15cfebb55865f01b54b795f8531fd79e9f06fb8168a4d295cf8cdbfff96c",
+  "ci_job_split": {
+    "action_pins_runners_triggers_permissions_preserved": true,
+    "all_previous_check_steps_preserved": true,
+    "application_source_unchanged": true,
+    "checks_across_push_and_pr": 12,
+    "job_wall_limit_minutes": 30,
+    "jobs_per_workflow": 6,
+    "operation_and_fixture_deadlines_unchanged": true,
+    "pr_run": "https://github.com/JamesChan93/aca-2/actions/runs/40989847860",
+    "preceding_commit": "181ddda65dc89633259b037b629cca65e83d54b1",
+    "push_run": "https://github.com/JamesChan93/aca-2/actions/runs/40989843490",
+    "reason": "Both sequential verify jobs exceeded the 30-minute wall limit during container build after passing all 943 tests, restore, handoff, standard capacity and dependency audits.",
+    "regression_tests_passed_in_each_cancelled_job": 943,
+    "standalone_measurement_jobs_passed": 8,
+    "workflow_validation_log_sha256": "be57b94450a3b3e2ca6fd15e6825fb7b27e8bb5633925c0723724f7fa7f00ed8",
+    "workflow_yaml_and_shell_syntax_valid": true
+  },
   "closed_items": [
     "P4A-15",
     "P4A-16"
