@@ -3,6 +3,12 @@
 Updated 30 October 2026. Application **0.4.26**, schema `0018_paper_studies`.
 
 **Phase 4a engineering is complete at 19/19; research remains no-go.**
+The owner's [30 October research rerun](research-rerun-2026-10-30.md) reproduces
+all 300 original folds and adds complete descriptive performance/benchmark
+tables: 17/20 meet the episode minimum, 0/20 pass confidence or economics.
+The corrected continuous-account preflight separately remains incomplete/no-run
+for all 20 S0 definitions. No candidate freeze, holdout or observation starts.
+
 [Batch F](phase-4a-paper-readiness.md) closes P4A-15/16 with a separate approved
 paper-study model, immutable start evidence, restart-safe health/episode records,
 CLI paths and a measured bounded observation profile. Default storage remains
