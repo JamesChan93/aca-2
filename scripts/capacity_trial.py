@@ -79,7 +79,9 @@ def failure_summary(path: Path) -> dict[str, Any]:
     """Emit fixed diagnostic labels only; private tracebacks/SQL stay private."""
     if not path.exists():
         return {}
-    classes, conditions, operations = set(), set(), set()
+    classes: set[str] = set()
+    conditions: set[str] = set()
+    operations: set[str] = set()
     known_classes = (
         "sqlalchemy.exc.OperationalError",
         "psycopg.errors.QueryCanceled",
