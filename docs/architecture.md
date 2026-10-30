@@ -330,3 +330,14 @@ source/raw-receipt reads in 32 rows rather than eight, within the existing globa
 memory/decoded-byte limits and the declared source-size envelope. This changes no
 retained-record limit, financial policy or risk check. Keep the initial hosted
 capacity failures, diagnostic profiles and corrected acceptance measurements.
+
+
+**A31 stopped-worker VACUUM budget:** hosted diagnostics identified full-prefix
+setup cleanup exceeding the generic five-second SQL deadline. Give only this
+migration-role, producer/writer-lock-protected utility a 30-second statement
+ceiling and invalidate its connection afterwards. Ordinary runtime and migration
+connections keep five seconds. Initial full-prefix setup precedes the qualifying
+clock; recurring maintenance and restart still count against the unchanged
+18-second/hour allowance (doubled measured downtime plus two seconds), 99.5%
+availability target and existing fixture/CI limits. This does not change a
+trading/read deadline, retained-record limit or financial/risk rule.

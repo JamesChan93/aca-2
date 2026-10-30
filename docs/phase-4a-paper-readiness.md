@@ -130,7 +130,12 @@ the cached writer path cannot supply an independent rebuild result.
 After cutover closes its snapshots, explicit stopped-worker `history-vacuum`
 uses ordinary PostgreSQL VACUUM/ANALYZE to make dead-row space reusable. It does
 not run VACUUM FULL, remove logical history, grant runtime DDL or relax a bound.
-The same writer/venue/public-producer locks apply. Maintain the returned current
+The same writer/venue/public-producer locks apply. This offline migration-role
+utility has an explicit 30-second SQL timeout; ordinary runtime/migration
+connections retain their five-second statement timeout. The initial full-prefix
+cleanup is setup before a qualifying observation clock starts. Recurring
+maintenance remains charged to the unchanged 18-second hourly allowance.
+Maintain the returned current
 certificate for the restarted worker. Stop/start overhead and maintenance are
 charged as unavailable time; they are not removed as an external dependency.
 
@@ -140,10 +145,10 @@ independent original-row rebuild and a finite real publication/replay/risk loop.
 The model doubles measured maintenance/restart cost, adds two seconds contingency,
 doubles measured storage growth, reserves 512 MB for other state and a separate
 2 GB for retained trade/raw evidence. It checks the unchanged catalogue ceiling
-and measures retained trade-row bytes with an extra row/index allowance. The final local model projects **6,318,708,543 bytes** against 8 GB, **99,131**
-catalogue blocks against 100,000 and **99.6371%** availability. Its doubled
-maintenance/restart bound is **13.0651 seconds per hour**; the maximum measured
-loop tick is **0.1375 seconds**, below the existing three-second deadline. All
+and measures retained trade-row bytes with an extra row/index allowance. The final local model projects **6,318,291,263 bytes** against 8 GB, **99,131**
+catalogue blocks against 100,000 and **99.7943%** availability. Its doubled
+maintenance/restart bound is **7.4041 seconds per hour**; the maximum measured
+loop tick is **0.1515 seconds**, below the existing three-second deadline. All
 timings and byte counts are in the linked packet; this is bounded extrapolation,
 not measured long-duration availability. Deployment must still fit its physical
 disk, WAL, logs and backup staging outside this database allowance.
@@ -203,10 +208,10 @@ retain their original separate gates.
 
 ## Release verification
 
-The final source passes 940 Linux/PostgreSQL tests (259.34 seconds), including the
+The final source passes 943 Linux/PostgreSQL tests (293.40 seconds), including the
 existing 1,000-example financial and 10,000-sequence lifecycle properties, strict
 mypy on 185 files and Ruff check/format on 214 source/test/script files. A populated logical restore
-compares 35 tables/seven synthetic accounts in 42.585 seconds, rolls back an
+compares 35 tables/seven synthetic accounts in 33.286 seconds, rolls back an
 injected failed restore and performs two disarmed recoveries with zero venue
 commands. The minimal non-root runtime CLI starts without research dependencies
 or network/credentials. Fresh hosted CI includes the separate observation-profile
@@ -243,10 +248,20 @@ unchanged. Final hosted results must pass on the corrected commit and are linked
 in the PR body.
 
 The corrected PR-triggered run passed all five jobs, including capacity at
-99.5278%, but the duplicate push capacity fixture twice stopped before a
-measurement with only an outer `DrillError` visible. The harness now emits fixed
-exception/condition/operation labels and distinct cutover/vacuum progress stages;
-raw SQL, payloads and private tracebacks stay private. Fourteen isolated harness
-tests, including two added redaction cases, pass. This diagnostic addition changes
-no application code, data, target, workload or deadline; it does not turn a failed
-fixture into an acceptance pass. Final outcomes remain in the PR body.
+99.5278%, but duplicate push fixtures stopped before measurement. Redacted
+exception/condition/operation labels and distinct cutover/vacuum progress stages
+then identified the initial full-prefix VACUUM hitting the generic five-second
+SQL statement timeout on a slower runner. The [confirmed failed job](https://github.com/JamesChan93/aca-2/actions/runs/40980519248/job/123819126665)
+records `statement_timeout`, `QueryCanceled` and `vacuum_analyze`; private SQL,
+payloads and tracebacks remain private.
+
+The stopped-worker VACUUM utility now explicitly allows up to 30 seconds after
+acquiring all three producer/writer locks. It invalidates that administrative
+connection afterwards; ordinary runtime and migration connections still use five
+seconds. An integration regression verifies lock exclusion, the utility's bound,
+unchanged ordinary timeouts and unchanged historical economics. This adjusts an
+offline setup/maintenance utility, not a trading/read deadline. A recurring cycle
+still fails acceptance if doubled measured maintenance/restart cost plus two
+seconds exceeds 18 seconds/hour. Fixture and CI wall limits also remain unchanged.
+The final source-bound local capacity measurement passes; final hosted outcomes
+are recorded in the PR body.

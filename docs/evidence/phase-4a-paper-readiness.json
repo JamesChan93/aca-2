@@ -7,7 +7,7 @@
     "paid_provisioning": false,
     "private_account_access": false
   },
-  "capacity_document_sha256": "627fc8b824e338a8ffc2521ede5892a9306a3a411def00fa6135da704927c2a6",
+  "capacity_document_sha256": "6bac15cfebb55865f01b54b795f8531fd79e9f06fb8168a4d295cf8cdbfff96c",
   "closed_items": [
     "P4A-15",
     "P4A-16"
@@ -15,9 +15,10 @@
   "correction_regressions": [
     "Exactly one complete financial and historical audit pass",
     "Late corrupt value rolls back staged blocks and both certificates",
-    "Full/indexed economics and disarmed restore preserved"
+    "Full/indexed economics and disarmed restore preserved",
+    "VACUUM utility has a bounded 30s deadline, excludes the writer and leaves ordinary connections at 5s"
   ],
-  "date": "2026-10-29",
+  "date": "2026-10-30",
   "decision": "engineering_complete_research_no_go",
   "hosted_checks": "Final exact-head workflow runs and outcomes are recorded in the PR body; no prior-release success is transferred.",
   "hosted_initial_failures": {
@@ -26,6 +27,26 @@
     "failed_capacity_jobs": 2,
     "passed_jobs": 8,
     "unchanged_target": 0.995
+  },
+  "hosted_setup_failure": {
+    "before_capacity_measurement": true,
+    "cleanup_complete": true,
+    "commit": "a5269baeaaeff4db212b67e3b0b71fd4b61b1711",
+    "conditions": [
+      "statement_timeout"
+    ],
+    "correction": "Explicit bounded 30s timeout only in the stopped-worker migration-role VACUUM utility; ordinary query timeout and capacity targets unchanged.",
+    "elapsed_seconds_at_last_progress": 218.114294505,
+    "exception_classes": [
+      "psycopg.errors.QueryCanceled",
+      "sqlalchemy.exc.OperationalError"
+    ],
+    "job": "https://github.com/JamesChan93/aca-2/actions/runs/40980519248/job/123819126665",
+    "operations": [
+      "vacuum_analyze"
+    ],
+    "run": "https://github.com/JamesChan93/aca-2/actions/runs/40980519248",
+    "stage": "maintenance_vacuum_started"
   },
   "kind": "phase-4a-paper-readiness-v1",
   "local_checks": {
@@ -47,9 +68,9 @@
       "command": "python3 scripts/ci_database.py --linux -q",
       "financial_property_examples": 1000,
       "lifecycle_sequences": 10000,
-      "log_sha256": "f3bcff5bcd78a078e28d296571331c68d4ba52cfc0b20d455dc308efd9280ec7",
-      "passed": 940,
-      "seconds": 259.34
+      "log_sha256": "9eed25e6d4d1f3e95672c00172d603ae736649dc14b05ce5ceb0189da37fc782",
+      "passed": 943,
+      "seconds": 293.4
     },
     "mypy": {
       "command": "python -m mypy src/aca tests",
@@ -57,14 +78,25 @@
       "passed": true,
       "source_files": 185
     },
+    "offline_vacuum_budget": {
+      "availability_target": 0.995,
+      "connection_invalidated_after_utility": true,
+      "fixture_timeout_seconds": 900,
+      "historical_economics_preserved": true,
+      "hourly_unavailability_allowance_seconds": 18,
+      "ordinary_runtime_and_migration_statement_timeout_seconds": 5,
+      "utility_statement_timeout_seconds": 30,
+      "writer_exclusion_verified": true
+    },
     "restore": {
       "cleanup_complete": true,
       "command": "python3 scripts/restore_drill.py",
       "failed_restore_rolled_back": true,
+      "log_sha256": "b8f7086b90ebf2d216876ca98569cda51212f826c9068799615a8a4326a8d13a",
       "passed": true,
       "populated_study_start_and_health": true,
       "recovery_venue_commands": 0,
-      "seconds": 42.585,
+      "seconds": 33.286,
       "synthetic_accounts": 7,
       "tables": 35
     },
@@ -78,15 +110,15 @@
     },
     "runtime_smoke": {
       "capabilities": "ALL dropped",
-      "log_sha256": "4b25f72ee0cad660ea386d1ced16f01a3e1729bf16feecc9fdc656fb370b774d",
+      "log_sha256": "b2bf007663d4e32989b75a26b8b92d27ce0b1644e63988d040a84e7ee1008301",
       "minimal_runtime_without_numpy": true,
       "network": "none",
-      "package_fingerprint": "ecef7c20e696fc20db5461c34f9efe53bfd0faf53970bee8e2ddd8011fb6d04b",
+      "package_fingerprint": "4e7c8fa52e3e18d6ce0b25b141f9839a3e9752c5d4100435364e041fba752d73",
       "paper_cli_starts": true,
       "read_only": true
     }
   },
-  "package_fingerprint": "ecef7c20e696fc20db5461c34f9efe53bfd0faf53970bee8e2ddd8011fb6d04b",
+  "package_fingerprint": "4e7c8fa52e3e18d6ce0b25b141f9839a3e9752c5d4100435364e041fba752d73",
   "phase4_closed": 17,
   "phase4_total": 17,
   "phase4a_closed": 19,
@@ -109,7 +141,7 @@
     "s1s2_outcomes": "6 incomplete/no-run; no empirical evaluation",
     "s1s2_packet_sha256": "678199122bef5d8edbd119522200eb5aa69e6b636712ebb4adf4be1fc2fcbad2"
   },
-  "research_code_fingerprint": "e9d759236b2f66d9adf609be605dfcfcaddc6bb8e7592f28217e624edd24288f",
+  "research_code_fingerprint": "ebd9e71a057cfc53dc0bbaa03837c3eb7600740ad183f3de4f516c8987d8a62a",
   "retained_stack": {
     "application": "0.4.8",
     "application_container_id": "d3a2ecbb40312553cfa2dbad43b71f94dc1648bde023b62af0ee292973218e57",
@@ -176,7 +208,7 @@
     "operations/__init__.py": "cd3081c0eb062d4144f284efc764f755ec5c53b950b791116867108bfed1d517",
     "operations/cli.py": "f0cb2bfb22f50bc578f086d7410bb55f3ff80a2035dae25767bb13febdb2a8e1",
     "operations/config.py": "a38322f336a43a2ec09d9791e2f5ea930c1614ca38d6784efff9ff9f12022657",
-    "operations/history.py": "6ed73414e57c6d5eaf002f694966118a1cc7badc046627ae66134fa71e84ed56",
+    "operations/history.py": "a0b613a0ab9abfa0541823e91db5d04f8e5db4f55d6ab62c6ec4ae6fa175d737",
     "operations/notifications.py": "3734e9065e40206b1919258564959f57059f0ef0fa7824a843f4dd9db1f3c145",
     "operations/observation_profile.py": "93a42c6d5bfc7169b1caee3b15f69d9aef08698c44dbaeccc6a4a94da3fc154b",
     "operations/paper.py": "c0dbec6ea935617b09a672ac1b9be4701f1923bc69661c732a5ffd3a5811b777",

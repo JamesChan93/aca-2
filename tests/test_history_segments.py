@@ -268,6 +268,40 @@ async def test_runtime_cannot_compact_or_issue_history_authority(
         await store.engine.dispose()
 
 
+async def test_vacuum_has_a_bounded_offline_budget_without_changing_runtime_timeouts(
+    isolated_history_settings: Settings, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from aca.operations.history import vacuum_history
+
+    store, before, _ = await seed(isolated_history_settings, 2)
+    original = AsyncConnection.execute
+    vacuum_seen = False
+
+    async def observe(self: AsyncConnection, statement: Any, *args: Any, **kwargs: Any) -> Any:
+        nonlocal vacuum_seen
+        if str(statement).startswith("VACUUM"):
+            vacuum_seen = True
+            assert await self.scalar(text("SHOW statement_timeout")) == "30s"
+            assert await self.scalar(text("SELECT current_user")) == "aca_migrator"
+        return await original(self, statement, *args, **kwargs)
+
+    authority = create_engine(isolated_history_settings, "migration")
+    try:
+        async with PaperWriter(store):
+            with pytest.raises(ValueError, match="stop collector"):
+                await vacuum_history(isolated_history_settings, store.account_id)
+        monkeypatch.setattr(AsyncConnection, "execute", observe)
+        await vacuum_history(isolated_history_settings, store.account_id)
+        assert vacuum_seen
+        for engine in (store.engine, authority):
+            async with engine.connect() as c:
+                assert await c.scalar(text("SHOW statement_timeout")) == "5s"
+        assert (await historical_performance(store))["period"] == before["period"]
+    finally:
+        await authority.dispose()
+        await store.engine.dispose()
+
+
 async def test_suffix_and_second_compaction_preserve_flows_and_old_ranges(
     isolated_history_settings: Settings,
 ) -> None:

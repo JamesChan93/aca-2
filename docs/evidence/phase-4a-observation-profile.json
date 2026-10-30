@@ -2,52 +2,56 @@
   "56_day_reliability_demonstrated": false,
   "accepted": true,
   "cleanup_complete": true,
-  "compressed_payload_bytes": 45331734,
+  "compressed_payload_bytes": 45332905,
   "cpu.max": "75000 100000",
-  "cpu_seconds": 99.119643258,
+  "cpu_seconds": 88.857764289,
   "cycles": [
     {
-      "compressed_payload_bytes": 42859000,
+      "compressed_payload_bytes": 42860154,
       "cycle": 0,
-      "database_bytes": 162207423,
-      "maintenance_seconds": 2.1693037929999264,
-      "restart_seconds": 0.1394937499999287
+      "database_bytes": 161912511,
+      "maintenance_seconds": 2.545329584000683,
+      "restart_seconds": 0.15671587499946327
     },
     {
-      "compressed_payload_bytes": 44095265,
+      "compressed_payload_bytes": 44096611,
       "cycle": 1,
-      "database_bytes": 163804863,
-      "maintenance_seconds": 2.742266792999999,
-      "restart_seconds": 0.148921583000174
+      "database_bytes": 163501759,
+      "maintenance_seconds": 2.1977028350002,
+      "restart_seconds": 0.14651804200002516
     },
     {
-      "compressed_payload_bytes": 45331734,
+      "compressed_payload_bytes": 45332905,
       "cycle": 2,
-      "database_bytes": 165426879,
-      "maintenance_seconds": 4.715695502000017,
-      "restart_seconds": 0.8168496250000317
+      "database_bytes": 165123775,
+      "maintenance_seconds": 2.2652298339999106,
+      "restart_seconds": 0.17211437500009197
     }
   ],
-  "database_bytes": 165451455,
+  "database_bytes": 165148351,
   "default_database_budget_bytes": 2000000000,
-  "elapsed_seconds": 153.73602290400004,
+  "elapsed_seconds": 138.38727623100021,
   "fixture_timeout_seconds": 900,
-  "independent_rebuild_seconds": 26.455216677999942,
-  "initial_full_maintenance_seconds": 66.18475844700015,
+  "independent_rebuild_seconds": 27.56149288799952,
+  "initial_full_maintenance_seconds": 57.1872206930002,
   "kind": "paper-observation-profile-measurement-v1",
+  "last_progress": {
+    "elapsed_seconds": 110.82366975900004,
+    "phase": "workload_measured"
+  },
   "limits_changed": {
     "default_database_bytes": 2000000000,
     "financial_or_risk_limits": false,
     "opt_in_database_bytes": 8000000000,
     "suffix": false
   },
-  "maintenance_correction": "One mandatory financial reconstruction and historical audit stream; atomic certificate publication; bounded 32-row source/raw-receipt batches.",
-  "max_rss_kib": 148976,
-  "measurement_date": "2026-10-29",
+  "maintenance_correction": "One complete financial/historical audit stream; atomic certificates; bounded 32-row reads; stopped-worker VACUUM explicitly bounded at 30s, ordinary statements at 5s and recurring acceptance at 18s/hour unchanged.",
+  "max_rss_kib": 149156,
+  "measurement_date": "2026-10-30",
   "memory.max": "805306368",
-  "memory.peak": "130891776",
+  "memory.peak": "131092480",
   "model": {
-    "availability_lower_model": 0.9963708082627778,
+    "availability_lower_model": 0.9979433080783332,
     "backup_and_host_loss_proven": false,
     "capacity_is_conditional_on_declared_rate_and_record_size": true,
     "catalogue_limit": 100000,
@@ -55,11 +59,11 @@
     "days": 56,
     "financial_records_per_second": "1",
     "maintenance_every_seconds": 3600,
-    "maintenance_unavailability_bound_seconds": 13.065090254000097,
+    "maintenance_unavailability_bound_seconds": 7.404090918000293,
     "maximum_encoded_source_row_bytes": 8000,
     "production_stream_fit_proven": false,
     "projected_catalogue_blocks": 99131,
-    "projected_database_bytes": 6318708543,
+    "projected_database_bytes": 6318291263,
     "public_frames_per_second": "0.75",
     "public_trades_per_second": "0.1",
     "reserve_bytes": 512000000,
@@ -78,7 +82,7 @@
     "Modelled future catalogue size and read latency are not a full five-million-row benchmark.",
     "Off-host/WAL backup, physical host loss and production RPO/RTO are not proven."
   ],
-  "package_source_sha256": "ecef7c20e696fc20db5461c34f9efe53bfd0faf53970bee8e2ddd8011fb6d04b",
+  "package_source_sha256": "4e7c8fa52e3e18d6ce0b25b141f9839a3e9752c5d4100435364e041fba752d73",
   "qualifying_days": 0,
   "release": "0.4.26",
   "schema_version": 1,
@@ -90,11 +94,11 @@
   "workload": {
     "backlog_at_end": null,
     "input_frames": 15,
-    "max_tick_seconds": 0.13747258299963505,
+    "max_tick_seconds": 0.15145995800048695,
     "modelled_seconds": 24,
     "risk_checks_skipped": 0,
     "tick_deadline_seconds": 3,
     "ticks": 24,
-    "wall_seconds": 1.6876343760000054
+    "wall_seconds": 2.1411955430003218
   }
 }

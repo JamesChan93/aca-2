@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 29 October 2026. Application **0.4.26**, schema `0018_paper_studies`.
+Updated 30 October 2026. Application **0.4.26**, schema `0018_paper_studies`.
 
 **Phase 4a engineering is complete at 19/19; research remains no-go.**
 [Batch F](phase-4a-paper-readiness.md) closes P4A-15/16 with a separate approved
@@ -12,7 +12,7 @@ readiness remain separately reviewed inputs. No actual study may start from the
 current incomplete/rejected evidence. The actual holdout stays unopened, with
 **zero qualifying days and episodes**. The fixed Phase 4 checklist remains 17/17.
 
-The final application passes **940 Linux/PostgreSQL tests**, strict typing on
+The final application passes **943 Linux/PostgreSQL tests**, strict typing on
 185 files and Ruff check/format on 214 source/test/script files. The populated restore compares
 35 tables and seven synthetic accounts, including study approvals/health, with
 zero venue commands. The [integrated evidence](evidence/phase-4a-paper-readiness.json)

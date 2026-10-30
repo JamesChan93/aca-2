@@ -69,6 +69,11 @@ async def vacuum_history(settings: Settings, account: UUID) -> None:
                         text("SELECT pg_try_advisory_lock(:key)"), {"key": key}
                     ):
                         raise ValueError("stop collector, venue and paper writer before vacuum")
+                # Full-prefix setup can leave 100k dead rows. This offline
+                # utility has a bounded maintenance budget, independent of the
+                # ordinary 5s statement deadline. Recurring measured downtime
+                # must still meet the unchanged 18s/hour capacity allowance.
+                await admin.execute(text("SET statement_timeout='30s'"))
                 await admin.execute(
                     text(
                         "VACUUM (ANALYZE) aca.paper_events, aca.paper_replay_valuations, "
