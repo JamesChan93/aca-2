@@ -241,3 +241,12 @@ never satisfy acceptance. The 99.5% target, doubled maintenance multiplier,
 18-second hourly allowance, input assumptions and fixture deadlines remain
 unchanged. Final hosted results must pass on the corrected commit and are linked
 in the PR body.
+
+The corrected PR-triggered run passed all five jobs, including capacity at
+99.5278%, but the duplicate push capacity fixture twice stopped before a
+measurement with only an outer `DrillError` visible. The harness now emits fixed
+exception/condition/operation labels and distinct cutover/vacuum progress stages;
+raw SQL, payloads and private tracebacks stay private. Fourteen isolated harness
+tests, including two added redaction cases, pass. This diagnostic addition changes
+no application code, data, target, workload or deadline; it does not turn a failed
+fixture into an acceptance pass. Final outcomes remain in the PR body.

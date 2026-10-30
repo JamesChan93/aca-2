@@ -35,6 +35,14 @@
       "original_limits_preserved_except_explicit_8gb_optin": true,
       "synthetic_probe_can_supply_acceptance": false
     },
+    "capacity_failure_diagnostics": {
+      "app_source_unchanged": true,
+      "log_sha256": "35bd51c20293720137c63a616139b2b056a80d5c3a397cfc6525fa67feaab8bb",
+      "new_redaction_cases": 2,
+      "passed": 14,
+      "raw_tracebacks_or_payloads_emitted": false,
+      "seconds": 0.37
+    },
     "linux_postgresql": {
       "command": "python3 scripts/ci_database.py --linux -q",
       "financial_property_examples": 1000,

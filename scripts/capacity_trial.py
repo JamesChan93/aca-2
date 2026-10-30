@@ -45,6 +45,9 @@ def last_progress(path: Path) -> dict[str, Any] | None:
         "profile_cycle_1",
         "profile_cycle_2",
         "workload_measured",
+        "maintenance_cutover_complete",
+        "maintenance_vacuum_started",
+        "maintenance_vacuum_complete",
     }
     latest = None
     if not path.exists():
@@ -70,6 +73,51 @@ def last_progress(path: Path) -> dict[str, Any] | None:
             ):
                 latest = {"phase": value["phase"], "elapsed_seconds": elapsed}
     return latest
+
+
+def failure_summary(path: Path) -> dict[str, Any]:
+    """Emit fixed diagnostic labels only; private tracebacks/SQL stay private."""
+    if not path.exists():
+        return {}
+    classes, conditions, operations = set(), set(), set()
+    known_classes = (
+        "sqlalchemy.exc.OperationalError",
+        "psycopg.errors.QueryCanceled",
+        "psycopg.errors.DeadlockDetected",
+        "psycopg.errors.LockNotAvailable",
+        "AssertionError",
+        "ValueError",
+        "RuntimeError",
+        "TimeoutError",
+        "KeyError",
+    )
+    known_conditions = {
+        "statement timeout": "statement_timeout",
+        "lock timeout": "lock_timeout",
+        "deadlock detected": "deadlock",
+        "no space left on device": "disk_full",
+        "connection refused": "connection_refused",
+    }
+    known_operations = {
+        "[SQL: VACUUM": "vacuum_analyze",
+        "[SQL: DELETE FROM aca.market_receipts": "receipt_cutover",
+        "[SQL: ALTER TABLE": "history_ddl",
+    }
+    with path.open(errors="replace") as stream:
+        for line in stream:
+            if len(line) > 4096:
+                continue
+            classes.update(name for name in known_classes if name + ":" in line)
+            lower = line.lower()
+            conditions.update(
+                label for phrase, label in known_conditions.items() if phrase in lower
+            )
+            operations.update(label for phrase, label in known_operations.items() if phrase in line)
+    return {
+        "exception_classes": sorted(classes),
+        "conditions": sorted(conditions),
+        "operations": sorted(operations),
+    }
 
 
 def main() -> int:
@@ -158,6 +206,10 @@ def main() -> int:
             report["failure"] = str(error)
     finally:
         report["last_progress"] = last_progress(directory / f"command-{drill.counter:02d}.log")
+        if report["status"] == "failed":
+            report["failure_summary"] = failure_summary(
+                directory / f"command-{drill.counter:02d}.log"
+            )
         report["cleanup_complete"] = drill.cleanup()
         private_write(directory / "manifest.json", (json.dumps(report, indent=2) + "\n").encode())
     print("Capacity trial " + str(report["status"]) + ": " + str(directory))
@@ -208,6 +260,7 @@ def main() -> int:
                     "fixture_timeout_seconds": report["fixture_timeout_seconds"],
                     "last_progress": report["last_progress"],
                     "error_type": report.get("error_type"),
+                    "failure_summary": report.get("failure_summary"),
                     "cleanup_complete": report["cleanup_complete"],
                 },
                 sort_keys=True,

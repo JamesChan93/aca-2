@@ -92,7 +92,10 @@ async def run() -> None:
             source,
             previous_history=previous,
         )
+        progress("maintenance_cutover_complete")
+        progress("maintenance_vacuum_started")
         await vacuum_history(settings, store.account_id)
+        progress("maintenance_vacuum_complete")
         if profiler is not None:
             profiler.disable()
             statistics = vars(pstats.Stats(profiler))["stats"]
