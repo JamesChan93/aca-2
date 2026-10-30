@@ -438,7 +438,12 @@ async def capture(settings: Settings, duration: int) -> dict[str, object]:
     status = CaptureStatus()
     server = CaptureHealthServer(status, CaptureMetrics())
     collector = PublicCapture(
-        MarketStore(engine, timestamp_compatible=public_trade_time_compatible), status
+        MarketStore(
+            engine,
+            database_budget=settings.paper_database_budget,
+            timestamp_compatible=public_trade_time_compatible,
+        ),
+        status,
     )
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()

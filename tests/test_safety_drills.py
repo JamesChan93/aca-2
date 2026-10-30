@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 
 from scripts import capacity_trial
-from scripts.capacity_trial import last_progress
+from scripts.capacity_trial import failure_summary, last_progress
 from scripts.restore_drill import Drill, DrillError
 from scripts.storage_fault_drill import StorageDrill
 
@@ -30,6 +30,31 @@ def test_capacity_progress_excludes_private_child_diagnostics(tmp_path: Path) ->
     )
     assert last_progress(path) == {"phase": "compacted", "elapsed_seconds": 12}
     assert last_progress(tmp_path / "missing.log") is None
+
+
+def test_capacity_failure_summary_emits_only_fixed_labels(tmp_path: Path) -> None:
+    path = tmp_path / "private.log"
+    path.write_text(
+        "private-token-private://operator:password@host\n"
+        "psycopg.errors.QueryCanceled: private query cancelled due to statement timeout\n"
+        "sqlalchemy.exc.OperationalError: private connection details\n"
+        "[SQL: VACUUM (ANALYZE) aca.private_table]\n"
+    )
+    result = failure_summary(path)
+    assert result == {
+        "exception_classes": ["psycopg.errors.QueryCanceled", "sqlalchemy.exc.OperationalError"],
+        "conditions": ["statement_timeout"],
+        "operations": ["vacuum_analyze"],
+    }
+    text = json.dumps(result)
+    assert "private" not in text and "password" not in text and "operator" not in text
+
+
+def test_capacity_failure_summary_handles_missing_or_unclassified_input(tmp_path: Path) -> None:
+    assert failure_summary(tmp_path / "missing.log") == {}
+    path = tmp_path / "private.log"
+    path.write_text("secret arbitrary failure details\n")
+    assert failure_summary(path) == {"exception_classes": [], "conditions": [], "operations": []}
 
 
 def test_capacity_timeout_still_fails_and_cleans_up_with_safe_progress(

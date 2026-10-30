@@ -1,7 +1,7 @@
 """Read-only, source-bounded GBP performance from sealed paper evidence."""
 
 from collections import deque
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from contextlib import aclosing
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, time, timedelta
@@ -476,6 +476,8 @@ async def read_performance(
     end_source: int | None = None,
     *,
     day: date | None = None,
+    on_audited_value: Callable[[Mapping[Any, Any], HistoricalValuation], Awaitable[None]]
+    | None = None,
 ) -> PerformanceRead:
     """One complete audited pass, optionally selecting a UTC calendar window.
 
@@ -634,6 +636,8 @@ async def read_performance(
                     period.flows.extend(dated)
                 period.observe(value)
                 end, end_row = value, row
+            if on_audited_value is not None:
+                await on_audited_value(row, value)
             previous = value
     if period is None:
         if calendar is not None:

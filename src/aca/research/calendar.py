@@ -11,6 +11,7 @@ from aca.research.protocol import months
 
 HOLDOUT_START = datetime(2025, 10, 1, tzinfo=UTC)
 HOLDOUT_END = datetime(2026, 10, 1, tzinfo=UTC)
+ACTUAL_SCOPE = "actual:kraken-spot-gbp:2025-10-01:2026-10-01"
 CALENDAR_VERSION = "common-continuous-calendar-v1"
 
 

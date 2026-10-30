@@ -122,6 +122,10 @@ async def select_strategy(writer: PaperWriter, value: PaperSelection) -> PaperSe
     if writer.store.account_id != value.account_id:
         raise ValueError("strategy selection account mismatch")
     async with writer.transaction() as c:
+        from aca.storage.studies import read_study
+
+        if await read_study(c, value.account_id) is not None:
+            raise ValueError("approved studies cannot acquire an operational-only selection")
         prior = await selection(c, value.account_id)
         if prior is not None:
             if prior.model_copy(update={"selected_at": value.selected_at}) != value:

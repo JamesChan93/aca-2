@@ -24,8 +24,12 @@ class MarketStore:
         self,
         engine: AsyncEngine,
         *,
+        database_budget: int = 2_000_000_000,
         timestamp_compatible: Callable[[datetime, datetime, str, str, str], bool] | None = None,
     ) -> None:
+        if database_budget not in {2_000_000_000, 8_000_000_000}:
+            raise ValueError("unsupported reviewed paper database budget")
+        self.database_budget = database_budget
         self.engine = engine
         self.timestamp_compatible = timestamp_compatible
         self.sessions = async_sessionmaker(engine, expire_on_commit=False)
@@ -169,7 +173,7 @@ class MarketStore:
     async def check_capacity(self) -> None:
         async with self.engine.connect() as connection:
             size = await connection.scalar(text("SELECT pg_database_size(current_database())"))
-            if size is None or size >= 2_000_000_000:
+            if size is None or size >= self.database_budget:
                 raise MarketDataError("public capture database budget exhausted")
 
     async def status(self) -> dict[str, object]:

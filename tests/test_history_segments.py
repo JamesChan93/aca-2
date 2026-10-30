@@ -105,6 +105,7 @@ async def compact(
         "Reviewed complete history and original evidence",
         report["financial_head_version"],
         report["historical_head_source"],
+        previous_history=store.history_prefix,
     )
     return PaperStore(
         store.engine, store.account_id, history_prefix=UUID(result["certificate"]["id"])
@@ -149,6 +150,102 @@ async def test_compaction_preserves_full_audit_and_report_arithmetic(
         await store.engine.dispose()
 
 
+async def test_compaction_consumes_one_complete_audited_value_pass(
+    isolated_history_settings: Settings, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from aca.simulation.historical import HistoricalReplay
+
+    store, before, _ = await seed(isolated_history_settings, 20)
+    original = HistoricalReplay.audited_values
+    original_financial = PaperStore.audit
+    passes, rows, financial_passes = 0, 0, 0
+
+    async def counted(self: HistoricalReplay, *args: Any, **kwargs: Any) -> AsyncIterator[Any]:
+        nonlocal passes, rows
+        passes += 1
+        async for item in original(self, *args, **kwargs):
+            rows += 1
+            yield item
+
+    async def financial(self: PaperStore, *args: Any, **kwargs: Any) -> Any:
+        nonlocal financial_passes
+        financial_passes += 1
+        return await original_financial(self, *args, **kwargs)
+
+    try:
+        monkeypatch.setattr(PaperStore, "audit", financial)
+        monkeypatch.setattr(HistoricalReplay, "audited_values", counted)
+        fast, _ = await compact(isolated_history_settings, store, before)
+        monkeypatch.setattr(HistoricalReplay, "audited_values", original)
+        monkeypatch.setattr(PaperStore, "audit", original_financial)
+        assert passes == financial_passes == 1
+        assert rows == before["period"]["observations"]
+        assert (await historical_performance(fast))["period"] == before["period"]
+        assert (await historical_performance(store))["period"] == before["period"]
+    finally:
+        await store.engine.dispose()
+
+
+async def test_late_invalid_value_rolls_back_streamed_blocks_and_certificate(
+    isolated_history_settings: Settings, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, before, _ = await seed(isolated_history_settings)
+    authority = create_engine(isolated_history_settings, "migration")
+    original = AsyncConnection.execute
+    wrote_block = False
+
+    async def observe(self: AsyncConnection, statement: Any, *args: Any, **kwargs: Any) -> Any:
+        nonlocal wrote_block
+        if str(statement).startswith("INSERT INTO aca.paper_history_blocks"):
+            wrote_block = True
+        return await original(self, statement, *args, **kwargs)
+
+    try:
+        # Corrupt a late row, leaving the directly-read final head intact. The
+        # complete pass must fail after its first bounded block has been staged.
+        async with authority.begin() as c:
+            number = await c.scalar(
+                select(valuations.c.number)
+                .where(valuations.c.account_id == store.account_id)
+                .order_by(valuations.c.number)
+                .offset(260)
+                .limit(1)
+            )
+            assert number is not None
+            await c.execute(
+                text("ALTER TABLE aca.paper_replay_valuations DISABLE TRIGGER reject_mutation")
+            )
+            await c.execute(
+                valuations.update()
+                .where(valuations.c.account_id == store.account_id, valuations.c.number == number)
+                .values(fingerprint="f" * 64)
+            )
+            await c.execute(
+                text("ALTER TABLE aca.paper_replay_valuations ENABLE TRIGGER reject_mutation")
+            )
+        monkeypatch.setattr(AsyncConnection, "execute", observe)
+        with pytest.raises(ValueError):
+            await compact(isolated_history_settings, store, before)
+        assert wrote_block
+        from aca.storage.audit_prefix import prefixes
+
+        async with store.engine.connect() as c:
+            assert await c.scalar(select(func.count()).select_from(prefixes)) == 0
+            assert await c.scalar(select(func.count()).select_from(blocks)) == 0
+            assert await c.scalar(select(func.count()).select_from(certificates)) == 0
+            assert (
+                await c.scalar(
+                    select(valuations.c.fingerprint).where(
+                        valuations.c.account_id == store.account_id, valuations.c.number == number
+                    )
+                )
+                == "f" * 64
+            )  # Original evidence was neither repaired nor deleted.
+    finally:
+        await authority.dispose()
+        await store.engine.dispose()
+
+
 async def test_runtime_cannot_compact_or_issue_history_authority(
     isolated_history_settings: Settings,
 ) -> None:
@@ -168,6 +265,40 @@ async def test_runtime_cannot_compact_or_issue_history_authority(
                 )
         assert (await historical_performance(fast))["period"] == before["period"]
     finally:
+        await store.engine.dispose()
+
+
+async def test_vacuum_has_a_bounded_offline_budget_without_changing_runtime_timeouts(
+    isolated_history_settings: Settings, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from aca.operations.history import vacuum_history
+
+    store, before, _ = await seed(isolated_history_settings, 2)
+    original = AsyncConnection.execute
+    vacuum_seen = False
+
+    async def observe(self: AsyncConnection, statement: Any, *args: Any, **kwargs: Any) -> Any:
+        nonlocal vacuum_seen
+        if str(statement).startswith("VACUUM"):
+            vacuum_seen = True
+            assert await self.scalar(text("SHOW statement_timeout")) == "30s"
+            assert await self.scalar(text("SELECT current_user")) == "aca_migrator"
+        return await original(self, statement, *args, **kwargs)
+
+    authority = create_engine(isolated_history_settings, "migration")
+    try:
+        async with PaperWriter(store):
+            with pytest.raises(ValueError, match="stop collector"):
+                await vacuum_history(isolated_history_settings, store.account_id)
+        monkeypatch.setattr(AsyncConnection, "execute", observe)
+        await vacuum_history(isolated_history_settings, store.account_id)
+        assert vacuum_seen
+        for engine in (store.engine, authority):
+            async with engine.connect() as c:
+                assert await c.scalar(text("SHOW statement_timeout")) == "5s"
+        assert (await historical_performance(store))["period"] == before["period"]
+    finally:
+        await authority.dispose()
         await store.engine.dispose()
 
 
@@ -194,7 +325,8 @@ async def test_suffix_and_second_compaction_preserve_flows_and_old_ranges(
         assert (await historical_performance(fast, end_source=260))["period"] == (
             await historical_performance(store, end_source=260)
         )["period"]
-        new, second = await compact(isolated_history_settings, store, complete)
+        new, second = await compact(isolated_history_settings, fast, complete)
+        assert second["certificate"]["predecessor"] == first["certificate"]["id"]
         assert second["certificate"]["id"] != first["certificate"]["id"]
         assert (await historical_performance(new))["period"] == complete["period"]
         with pytest.raises(ValueError, match="catalogue"):

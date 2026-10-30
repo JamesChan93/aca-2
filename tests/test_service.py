@@ -86,8 +86,7 @@ async def test_service_restart_schema_failure_and_graceful_shutdown(
                     async with migration_engine.begin() as connection:
                         await connection.execute(
                             text(
-                                "UPDATE aca.alembic_version SET version_num = "
-                                "'0017_research_holdout'",
+                                "UPDATE aca.alembic_version SET version_num = '0018_paper_studies'",
                             )
                         )
                     await wait_health(port, 200)
@@ -105,7 +104,7 @@ async def test_service_restart_schema_failure_and_graceful_shutdown(
         async with migration_engine.begin() as connection:
             await connection.execute(
                 text(
-                    "UPDATE aca.alembic_version SET version_num = '0017_research_holdout'",
+                    "UPDATE aca.alembic_version SET version_num = '0018_paper_studies'",
                 )
             )
         await migration_engine.dispose()

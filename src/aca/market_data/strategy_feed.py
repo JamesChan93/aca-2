@@ -14,6 +14,7 @@ from aca.market_data.paper_feed import FeedUnavailable
 from aca.storage.models import MarketReceipt
 from aca.storage.paper import PaperStore
 from aca.storage.strategy import PaperSelection
+from aca.storage.studies import StudyMember
 
 
 @dataclass(frozen=True)
@@ -30,7 +31,9 @@ class StoredStrategyFeed:
     def __init__(self, store: PaperStore) -> None:
         self.store = store
 
-    async def prefix(self, chosen: PaperSelection, end: datetime, at: datetime) -> CandlePrefix:
+    async def prefix(
+        self, chosen: PaperSelection | StudyMember, end: datetime, at: datetime
+    ) -> CandlePrefix:
         """Use one bootstrap archive and at most 202 local receipts, all known by at.
 
         A fresh collector bootstrap supplies up to 720 bars per pair/interval.
@@ -116,7 +119,7 @@ class StoredStrategyFeed:
         ordered = sorted(candidates.values(), key=lambda pair: pair[0].end)
         bars = tuple(pair[0] for pair in ordered)
         if (
-            len(bars) < 200
+            len(bars) < (201 if chosen.strategy == "sma200-confirm2" else 200)
             or bars[-1].end != end
             or any(a.end != b.start for a, b in pairwise(bars))
         ):

@@ -721,6 +721,8 @@ class PaperWriter:
                         raise WriterUnavailable(
                             "archive writer requires valid historical accounting"
                         )
+            if self.accepted_history is not None:
+                connection.info["aca_owned_history"] = (self.store, self.accepted_history)
             self.archive_checked = self.store.replay_archive is not None
             return self
         except BaseException:
@@ -730,6 +732,8 @@ class PaperWriter:
 
     async def __aexit__(self, *args: object) -> None:
         if self.connection is not None:
+            if not self.connection.invalidated:
+                self.connection.info.pop("aca_owned_history", None)
             # Physically discard the session; pooled ROLLBACK alone does not
             # release session advisory locks.
             await self.connection.invalidate()

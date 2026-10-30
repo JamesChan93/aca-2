@@ -103,6 +103,14 @@ class Settings(BaseSettings):
     base_currency: Literal["GBP"] = "GBP"
     instruments: tuple[Literal["BTC/GBP", "ETH/GBP"], ...] = ("BTC/GBP", "ETH/GBP")
     log_level: Literal["INFO", "WARNING", "ERROR"] = "INFO"
+    paper_storage: Literal["bounded-2gb", "observation-8gb"] = Field(
+        default="bounded-2gb", exclude_if=lambda v: v == "bounded-2gb"
+    )
+
+    @property
+    def paper_database_budget(self) -> int:
+        return 8_000_000_000 if self.paper_storage == "observation-8gb" else 2_000_000_000
+
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
     health: HealthSettings = Field(default_factory=HealthSettings)
     risk: RiskPolicy = Field(default_factory=RiskPolicy)

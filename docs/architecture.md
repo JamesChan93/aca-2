@@ -291,3 +291,53 @@ cost stresses remain diagnostic/unrun until separately reviewed; no alternative
 winner or optimised weight is admitted. Source evidence can end all six actual
 tasks before performance with an explicit no-run result. Research-only definitions
 do not expand existing operational paper selections or open observation/holdout.
+
+
+**A31 amendment, 29 October 2026 (P4A-15/P4A-16):** separate approved study
+records from operational-only selections. Start rechecks corrected eligibility,
+exact freeze/retained holdout use and explicit outcome acceptance, account,
+release/source, policy, costs, operating review and an unrepeatable approval ID.
+Synthetic namespaces never earn real paper credit. Persist bounded health blocks,
+conservative restart gaps, external-outage evidence and signal-driven completion;
+none can activate live execution or automatically pass G4.
+
+Keep the default 2 GB database budget. The explicit `observation-8gb` setting is
+a bounded capacity profile, justified by measured storage and maintenance results
+in [Batch F](phase-4a-paper-readiness.md); it changes no financial/risk limit,
+4,096-record suffix, 100,000-block catalogue or archive-file ceiling. Actual
+producer rate/size/growth fit must be reviewed before an actual study. A physical
+limit is never a promise that an arbitrary public stream fits 56 days.
+
+Explicit stopped-worker maintenance may extend an exact immutable verified
+history certificate by auditing the complete new suffix. Retain predecessor
+identities and original rows; code/environment/policy changes cannot reuse it.
+Pin a fully verified certificate only to the execution owner's dedicated locked
+connection, clearing it on owner loss/release. Runtime cannot alter its prefix;
+separate reports/rebuilds still verify independently. After the read snapshots
+close, ordinary stopped-worker VACUUM/ANALYZE makes dead-row space reusable without
+deleting logical history. Charge maintenance/restart time to availability. The
+measured profile is conditional engineering evidence, not an observation start,
+actual elapsed reliability, off-host backup or live approval.
+
+
+**A31 hosted-capacity follow-up (same P4A-16 acceptance):** keep the 99.5% target,
+doubled measured downtime and original deadlines. Build report blocks while the
+one complete audited report stream is consumed. Capture its already reconstructed
+financial state and publish financial/history certificates atomically in the
+cutover transaction, rather than re-auditing that financial suffix separately.
+Any late corrupt input rolls back staged blocks and both certificates. Batch
+source/raw-receipt reads in 32 rows rather than eight, within the existing global
+memory/decoded-byte limits and the declared source-size envelope. This changes no
+retained-record limit, financial policy or risk check. Keep the initial hosted
+capacity failures, diagnostic profiles and corrected acceptance measurements.
+
+
+**A31 stopped-worker VACUUM budget:** hosted diagnostics identified full-prefix
+setup cleanup exceeding the generic five-second SQL deadline. Give only this
+migration-role, producer/writer-lock-protected utility a 30-second statement
+ceiling and invalidate its connection afterwards. Ordinary runtime and migration
+connections keep five seconds. Initial full-prefix setup precedes the qualifying
+clock; recurring maintenance and restart still count against the unchanged
+18-second/hour allowance (doubled measured downtime plus two seconds), 99.5%
+availability target and existing fixture/CI limits. This does not change a
+trading/read deadline, retained-record limit or financial/risk rule.

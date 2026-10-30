@@ -6,7 +6,7 @@ into a phase. Baseline: merged PR #28, commit
 `bdcaed830457ceb38294a79fa4adfe5227f4f208`, application 0.4.19,
 schema `0016_history_segments`.
 
-**Status: in progress; 17/19 completion items.** P4A-17 closes through the
+**Status: engineering complete / research no-go; 19/19 completion items.** P4A-17 closes through the
 [merged CI repair](phase-4a-ci-repair.md) and its successful hosted checks.
 P4A-18 closes through the [modular artefact/restore increment](phase-4a-artifacts.md),
 its bounded streaming/lifecycle tests and actual byte-identical baseline restore.
@@ -16,14 +16,13 @@ are merged with their hosted checks passing. Version 0.4.22 delivers
 closing P4A-01/04/05/06 with source-bound synthetic verification. Version 0.4.23
 delivers [Batch C continuous accounts, equal flows, comparators and assurance](phase-4a-continuous-accounts.md),
 closing P4A-02/03/07/10/13/14/19. The source review concludes blocked/no-go for
-qualification; it does not verify the missing archive/history facts. The remaining
-two items are unchecked. Version 0.4.24 delivers
+qualification; it does not verify the missing archive/history facts. Batch F below closes the final two engineering items. Version 0.4.24 delivers
 [Batch D statistical decisions and durable research gates](phase-4a-statistical-gates.md),
 closing P4A-11/P4A-12. Its actual-data preflight records 20 incomplete/no-run
 outcomes; no corrected actual-data performance study has run. Current
 integrated PR checks must pass before merge; prior CI success is not transferred to new code.
 Version 0.4.25 delivers [Batch E bounded S1/S2 capability and no-run decisions](phase-4a-bounded-research.md),
-closing P4A-08/09. Exactly P4A-15/16 remain, both in Batch F.
+closing P4A-08/09. Version 0.4.26 completes [Batch F approved-study and bounded-capacity capability](phase-4a-paper-readiness.md), closing P4A-15/16. Actual qualifying days/episodes remain zero.
 The checklist below is the authoritative Phase 4a scope and count. The existing
 [Phase 4 completion register](phase-4-completion.md) remains closed at 17/17.
 The numbered items map directly to recommendations 1–19; the batch and study
@@ -270,7 +269,7 @@ baseline evidence rather than Phase 4a implementation credit.
   fact verified. Unknown gaps remain blocked and no-trade bars have zero liquidity.
   Acceptance: The [immutable source review](evidence/phase-4a-source-assurance.json) rehashes retained inputs and rebuilds the reviewed projection. It concludes **BLOCKED_NO_GO**, retaining the full-archive, disputed-BTC/blend, historical fee/rule and historical receipt-time blockers. [Bounded review and quarantine checks](phase-4a-continuous-accounts.md#p4a-14-data-assurance-decision) close the audit/control work, not those missing facts.
 
-- [ ] **P4A-15 — Qualifying-paper study capability.** Add a versioned study model
+- [x] **P4A-15 — Qualifying-paper study capability.** Add a versioned study model
   and reviewed migration/CLI path binding an eligible candidate and recorded
   start approval to account, release, policy, costs and evidence. Preserve existing
   operational-only records and zero credit for past/synthetic activity. Record
@@ -278,8 +277,9 @@ baseline evidence rather than Phase 4a implementation credit.
   faults and completed signal episodes across restart. Test a synthetic qualifying
   workflow and rejection of missing/replayed/changed approval evidence. This box
   closes capability, not an actual observation start or G4 pass. Depends on P4A-12.
+  Acceptance: [0.4.26 study approval, durable health and CLI/restore evidence](phase-4a-paper-readiness.md#p4a-15--a-separate-evidence-bound-study) preserves operational-only records, rejects changed/replayed evidence, and gives synthetic activity zero credit.
 
-- [ ] **P4A-16 — Sustainable local observation profile.** Measure representative
+- [x] **P4A-16 — Sustainable local observation profile.** Measure representative
   input/write rates, resource use, storage growth, backlog and maintenance costs on
   the stated local resource profile. Provide a bounded capacity/retention model
   for the 56-day workload and demonstrate the scheduled maintenance path fits the
@@ -289,6 +289,7 @@ baseline evidence rather than Phase 4a implementation credit.
   silent limit increase. State safe exhaustion/recovery behaviour and remaining
   production backup/host-loss limits. This is engineering capacity evidence, not
   56 elapsed days of reliability. Depends on P4A-15/P4A-17/P4A-19.
+  Acceptance: [0.4.26 measured declared envelope, incremental compaction, vacuum and explicit 8 GB opt-in](phase-4a-paper-readiness.md#p4a-16--explicit-supported-envelope-and-maintenance), [source-bound measurement](evidence/phase-4a-observation-profile.json). The default remains 2 GB; actual producer fit and real 56-day reliability are not established.
 
 - [x] **P4A-17 — Release verification repair.** Address the baseline setuptools
   advisory through the reviewed constraint/hash-lock process and diagnose the

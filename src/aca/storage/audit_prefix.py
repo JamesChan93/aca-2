@@ -96,6 +96,7 @@ class FinancialAuditPrefix(Record):
     package_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     policy_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     environment_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    predecessor_history: UUID | None = Field(default=None, exclude_if=lambda v: v is None)
     historical_economics_audited: Literal[False] = False
     pruning_authorised: Literal[False] = False
     live_execution_available: Literal[False] = False
@@ -109,6 +110,55 @@ class FinancialAuditPrefix(Record):
         ):
             raise ValueError("financial audit prefix state mismatch")
         return self
+
+
+async def capture_prefix(
+    c: AsyncConnection,
+    state: PortfolioSnapshot,
+    actor: UUID,
+    reason: str,
+    *,
+    previous_history: UUID | None = None,
+) -> FinancialAuditPrefix:
+    """Capture already audited state in the same locked read snapshot.
+
+    This constructs a record only. Persisting it requires the separate migration
+    authority. Both callers first obtain state through a complete mandatory audit;
+    compaction publishes this record atomically with its historical certificate.
+    """
+    event_hash = await c.scalar(
+        select(events.c.fingerprint).where(
+            events.c.account_id == state.account_id, events.c.version == state.version
+        )
+    )
+    count = await c.scalar(
+        select(func.count())
+        .select_from(checkpoints)
+        .where(
+            checkpoints.c.account_id == state.account_id,
+            checkpoints.c.version <= state.version,
+        )
+    )
+    if not isinstance(event_hash, str) or not isinstance(count, int):
+        raise ValueError("financial audit evidence is incomplete")
+    record = FinancialAuditPrefix(
+        id=uuid4(),
+        account_id=state.account_id,
+        version=state.version,
+        event_hash=event_hash,
+        state_hash=fingerprint(state_document(state)),
+        state=state,
+        checkpoint_count=count,
+        recorded_at=datetime.now(UTC),
+        predecessor_history=previous_history,
+        actor=actor,
+        reason=reason,
+        application_version=aca.__version__,
+        package_sha256=package_fingerprint(),
+        policy_hash=policy_fingerprint(),
+        environment_hash=environment_fingerprint(),
+    )
+    return record
 
 
 async def read_prefix(c: AsyncConnection, store: PaperStore) -> FinancialAuditPrefix:
@@ -223,7 +273,13 @@ async def read_prefix(c: AsyncConnection, store: PaperStore) -> FinancialAuditPr
 
 
 async def accept_prefix(
-    settings: Settings, account_id: UUID, actor: UUID, reason: str, expected_version: int
+    settings: Settings,
+    account_id: UUID,
+    actor: UUID,
+    reason: str,
+    expected_version: int,
+    *,
+    previous_history: UUID | None = None,
 ) -> dict[str, object]:
     """Explicit operator operation, using separately supplied migration credentials.
 
@@ -242,7 +298,7 @@ async def accept_prefix(
     except BaseException:
         await runtime.dispose()
         raise
-    store = PaperStore(runtime, account_id)
+    store = PaperStore(runtime, account_id, history_prefix=previous_history)
     try:
         package_hash = package_fingerprint()
         environment_hash = environment_fingerprint()
@@ -261,46 +317,23 @@ async def accept_prefix(
                     await c.execution_options(
                         isolation_level="REPEATABLE READ", postgresql_readonly=True
                     )
-                    state = await store.audit(c, full=True)
+                    state = await store.audit(c, full=previous_history is None)
                     if state is None:
                         raise ValueError("financial audit requires an initialised account")
                     if state.version != expected_version:
                         raise ValueError(
                             "financial audit expected version differs from current head"
                         )
-                    event_hash = await c.scalar(
-                        select(events.c.fingerprint).where(
-                            events.c.account_id == account_id, events.c.version == state.version
+                    record = await capture_prefix(
+                        c, state, actor, reason, previous_history=previous_history
+                    )
+                    if (
+                        package_fingerprint() != package_hash
+                        or record.environment_hash != environment_hash
+                    ):
+                        raise ValueError(
+                            "financial audit code/environment changed during verification"
                         )
-                    )
-                    count = await c.scalar(
-                        select(func.count())
-                        .select_from(checkpoints)
-                        .where(
-                            checkpoints.c.account_id == account_id,
-                            checkpoints.c.version <= state.version,
-                        )
-                    )
-                    if not isinstance(event_hash, str) or not isinstance(count, int):
-                        raise ValueError("financial audit evidence is incomplete")
-                    if package_fingerprint() != package_hash:
-                        raise ValueError("financial audit code changed during verification")
-                    record = FinancialAuditPrefix(
-                        id=uuid4(),
-                        account_id=account_id,
-                        version=state.version,
-                        event_hash=event_hash,
-                        state_hash=fingerprint(state_document(state)),
-                        state=state,
-                        checkpoint_count=count,
-                        recorded_at=datetime.now(UTC),
-                        actor=actor,
-                        reason=reason,
-                        application_version=aca.__version__,
-                        package_sha256=package_hash,
-                        policy_hash=policy_fingerprint(),
-                        environment_hash=environment_hash,
-                    )
                 async with admin.begin():
                     await admin.execute(
                         prefixes.insert().values(

@@ -60,6 +60,7 @@ CASES.update(
     {
         "observed": UUID("149be796-21e8-4dcb-aad9-09f9891858f8"),
         "corrected": UUID("106014f8-f5b7-43cb-a3f3-dcfab150a256"),
+        "study": UUID("f182a634-4ce3-42ce-a1f2-c38547d28209"),
     }
 )
 PROBE_ROLE = "aca_restore_probe"
@@ -200,6 +201,34 @@ async def seed(settings: Settings) -> None:
                     "Synthetic restore fixture manual halt", AT + timedelta(seconds=1)
                 )
         await seed_observations(engine, settings)
+        from tempfile import TemporaryDirectory
+
+        from test_paper_studies import AT as STUDY_AT
+        from test_paper_studies import prepare, profile
+
+        from aca.storage.studies import HealthBlock, record_health, start_study
+
+        store = PaperStore(engine, CASES["study"])
+        with TemporaryDirectory() as temporary:
+            study_evidence = await prepare(engine, Path(temporary), store.account_id)
+            async with PaperWriter(store) as owner:
+                execution = PaperExecution(owner, PaperExchange(store))
+                await execution.initialise(STUDY_AT)
+                await execution.cashflow("synthetic-study-opening", D(1000), STUDY_AT)
+                study = await start_study(
+                    owner, *study_evidence, STUDY_AT, operating_review=profile()
+                )
+                await record_health(
+                    owner,
+                    study,
+                    HealthBlock(
+                        start=STUDY_AT,
+                        end=STUDY_AT + timedelta(seconds=60),
+                        healthy_seconds=D(60),
+                        unhealthy_seconds=D(0),
+                        dependency_unavailable_seconds=D(0),
+                    ),
+                )
         from aca.storage.audit_prefix import accept_prefix
 
         for account in CASES.values():
@@ -611,6 +640,14 @@ async def economics(settings: Settings, snapshot: str | None = None) -> dict[str
                         )
                     ),
                 }
+                if case == "study":
+                    from aca.storage.studies import read_study, study_status
+
+                    study = await read_study(c, account)
+                    assert study is not None
+                    report = await study_status(c, study, study.started_at + timedelta(seconds=60))
+                    assert report["qualifying_days"] == report["qualifying_episodes"] == 0
+                    result[case]["study"] = report
                 if case in {"observed", "corrected"}:
                     for table in (
                         cursors,
@@ -674,6 +711,9 @@ async def recover(settings: Settings) -> dict[str, Any]:
                 at = max(AT + timedelta(seconds=3), (await execution._state()).as_of)
                 outcome = await execution.recover(at)
                 state = await execution._state()
+                if case == "study":
+                    assert not state.orders and venue.attempts == 0 and outcome.complete
+                    continue
                 if case in {"observed", "corrected"}:
                     assert entries_paused(state, at) and state.kill.hard
                     assert state.accounting_invalidated == (case == "corrected")
@@ -709,7 +749,7 @@ async def recover(settings: Settings) -> dict[str, Any]:
         assert after[case]["balances"] == before[case]["balances"]
         assert after[case]["fills"] == before[case]["fills"]
         assert after[case]["journals"] == before[case]["journals"]
-    for case in ("observed", "corrected"):
+    for case in ("observed", "corrected", "study"):
         assert after[case] == before[case]
     filled = after["unposted_fill"]
     assert len(filled["fills"]) == 1 and len(filled["journals"]) == 2

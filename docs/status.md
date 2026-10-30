@@ -1,6 +1,25 @@
 # Implementation status
 
-Updated 29 October 2026. Application **0.4.25**, schema `0017_research_holdout`.
+Updated 30 October 2026. Application **0.4.26**, schema `0018_paper_studies`.
+
+**Phase 4a engineering is complete at 19/19; research remains no-go.**
+[Batch F](phase-4a-paper-readiness.md) closes P4A-15/16 with a separate approved
+paper-study model, immutable start evidence, restart-safe health/episode records,
+CLI paths and a measured bounded observation profile. Default storage remains
+2 GB; the explicit 8 GB profile retains the suffix, catalogue and risk limits.
+Actual producer fit, real elapsed reliability and production backup/host-loss
+readiness remain separately reviewed inputs. No actual study may start from the
+current incomplete/rejected evidence. The actual holdout stays unopened, with
+**zero qualifying days and episodes**. The fixed Phase 4 checklist remains 17/17.
+
+The final application passes **943 Linux/PostgreSQL tests**, strict typing on
+185 files and Ruff check/format on 214 source/test/script files. The populated restore compares
+35 tables and seven synthetic accounts, including study approvals/health, with
+zero venue commands. The [integrated evidence](evidence/phase-4a-paper-readiness.json)
+and [capacity measurement](evidence/phase-4a-observation-profile.json) identify the
+tested source. Current hosted results are recorded on the release PR. Retained
+workstation services stay on 0.4.8/schema 0011; this verification does not upgrade,
+migrate, compact or start observation on them.
 
 **The fixed Phase 4 engineering checklist is complete: 17/17 conditions.**
 C1–C4 are linked in the [completion register](phase-4-completion.md). The
@@ -51,7 +70,7 @@ the sidecar explicitly: all 300 eligible walk-forward folds complete. None of th
 pass, and no candidate is frozen or evaluated on the holdout. Phase 4 stays complete.
 The updated package passes 736 Linux/PostgreSQL tests; no retained deployment changes.
 
-**Phase 4a is in progress at 17/19.** P4A-17's [release-check repair](phase-4a-ci-repair.md)
+**Historical Phase 4a progress before Batch F:** P4A-17's [release-check repair](phase-4a-ci-repair.md)
 completed with all eight hosted checks passing on `eae9a2b` before PR #29 merged.
 Both hosted runs passed 738 tests, dependency audits, packaging, both image scans
 and bounded-history acceptance. Earlier 0.4.19 audit/fixture failures are retained
@@ -93,7 +112,7 @@ All eight hosted checks passed on `a12891d` before PR #32 merged. Synthetic
 fixtures do not qualify a trading candidate.
 
 The [fixed plan](phase-4a.md) still has 19 items, six batches and at most 26
-candidate definitions. Two items remain unchecked. Version 0.4.23 delivers
+candidate definitions. Batch F closes the last two items. Version 0.4.23 delivers
 [Batch C continuous accounts, contributions, comparators and assurance](phase-4a-continuous-accounts.md),
 closing P4A-02/03/07/10/13/14/19. Equal-flow scenarios and report boundaries
 preserve the account; the common calendar includes the terminal pre-holdout tail.
@@ -101,7 +120,7 @@ The public cost packet rechecks 5,000 retained books. The source audit concludes
 blocked/no-go, preserving missing full-archive/history facts and disputed BTC
 quarantine. The current release passes **843 Linux/PostgreSQL tests**, strict typing and
 formatting locally; it requires its own integrated hosted checks.
-Batch D is next: the statistical protocol and enforced research/holdout gates. The modular runner still explicitly
+Batch D subsequently added the statistical protocol and enforced research/holdout gates. The modular runner still explicitly
 uses the named legacy execution model; corrected study integration and statistical
 gates retain their existing later items. No corrected S0/S1/S2 study or actual
 holdout evaluation ran. All 20 original
@@ -143,8 +162,7 @@ only the integrated 0.4.18 bounded-history measurements close C3 condition 4.
 
 | Stage | Work / decision still required |
 | --- | --- |
-| Phase 4a | [Fixed 19-item plan](phase-4a.md), 17/19: Batches A–E engineering/decisions complete; actual corrected performance blocked/no-run; qualifying-paper capability and sustainable observation profile remain |
-| Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; all current candidates rejected |
+| Research / G3 | Required history and OOS coverage, at least 50 completed OOS episodes, uncertainty/stability evidence and a qualifying candidate; the original 20 are rejected; corrected S0/S1/S2 remain incomplete/no-run |
 | Phase 5 / G4 | Authorised observation start; at least 56 calendar days and 10 completed signal-driven episodes; measured fills/latency, 99.5% healthy observations under the specified dependency condition, real destination integration, recovery exercises and positive economics |
 | Deployment/readiness / G4–G5 | Authorised hosting/service setup, actual capture growth and maintenance planning, encrypted off-host/WAL backups, gap reconciliation, host-loss/fencing drills, production RPO/RTO, heartbeat, current eligibility/fees and security/runbook review |
 | Tax/reporting readiness | Owner-wide opening inventory, matching, estimates/payments and household reporting; manual earmarks are not tax estimates and reports remain provisional |
@@ -181,7 +199,7 @@ state and journal enforce shared cash, reservations, exposure, risk, units and
 halts. Single-asset identities and existing paper selections keep their semantics.
 The six actual [preflight outcomes](evidence/phase-4a-bounded-preflight.json) are
 incomplete/no-run before performance. No actual candidate qualifies, no holdout
-opens and qualifying days/episodes remain zero. Exactly P4A-15/16 remain in Batch F.
+opens and qualifying days/episodes remain zero. At 0.4.25, P4A-15/16 remained; Batch F above closes them.
 No retained service is upgraded or migrated; schema remains 0017_research_holdout.
 
 The final installed 0.4.25 image passes **915 Linux/PostgreSQL tests in 229.00
